@@ -1,0 +1,1410 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
+"POT-Creation-Date: 2014-03-21 19:46-0800\n"
+"PO-Revision-Date: 2014-04-09 11:34+0100\n"
+"Last-Translator: Mads Holm Frederiksen <mads@uglehoej.dk>\n"
+"Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.4\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: da_DK\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: classes/class-pta_csv_exporter.php:37 classes/class-pta_sus_admin.php:107
+#: classes/class-pta_sus_admin.php:337 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+"Du har ikke tilstrækkelige tilladelser til at få adgang til denne side."
+
+#: classes/class-pta_csv_exporter.php:44
+msgid "Invalid Report Data!"
+msgstr "Ugyldig Rapport data!"
+
+#: classes/class-pta_sus_admin.php:24
+msgid "Sign-up Sheets"
+msgstr "Opgavelister"
+
+#: classes/class-pta_sus_admin.php:25 classes/class-pta_sus_admin.php:140
+msgid "Sign-up Sheets "
+msgstr "Opgavelister"
+
+#: classes/class-pta_sus_admin.php:25
+msgid "All Sheets"
+msgstr "Alle opgavelister"
+
+#: classes/class-pta_sus_admin.php:26
+msgid "Add New Sheet"
+msgstr "Tilføj opgaveliste"
+
+#: classes/class-pta_sus_admin.php:26 classes/class-pta_sus_admin.php:141
+msgid "Add New"
+msgstr "Tilføj ny"
+
+#: classes/class-pta_sus_admin.php:27 pta-volunteer-sign-up-sheets.php:394
+msgid "Settings"
+msgstr "Indstillinger"
+
+#: classes/class-pta_sus_admin.php:28 classes/class-pta_sus_admin.php:89
+msgid "CRON Functions"
+msgstr "CRON Funktioner"
+
+#: classes/class-pta_sus_admin.php:58
+msgid "Last reminders sent:"
+msgstr "Seneste påmindelse sendes:"
+
+#: classes/class-pta_sus_admin.php:59 classes/class-pta_sus_admin.php:63
+#, php-format
+msgid "Date: %s"
+msgstr "Dato: %s"
+
+#: classes/class-pta_sus_admin.php:60 classes/class-pta_sus_admin.php:64
+#, php-format
+msgid "Time: %s"
+msgstr "Tid: %s"
+
+#: classes/class-pta_sus_admin.php:61 classes/class-pta_sus_admin.php:75
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "1 påmindelse sendt"
+msgstr[1] "%d påmindelser sendt"
+
+#: classes/class-pta_sus_admin.php:62
+msgid "Last reminder check:"
+msgstr "Sidste påmindelse kontrol:"
+
+#: classes/class-pta_sus_admin.php:81
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "1 tilmelding ryddet"
+msgstr[1] "%d tilmeldinger ryddet"
+
+#: classes/class-pta_sus_admin.php:90
+msgid "Volunteer Reminders"
+msgstr "Frivillige Påmindelser"
+
+#: classes/class-pta_sus_admin.php:91
+msgid ""
+"The system automatically checks if it needs to send reminders hourly via a "
+"CRON function. If you are testing, or don't want to wait for the next CRON "
+"job to be triggered, you can trigger the reminders function with the button "
+"below."
+msgstr ""
+"Systemet kontrollerer automatisk, om det er nødvendigt at sende påmindelser "
+"hver time via en cron-funktion. Hvis du tester, eller ikke ønsker at vente "
+"på den næste cron-job, der skal udløses, kan du udløse påmindelser fungerer "
+"med knappen nedenfor."
+
+#: classes/class-pta_sus_admin.php:93
+msgid "Send Reminders"
+msgstr "Send påmindelser"
+
+#: classes/class-pta_sus_admin.php:95 classes/class-pta_sus_admin.php:97
+msgid "Clear Expired Signups"
+msgstr "Ryd udløbne tilmeldinger"
+
+#: classes/class-pta_sus_admin.php:96
+msgid ""
+"If you have disabled the automatic clearing of expired signups, you can use "
+"this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT "
+"BE UNDONE!"
+msgstr ""
+"Hvis du har deaktiveret den automatiske clearing af udløbne tilmeldinger, "
+"kan du bruge dette til at slette alle udløbne tilmeldinger fra alle ark. "
+"Bemærk: Denne handling kan ikke fortrydes!"
+
+#: classes/class-pta_sus_admin.php:123
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "Fejl clearing stedet (ID #% s)"
+
+#: classes/class-pta_sus_admin.php:126
+msgid "Spot has been cleared."
+msgstr "Spot er blevet ryddet."
+
+#: classes/class-pta_sus_admin.php:140
+msgid "Sheet Details"
+msgstr "Opgaveliste detaljer"
+
+#: classes/class-pta_sus_admin.php:147
+msgid "Error restoring sheet."
+msgstr "Fejl ved genoprettelse af opgaveliste"
+
+#: classes/class-pta_sus_admin.php:149
+msgid "Sheet has been restored."
+msgstr "Opgaveliste er blevet gendannet."
+
+#: classes/class-pta_sus_admin.php:153
+msgid "Error moving sheet to trash."
+msgstr "Fejl ved flytning af opgaveliste til papirkurven."
+
+#: classes/class-pta_sus_admin.php:155
+msgid "Sheet has been moved to trash."
+msgstr "Opgavelisten er flyttet til papirkurven"
+
+#: classes/class-pta_sus_admin.php:159
+msgid "Error permanently deleting sheet."
+msgstr "Fejl ved permanent sletting af opgaveliste."
+
+#: classes/class-pta_sus_admin.php:161
+msgid "Sheet has been permanently deleted."
+msgstr "Opgavelisten er permanent slettet"
+
+#: classes/class-pta_sus_admin.php:165
+msgid "Error copying sheet."
+msgstr "Fejl ved kopiering af opgaveliste."
+
+#: classes/class-pta_sus_admin.php:167
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "Opgavelisten er blevet kopieret til nye opgaveliste ID #"
+
+#: classes/class-pta_sus_admin.php:167 classes/class-pta_sus_admin.php:707
+#: classes/class-pta_sus_admin.php:711 classes/class-pta_sus_admin.php:721
+msgid "Edit"
+msgstr "Rediger"
+
+#: classes/class-pta_sus_admin.php:171
+msgid "Error toggling sheet visibility."
+msgstr "Fejl ved skift af opgavelistens synlighed."
+
+#: classes/class-pta_sus_admin.php:177
+msgid "No sign-up sheet found."
+msgstr "Ingen opgavelister fundet."
+
+#: classes/class-pta_sus_admin.php:183
+msgid "Event Type: "
+msgstr "Opgave type:"
+
+#: classes/class-pta_sus_admin.php:184
+msgid "Signups"
+msgstr "Tilmeldinger"
+
+#: classes/class-pta_sus_admin.php:189
+msgid "No tasks were found."
+msgstr "Ingen opgaver fundet."
+
+#: classes/class-pta_sus_admin.php:196 classes/class-pta_sus_admin.php:247
+#: classes/class-pta_sus_admin.php:269 classes/class-pta_sus_public.php:289
+#: classes/class-pta_sus_public.php:444
+msgid "Task/Item"
+msgstr "Opgave"
+
+#: classes/class-pta_sus_admin.php:197 classes/class-pta_sus_admin.php:249
+#: classes/class-pta_sus_admin.php:271 classes/class-pta_sus_public.php:290
+#: classes/class-pta_sus_public.php:445
+msgid "Start Time"
+msgstr "Start tidspunkt"
+
+#: classes/class-pta_sus_admin.php:198 classes/class-pta_sus_admin.php:250
+#: classes/class-pta_sus_admin.php:272 classes/class-pta_sus_public.php:291
+#: classes/class-pta_sus_public.php:446
+msgid "End Time"
+msgstr "Slut tidspunkt"
+
+#: classes/class-pta_sus_admin.php:199
+msgid "Name"
+msgstr "Navn"
+
+#: classes/class-pta_sus_admin.php:200 classes/class-pta_sus_public.php:557
+msgid "E-mail"
+msgstr "E-mail"
+
+#: classes/class-pta_sus_admin.php:201 classes/class-pta_sus_public.php:558
+msgid "Phone"
+msgstr "Telefon"
+
+#: classes/class-pta_sus_admin.php:202 classes/class-pta_sus_admin.php:254
+#: classes/class-pta_sus_admin.php:276 classes/class-pta_sus_public.php:292
+#: classes/class-pta_sus_public.php:449
+msgid "Item Details"
+msgstr "Detaljer"
+
+#: classes/class-pta_sus_admin.php:235 classes/class-pta_sus_admin.php:236
+#: classes/class-pta_sus_admin.php:249 classes/class-pta_sus_admin.php:250
+#: classes/class-pta_sus_admin.php:262 classes/class-pta_sus_admin.php:263
+#: classes/class-pta_sus_admin.php:271 classes/class-pta_sus_admin.php:272
+#: classes/class-pta_sus_emails.php:73 classes/class-pta_sus_emails.php:74
+#: classes/class-pta_sus_emails.php:75 classes/class-pta_sus_emails.php:79
+#: classes/class-pta_sus_emails.php:84 classes/class-pta_sus_public.php:302
+#: classes/class-pta_sus_public.php:304 classes/class-pta_sus_public.php:305
+#: classes/class-pta_sus_public.php:306 classes/class-pta_sus_public.php:481
+#: classes/class-pta_sus_public.php:482 classes/class-pta_sus_public.php:512
+#: classes/class-pta_sus_public.php:513 classes/list-table.php:68
+#: classes/list-table.php:83
+msgid "N/A"
+msgstr "Ikke tilgængelig"
+
+#: classes/class-pta_sus_admin.php:241
+msgid "Clear Spot"
+msgstr "Ryd spot"
+
+#: classes/class-pta_sus_admin.php:248 classes/class-pta_sus_admin.php:270
+msgid "Task Date"
+msgstr "Opgave dato"
+
+#: classes/class-pta_sus_admin.php:251 classes/class-pta_sus_admin.php:273
+msgid "Volunteer Name"
+msgstr "Frivillig Navn"
+
+#: classes/class-pta_sus_admin.php:252 classes/class-pta_sus_admin.php:274
+msgid "Volunteer Email"
+msgstr "Frivillig E-mail"
+
+#: classes/class-pta_sus_admin.php:253 classes/class-pta_sus_admin.php:275
+msgid "Volunteer Phone"
+msgstr "Frivillig Telefon"
+
+#: classes/class-pta_sus_admin.php:264
+msgid "(empty)"
+msgstr "(tom)"
+
+#: classes/class-pta_sus_admin.php:273
+msgid "empty"
+msgstr "tom"
+
+#: classes/class-pta_sus_admin.php:294
+msgid "Export Sheet as CSV"
+msgstr "Eksporter opgaveliste til CSV"
+
+#: classes/class-pta_sus_admin.php:317
+msgid "All "
+msgstr "Alle"
+
+#: classes/class-pta_sus_admin.php:318
+msgid "Trash "
+msgstr "Papirkurv"
+
+#: classes/class-pta_sus_admin.php:381
+msgid "You must enter a date!"
+msgstr "Du skal angive en dato!"
+
+#: classes/class-pta_sus_admin.php:384
+msgid "Invalid date!"
+msgstr "Ugyldig dato!"
+
+#: classes/class-pta_sus_admin.php:391
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "Du skal indtaste mindst to datoer til en tilbagevendende begivenhed!"
+
+#: classes/class-pta_sus_admin.php:396
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "Ugyldige datoer! Indtast mindst 2 gyldige datoer."
+
+#: classes/class-pta_sus_admin.php:435 classes/class-pta_sus_admin.php:503
+#: classes/class-pta_sus_admin.php:529
+msgid "person"
+msgid_plural "people"
+msgstr[0] "person"
+msgstr[1] "mennesker"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:436
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
+"signed up.  Please clear all spots first before changing this task date."
+msgstr ""
+"Opgaven \"%1$s\" kan ikke ændres til en ny dato, fordi det har %2$d %3$s "
+"tilmeldt. Venligst slette alle pladser først, før du ændrer denne opgave "
+"dato."
+
+#: classes/class-pta_sus_admin.php:472
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "en dato"
+msgstr[1] "datoer"
+
+#: classes/class-pta_sus_admin.php:473
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "denne dato"
+msgstr[1] "disse datoer"
+
+#: classes/class-pta_sus_admin.php:472
+msgid "You are trying to remove "
+msgstr "Du forsøger at fjerne"
+
+#: classes/class-pta_sus_admin.php:474
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "denne dato"
+msgstr[1] "disse datoer"
+
+#: classes/class-pta_sus_admin.php:474
+msgid "Please check "
+msgstr "Kontroller venligst"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:505
+#, php-format
+msgid ""
+"The number of spots for task \"%1$s\" cannot be set below %2$d because it "
+"currently has %2$d %3$s signed up.  Please clear some spots first before "
+"updating this task."
+msgstr ""
+"Antallet af pletter til opgave \"%1$s\" kan ikke indstilles under %2$d, "
+"fordi det i øjeblikket har %2$d %3$s tilmeldt. Venligst rydde nogle pladser "
+"først, før du opdaterer denne opgave."
+
+#: classes/class-pta_sus_admin.php:514
+msgid "You must enter at least one task!"
+msgstr "Du skal angive mindst én opgave!"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:530
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
+"Please clear all spots first before removing this task."
+msgstr ""
+"Opgaven \"%1$s\" kan ikke fjernes, fordi den har %2$d %3$s tilmeldt. "
+"Venligst slette alle pladser først, før du fjerner denne opgave."
+
+#: classes/class-pta_sus_admin.php:572
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "opgave."
+msgstr[1] "opgaver."
+
+#: classes/class-pta_sus_admin.php:572
+#, php-format
+msgid "Error saving %d "
+msgstr "Fejl ved lagring af %d"
+
+#: classes/class-pta_sus_admin.php:597 classes/class-pta_sus_admin.php:670
+msgid "Error updating sheet."
+msgstr "Fejl ved opdatering af opgaveliste."
+
+#: classes/class-pta_sus_admin.php:610
+msgid "Error removing a task."
+msgstr "Fejl ved fjernelse af en opgave."
+
+#: classes/class-pta_sus_admin.php:627
+msgid ""
+"Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr ""
+"Vælg en stilling eller manuelt indtaste formand kontakt info. Ikke begge!"
+
+#: classes/class-pta_sus_admin.php:630
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr "Indtast venligst formand navn (e) og e-mail (s)!"
+
+#: classes/class-pta_sus_admin.php:633
+msgid "Please either select a position or type in the chair contact info!"
+msgstr "Du enten vælge en stilling eller i formand kontakt info!"
+
+#: classes/class-pta_sus_admin.php:636
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr "Indtast venligst formand navn (e) og e-mail (s)!"
+
+#: classes/class-pta_sus_admin.php:654
+msgid "A Sheet with the same name and date already exists!"
+msgstr "En opgaveliste med samme navn og dato findes allerede!"
+
+#: classes/class-pta_sus_admin.php:662
+msgid "Error adding sheet."
+msgstr "Fejl ved tilføjelse af opgaveliste."
+
+#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:711
+#: classes/class-pta_sus_admin.php:721
+msgid "ADD"
+msgstr "Tilføj"
+
+#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:721
+msgid "Tasks"
+msgstr "Opgaver"
+
+#: classes/class-pta_sus_admin.php:711
+msgid "Sign-up Sheet"
+msgstr "Opgaveliste"
+
+#: classes/class-pta_sus_admin.php:715 classes/class-pta_sus_admin.php:729
+#: classes/list-table.php:112
+msgid "Edit Tasks"
+msgstr "Rediger Opgaver"
+
+#: classes/class-pta_sus_admin.php:717
+msgid "Dates and Tasks are added on the next page"
+msgstr "Datoer og Opgaver tilføjes på næste side"
+
+#: classes/class-pta_sus_admin.php:722
+msgid "Tasks Successfully Updated!"
+msgstr "Opgaver blev opdateret!"
+
+#: classes/class-pta_sus_admin.php:726 classes/list-table.php:111
+msgid "Edit Sheet"
+msgstr "Rediger opgaveliste"
+
+#: classes/class-pta_sus_admin.php:727
+msgid "Sheet Updated!"
+msgstr "Opgaveliste opdateret"
+
+#: classes/class-pta_sus_admin.php:767
+msgid "Single"
+msgstr "Engangs"
+
+#: classes/class-pta_sus_admin.php:768
+msgid "Recurring"
+msgstr "Tilbagevendende"
+
+#: classes/class-pta_sus_admin.php:769
+msgid "Multi-Day"
+msgstr "Flere-dags"
+
+#: classes/class-pta_sus_admin.php:770 classes/class-pta_sus_public.php:242
+#: classes/class-pta_sus_public.php:243
+msgid "Ongoing"
+msgstr "Igangværende"
+
+#: classes/class-pta_sus_admin.php:780
+msgid "Select Event Type"
+msgstr "Vælg begivenheds type"
+
+#: classes/class-pta_sus_admin.php:791 classes/widget.php:124
+msgid "Title:"
+msgstr "Titel:"
+
+#: classes/class-pta_sus_admin.php:793
+msgid "Title of event, program or function"
+msgstr "Titel på begivenhed, program eller en funktion"
+
+#: classes/class-pta_sus_admin.php:798 classes/class-pta_sus_admin.php:802
+msgid "Event Type:"
+msgstr "Begivenheds type:"
+
+#: classes/class-pta_sus_admin.php:812
+msgid "1st Reminder # of days:"
+msgstr "1. påmindelse # dage:"
+
+#: classes/class-pta_sus_admin.php:814
+msgid ""
+"# of days before the event date to send the first reminder. Leave blank (or "
+"0) for no automatic reminders"
+msgstr ""
+"# Dage før begivenheden dato for at sende den første rykker. Efterlad blank "
+"(eller 0) for ingen automatiske påmindelser"
+
+#: classes/class-pta_sus_admin.php:817
+msgid "2nd Reminder # of days:"
+msgstr "2. Påmindelse # dage:"
+
+#: classes/class-pta_sus_admin.php:819
+msgid ""
+"# of days before the event date to send the second reminder. Leave blank (or "
+"0) for no second reminder"
+msgstr ""
+"# Dage før begivenheden dato for at sende den anden påmindelse. Efterlad "
+"blank (eller 0) for ingen anden påmindelse"
+
+#: classes/class-pta_sus_admin.php:824
+msgid "Visible to Public?"
+msgstr "Synlig for offentligheden?"
+
+#: classes/class-pta_sus_admin.php:826
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
+"from the public. Administrators and Sign-Up Sheet Managers can still see "
+"hidden sheets."
+msgstr ""
+"<strong>Fravælg</strong>, hvis du vil <strong>skjul</strong> dette ark fra "
+"offentligheden. Administratorer og tilmeldingsark Ledere kan stadig se "
+"skjulte ark."
+
+#: classes/class-pta_sus_admin.php:832
+msgid "Contact Info:"
+msgstr "Kontaktinfo:"
+
+#: classes/class-pta_sus_admin.php:838
+msgid "Select Position"
+msgstr "Vælg stilling"
+
+#: classes/class-pta_sus_admin.php:846
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr ""
+"Vælg et program, udvalg eller position, for at benytte kontaktformularen:"
+
+#: classes/class-pta_sus_admin.php:851
+msgid ""
+"<strong><em>OR</em></strong>, manually enter chair names and contact emails "
+"below."
+msgstr ""
+"<strong><em>OR</em></strong>, skal du manuelt indtaste stol navne og "
+"kontaktoplysninger emails nedenfor."
+
+#: classes/class-pta_sus_admin.php:856
+msgid "Chair Name(s):"
+msgstr "Formand navn (e):"
+
+#: classes/class-pta_sus_admin.php:858
+msgid "Separate multiple names with commas"
+msgstr "Adskil flere navne med kommaer"
+
+#: classes/class-pta_sus_admin.php:861
+msgid "Chair Email(s):"
+msgstr "formand E-mail (s):"
+
+#: classes/class-pta_sus_admin.php:863
+msgid "Separate multiple emails with commas"
+msgstr "Adskil flere e-mails med komma"
+
+#: classes/class-pta_sus_admin.php:873
+msgid "Program/Event Details (optional):"
+msgstr "Program / begivenhed Detaljer (valgfrit):"
+
+#: classes/class-pta_sus_admin.php:881
+msgid "Save Sheet"
+msgstr "Gem Opgaveliste"
+
+#: classes/class-pta_sus_admin.php:892
+msgid "Select the date for "
+msgstr "Vælg dato for"
+
+#: classes/class-pta_sus_admin.php:896
+msgid ""
+"Select a date for the event.  All tasks will then be assigned to this date."
+msgstr ""
+"Vælg en dato for begivenheden. Alle opgaver vil derefter blive tildelt denne "
+"dato."
+
+#: classes/class-pta_sus_admin.php:900
+msgid "Select ALL the dates for "
+msgstr "Vælg alle datoerne for"
+
+#: classes/class-pta_sus_admin.php:904
+msgid ""
+"Select all the dates for the event. Copies of the tasks will be created for "
+"each date."
+msgstr ""
+"Vælg alle datoerne for begivenheden. Vil blive skabt kopier af opgaverne for "
+"hver dato."
+
+#: classes/class-pta_sus_admin.php:909
+msgid "Tasks for "
+msgstr "Opgaver for"
+
+#: classes/class-pta_sus_admin.php:910
+msgid "Tasks/Items"
+msgstr "Opgaver/emner"
+
+#: classes/class-pta_sus_admin.php:911
+msgid ""
+"Enter tasks or items below. Drag and drop to change sort order. Times are "
+"optional. If you need details for an item or task (such as what dish they "
+"are bringing for a lunch) check the Details Needed box.<br/>\n"
+"            Click on (+) to add additional tasks, or (-) to remove a task.  "
+"At least one task/item must be entered.  If # needed is left blank, the "
+"value will be set to 1."
+msgstr ""
+"Indtast opgaver eller genstande herunder. Træk og slip for at ændre "
+"sorteringsrækkefølgen. Tiderne er valgfri. Hvis du har brug for oplysninger "
+"om et emne eller en opgave (såsom hvad skålen de bringer til en frokost) "
+"kontrollere de nødvendige oplysninger kassen. <br/>\n"
+"             Klik på (+) for at tilføje ekstra opgaver, eller (-) for at "
+"fjerne en opgave. Der skal indtastes mindst én opgave / emne. Hvis # behov "
+"er tomt, vil værdien sættes til 1."
+
+#: classes/class-pta_sus_admin.php:918
+msgid "Task/Item:"
+msgstr "Opgave/emne:"
+
+#: classes/class-pta_sus_admin.php:920
+msgid "Date:"
+msgstr "Dato:"
+
+#: classes/class-pta_sus_admin.php:923
+msgid "# of People/Items Needed:"
+msgstr "# frivillige nødvendigt:"
+
+#: classes/class-pta_sus_admin.php:924
+msgid "Start Time:"
+msgstr "Start tidspunkt:"
+
+#: classes/class-pta_sus_admin.php:925
+msgid "End Time:"
+msgstr "Sluts tidspunkt:"
+
+#: classes/class-pta_sus_admin.php:926
+msgid "Details Needed? "
+msgstr "Detaljer nødvendig?"
+
+#: classes/class-pta_sus_admin.php:950
+msgid "Save"
+msgstr "Gem"
+
+#: classes/class-pta_sus_emails.php:215
+msgid "Volunteer Signup Reminders sent"
+msgstr "Frivillige Tilmelding Påmindelser sendt"
+
+#: classes/class-pta_sus_emails.php:216 pta-volunteer-sign-up-sheets.php:118
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr "Frivillige tilmelding opgaveliste CRON job er afsluttet."
+
+#: classes/class-pta_sus_emails.php:217
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "%d påmindelses e-mails blev sendt."
+
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "Dokumentation"
+
+#: classes/class-pta_sus_options.php:34
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "PTA Frivillige tilmeldings Indstillinger"
+
+#: classes/class-pta_sus_options.php:38 classes/class-pta_sus_options.php:77
+msgid "Main Settings"
+msgstr "Primære indstillinger"
+
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:94
+msgid "Email Settings"
+msgstr "E-mail-indstillinger"
+
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:105
+msgid "Integration Settings"
+msgstr "Integration Indstillinger"
+
+#: classes/class-pta_sus_options.php:60
+msgid ""
+"Please help support continued development of this plugin! Any amount helps!"
+msgstr ""
+"Please help støtte fortsatte udvikling af dette plugin! Ethvert beløb "
+"hjælper!"
+
+#: classes/class-pta_sus_options.php:78
+msgid "Enable Test Mode"
+msgstr "Aktiver Testtilstand"
+
+#: classes/class-pta_sus_options.php:79
+msgid "Test Mode Message:"
+msgstr "Testtilstand Besked:"
+
+#: classes/class-pta_sus_options.php:80
+msgid "Volunteer Sign Up Page"
+msgstr "Frivillige Tilmeldings side"
+
+#: classes/class-pta_sus_options.php:81
+msgid "Hide volunteer names from public?"
+msgstr "Skjul frivilliges navne fra offentligheden?"
+
+#: classes/class-pta_sus_options.php:82
+msgid "Show Ongoing events in Widget?"
+msgstr "Vis igangværende begivenheder i widget?"
+
+#: classes/class-pta_sus_options.php:83
+msgid "Show Ongoing events last?"
+msgstr "Vis igangværende begivenheder sidst?"
+
+#: classes/class-pta_sus_options.php:84
+msgid "Login Required?"
+msgstr "Login påkrævet?"
+
+#: classes/class-pta_sus_options.php:85
+msgid "Login Required Message:"
+msgstr "Log påkrævet besked:"
+
+#: classes/class-pta_sus_options.php:86
+msgid "Enable CRON Notifications?"
+msgstr "Aktiver cron-meddelelser?"
+
+#: classes/class-pta_sus_options.php:87
+msgid "Detailed Reminder Notifications?"
+msgstr "Detaljerede påmindelse meddelelser?"
+
+#: classes/class-pta_sus_options.php:88
+msgid "Show Expired Tasks?"
+msgstr "Vis udløbne opgaver?"
+
+#: classes/class-pta_sus_options.php:89
+msgid "Automatically clear expired signups?"
+msgstr "Slet automatisk udløbne tilmeldinger?"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Hide donation button?"
+msgstr "Skjul donation knap?"
+
+#: classes/class-pta_sus_options.php:95
+msgid "FROM email:"
+msgstr "Fra e-mail:"
+
+#: classes/class-pta_sus_options.php:96
+msgid "Reply-To email:"
+msgstr "Svar til e-mail:"
+
+#: classes/class-pta_sus_options.php:97
+msgid "Confirmation email subject:"
+msgstr "Bekræftelses email emne:"
+
+#: classes/class-pta_sus_options.php:98
+msgid "Confirmation email template:"
+msgstr "Bekræftelse email skabelon:"
+
+#: classes/class-pta_sus_options.php:99
+msgid "Reminder email subject:"
+msgstr "Påmindelsen email emne:"
+
+#: classes/class-pta_sus_options.php:100
+msgid "Reminder email template:"
+msgstr "Påmindelsen email skabelon:"
+
+#: classes/class-pta_sus_options.php:101
+msgid "Max Reminders per Hour:"
+msgstr "Max Påmindelser per time:"
+
+#: classes/class-pta_sus_options.php:107
+msgid "Enable PTA Member Directory:"
+msgstr "Aktiver PTA Medlem Directory:"
+
+#: classes/class-pta_sus_options.php:108
+msgid "Member Directory Page:"
+msgstr "Medlemsvejviser Side:"
+
+#: classes/class-pta_sus_options.php:109
+msgid "Contact Form Page:"
+msgstr "Kontakt Form Side:"
+
+#: classes/class-pta_sus_options.php:125
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "Ugyldig indtastning for %s!"
+
+#: classes/class-pta_sus_options.php:134
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "Ugyldig e-mail for %s!"
+
+#: classes/class-pta_sus_options.php:143
+#, php-format
+msgid "Invalid characters in %s!"
+msgstr "Ugyldige tegn i %s!"
+
+#: classes/class-pta_sus_options.php:155
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "Ukendt felt typen: %s!"
+
+#: classes/class-pta_sus_options.php:163
+msgid "Settings successfully saved!"
+msgstr "Indstillinger gemt!"
+
+#: classes/class-pta_sus_options.php:214
+msgid "Main plugin settings"
+msgstr "Vigtigste plugin indstillinger"
+
+#: classes/class-pta_sus_options.php:218
+msgid "Email settings"
+msgstr "E-mail-indstillinger"
+
+#: classes/class-pta_sus_options.php:222
+msgid "Integration with other plugins"
+msgstr "Integration med andre plugins"
+
+#: classes/class-pta_sus_options.php:225
+msgid ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+msgstr ""
+"Dette plugin kan integreres med PTA medlem Directory og Contact Form plugin "
+"til at indstille kontakter for hver sign-up ark med kontaktlinks bliver "
+"instrueret til kontaktformularen."
+
+#: classes/class-pta_sus_options.php:226
+#, php-format
+msgid ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+msgstr ""
+"Søg efter \"PTA Medlemsvejviser \" fra din Installer plugins side, eller "
+"downloade fra Wordpress.org her: %s"
+
+#: classes/class-pta_sus_options.php:234 classes/class-pta_sus_options.php:245
+#: classes/class-pta_sus_options.php:256
+msgid "None"
+msgstr "Ingen"
+
+#: classes/class-pta_sus_options.php:238
+msgid ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+msgstr ""
+"Den side, hvor du sætter kortkode </em> [pta_sign_up_sheet] <em> at generere "
+"den primære sign-ups side"
+
+#: classes/class-pta_sus_options.php:249
+msgid ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+msgstr ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+
+#: classes/class-pta_sus_options.php:260
+msgid ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+msgstr ""
+"Medlemmet bibliotek kontakt formular, hvor du sætter kortkode "
+"[pta_member_contact], hvis du bruger den separate kontakt formular."
+
+#: classes/class-pta_sus_options.php:265
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr "Brugerne besked ser på frivillige sign-up sider, når i test-mode."
+
+#: classes/class-pta_sus_options.php:270
+msgid ""
+"The message users see on volunteer sign-up pages when they are not logged in "
+"and the Login Required option is enabled."
+msgstr ""
+"Brugerne besked ser på frivillige sign-up side, når de ikke er logget ind og "
+"login Påkrævet indstilling er aktiveret."
+
+#: classes/class-pta_sus_options.php:275
+msgid ""
+"The email address that confirmation and reminder emails will be sent from."
+msgstr ""
+"Den e-mail-adresse, bekræftelses-og påmindelse emails vil blive sendt fra."
+
+#: classes/class-pta_sus_options.php:280
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr "Reply-To email adresse for bekræftelse og påmindelse e-mails."
+
+#: classes/class-pta_sus_options.php:285
+msgid "Subject line for signup confirmation email messages"
+msgstr "Emnelinjen for bekræftelser tilmelding e-mails"
+
+#: classes/class-pta_sus_options.php:290
+msgid "Subject line for signup reminder email messages."
+msgstr "Emnelinjen for påmindelse tilmelding e-mails."
+
+#: classes/class-pta_sus_options.php:295
+msgid ""
+"Max # of reminder emails to send out in a hour. Leave blank or zero for no "
+"limit."
+msgstr ""
+"Max # af påmindelse emails til at sende ud i en time. Efterlad blank eller "
+"nul for ingen grænse."
+
+#: classes/class-pta_sus_options.php:304
+msgid "PTA Member Directory and Contact Form"
+msgstr "Max # af påmindelse PTA Medlem Directory og Contact Form"
+
+#: classes/class-pta_sus_options.php:307
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "Aktiver integration med %s"
+
+#: classes/class-pta_sus_options.php:319
+msgid ""
+"Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can "
+"view public side sign-up sheets."
+msgstr ""
+"Sætter Frivillige tilmeldingsark system test mode. Kun admin brugere niveau "
+"kan se offentlig opgavelister."
+
+#: classes/class-pta_sus_options.php:331
+msgid ""
+"If checked filled sign-up slots will show \"Filled\" instead of first name "
+"and last initial of volunteer."
+msgstr ""
+"Hvis markeret fyldt sign-up slots vil vise \"Fyldt \" i stedet for fornavn "
+"og sidste initial frivilligt."
+
+#: classes/class-pta_sus_options.php:343
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr ""
+"Hvis markeret, vil Igangværende begivenheder blive vist i indholdsoversigten "
+"widget."
+
+#: classes/class-pta_sus_options.php:355
+msgid ""
+"If checked, Ongoing events will be shown at the bottom of sign up sheet "
+"lists (and widget, if enabled)."
+msgstr ""
+"Hvis markeret, vil Igangværende begivenheder blive vist nederst i sign up "
+"ark lister (og widget, hvis aktiveret)."
+
+#: classes/class-pta_sus_options.php:368 classes/class-pta_sus_options.php:380
+#: classes/class-pta_sus_options.php:392 classes/class-pta_sus_options.php:404
+#: classes/class-pta_sus_options.php:416 classes/class-pta_sus_options.php:428
+msgid "YES."
+msgstr "JA."
+
+#: classes/class-pta_sus_options.php:368
+msgid ""
+"Force user to be logged in before they can view or sign-up for any volunteer "
+"sheets."
+msgstr ""
+"Tving brugeren at være logget ind, før de kan se eller tilmelde dig for "
+"eventuelle frivillige opgavelister."
+
+#: classes/class-pta_sus_options.php:380
+msgid ""
+"Sends site admin an email whenever a CRON job is completed (such as sending "
+"reminders or deleting expired signups)."
+msgstr ""
+"Sender Site Admin en e-mail, hver gang et cron job er afsluttet (såsom at "
+"sende påmindelser eller sletning af forældede tilmeldinger)."
+
+#: classes/class-pta_sus_options.php:392
+msgid ""
+"Admin reminder emails notification will include the message body of all "
+"reminders sent, useful for troubleshooting."
+msgstr ""
+"Administrator påmindelse emails meddelelse vil omfatte brødteksten i alle "
+"påmindelser sendt, er nyttige til fejlfinding."
+
+#: classes/class-pta_sus_options.php:404
+msgid ""
+"Shows expired tasks on the admin View Signups page for a sheet. Expired "
+"tasks are not counted in the Total Spots column."
+msgstr ""
+"Viser udløb opgaver på administrator View Tilmeldinger siden for et ark. "
+"Udløbet opgaver tælles ikke med i den samlede plads kolonne."
+
+#: classes/class-pta_sus_options.php:416
+msgid ""
+"Automatically clears expired signups from the database (runs with hourly "
+"CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr ""
+"Slettes automatisk udløbne tilmeldinger fra databasen (kører med timeløn "
+"CRON funktion). Udløbet tilmeldinger tælles ikke med i den Fyldt plads "
+"kolonne."
+
+#: classes/class-pta_sus_options.php:428
+msgid "Hides the donation button at bottom of settings pages."
+msgstr "Skjuler donation knappen nederst på indstillinger sider."
+
+#: classes/class-pta_sus_options.php:435
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr "E-mail brugeren modtager, når de tilmelder dig en frivillig opgave."
+
+#: classes/class-pta_sus_options.php:436 classes/class-pta_sus_options.php:444
+msgid "Available Template Tags: "
+msgstr "Tilgængelige Template Tags:"
+
+#: classes/class-pta_sus_options.php:443
+msgid "Reminder email sent to volunteers."
+msgstr "Påmindelsen e-mail sendt til frivillige."
+
+#: classes/class-pta_sus_public.php:57
+msgid "Sorry! Your security nonce did not verify!"
+msgstr "Undskyld! Din sikkerhed nonce ikke kontrollere!"
+
+#: classes/class-pta_sus_public.php:63
+msgid ""
+"Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr "Ups! Du udfyldt Spambot området. Du lade det stå tomt, og prøv igen."
+
+#: classes/class-pta_sus_public.php:74
+msgid "Please complete all required fields."
+msgstr "Udfyld venligst alle obligatoriske felter."
+
+#: classes/class-pta_sus_public.php:79
+msgid "Please enter the item you are bringing."
+msgstr "Indtast venligst det emne, du bringer."
+
+#: classes/class-pta_sus_public.php:86
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "Ugyldige tegn i Fornavn! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:91
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "Ugyldige tegn i efternavn! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:96
+msgid "Invalid Email!  Please try again."
+msgstr "Ugyldig e-mail! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:101
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr "Ugyldige tegn i telefonnummer! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:106
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr "Ugyldige tegn i en opgave! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:111
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr "Skjult tilmelding dato felt er ugyldigt! Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:119
+msgid "Error adding signup record.  Please try again."
+msgstr "Fejl ved tilføjelse tilmelding rekord. Prøv venligst igen."
+
+#: classes/class-pta_sus_public.php:127
+msgid "You have been signed up!"
+msgstr "Du er blevet tilmeldt!"
+
+#: classes/class-pta_sus_public.php:129
+msgid "ERROR SENDING EMAIL"
+msgstr "FEJL ved afsendelde af e-mail"
+
+#: classes/class-pta_sus_public.php:147
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "Frivillige opgaveliste er i TEST MODE"
+
+#: classes/class-pta_sus_public.php:164 classes/class-pta_sus_public.php:172
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "Aktuelle frivillige opgavelister"
+
+#: classes/class-pta_sus_public.php:194 classes/widget.php:46
+msgid "Hidden!"
+msgstr "Skjult!"
+
+#: classes/class-pta_sus_public.php:206
+msgid "No sheets currently available at this time."
+msgstr "Ingen opgavelister er øjeblikket til rådighed på nuværende tidspunkt."
+
+#: classes/class-pta_sus_public.php:213 classes/class-pta_sus_public.php:287
+#: classes/list-table.php:171
+msgid "Title"
+msgstr "Title"
+
+#: classes/class-pta_sus_public.php:214
+msgid "Start Date"
+msgstr "Start dato"
+
+#: classes/class-pta_sus_public.php:215
+msgid "End Date"
+msgstr "Slut dato"
+
+#: classes/class-pta_sus_public.php:216 classes/widget.php:103
+msgid "Open Spots"
+msgstr "Åbne pladser"
+
+#: classes/class-pta_sus_public.php:245
+msgid "View &amp; sign-up"
+msgstr "Se &amp; tilmeld"
+
+#: classes/class-pta_sus_public.php:245 classes/class-pta_sus_public.php:490
+msgid "Filled"
+msgstr "Fyldte"
+
+#: classes/class-pta_sus_public.php:259
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr "Log ind for at se og redigere dine frivillige tilmeldinger."
+
+#: classes/class-pta_sus_public.php:270
+msgid "Signup Cleared"
+msgstr "En tilmelding slettet"
+
+#: classes/class-pta_sus_public.php:272
+msgid "ERROR clearing signup!"
+msgstr "FEJL ved rydning af tilmelding!"
+
+#: classes/class-pta_sus_public.php:280
+msgid "You have signed up for the following"
+msgstr "Du har tilmeldt dig følgende"
+
+#: classes/class-pta_sus_public.php:281
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "Klik på Ryd for at fjerne dig selv fra en tilmelding."
+
+#: classes/class-pta_sus_public.php:288
+msgid "Date"
+msgstr "Dato"
+
+#: classes/class-pta_sus_public.php:307
+msgid "Clear"
+msgstr "Ryd"
+
+#: classes/class-pta_sus_public.php:320
+msgid "Sign-up sheet not found."
+msgstr "Opgaveliste ikke fundet"
+
+#: classes/class-pta_sus_public.php:343 classes/class-pta_sus_public.php:346
+msgid "Contact:"
+msgstr "Kontakt:"
+
+#: classes/class-pta_sus_public.php:348 classes/class-pta_sus_public.php:351
+#: classes/class-pta_sus_public.php:364
+msgid "No Event Chair contact info provided"
+msgstr "Ingen begivenhed formand kontakt info opgivet"
+
+#: classes/class-pta_sus_public.php:360
+msgid "Event Chairs:"
+msgstr "Begivenheds ansvarlige:"
+
+#: classes/class-pta_sus_public.php:362
+msgid "Event Chair:"
+msgstr "Begivenheds ansvarlig:"
+
+#: classes/class-pta_sus_public.php:371
+msgid "View all Sign-up Sheets"
+msgstr "Se alle opgavelister"
+
+#: classes/class-pta_sus_public.php:380
+msgid "This sheet is currently hidden from the public."
+msgstr "Denne opgaveliste er skjult fra offentligheden."
+
+#: classes/class-pta_sus_public.php:407
+msgid "DETAILS:"
+msgstr "DETALJER:"
+
+#: classes/class-pta_sus_public.php:410
+msgid "Sign up below..."
+msgstr "Tilmeld dig nedenfor ..."
+
+#: classes/class-pta_sus_public.php:431
+msgid "No tasks were found for "
+msgstr "Ingen opgaver blev fundet"
+
+#: classes/class-pta_sus_public.php:447
+msgid "Available Spots"
+msgstr "Ledige pladser"
+
+#: classes/class-pta_sus_public.php:520
+msgid "Sign up "
+msgstr "Tilmeld"
+
+#: classes/class-pta_sus_public.php:543
+msgid "Sign Up"
+msgstr "Tilmeld"
+
+#: classes/class-pta_sus_public.php:544
+msgid "You are signing up for... "
+msgstr "Du tilmelder dig ..."
+
+#: classes/class-pta_sus_public.php:546
+#, php-format
+msgid "on %s"
+msgstr "på %s"
+
+#: classes/class-pta_sus_public.php:550
+msgid "Start Time: "
+msgstr "Start tidspunkt:"
+
+#: classes/class-pta_sus_public.php:553
+msgid "End Time: "
+msgstr "Slut tidspunkt:"
+
+#: classes/class-pta_sus_public.php:555
+msgid "First Name"
+msgstr "Fornavn"
+
+#: classes/class-pta_sus_public.php:556
+msgid "Last Name"
+msgstr "Efternavn"
+
+#: classes/class-pta_sus_public.php:589
+msgid ""
+"If you have an account, it is strongly recommended that you <em style=\"text-"
+"decoration:underline;\">login before you sign up</em> so that you can view "
+"and edit all your signups."
+msgstr ""
+"Hvis du har en konto, er det stærkt anbefales, at du <em style=\"text-"
+"decoration:underline;\"> login før du tilmelder dig </ em>, så du kan se og "
+"redigere alle dine tilmeldinger."
+
+#: classes/class-pta_sus_public.php:616
+msgid "Item you are bringing"
+msgstr "Ting du medbringer"
+
+#: classes/class-pta_sus_public.php:636
+msgid "Sign me up!"
+msgstr "Tilmeld mig!"
+
+#: classes/class-pta_sus_public.php:637
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; gå tilbage til opgaveliste"
+
+#: classes/data.php:633
+#, php-format
+msgid "%s is a required field."
+msgstr "%s er et obligatorisk felt."
+
+#: classes/data.php:644
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "Ugyldige tegn i %s område."
+
+#: classes/data.php:664
+msgid "Invalid email."
+msgstr "Ugyldig e-mail."
+
+#: classes/data.php:672 classes/data.php:686
+msgid "Invalid date."
+msgstr "Ugyldig dato"
+
+#: classes/data.php:695
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "Kun tal i %s!"
+
+#: classes/data.php:702
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "Kun JA eller NEJ i %s!"
+
+#: classes/data.php:709
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "Ugyldig værdi for %s"
+
+#: classes/data.php:717
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "Ugyldigt tidsformat for %s"
+
+#: classes/list-table.php:108 classes/list-table.php:219
+msgid "Restore"
+msgstr "Gendan"
+
+#: classes/list-table.php:108 classes/list-table.php:218
+msgid "Delete"
+msgstr "Slet"
+
+#: classes/list-table.php:110
+msgid "View Sign-ups"
+msgstr "Se tilmeldinger"
+
+#: classes/list-table.php:113
+msgid "Copy"
+msgstr "Kopiér"
+
+#: classes/list-table.php:114
+msgid "Trash"
+msgstr "Papirkurv"
+
+#: classes/list-table.php:139
+msgid "Yes"
+msgstr "Ja"
+
+#: classes/list-table.php:141
+msgid "NO"
+msgstr "Nej"
+
+#: classes/list-table.php:170
+msgid "ID#"
+msgstr "ID#"
+
+#: classes/list-table.php:172
+msgid "Visible"
+msgstr "Synlig"
+
+#: classes/list-table.php:173
+msgid "Event Type"
+msgstr "Begivenheds type"
+
+#: classes/list-table.php:174
+msgid "First Date"
+msgstr "Første dato"
+
+#: classes/list-table.php:175
+msgid "Last Date"
+msgstr "Sidste dato"
+
+#: classes/list-table.php:176
+msgid "# Dates"
+msgstr "# Datoer"
+
+#: classes/list-table.php:177
+msgid "# Tasks"
+msgstr "# Opgaver"
+
+#: classes/list-table.php:178
+msgid "Total Spots"
+msgstr "Totale pladser"
+
+#: classes/list-table.php:179
+msgid "Filled Spots"
+msgstr "Taget pladser"
+
+#: classes/list-table.php:223
+msgid "Move to Trash"
+msgstr "Flyt til papirkurven"
+
+#: classes/list-table.php:224
+msgid "Toggle Visibility"
+msgstr "Toggle synlighed"
+
+#: classes/list-table.php:258
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "Fejl ved flytning af opgaveliste# %d til papirkurven."
+
+#: classes/list-table.php:261
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d opgavelister er blevet flyttet til papirkurven."
+
+#: classes/list-table.php:269
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "Fejl ved sletning af opgavelise# %d."
+
+#: classes/list-table.php:272
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "%d opgavelister er blevet slettet."
+
+#: classes/list-table.php:280
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "Fejl ved genoprettelse af opgaveliste# %d."
+
+#: classes/list-table.php:283
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "opgaveliste %d er blevet gendannet."
+
+#: classes/list-table.php:291
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "Fejl ved toggling af synlighed for opgaveliste# %d."
+
+#: classes/list-table.php:294
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "Synlighed slås for %d opgavelister."
+
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "PTA Frivillige tilmeldingsark liste Widget."
+
+#: classes/widget.php:120
+msgid "Current Volunteer Opportunities"
+msgstr "Aktuelle opgaver"
+
+#: classes/widget.php:128
+msgid "# of items to show (-1 for all):"
+msgstr "# Af emner at vise (-1 for alle):"
+
+#: classes/widget.php:132
+msgid "Main sign-up page permalink"
+msgstr "Main tilmeldingssiden permalink"
+
+#: classes/widget.php:136
+msgid "CSS Class for ul list of signups"
+msgstr "CSS klasse for UL liste over tilmeldinger"
+
+#: pta-volunteer-sign-up-sheets.php:117
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "Frivillige tilmeldte opryddet!"
+
+#: pta-volunteer-sign-up-sheets.php:119
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr "%d udløbet tilmeldinger blev slettet."
+
+#: pta-volunteer-sign-up-sheets.php:390
+msgid "Extensions"
+msgstr "Udvidelser"
+
+#: pta-volunteer-sign-up-sheets.php:392
+msgid "Docs"
+msgstr "Docs"

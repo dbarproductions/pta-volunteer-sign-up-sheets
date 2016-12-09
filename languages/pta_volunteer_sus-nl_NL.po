@@ -1,0 +1,1482 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
+"POT-Creation-Date: 2014-07-18 12:45-0800\n"
+"PO-Revision-Date: 2015-03-15 09:53+0100\n"
+"Last-Translator: \n"
+"Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.7.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: nl_NL\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: classes/class-pta_csv_exporter.php:37 classes/class-pta_sus_admin.php:111
+#: classes/class-pta_sus_admin.php:348 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Je hebt geen toegang tot deze pagina"
+
+#: classes/class-pta_csv_exporter.php:44
+msgid "Invalid Report Data!"
+msgstr "Ongeldige data!"
+
+#: classes/class-pta_sus_admin.php:26 classes/class-pta_sus_admin.php:27
+msgid "Sign-up Sheets"
+msgstr "Vrijwilligers"
+
+#: classes/class-pta_sus_admin.php:27
+msgid "All Sheets"
+msgstr "Alle activiteiten"
+
+#: classes/class-pta_sus_admin.php:28
+msgid "Add New Sheet"
+msgstr "Nieuwe activiteit toevoegen"
+
+#: classes/class-pta_sus_admin.php:28 classes/class-pta_sus_admin.php:145
+msgid "Add New"
+msgstr "Toevoegen"
+
+#: classes/class-pta_sus_admin.php:29 pta-volunteer-sign-up-sheets.php:429
+msgid "Settings"
+msgstr "Instellingen"
+
+#: classes/class-pta_sus_admin.php:30 classes/class-pta_sus_admin.php:93
+msgid "CRON Functions"
+msgstr "CRON functies"
+
+#: classes/class-pta_sus_admin.php:46 classes/class-pta_sus_admin.php:984
+msgid "Item you are bringing"
+msgstr "Dit breng je mee"
+
+#: classes/class-pta_sus_admin.php:62
+msgid "Last reminders sent:"
+msgstr "Laatste herinnering verstuurd:"
+
+#: classes/class-pta_sus_admin.php:63 classes/class-pta_sus_admin.php:67
+#, php-format
+msgid "Date: %s"
+msgstr "Datum: %s"
+
+#: classes/class-pta_sus_admin.php:64 classes/class-pta_sus_admin.php:68
+#, php-format
+msgid "Time: %s"
+msgstr "Tijd: %s"
+
+#: classes/class-pta_sus_admin.php:65 classes/class-pta_sus_admin.php:79
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "1 herinnering verstuurd"
+msgstr[1] "%d herinneringen verstuurd"
+
+#: classes/class-pta_sus_admin.php:66
+msgid "Last reminder check:"
+msgstr "Laatste herinnering"
+
+#: classes/class-pta_sus_admin.php:85
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "1 aanmelding gewist"
+msgstr[1] "%d aanmelden gewist"
+
+#: classes/class-pta_sus_admin.php:94
+msgid "Volunteer Reminders"
+msgstr "Herinneringen voor de vrijwilligers"
+
+#: classes/class-pta_sus_admin.php:95
+msgid ""
+"The system automatically checks if it needs to send reminders hourly via a "
+"CRON function. If you are testing, or don't want to wait for the next CRON "
+"job to be triggered, you can trigger the reminders function with the button "
+"below."
+msgstr ""
+"Het systeem controleert ieder uur of er een herinnering verstuurd moet "
+"worden. Als je daar niet op wilt wachten, kun je herinneringen sturen door "
+"op de knop hieronder te drukken."
+
+#: classes/class-pta_sus_admin.php:97
+msgid "Send Reminders"
+msgstr "Stuur herinneringen"
+
+#: classes/class-pta_sus_admin.php:99 classes/class-pta_sus_admin.php:101
+msgid "Clear Expired Signups"
+msgstr "Wis voorbije aanmeldingen"
+
+#: classes/class-pta_sus_admin.php:100
+msgid ""
+"If you have disabled the automatic clearing of expired signups, you can use "
+"this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT "
+"BE UNDONE!"
+msgstr ""
+"Als het automatisch opschonen van afgelopen activiteiten niet is ingesteld, "
+"kun je dit gebruiken om ALLE afgelopen activiteiten te wissen. NB: DIT KAN "
+"NIET ONGEDAAN GEMAAKT WORDEN!"
+
+#: classes/class-pta_sus_admin.php:127
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "Aanmelding ongedaan maken niet gelukt (ID# %s)"
+
+#: classes/class-pta_sus_admin.php:130
+msgid "Spot has been cleared."
+msgstr "Plek is weer vrij"
+
+#: classes/class-pta_sus_admin.php:144
+msgid "Sheet Details"
+msgstr "Gegevens"
+
+#: classes/class-pta_sus_admin.php:144
+msgid "Sign-up Sheets "
+msgstr "Aanmeldingsformulieren"
+
+#: classes/class-pta_sus_admin.php:151
+msgid "Error restoring sheet."
+msgstr "Activiteit terugzetten niet gelukt."
+
+#: classes/class-pta_sus_admin.php:153
+msgid "Sheet has been restored."
+msgstr "Activiteit is hersteld."
+
+#: classes/class-pta_sus_admin.php:157
+msgid "Error moving sheet to trash."
+msgstr "Activiteit verwijderen niet gelukt."
+
+#: classes/class-pta_sus_admin.php:159
+msgid "Sheet has been moved to trash."
+msgstr "Activiteit is in de prullenbak gegooid."
+
+#: classes/class-pta_sus_admin.php:163
+msgid "Error permanently deleting sheet."
+msgstr "Activiteit verwijderen niet gelukt."
+
+#: classes/class-pta_sus_admin.php:165
+msgid "Sheet has been permanently deleted."
+msgstr "Activiteit is blijvend verwijderd."
+
+#: classes/class-pta_sus_admin.php:169
+msgid "Error copying sheet."
+msgstr "Kopieren is mislukt."
+
+#: classes/class-pta_sus_admin.php:171
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "Activiteit is gekopieerd naar nieuwe activiteit ID #"
+
+#: classes/class-pta_sus_admin.php:171 classes/class-pta_sus_admin.php:732
+#: classes/class-pta_sus_admin.php:736 classes/class-pta_sus_admin.php:746
+msgid "Edit"
+msgstr "Bewerk"
+
+#: classes/class-pta_sus_admin.php:175
+msgid "Error toggling sheet visibility."
+msgstr "Activiteit (on)zichtbaar maken niet gelukt."
+
+#: classes/class-pta_sus_admin.php:181
+msgid "No sign-up sheet found."
+msgstr "Geen activiteiten gevonden"
+
+#: classes/class-pta_sus_admin.php:187
+msgid "Event Type: "
+msgstr "Type activiteit:"
+
+#: classes/class-pta_sus_admin.php:188
+msgid "Signups"
+msgstr "Aanmeldingen"
+
+#: classes/class-pta_sus_admin.php:193
+msgid "No tasks were found."
+msgstr "Geen taken gevonden."
+
+#: classes/class-pta_sus_admin.php:200 classes/class-pta_sus_admin.php:257
+#: classes/class-pta_sus_admin.php:280 classes/class-pta_sus_public.php:319
+#: classes/class-pta_sus_public.php:483
+msgid "Task/Item"
+msgstr "Taak"
+
+#: classes/class-pta_sus_admin.php:201 classes/class-pta_sus_admin.php:259
+#: classes/class-pta_sus_admin.php:282 classes/class-pta_sus_public.php:320
+#: classes/class-pta_sus_public.php:484
+msgid "Start Time"
+msgstr "Begintijd"
+
+#: classes/class-pta_sus_admin.php:202 classes/class-pta_sus_admin.php:260
+#: classes/class-pta_sus_admin.php:283 classes/class-pta_sus_public.php:321
+#: classes/class-pta_sus_public.php:485
+msgid "End Time"
+msgstr "Eindtijd"
+
+#: classes/class-pta_sus_admin.php:203
+msgid "Name"
+msgstr "Naam"
+
+#: classes/class-pta_sus_admin.php:204 classes/class-pta_sus_public.php:611
+msgid "E-mail"
+msgstr "E-mail"
+
+#: classes/class-pta_sus_admin.php:205 classes/class-pta_sus_public.php:612
+msgid "Phone"
+msgstr "Telefoon"
+
+#: classes/class-pta_sus_admin.php:206 classes/class-pta_sus_admin.php:264
+#: classes/class-pta_sus_admin.php:287 classes/class-pta_sus_public.php:322
+#: classes/class-pta_sus_public.php:488
+msgid "Item Details"
+msgstr "Details"
+
+#: classes/class-pta_sus_admin.php:207 classes/class-pta_sus_admin.php:265
+#: classes/class-pta_sus_public.php:323 classes/class-pta_sus_public.php:491
+msgid "Item Qty"
+msgstr "Hoeveelheid"
+
+#: classes/class-pta_sus_admin.php:240 classes/class-pta_sus_admin.php:241
+#: classes/class-pta_sus_admin.php:259 classes/class-pta_sus_admin.php:260
+#: classes/class-pta_sus_admin.php:273 classes/class-pta_sus_admin.php:274
+#: classes/class-pta_sus_admin.php:282 classes/class-pta_sus_admin.php:283
+#: classes/class-pta_sus_emails.php:108 classes/class-pta_sus_emails.php:109
+#: classes/class-pta_sus_emails.php:110 classes/class-pta_sus_emails.php:114
+#: classes/class-pta_sus_emails.php:119 classes/class-pta_sus_public.php:333
+#: classes/class-pta_sus_public.php:335 classes/class-pta_sus_public.php:336
+#: classes/class-pta_sus_public.php:337 classes/class-pta_sus_public.php:338
+#: classes/class-pta_sus_public.php:524 classes/class-pta_sus_public.php:525
+#: classes/class-pta_sus_public.php:562 classes/class-pta_sus_public.php:563
+#: classes/list-table.php:68 classes/list-table.php:83
+msgid "N/A"
+msgstr "Niet beschikbaar"
+
+#: classes/class-pta_sus_admin.php:247
+msgid "Clear Spot"
+msgstr "Maak plek vrij"
+
+#: classes/class-pta_sus_admin.php:258 classes/class-pta_sus_admin.php:281
+msgid "Task Date"
+msgstr "Taak datum"
+
+#: classes/class-pta_sus_admin.php:261 classes/class-pta_sus_admin.php:284
+msgid "Volunteer Name"
+msgstr "Naam van vrijwilliger"
+
+#: classes/class-pta_sus_admin.php:262 classes/class-pta_sus_admin.php:285
+msgid "Volunteer Email"
+msgstr "Email van vrijwilliger"
+
+#: classes/class-pta_sus_admin.php:263 classes/class-pta_sus_admin.php:286
+msgid "Volunteer Phone"
+msgstr "Telefoonnummer van vrijwilliger"
+
+#: classes/class-pta_sus_admin.php:275
+msgid "(empty)"
+msgstr "(leeg)"
+
+#: classes/class-pta_sus_admin.php:284
+msgid "empty"
+msgstr "leeg"
+
+#: classes/class-pta_sus_admin.php:305
+msgid "Export Sheet as CSV"
+msgstr "Exporteer activiteit als CSV"
+
+#: classes/class-pta_sus_admin.php:328
+msgid "All "
+msgstr "Alle"
+
+#: classes/class-pta_sus_admin.php:329
+msgid "Trash "
+msgstr "Prullenbak"
+
+#: classes/class-pta_sus_admin.php:392
+msgid "You must enter a date!"
+msgstr "Je moet een datum invoeren!"
+
+#: classes/class-pta_sus_admin.php:395
+msgid "Invalid date!"
+msgstr "Ongeldige datum!"
+
+#: classes/class-pta_sus_admin.php:402
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "Je moet minimaal twee data invullen voor een herhalende activiteit!"
+
+#: classes/class-pta_sus_admin.php:407
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "Ongeldige data! Vul tenminste 2 geldige data in."
+
+#: classes/class-pta_sus_admin.php:448 classes/class-pta_sus_admin.php:516
+#: classes/class-pta_sus_admin.php:542
+msgid "person"
+msgid_plural "people"
+msgstr[0] "persoon"
+msgstr[1] "mensen"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:449
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
+"signed up.  Please clear all spots first before changing this task date."
+msgstr ""
+"De taak \"%1$s\" kan geen andere datum krijgen, omdat er %2$d %3$s aangemeld "
+"zijn.  Verwijder eerst alle aanmeldingen voordat je de datum van deze taak "
+"verandert."
+
+#: classes/class-pta_sus_admin.php:485
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "een datum"
+msgstr[1] "data"
+
+#: classes/class-pta_sus_admin.php:486
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "die datum"
+msgstr[1] "die data"
+
+#: classes/class-pta_sus_admin.php:485
+msgid "You are trying to remove "
+msgstr "Je verwijdert"
+
+#: classes/class-pta_sus_admin.php:487
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "deze datum"
+msgstr[1] "deze data"
+
+#: classes/class-pta_sus_admin.php:487
+msgid "Please check "
+msgstr "Vink aan"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:518
+#, php-format
+msgid ""
+"The number of spots for task \"%1$s\" cannot be set below %2$d because it "
+"currently has %2$d %3$s signed up.  Please clear some spots first before "
+"updating this task."
+msgstr ""
+"Het aantal open plekken voor taak \"%1$s\" kan niet minder zijn dan %2$d, "
+"omdat er momenteel %2$d %3$s aanmeldingen van vrijwilligers zijn.  Verwijder "
+"een aantal aanmeldingen voordat je deze taak aanpast."
+
+#: classes/class-pta_sus_admin.php:527
+msgid "You must enter at least one task!"
+msgstr "Je moet minimaal 1 taak invoeren!"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:543
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
+"Please clear all spots first before removing this task."
+msgstr ""
+"De taak \"%1$s\" kan niet verwijderd worden, omdat er %2$d %3$s aangemeld "
+"zijn.  Verwijder eerst deze aanmeldingen voordat je de taak verwijdert. "
+
+#: classes/class-pta_sus_admin.php:591
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "taak."
+msgstr[1] "taken."
+
+#: classes/class-pta_sus_admin.php:591
+#, php-format
+msgid "Error saving %d "
+msgstr "Fout bij opslaan %d"
+
+#: classes/class-pta_sus_admin.php:616 classes/class-pta_sus_admin.php:695
+msgid "Error updating sheet."
+msgstr "Fout bij bijwerken van de activiteit."
+
+#: classes/class-pta_sus_admin.php:629
+msgid "Error removing a task."
+msgstr "Taak verwijderen is mislukt."
+
+#: classes/class-pta_sus_admin.php:648
+msgid ""
+"Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr ""
+"Selecteer een positie OF vul de contactinfo van de coördinator in. NIET "
+"beide!"
+
+#: classes/class-pta_sus_admin.php:651
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr "Vul de naam EN email in van de coördinator(en)!"
+
+#: classes/class-pta_sus_admin.php:654
+msgid "Please either select a position or type in the chair contact info!"
+msgstr "Selecteer een positie of type bij de coördinator!"
+
+#: classes/class-pta_sus_admin.php:657
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr "Vul de naam EN email in van de coördinator(en)!"
+
+#: classes/class-pta_sus_admin.php:679
+msgid "A Sheet with the same name already exists!"
+msgstr "Een activiteit met dezelfde naam bestaat al!"
+
+#: classes/class-pta_sus_admin.php:687
+msgid "Error adding sheet."
+msgstr "Toevoegen activiteit mislukt."
+
+#: classes/class-pta_sus_admin.php:732 classes/class-pta_sus_admin.php:736
+#: classes/class-pta_sus_admin.php:746
+msgid "ADD"
+msgstr "VOEG TOE"
+
+#: classes/class-pta_sus_admin.php:732 classes/class-pta_sus_admin.php:746
+msgid "Tasks"
+msgstr "Taken"
+
+#: classes/class-pta_sus_admin.php:736
+msgid "Sign-up Sheet"
+msgstr "Vrijwilligersactiviteiten"
+
+#: classes/class-pta_sus_admin.php:740 classes/class-pta_sus_admin.php:754
+#: classes/list-table.php:114
+msgid "Edit Tasks"
+msgstr "Bewerk taken"
+
+#: classes/class-pta_sus_admin.php:742
+msgid "Dates and Tasks are added on the next page"
+msgstr "Data en taken worden toegevoegd op de volgende pagina"
+
+#: classes/class-pta_sus_admin.php:747
+msgid "Tasks Successfully Updated!"
+msgstr "De taak is bewerkt"
+
+#: classes/class-pta_sus_admin.php:751 classes/list-table.php:113
+msgid "Edit Sheet"
+msgstr "Bewerk activiteit"
+
+#: classes/class-pta_sus_admin.php:752
+msgid "Sheet Updated!"
+msgstr "Activiteit is bijgewerkt!"
+
+#: classes/class-pta_sus_admin.php:795
+msgid "Single"
+msgstr "Eenmalig"
+
+#: classes/class-pta_sus_admin.php:796
+msgid "Recurring"
+msgstr "Herhalend"
+
+#: classes/class-pta_sus_admin.php:797
+msgid "Multi-Day"
+msgstr "Meerdaags"
+
+#: classes/class-pta_sus_admin.php:798 classes/class-pta_sus_public.php:259
+#: classes/class-pta_sus_public.php:260
+msgid "Ongoing"
+msgstr "Doorgaand"
+
+#: classes/class-pta_sus_admin.php:808
+msgid "Select Event Type"
+msgstr "Selecteer type activiteit"
+
+#: classes/class-pta_sus_admin.php:819 classes/widget.php:124
+msgid "Title:"
+msgstr "Titel:"
+
+#: classes/class-pta_sus_admin.php:821
+msgid "Title of event, program or function"
+msgstr "Titel van de activiteit"
+
+#: classes/class-pta_sus_admin.php:826 classes/class-pta_sus_admin.php:830
+msgid "Event Type:"
+msgstr "Type activiteit:"
+
+#: classes/class-pta_sus_admin.php:840
+msgid "1st Reminder # of days:"
+msgstr "1ste herinnering # aantal dagen:"
+
+#: classes/class-pta_sus_admin.php:842
+msgid ""
+"# of days before the event date to send the first reminder. Leave blank (or "
+"0) for no automatic reminders"
+msgstr ""
+"# dagen voor de activiteit wanneer de herinneringsmail gestuurd moet worden. "
+"Laat leeg (of vul 0 in) als er geen automatische herinneringen gestuurd "
+"moeten worden."
+
+#: classes/class-pta_sus_admin.php:845
+msgid "2nd Reminder # of days:"
+msgstr "2de herinnering # dagen:"
+
+#: classes/class-pta_sus_admin.php:847
+msgid ""
+"# of days before the event date to send the second reminder. Leave blank (or "
+"0) for no second reminder"
+msgstr ""
+"# dagen voor de activiteit wanneer de tweede herinnering gestuurd moet "
+"worden. Laat leeg (of vul 0 in) als er geen tweede herinnering verstuurd "
+"moet worden."
+
+#: classes/class-pta_sus_admin.php:852
+msgid "Visible to Public?"
+msgstr "Zichtbaar?"
+
+#: classes/class-pta_sus_admin.php:854
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
+"from the public. Administrators and Sign-Up Sheet Managers can still see "
+"hidden sheets."
+msgstr ""
+"<strong>Vink uit</strong> als je deze activiteit wilt <strong>hide</strong>. "
+"Administrators kunnen deze nog wel zien."
+
+#: classes/class-pta_sus_admin.php:860
+msgid "Contact Info:"
+msgstr "Contactinformatie:"
+
+#: classes/class-pta_sus_admin.php:866
+msgid "Select Position"
+msgstr "Selecteer positie"
+
+#: classes/class-pta_sus_admin.php:874
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr "Select a program, committee, or position, to use the contact form:"
+
+#: classes/class-pta_sus_admin.php:879
+msgid ""
+"<strong><em>OR</em></strong>, manually enter chair names and contact emails "
+"below."
+msgstr ""
+"<strong><em>OF</em></strong>, vul de naam en email van de coördinator(en) "
+"handmatig in."
+
+#: classes/class-pta_sus_admin.php:884
+msgid "Chair Name(s):"
+msgstr "Naam van de coördinator(en):"
+
+#: classes/class-pta_sus_admin.php:886
+msgid "Separate multiple names with commas"
+msgstr "Zet een komma tussen de verschillende namen"
+
+#: classes/class-pta_sus_admin.php:889
+msgid "Chair Email(s):"
+msgstr "Emailadres van de coördinator(en):"
+
+#: classes/class-pta_sus_admin.php:891
+msgid "Separate multiple emails with commas"
+msgstr "Zet een komma tussen de verschillende emailadressen"
+
+#: classes/class-pta_sus_admin.php:901
+msgid "Program/Event Details (optional):"
+msgstr "Activiteit details:"
+
+#: classes/class-pta_sus_admin.php:911
+msgid "Save Sheet"
+msgstr "Sla activiteit op"
+
+#: classes/class-pta_sus_admin.php:922
+msgid "Select the date for "
+msgstr "Selecteer de datum voor"
+
+#: classes/class-pta_sus_admin.php:926
+msgid ""
+"Select a date for the event.  All tasks will then be assigned to this date."
+msgstr ""
+"Selecteer een datum voor deze activiteit. Alle taken worden dan toegewezen "
+"op deze datum."
+
+#: classes/class-pta_sus_admin.php:930
+msgid "Select ALL the dates for "
+msgstr "Selecteer ALLE data voor"
+
+#: classes/class-pta_sus_admin.php:934
+msgid ""
+"Select all the dates for the event. Copies of the tasks will be created for "
+"each date."
+msgstr "Selecteer alle data voor de activiteit. Voor elke datum worden "
+
+#: classes/class-pta_sus_admin.php:939
+msgid "Tasks for "
+msgstr "Taken voor"
+
+#: classes/class-pta_sus_admin.php:940
+msgid "Tasks/Items"
+msgstr "Taken"
+
+#: classes/class-pta_sus_admin.php:941
+msgid ""
+"Enter tasks or items below. Drag and drop to change sort order. Times are "
+"optional. If you need details for an item or task (such as what dish they "
+"are bringing for a lunch) check the Details Needed box.<br/>\n"
+"            Click on (+) to add additional tasks, or (-) to remove a task.  "
+"At least one task/item must be entered.  If # needed is left blank, the "
+"value will be set to 1."
+msgstr ""
+"Vul hieronder taken of voorwerpen in. Sleep om volgorde te veranderen. "
+"Tijden zijn optioneel. Als je details nodig hebt voor een voorwerp of taak, "
+"vink dan de Details Benodigd checkbox aan.\n"
+"Klik op (+) om taken toe te voegen of (-) om een taak te verwijderen. Er "
+"moet minimaal 1 taak ingevuld worden. Als # benodigd leegblijft, wordt deze "
+"op 1 gezet."
+
+#: classes/class-pta_sus_admin.php:948
+msgid "Task/Item:"
+msgstr "Taak:"
+
+#: classes/class-pta_sus_admin.php:950
+msgid "Date:"
+msgstr "Datum:"
+
+#: classes/class-pta_sus_admin.php:953
+msgid "# Needed:"
+msgstr "# nodig:"
+
+#: classes/class-pta_sus_admin.php:954
+msgid "Start Time:"
+msgstr "Begintijd:"
+
+#: classes/class-pta_sus_admin.php:955
+msgid "End Time:"
+msgstr "Eindtijd:"
+
+#: classes/class-pta_sus_admin.php:956
+msgid "Allow Duplicates? "
+msgstr "Mag iemand zich hier dubbel voor aanmelden?"
+
+#: classes/class-pta_sus_admin.php:965
+msgid "Enable Quantities? "
+msgstr "Voorwerpen nodig?"
+
+#: classes/class-pta_sus_admin.php:974
+msgid "Details Needed? "
+msgstr "Details benodigd?"
+
+#: classes/class-pta_sus_admin.php:984
+msgid "Details text:"
+msgstr "Details tekst:"
+
+#: classes/class-pta_sus_admin.php:1002
+msgid "Save"
+msgstr "Opslaan"
+
+#: classes/class-pta_sus_emails.php:254
+msgid "Volunteer Signup Reminders sent"
+msgstr "Vrijwilligers aanmeldingsherinneringen verstuurd"
+
+#: classes/class-pta_sus_emails.php:255 pta-volunteer-sign-up-sheets.php:118
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr "CRON job voor aanmeldingen vrijwilligers is afgerond."
+
+#: classes/class-pta_sus_emails.php:256
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "%d herinneringsmails zijn verstuurd."
+
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "Documentatie"
+
+#: classes/class-pta_sus_options.php:34
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "PTA Volunteer Sign-up Sheets Settings"
+
+#: classes/class-pta_sus_options.php:38 classes/class-pta_sus_options.php:77
+msgid "Main Settings"
+msgstr "Main instellingen"
+
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:95
+msgid "Email Settings"
+msgstr "Email instellingen"
+
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:109
+msgid "Integration Settings"
+msgstr "Integratie instellingen"
+
+#: classes/class-pta_sus_options.php:60
+msgid ""
+"Please help support continued development of this plugin! Any amount helps!"
+msgstr "Ondersteun de ontwikkeling van deze plug-in!"
+
+#: classes/class-pta_sus_options.php:78
+msgid "Enable Test Mode"
+msgstr "Testmodus aanzetten"
+
+#: classes/class-pta_sus_options.php:79
+msgid "Test Mode Message:"
+msgstr "Testmodus bericht:"
+
+#: classes/class-pta_sus_options.php:80
+msgid "Volunteer Sign Up Page"
+msgstr "Vrijwilligers aanmeldingspagina"
+
+#: classes/class-pta_sus_options.php:81
+msgid "Hide volunteer names from public?"
+msgstr "Namen van vrijwilligers verbergen voor anderen?"
+
+#: classes/class-pta_sus_options.php:82
+msgid "Show Ongoing events in Widget?"
+msgstr "Doorgaande activiteiten in widget tonen?"
+
+#: classes/class-pta_sus_options.php:83
+msgid "Show Ongoing events last?"
+msgstr "Doorgaande activiteiten als laatste tonen?"
+
+#: classes/class-pta_sus_options.php:84
+msgid "Login Required?"
+msgstr "Login vereist?"
+
+#: classes/class-pta_sus_options.php:85
+msgid "Login Required Message:"
+msgstr "Login vereist melding:"
+
+#: classes/class-pta_sus_options.php:86
+msgid "Disable Login Notices?"
+msgstr "Login-meldingen uitzetten?"
+
+#: classes/class-pta_sus_options.php:87
+msgid "Enable CRON Notifications?"
+msgstr "CRON notificaties aanzetten?"
+
+#: classes/class-pta_sus_options.php:88
+msgid "Detailed Reminder Notifications?"
+msgstr "Gedetailleerde herinneringsnotificaties?"
+
+#: classes/class-pta_sus_options.php:89
+msgid "Show Expired Tasks?"
+msgstr "Taken tonen die afgelopen zijn?"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Automatically clear expired signups?"
+msgstr "Alle verouderde aanmeldingen verwijderen?"
+
+#: classes/class-pta_sus_options.php:91
+msgid "Hide donation button?"
+msgstr "Donatieknop verbergen?"
+
+#: classes/class-pta_sus_options.php:96
+msgid "FROM email:"
+msgstr "VAN email:"
+
+#: classes/class-pta_sus_options.php:97
+msgid "Reply-To email:"
+msgstr "Reply-To email:"
+
+#: classes/class-pta_sus_options.php:98
+msgid "CC email:"
+msgstr "CC email:"
+
+#: classes/class-pta_sus_options.php:99
+msgid "Confirmation email subject:"
+msgstr "Onderwerp voor bevestigingsmail:"
+
+#: classes/class-pta_sus_options.php:100
+msgid "Confirmation email template:"
+msgstr "Template voor bevestigingsmail:"
+
+#: classes/class-pta_sus_options.php:101
+msgid "Cleared signup email subject:"
+msgstr "Subjectregel voor bevestiging van afmeldingsmail:"
+
+#: classes/class-pta_sus_options.php:102
+msgid "Cleared signup email template:"
+msgstr "Template voor bevestiging afmeldingsmail:"
+
+#: classes/class-pta_sus_options.php:103
+msgid "Reminder email subject:"
+msgstr "Onderwerp voor herinneringsmail:"
+
+#: classes/class-pta_sus_options.php:104
+msgid "Reminder email template:"
+msgstr "Template voor herinneringsmail:"
+
+#: classes/class-pta_sus_options.php:105
+msgid "Max Reminders per Hour:"
+msgstr "Max. aantal herinneringen per uur:"
+
+#: classes/class-pta_sus_options.php:111
+msgid "Enable PTA Member Directory:"
+msgstr "Enable PTA Member Directory:"
+
+#: classes/class-pta_sus_options.php:112
+msgid "Member Directory Page:"
+msgstr "Member Directory Page:"
+
+#: classes/class-pta_sus_options.php:113
+msgid "Contact Form Page:"
+msgstr "Contactformulier pagina:"
+
+#: classes/class-pta_sus_options.php:129
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "Ongeldige invoer voor %s!"
+
+#: classes/class-pta_sus_options.php:140
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "Ongeldig mailadres voor %s!"
+
+#: classes/class-pta_sus_options.php:155
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "Onbekend veldtype: %s!"
+
+#: classes/class-pta_sus_options.php:163
+msgid "Settings successfully saved!"
+msgstr "Instellingen zijn opgeslagen!"
+
+#: classes/class-pta_sus_options.php:226
+msgid "Main plugin settings"
+msgstr "Plugin instellingen"
+
+#: classes/class-pta_sus_options.php:230
+msgid "Email settings"
+msgstr "Email instellingen"
+
+#: classes/class-pta_sus_options.php:234
+msgid "Integration with other plugins"
+msgstr "Integratie met andere plugins"
+
+#: classes/class-pta_sus_options.php:237
+msgid ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+msgstr ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+
+#: classes/class-pta_sus_options.php:238
+#, php-format
+msgid ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+msgstr ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+
+#: classes/class-pta_sus_options.php:246 classes/class-pta_sus_options.php:257
+#: classes/class-pta_sus_options.php:268
+msgid "None"
+msgstr "Geen"
+
+#: classes/class-pta_sus_options.php:250
+msgid ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+msgstr ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+
+#: classes/class-pta_sus_options.php:261
+msgid ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+msgstr ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+
+#: classes/class-pta_sus_options.php:272
+msgid ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+msgstr ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+
+#: classes/class-pta_sus_options.php:277
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr "The message users see on volunteer sign-up pages when in test mode."
+
+#: classes/class-pta_sus_options.php:282
+msgid ""
+"The message users see on volunteer sign-up pages when they are not logged in "
+"and the Login Required option is enabled."
+msgstr ""
+"Het bericht dat de vrijwilligers zien op de aanmeldingspagina wanneer ze "
+"niet ingelogd zijn."
+
+#: classes/class-pta_sus_options.php:287
+msgid ""
+"The email address that confirmation and reminder emails will be sent from."
+msgstr ""
+"Het mailadres waarvandaan bevestings- en herinnerings-mails gestuurd worden."
+
+#: classes/class-pta_sus_options.php:292
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr "Het Reply-To mailadres voor bevestigings- en herinnerings-mails."
+
+#: classes/class-pta_sus_options.php:297
+msgid ""
+"Global CC email address for signup confirmation and signup cleared emails. "
+"This email is in ADDITION TO the chair contact emails for sheets and will "
+"apply to ALL sheets. Useful for notifying admin or the head volunteer "
+"coordinator. Leave blank to only notify the chairs entered for each sheet."
+msgstr ""
+"Globaal CC emailadres voor bevestigingen van aanmeldingen en afmeldingen."
+
+#: classes/class-pta_sus_options.php:302
+msgid "Subject line for signup confirmation email messages"
+msgstr "Subject-regel voor bevestigingsmail bij aanmelding"
+
+#: classes/class-pta_sus_options.php:307
+msgid "Subject line for cleared signup email messages"
+msgstr "Subject-regel voor bevestigingsmail bij afmelding"
+
+#: classes/class-pta_sus_options.php:312
+msgid "Subject line for signup reminder email messages."
+msgstr "Subject-regel voor herinneringsmails"
+
+#: classes/class-pta_sus_options.php:317
+msgid ""
+"Max # of reminder emails to send out in a hour. Leave blank or zero for no "
+"limit."
+msgstr ""
+"Max. # herinneringsmails die per uur gestuurd mogen worden. Laat leeg of 0 "
+"voor geen limiet."
+
+#: classes/class-pta_sus_options.php:326
+msgid "PTA Member Directory and Contact Form"
+msgstr "PTA Member Directory and Contact Form"
+
+#: classes/class-pta_sus_options.php:329
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "Enable integration with the %s"
+
+#: classes/class-pta_sus_options.php:341
+msgid ""
+"Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can "
+"view public side sign-up sheets."
+msgstr ""
+"Zet het vrijwilligers aanmeldingssysteem in Test Modus. Alleen admin-"
+"gebruikers kunnen de aanmeldingsformulieren zien."
+
+#: classes/class-pta_sus_options.php:353
+msgid ""
+"If checked filled sign-up slots will show \"Filled\" instead of first name "
+"and last initial of volunteer."
+msgstr ""
+"Als dit is aangevinkt verschijnt er 'ingevuld' in plaats van de naam van de "
+"vrijwilliger."
+
+#: classes/class-pta_sus_options.php:365
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr ""
+"Als dit is aangevinkt worden doorgaande activiteiten getoond in de zijbalk."
+
+#: classes/class-pta_sus_options.php:377
+msgid ""
+"If checked, Ongoing events will be shown at the bottom of sign up sheet "
+"lists (and widget, if enabled)."
+msgstr ""
+"Als dit is aangevinkt worden doorgaande activiteiten onderaan de "
+"aanmeldingslijst gezet."
+
+#: classes/class-pta_sus_options.php:390 classes/class-pta_sus_options.php:402
+#: classes/class-pta_sus_options.php:414 classes/class-pta_sus_options.php:426
+#: classes/class-pta_sus_options.php:438 classes/class-pta_sus_options.php:450
+#: classes/class-pta_sus_options.php:462
+msgid "YES."
+msgstr "JA."
+
+#: classes/class-pta_sus_options.php:390
+msgid ""
+"Force user to be logged in before they can view or sign-up for any volunteer "
+"sheets."
+msgstr "Gebruiker MOET ingelogd zijn om aanmeldingen te kunnen zien."
+
+#: classes/class-pta_sus_options.php:402
+msgid ""
+"Turn off the notice strongly suggesting volunteers login before signing up "
+"for a volunteer slot (on signup form page) and the notice to login to view/"
+"edit signups on the main volunteer list page."
+msgstr ""
+"Turn off the notice strongly suggesting volunteers login before signing up "
+"for a volunteer slot (on signup form page) and the notice to login to view/"
+"edit signups on the main volunteer list page."
+
+#: classes/class-pta_sus_options.php:414
+msgid ""
+"Sends site admin an email whenever a CRON job is completed (such as sending "
+"reminders or deleting expired signups)."
+msgstr "Stuur de site admin een email wanneer een CRON job gedaan is."
+
+#: classes/class-pta_sus_options.php:426
+msgid ""
+"Admin reminder emails notification will include the message body of all "
+"reminders sent, useful for troubleshooting."
+msgstr ""
+"Admin herinneringsmails bevatten de inhoud van alle verzonden herinneringen. "
+"Handig he."
+
+#: classes/class-pta_sus_options.php:438
+msgid ""
+"Shows expired tasks on the admin View Signups page for a sheet. Expired "
+"tasks are not counted in the Total Spots column."
+msgstr ""
+"Toont afgelopen taken in de admin Bekijk Aanmeldingen pagina. Afgelopen "
+"taken worden niet meegeteld in de Totaal Open Plekken kolom."
+
+#: classes/class-pta_sus_options.php:450
+msgid ""
+"Automatically clears expired signups from the database (runs with hourly "
+"CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr ""
+"Verwijdert automatisch verlopen aanmeldingen uit de database (dankzij "
+"uurlijkse CRON functie). Verlopen aanmeldingen worden niet meegeteld in de "
+"Gevulde Plaatsen kolom."
+
+#: classes/class-pta_sus_options.php:462
+msgid "Hides the donation button at bottom of settings pages."
+msgstr "Verberg de donatieknop onderaan de instelling-pagina's"
+
+#: classes/class-pta_sus_options.php:469
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr "Email die een vrijwilliger ontvangt wanneer zij/hij zich aanmeldt."
+
+#: classes/class-pta_sus_options.php:470 classes/class-pta_sus_options.php:478
+#: classes/class-pta_sus_options.php:486
+msgid "Available Template Tags: "
+msgstr "Beschikbare Template Tags:"
+
+#: classes/class-pta_sus_options.php:477
+msgid "Reminder email sent to volunteers."
+msgstr "Herinneringsmail is aan vrijwilligers verstuurd."
+
+#: classes/class-pta_sus_options.php:485
+msgid ""
+"Cleared signup email sent to volunteers when they clear themselves from a "
+"signup."
+msgstr "Mail die vrijwilliger krijgt wanneer hij zich afmeldt."
+
+#: classes/class-pta_sus_public.php:57
+msgid "Sorry! Your security nonce did not verify!"
+msgstr "Helaas! Mislukt!"
+
+#: classes/class-pta_sus_public.php:63
+msgid ""
+"Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr ""
+"Oeps! Je hebt het spambot-veld ingevuld. Maak dit leeg en probeer het nog "
+"eens."
+
+#: classes/class-pta_sus_public.php:74
+msgid "Please complete all required fields."
+msgstr "Vul alle verplichte velden in."
+
+#: classes/class-pta_sus_public.php:79
+msgid "Please enter the item you are bringing."
+msgstr "Vul het voorwerp in dat je meebrengt."
+
+#: classes/class-pta_sus_public.php:83
+msgid "Please enter the item quantity you are bringing."
+msgstr "Vul het aantal in dat je meebrengt."
+
+#: classes/class-pta_sus_public.php:90
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "Ongeldige tekens in voornaam!"
+
+#: classes/class-pta_sus_public.php:95
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "Ongeldige tekens in achternaam!"
+
+#: classes/class-pta_sus_public.php:100
+msgid "Invalid Email!  Please try again."
+msgstr "Ongeldige email!"
+
+#: classes/class-pta_sus_public.php:105
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr "Ongeldig telefoonnummer!"
+
+#: classes/class-pta_sus_public.php:110
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr "Ongeldige karakters!"
+
+#: classes/class-pta_sus_public.php:115
+#, php-format
+msgid "Please enter a number between 1 and %d for Item QTY!"
+msgstr "Vul een getal tussen 1 en %d in."
+
+#: classes/class-pta_sus_public.php:120
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr "Verborgen aanmeldingsdatum is ongeldig. Probeer het nog eens."
+
+#: classes/class-pta_sus_public.php:126
+msgid "You are already signed up for this task!"
+msgstr "Je bent al aangemeld voor deze taak!"
+
+#: classes/class-pta_sus_public.php:134
+msgid "Error adding signup record.  Please try again."
+msgstr "Aanmelding toevoegen is mislukt. Probeer het nog eens."
+
+#: classes/class-pta_sus_public.php:142
+msgid "You have been signed up!"
+msgstr "Je bent aangemeld!"
+
+#: classes/class-pta_sus_public.php:144
+msgid "ERROR SENDING EMAIL"
+msgstr "MAIL VERSTUREN MISLUKT"
+
+#: classes/class-pta_sus_public.php:162
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "Aanmeldingen zijn in TEST MODUS"
+
+#: classes/class-pta_sus_public.php:179 classes/class-pta_sus_public.php:187
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "Openstaande activiteiten"
+
+#: classes/class-pta_sus_public.php:209 classes/widget.php:46
+msgid "Hidden!"
+msgstr "Verborgen!"
+
+#: classes/class-pta_sus_public.php:221
+msgid "No sheets currently available at this time."
+msgstr "Geen activiteiten beschikbaar."
+
+#: classes/class-pta_sus_public.php:228 classes/class-pta_sus_public.php:317
+#: classes/list-table.php:173
+msgid "Title"
+msgstr "Titel"
+
+#: classes/class-pta_sus_public.php:230
+msgid "Start Date"
+msgstr "Begindatum"
+
+#: classes/class-pta_sus_public.php:231
+msgid "End Date"
+msgstr "Einddatum"
+
+#: classes/class-pta_sus_public.php:232 classes/widget.php:103
+msgid "Open Spots"
+msgstr "Open plekken:"
+
+#: classes/class-pta_sus_public.php:262
+msgid "View &amp; sign-up"
+msgstr "Bekijk &amp; meld aan"
+
+#: classes/class-pta_sus_public.php:262 classes/class-pta_sus_public.php:533
+msgid "Filled"
+msgstr "Gevuld"
+
+#: classes/class-pta_sus_public.php:277
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr "Log in om je aanmeldingen te zien of te veranderen."
+
+#: classes/class-pta_sus_public.php:289
+msgid "Not a valid signup!"
+msgstr "Ongeldige aanmelding."
+
+#: classes/class-pta_sus_public.php:299
+msgid "Signup Cleared"
+msgstr "Aanmelding is ongedaan gemaakt."
+
+#: classes/class-pta_sus_public.php:301
+msgid "ERROR clearing signup!"
+msgstr "ERROR aanmelding ongedaan maken."
+
+#: classes/class-pta_sus_public.php:310
+msgid "You have signed up for the following"
+msgstr "Je hebt je aangemeld voor"
+
+#: classes/class-pta_sus_public.php:311
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "Klik op Clear om je aanmelding ongedaan te maken."
+
+#: classes/class-pta_sus_public.php:318
+msgid "Date"
+msgstr "Datum"
+
+#: classes/class-pta_sus_public.php:339
+msgid "Clear"
+msgstr "Clear"
+
+#: classes/class-pta_sus_public.php:352
+msgid "Sign-up sheet not found."
+msgstr "Activiteit niet gevonden."
+
+#: classes/class-pta_sus_public.php:376 classes/class-pta_sus_public.php:379
+msgid "Contact:"
+msgstr "Contact:"
+
+#: classes/class-pta_sus_public.php:381 classes/class-pta_sus_public.php:384
+#: classes/class-pta_sus_public.php:397
+msgid "No Event Chair contact info provided"
+msgstr "Er is geen contactinfo over de coördinator"
+
+#: classes/class-pta_sus_public.php:393
+msgid "Event Chairs:"
+msgstr "Coordinator(en):"
+
+#: classes/class-pta_sus_public.php:395
+msgid "Event Chair:"
+msgstr "Coördinator(en):"
+
+#: classes/class-pta_sus_public.php:402
+msgid "View all Sign-up Sheets"
+msgstr "Bekijk alle activiteiten"
+
+#: classes/class-pta_sus_public.php:413
+msgid "This sheet is currently hidden from the public."
+msgstr "Deze activiteit is momenteel niet zichtbaar."
+
+#: classes/class-pta_sus_public.php:440
+msgid "DETAILS:"
+msgstr "Details:"
+
+#: classes/class-pta_sus_public.php:443
+msgid "Sign up below..."
+msgstr "Meld je hieronder aan..."
+
+#: classes/class-pta_sus_public.php:466
+msgid "No tasks were found for "
+msgstr "Er zijn geen taken gevonden voor"
+
+#: classes/class-pta_sus_public.php:486
+msgid "Available Spots"
+msgstr "Open plekken"
+
+#: classes/class-pta_sus_public.php:570
+msgid "Sign up "
+msgstr "Meld aan"
+
+#: classes/class-pta_sus_public.php:597
+msgid "Sign Up"
+msgstr "Meld aan"
+
+#: classes/class-pta_sus_public.php:598
+msgid "You are signing up for... "
+msgstr "Je meldt je aan voor..."
+
+#: classes/class-pta_sus_public.php:600
+#, php-format
+msgid "on %s"
+msgstr "op %s"
+
+#: classes/class-pta_sus_public.php:604
+msgid "Start Time: "
+msgstr "Begintijd:"
+
+#: classes/class-pta_sus_public.php:607
+msgid "End Time: "
+msgstr "Eindtijd:"
+
+#: classes/class-pta_sus_public.php:609
+msgid "First Name"
+msgstr "Voornaam"
+
+#: classes/class-pta_sus_public.php:610
+msgid "Last Name"
+msgstr "Achternaam"
+
+#: classes/class-pta_sus_public.php:645
+msgid ""
+"If you have an account, it is strongly recommended that you <em style=\"text-"
+"decoration:underline;\">login before you sign up</em> so that you can view "
+"and edit all your signups."
+msgstr ""
+"Als je een account hebt, kan je het beste <em style=\"text-decoration:"
+"underline;\">inloggen voordat je je aanmeldt </em> zodat je al je "
+"aanmeldingen kunt zien."
+
+#: classes/class-pta_sus_public.php:688
+#, php-format
+msgid "Item QTY (1 - %d): "
+msgstr "Aantal voorwerpen 91 - %d):"
+
+#: classes/class-pta_sus_public.php:691
+msgid "Only 1 remaining! Your quantity will be set to 1."
+msgstr "Nog maar 1 over! Het aantal wordt gereset op 1."
+
+#: classes/class-pta_sus_public.php:716
+msgid "Sign me up!"
+msgstr "Meld me aan!"
+
+#: classes/class-pta_sus_public.php:717
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; terug naar activiteit"
+
+#: classes/data.php:702
+#, php-format
+msgid "%s is a required field."
+msgstr "%s is verplicht"
+
+#: classes/data.php:713
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "Ongeldige karakters in het veld %s"
+
+#: classes/data.php:733
+msgid "Invalid email."
+msgstr "Ongeldige email"
+
+#: classes/data.php:741 classes/data.php:755
+msgid "Invalid date."
+msgstr "Ongeldige datum"
+
+#: classes/data.php:764
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "Alleen getallen invoeren bij %s"
+
+#: classes/data.php:771
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "Alleen Ja of Nee voor %s"
+
+#: classes/data.php:778
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "Ongeldige waarde voor %s"
+
+#: classes/data.php:786
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "%s is geen geldige tijd"
+
+#: classes/list-table.php:110 classes/list-table.php:220
+msgid "Restore"
+msgstr "Herstel"
+
+#: classes/list-table.php:110 classes/list-table.php:219
+msgid "Delete"
+msgstr "Verwijder"
+
+#: classes/list-table.php:112
+msgid "View Sign-ups"
+msgstr "Bekijk aanmeldingen"
+
+#: classes/list-table.php:115
+msgid "Copy"
+msgstr "Kopieer"
+
+#: classes/list-table.php:116
+msgid "Trash"
+msgstr "Prullenbak"
+
+#: classes/list-table.php:141
+msgid "Yes"
+msgstr "Ja"
+
+#: classes/list-table.php:143
+msgid "NO"
+msgstr "Nee"
+
+#: classes/list-table.php:172
+msgid "ID#"
+msgstr "ID#"
+
+#: classes/list-table.php:174
+msgid "Visible"
+msgstr "Zichtbaar"
+
+#: classes/list-table.php:175
+msgid "Event Type"
+msgstr "Type activiteit"
+
+#: classes/list-table.php:176
+msgid "First Date"
+msgstr "Eerste datum"
+
+#: classes/list-table.php:177
+msgid "Last Date"
+msgstr "Laatste datum"
+
+#: classes/list-table.php:178
+msgid "# Dates"
+msgstr "# Data"
+
+#: classes/list-table.php:179
+msgid "# Tasks"
+msgstr "# Taken"
+
+#: classes/list-table.php:180
+msgid "Total Spots"
+msgstr "Totaal aantal plaatsen"
+
+#: classes/list-table.php:181
+msgid "Filled Spots"
+msgstr "Gevulde plaatsen"
+
+#: classes/list-table.php:224
+msgid "Move to Trash"
+msgstr "Verplaats naar prullenbak"
+
+#: classes/list-table.php:225
+msgid "Toggle Visibility"
+msgstr "Verander zichtbaarheid"
+
+#: classes/list-table.php:258
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "Weggooien van sheet# %d mislukt."
+
+#: classes/list-table.php:261
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d activiteiten zijn verwijderd."
+
+#: classes/list-table.php:269
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "Verwijderen van de activiteit# %d is mislukt."
+
+#: classes/list-table.php:272
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "%d activiteiten zijn gewist."
+
+#: classes/list-table.php:280
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "Het herstellen van activiteit# %d is niet gelukt."
+
+#: classes/list-table.php:283
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "%d activiteiten zijn hersteld."
+
+#: classes/list-table.php:291
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "Het is niet gelukt om activiteit# %d zichtbaar/onzichtbaar te maken."
+
+#: classes/list-table.php:294
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "Zichtbaarheid van %d activiteiten veranderd."
+
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "PTA Volunteer Sign-up Sheet list Widget."
+
+#: classes/widget.php:120
+msgid "Current Volunteer Opportunities"
+msgstr "We zoeken nu vrijwilligers voor"
+
+#: classes/widget.php:128
+msgid "# of items to show (-1 for all):"
+msgstr "# voorwerpen laten zien (-1 om alles te laten zien)"
+
+#: classes/widget.php:132
+msgid "CSS Class for ul list of signups"
+msgstr "CSS class voor aanmeldingslijst"
+
+#: pta-volunteer-sign-up-sheets.php:117
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "Onderhoud van aanmeldingen van vrijwilligers is klaar!"
+
+#: pta-volunteer-sign-up-sheets.php:119
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr "%d afgelopen aanmeldingen zijn verwijderd."
+
+#: pta-volunteer-sign-up-sheets.php:425
+msgid "Extensions"
+msgstr "Uitbreidingen"
+
+#: pta-volunteer-sign-up-sheets.php:427
+msgid "Docs"
+msgstr "Docs"

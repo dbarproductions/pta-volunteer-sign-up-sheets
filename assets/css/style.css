@@ -1,0 +1,64 @@
+TABLE.pta-sus-sheets {
+    width: 100%;
+    }
+TABLE.pta-sus-tasks TD,
+TABLE.pta-sus-sheets TD {
+    border-collapse: collapse;  
+    border-spacing: 0;  
+    }
+TABLE.pta-sus-tasks TD,
+TABLE.pta-sus-sheets TD,
+TABLE.pta-sus-tasks TH,
+TABLE.pta-sus-sheets TH {
+    padding: .2em .6em;
+    text-align: left;
+    vertical-align: top;
+    }
+
+TABLE.pta-sus-sheets TD,
+TABLE.pta-sus-tasks TH,
+TABLE.pta-sus-sheets TH {
+    border-bottom: 1px solid #ccc;
+    }
+TR.pta-sus-tasks-bb TD {
+    border-bottom: 1px solid #ccc;
+    }
+TR.pta-sus-tasks-timeb TD {
+    border-bottom: 2px solid #ccc;
+}
+TABLE.pta-sus-sheets TR.filled {
+    background: #eee;
+    }
+TABLE.pta-sus-sheets .column-open_spots {
+    text-align: center;
+    }
+TABLE.pta-sus-sheets .column-open_spots {
+    text-align: center;
+    }
+TABLE.pta-sus-sheets .column-view_link {
+    white-space: nowrap;
+    }
+    
+.pta-sus.error,
+.pta-sus.updated {
+    color: #000 !important;
+    display: block;
+    float: none;
+    margin: 1em 0;
+    padding: 5px 5px 5px 30px;
+    text-align: left !important;
+    width: auto;
+    }
+.pta-sus.updated {
+    background: #F0FFDF url('../images/icon-check.gif') no-repeat scroll 8px .5em;
+    }
+.pta-sus.error {
+    background: #FFF2CF url('../images/icon-alert.png') no-repeat scroll 8px .5em;
+    }
+.pta-sus-hidden {
+    color: red;
+    font-weight: 600;
+}
+.pta-sus-em {
+    font-style: italic;
+}

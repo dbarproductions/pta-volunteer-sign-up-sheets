@@ -1,0 +1,1816 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PTA Volunteer Sign Up Sheets v1.8.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-02 08:29-0800\n"
+"PO-Revision-Date: 2015-02-02 18:06+0100\n"
+"Last-Translator: Sanjin Barac <update.soft.sanjin@gmail.com>\n"
+"Language-Team: \n"
+"Language: hr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 1.6.4\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Poedit-Basepath: ../\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# @ default
+# @ pta_volunteer_sus
+#: classes/class-pta_csv_exporter.php:37 classes/class-pta_sus_admin.php:116
+#: classes/class-pta_sus_admin.php:353 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Nemate potrebne ovlasti za pristup ovoj stranici."
+
+# @ default
+#: classes/class-pta_csv_exporter.php:44
+msgid "Invalid Report Data!"
+msgstr "Neispravni Podaci s Izvješćem!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:26 classes/class-pta_sus_admin.php:27
+msgid "Sign-up Sheets"
+msgstr "Liste za Prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:27
+msgid "All Sheets"
+msgstr "Sve liste"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:28
+msgid "Add New Sheet"
+msgstr "Dodaj novu listu"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:28 classes/class-pta_sus_admin.php:150
+msgid "Add New"
+msgstr "Dodaj novo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:29 pta-volunteer-sign-up-sheets.php:441
+msgid "Settings"
+msgstr "Postavke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:30 classes/class-pta_sus_admin.php:98
+msgid "CRON Functions"
+msgstr "CRON Funkcije"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:57 classes/class-pta_sus_admin.php:1008
+msgid "Item you are bringing"
+msgstr "Stvari koje donosite"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:67
+msgid "Last reminders sent:"
+msgstr "Zadnji podsjetnik poslan:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:68 classes/class-pta_sus_admin.php:72
+#, php-format
+msgid "Date: %s"
+msgstr "Datum: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:69 classes/class-pta_sus_admin.php:73
+#, php-format
+msgid "Time: %s"
+msgstr "Vrijeme: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:70 classes/class-pta_sus_admin.php:84
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "%d podsjetnik poslan"
+msgstr[1] "%d podsjetnika poslano"
+msgstr[2] "%d podsjetnika poslano"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:71
+msgid "Last reminder check:"
+msgstr "Posljednji podsjetnik za provjeru:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:90
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "%d prijava obrisana"
+msgstr[1] "%d prijave obrisane"
+msgstr[2] "%d prijava obrisano"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:99
+msgid "Volunteer Reminders"
+msgstr "Podsjetnici za Volontere"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:100
+msgid ""
+"The system automatically checks if it needs to send reminders hourly via a "
+"CRON function. If you are testing, or don't want to wait for the next CRON "
+"job to be triggered, you can trigger the reminders function with the button "
+"below."
+msgstr ""
+"Sustav svakog sata automatski provjerava da li je potrebno poslati "
+"podsjetnik putem CRON funkcije. Ako testirate, ili ne želite čekati da se "
+"pokrene slijedeći CRON posao, vi možete pokrenuti funkciju podsjetnika sa "
+"dugmetom ispod."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:102
+msgid "Send Reminders"
+msgstr "Pošalji podsjetnike"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:104 classes/class-pta_sus_admin.php:106
+msgid "Clear Expired Signups"
+msgstr "Očisti Istekle Prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:105
+msgid ""
+"If you have disabled the automatic clearing of expired signups, you can use "
+"this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT "
+"BE UNDONE!"
+msgstr ""
+"Ako ste onemogućili automatsko čišćenje isteklih prijava, vi možete ovo "
+"koristiti za brisanje svih isteklih prijava iz SVIH lista. NAPOMENA: OVA "
+"AKCIJA NE MOŽE BITI PONIŠTENA!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:132
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "Greška tijekom brisanja mjesta (ID # %s)"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:135
+msgid "Spot has been cleared."
+msgstr "Mjesto je obrisano."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:149
+msgid "Sheet Details"
+msgstr "Detalji Liste"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:149
+msgid "Sign-up Sheets "
+msgstr "Liste za prijavu"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:156
+msgid "Error restoring sheet."
+msgstr "Greška prilikom vraćanja liste"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:158
+msgid "Sheet has been restored."
+msgstr "Lista je vraćena."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:162
+msgid "Error moving sheet to trash."
+msgstr "Greška prilikom premještanja liste u smeće."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:164
+msgid "Sheet has been moved to trash."
+msgstr "Lista je premještena u smeće."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:168
+msgid "Error permanently deleting sheet."
+msgstr "Greška prilikom trajnog brisanja liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:170
+msgid "Sheet has been permanently deleted."
+msgstr "Lista je trajno obrisana."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:174
+msgid "Error copying sheet."
+msgstr "Greška prilikom kopiranje liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:176
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "Lista je kopirana u novi ID # liste"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:176 classes/class-pta_sus_admin.php:737
+#: classes/class-pta_sus_admin.php:741 classes/class-pta_sus_admin.php:751
+msgid "Edit"
+msgstr "Uredi"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:180
+msgid "Error toggling sheet visibility."
+msgstr "Greška prilikom prebacivanja vidljivosti liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:186
+msgid "No sign-up sheet found."
+msgstr "Lista za prijavu nije pronađena."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:192
+msgid "Event Type: "
+msgstr "Vrsta Događanja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:193
+msgid "Signups"
+msgstr "Prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:198
+msgid "No tasks were found."
+msgstr "Nema pronađenih zadataka."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:205 classes/class-pta_sus_admin.php:262
+#: classes/class-pta_sus_admin.php:285 classes/class-pta_sus_public.php:56
+msgid "Task/Item"
+msgstr "Zadatak/Stavka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:206 classes/class-pta_sus_admin.php:264
+#: classes/class-pta_sus_admin.php:287 classes/class-pta_sus_public.php:57
+msgid "Start Time"
+msgstr "Vrijeme Početka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:207 classes/class-pta_sus_admin.php:265
+#: classes/class-pta_sus_admin.php:288 classes/class-pta_sus_public.php:58
+msgid "End Time"
+msgstr "Vrijeme Završetka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:208
+msgid "Name"
+msgstr "Ime"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:209 classes/class-pta_sus_public.php:666
+msgid "E-mail"
+msgstr "E-mail"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:210 classes/class-pta_sus_public.php:667
+msgid "Phone"
+msgstr "Telefon"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:211 classes/class-pta_sus_admin.php:269
+#: classes/class-pta_sus_admin.php:292 classes/class-pta_sus_public.php:59
+msgid "Item Details"
+msgstr "Stavka Detaljno"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:212 classes/class-pta_sus_admin.php:270
+#: classes/class-pta_sus_public.php:60
+msgid "Item Qty"
+msgstr "Stavka Kol"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:245 classes/class-pta_sus_admin.php:246
+#: classes/class-pta_sus_admin.php:264 classes/class-pta_sus_admin.php:265
+#: classes/class-pta_sus_admin.php:278 classes/class-pta_sus_admin.php:279
+#: classes/class-pta_sus_admin.php:287 classes/class-pta_sus_admin.php:288
+#: classes/class-pta_sus_emails.php:108 classes/class-pta_sus_emails.php:109
+#: classes/class-pta_sus_emails.php:110 classes/class-pta_sus_emails.php:114
+#: classes/class-pta_sus_emails.php:119 classes/class-pta_sus_public.php:61
+#: classes/list-table.php:66 classes/list-table.php:81
+msgid "N/A"
+msgstr "N/D"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:252
+msgid "Clear Spot"
+msgstr "Očisti Mjesto"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:263 classes/class-pta_sus_admin.php:286
+msgid "Task Date"
+msgstr "Datum Zadatka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:266 classes/class-pta_sus_admin.php:289
+msgid "Volunteer Name"
+msgstr "Volonter Ime"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:267 classes/class-pta_sus_admin.php:290
+msgid "Volunteer Email"
+msgstr "Volonter Email"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:268 classes/class-pta_sus_admin.php:291
+msgid "Volunteer Phone"
+msgstr "Volonter Telefon"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:280
+msgid "(empty)"
+msgstr "(prazno)"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:289
+msgid "empty"
+msgstr "prazno"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:310
+msgid "Export Sheet as CSV"
+msgstr "Izvezi Listu kao CSV"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:333
+msgid "All "
+msgstr "Sve"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:334
+msgid "Trash "
+msgstr "Smeće"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:397
+msgid "You must enter a date!"
+msgstr "Morate unijeti datum!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:400
+msgid "Invalid date!"
+msgstr "Neispravan datum!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:407
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "Morate unijeti najmanje dva datuma za Ponavljajući događaj!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:412
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "Neispravni datumi! Unesite barem 2 važeća datuma."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:453 classes/class-pta_sus_admin.php:521
+#: classes/class-pta_sus_admin.php:547
+msgid "person"
+msgid_plural "people"
+msgstr[0] "osoba"
+msgstr[1] "osobe"
+msgstr[2] "osoba"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:454
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
+"signed up.  Please clear all spots first before changing this task date."
+msgstr ""
+"Zadatak \"%1$s\" ne može biti promijenjen u novi datum jer ima prijavljenih "
+"%2$d %3$s.  Molimo da obrišete sva mjesta prije nego promjenite datum ovog "
+"zadatka."
+
+#: classes/class-pta_sus_admin.php:490
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "datum"
+msgstr[1] "datuma"
+msgstr[2] "datuma"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:491
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "ove datumi"
+msgstr[1] "ove datumi"
+msgstr[2] "ove datumi"
+
+#: classes/class-pta_sus_admin.php:490
+msgid "You are trying to remove "
+msgstr "Pokušavate ukloniti"
+
+#: classes/class-pta_sus_admin.php:492
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "ovaj datum "
+msgstr[1] "ovaj datum"
+msgstr[2] "ovaj datum"
+
+#: classes/class-pta_sus_admin.php:492
+msgid "Please check "
+msgstr "Molimo provjerite"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:523
+#, php-format
+msgid ""
+"The number of spots for task \"%1$s\" cannot be set below %2$d because it "
+"currently has %2$d %3$s signed up.  Please clear some spots first before "
+"updating this task."
+msgstr ""
+"Broj mjesta za zadatak \"%1$s\" ne može biti postavljen ispod %2$d jer "
+"trenutno ima prijava: %2$d %3$s.  Molimo očistitte neka mjesta prije "
+"ažuriranja ovog zadatka."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:532
+msgid "You must enter at least one task!"
+msgstr "Morate unijeti barem jedan zadatak!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:548
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
+"Please clear all spots first before removing this task."
+msgstr ""
+"Zadatak \"%1$s\" ne može biti uklonjen jer ima prijavljenih: %2$d %3$s. "
+"Molimo obrišite sva mjesta prije uklanjanja ovog zadatka."
+
+#: classes/class-pta_sus_admin.php:596
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "zadatak."
+msgstr[1] "zadatka."
+msgstr[2] "zadataka."
+
+#: classes/class-pta_sus_admin.php:596
+#, php-format
+msgid "Error saving %d "
+msgstr "Greška prilikom spremanja %d"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:621 classes/class-pta_sus_admin.php:700
+msgid "Error updating sheet."
+msgstr "Greška prilikom ažuriranja liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:634
+msgid "Error removing a task."
+msgstr "Greška prilikom uklanjanja zadatka."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:653
+msgid ""
+"Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr ""
+"Molimo odaberite Poziciju ILI ručno unesite kontakt podatke za Voditelja. NE "
+"oboje!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:656
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr "Molimo unesite Ime(na) i Email adresu(e) Voditelja!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:659
+msgid "Please either select a position or type in the chair contact info!"
+msgstr ""
+"Molimo da ili odaberete položaj ili upišete kontakt podatke za voditelja!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:662
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr "Molimo unesite Ime(na) i Email adresu(e) Voditelja!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:684
+msgid "A Sheet with the same name already exists!"
+msgstr "Lista s istim imenom već postoji!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:692
+msgid "Error adding sheet."
+msgstr "Greška prilikom dodavanja liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:737 classes/class-pta_sus_admin.php:741
+#: classes/class-pta_sus_admin.php:751
+msgid "ADD"
+msgstr "DODAJ"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:737 classes/class-pta_sus_admin.php:751
+msgid "Tasks"
+msgstr "Zadaci"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:741
+msgid "Sign-up Sheet"
+msgstr "Prijavna Lista"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:745 classes/class-pta_sus_admin.php:759
+#: classes/list-table.php:112
+msgid "Edit Tasks"
+msgstr "Uredi Zadatke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:747
+msgid "Dates and Tasks are added on the next page"
+msgstr "Datumi i Zadaci su dodani na sljedećoj stranici"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:752
+msgid "Tasks Successfully Updated!"
+msgstr "Zadaci su uspješno ažurirani!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:756 classes/list-table.php:111
+msgid "Edit Sheet"
+msgstr "Uredi Listu"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:757
+msgid "Sheet Updated!"
+msgstr "Lista je ažurirana!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:800 classes/list-table.php:154
+msgid "Single"
+msgstr "Jednom"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:801 classes/list-table.php:155
+msgid "Recurring"
+msgstr "Ponavljajuće"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:802 classes/list-table.php:156
+msgid "Multi-Day"
+msgstr "Više-Dnevno"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:803 classes/class-pta_sus_public.php:290
+#: classes/list-table.php:157
+msgid "Ongoing"
+msgstr "Tekuće"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:820
+msgid "Select Event Type"
+msgstr "Odaberite Vrstu Događanja"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:831 classes/widget.php:124
+msgid "Title:"
+msgstr "Naslov:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:833
+msgid "Title of event, program or function"
+msgstr "Naslov događanja, programa ili funkcije"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:838 classes/class-pta_sus_admin.php:842
+msgid "Event Type:"
+msgstr "Vrsta Događanja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:852
+msgid "1st Reminder # of days:"
+msgstr "1. Podsjetnik # dana:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:854
+msgid ""
+"# of days before the event date to send the first reminder. Leave blank (or "
+"0) for no automatic reminders"
+msgstr ""
+"# dana prije datuma događanja za poslati prvi podsjetnik. Ostavite prazno "
+"(ili 0) za bez automatskog podsjetnika"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:857
+msgid "2nd Reminder # of days:"
+msgstr "2. Podsjetnik # dana:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:859
+msgid ""
+"# of days before the event date to send the second reminder. Leave blank (or "
+"0) for no second reminder"
+msgstr ""
+"# dana prije datuma događanja za poslati drugi podsjetnik. Ostavite prazno "
+"(ili 0) za bez automatskog podsjetnika"
+
+#: classes/class-pta_sus_admin.php:864
+msgid "Show Clear links for signups?"
+msgstr "Prikazati Očisti linkove za prijave?"
+
+#: classes/class-pta_sus_admin.php:866
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>HIDE</strong> the clear link "
+"in the user's signup list. Administrators and Sign-Up Sheet Managers can "
+"still clear volunteers from signups in the admin dashboard."
+msgstr ""
+"<strong>Odznačite</strong> ako želite <strong>SAKRITI</strong> link za "
+"čišćenje u korisnikovoj listi za prijave. Administratori i Menadžeri liste "
+"za prijavu uvijek mogu očistiti volontere iz prijava u admin kontrolnoj "
+"ploči."
+
+#: classes/class-pta_sus_admin.php:869
+msgid "# of days to allow clear:"
+msgstr "# dana za dozvoliti čišćenje:"
+
+#: classes/class-pta_sus_admin.php:871
+msgid ""
+"If the above option is checked, enter the MINIMUM # of days before the "
+"signup event/item date during which volunteers can clear their signups. "
+"Leave blank (or 0) to allow them to clear themselves at any time."
+msgstr ""
+"Ako je opcija iznad uključena, unesite MINIMUM # dana prije datuma događanja/"
+"stavke tijekom kojih volonteri mogu obrisati njihove prijave. Ostavite "
+"prazno (ili 0) da im dozvolite da sami sebe obrišu u bilo koje vrijeme."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:876
+msgid "Visible to Public?"
+msgstr "Vidljivo za javnost?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:878
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
+"from the public. Administrators and Sign-Up Sheet Managers can still see "
+"hidden sheets."
+msgstr ""
+"<strong>Odznačite</strong> ako želite <strong>sakriti</strong> ovu listu od "
+"javnosti. Administratori i Menadžeri liste za prijavu uvijek mogu vidjeti "
+"skrivene liste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:884
+msgid "Contact Info:"
+msgstr "Kontakt Podaci:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:890
+msgid "Select Position"
+msgstr "Odaberite Poziciju"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:898
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr ""
+"Odaberite program, povjerenstvo, ili poziciju, za korištenje obrasca za "
+"kontakt:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:903
+msgid ""
+"<strong><em>OR</em></strong>, manually enter chair names and contact emails "
+"below."
+msgstr ""
+"<strong><em>ILI</em></strong>, ručno unesite imena voditelja i email adrese "
+"za kontakt ispod."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:908
+msgid "Chair Name(s):"
+msgstr "Ime(na) Voditelja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:910
+msgid "Separate multiple names with commas"
+msgstr "Ako ih je više, odvojite imena zarezima"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:913
+msgid "Chair Email(s):"
+msgstr "Email adresa(e) Voditelja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:915
+msgid "Separate multiple emails with commas"
+msgstr "Ako ih je više, odvojite email adrese zarezima"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:925
+msgid "Program/Event Details (optional):"
+msgstr "Detalji o Programu/Događanju (neobavezno):"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:935
+msgid "Save Sheet"
+msgstr "Spremi Listu"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:946
+msgid "Select the date for "
+msgstr "Odaberite datum za"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:950
+msgid ""
+"Select a date for the event.  All tasks will then be assigned to this date."
+msgstr ""
+"Odaberite datum za događanje. Svi zadaci će biti dodijeljeni za ovaj datum."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:954
+msgid "Select ALL the dates for "
+msgstr "Odaberite SVE datume za"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:958
+msgid ""
+"Select all the dates for the event. Copies of the tasks will be created for "
+"each date."
+msgstr ""
+"Odaberite sve datume za događanje. Kopije zadataka će biti napravljene za "
+"svaki datum."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:963
+msgid "Tasks for "
+msgstr "Zadaci za"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:964
+msgid "Tasks/Items"
+msgstr "Zadaci/Stavke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:965
+msgid ""
+"Enter tasks or items below. Drag and drop to change sort order. Times are "
+"optional. If you need details for an item or task (such as what dish they "
+"are bringing for a lunch) check the Details Needed box.<br/>\n"
+"            Click on (+) to add additional tasks, or (-) to remove a task.  "
+"At least one task/item must be entered.  If # needed is left blank, the "
+"value will be set to 1."
+msgstr ""
+"Unesite zadatke ili stavke ispod.  Povucite i ispustite da biste promijenili "
+"redoslijed. Vremena su neobavezna. Ako trebate detalje za stavku ili zadatak "
+"(kao npr jelo koje će oni ponesti za ručak) označite okvir Potrebni Detalji."
+"<br/>\n"
+"            Kliknite na (+) za dodati dodatne zadatke, ili (-) za uklanjanje "
+"zadatka.  Barem jedan zadatak/stavka mora biti unešen.  Ako # potrebno je "
+"prazno, vrijednost će biti postavljena na 1."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:972
+msgid "Task/Item:"
+msgstr "Zadatak/Stavka:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:974
+msgid "Date:"
+msgstr "Datum:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:977
+msgid "# Needed:"
+msgstr "# Potrebno:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:978
+msgid "Start Time:"
+msgstr "Vrijeme početka:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:979
+msgid "End Time:"
+msgstr "Vrijeme završetka:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:980
+msgid "Allow Duplicates? "
+msgstr "Dopustiti duplikate?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:989
+msgid "Enable Quantities? "
+msgstr "Omogućiti količine?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:998
+msgid "Details Needed? "
+msgstr "Detalji Potrebni?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:1008
+msgid "Details text:"
+msgstr "Detalji tekst:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:1026
+msgid "Save"
+msgstr "Spremi"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:254
+msgid "Volunteer Signup Reminders sent"
+msgstr "Poslan podsjetnik prijavljenom volonteru"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:255 pta-volunteer-sign-up-sheets.php:123
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr "CRON job za listu prijavljenih volontera je dovršen."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:256
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "%d email poruka za podsjetnik je poslano."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "Dokumentacija"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:34
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "Postavke za PTA Volunteer Sign-up Sheets"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:38 classes/class-pta_sus_options.php:85
+msgid "Main Settings"
+msgstr "Glavne postavke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:105
+msgid "Email Settings"
+msgstr "Email postavke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:119
+msgid "Integration Settings"
+msgstr "Postavke integracije"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:64
+msgid ""
+"Please help support continued development of this plugin! Any amount helps!"
+msgstr ""
+"Molimo pomozite podržati daljnji razvoj ovog plugina! Bilo koji iznos pomaže!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:86
+msgid "Enable Test Mode"
+msgstr "Omogući Test način"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:87
+msgid "Test Mode Message:"
+msgstr "Poruka za Test način:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:88
+msgid "Volunteer Sign Up Page"
+msgstr "Stranica za prijavu Volontera"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:89
+msgid "Hide volunteer names from public?"
+msgstr "Sakriti imena volontera od javnosti?"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Hide chair contact info from public?"
+msgstr "Sakriti kontakt podatke voditelja od javnosti?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:91
+msgid "Show Ongoing events in Widget?"
+msgstr "Prikazati tekuća događanja u widgetu?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:92
+msgid "Show Ongoing events last?"
+msgstr "Prikazati tekuća događanja na kraju?"
+
+#: classes/class-pta_sus_options.php:93
+msgid "Remove Phone field from Signup form?"
+msgstr "Ukloniti polje za telefon iz obrasca za prijavu?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:94
+msgid "Login Required?"
+msgstr "Login obavezan?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:95
+msgid "Login Required Message:"
+msgstr "Poruka za Login je obavezan:"
+
+#: classes/class-pta_sus_options.php:96
+msgid "Disable Login Notices?"
+msgstr "Onemogućiti Login obavijesti?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:97
+msgid "Enable CRON Notifications?"
+msgstr "Omogućiti CRON obavijesti?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:98
+msgid "Detailed Reminder Notifications?"
+msgstr "Obavijesti o detaljima podsjetnika?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:99
+msgid "Show Expired Tasks?"
+msgstr "Prikazati Istekle zadatke?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:100
+msgid "Automatically clear expired signups?"
+msgstr "Automatski obrisati istekle prijave?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:101
+msgid "Hide donation button?"
+msgstr "Sakriti dugme za donaciju?"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:106
+msgid "FROM email:"
+msgstr "OD email:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:107
+msgid "Reply-To email:"
+msgstr "Odgovori-Na email:"
+
+#: classes/class-pta_sus_options.php:108
+msgid "CC email:"
+msgstr "Kopija na email:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:109
+msgid "Confirmation email subject:"
+msgstr "Predmet za potvrdni email:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:110
+msgid "Confirmation email template:"
+msgstr "Predložak za potvrdni email:"
+
+#: classes/class-pta_sus_options.php:111
+msgid "Cleared signup email subject:"
+msgstr "Predmet za obrisanu prijavu:"
+
+#: classes/class-pta_sus_options.php:112
+msgid "Cleared signup email template:"
+msgstr "Predložak za obrisanu prijavu:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:113
+msgid "Reminder email subject:"
+msgstr "Predmet za email podsjetnik:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:114
+msgid "Reminder email template:"
+msgstr "Predložak za email podsjetnik:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:115
+msgid "Max Reminders per Hour:"
+msgstr "Maks Podsjetnika po satu:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:121
+msgid "Enable PTA Member Directory:"
+msgstr "Omogući PTA Member Directory:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:122
+msgid "Member Directory Page:"
+msgstr "Stranica za direktorij članova:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:123
+msgid "Contact Form Page:"
+msgstr "Stranica za Kontakt obrazac:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:139
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "Neispravan unos za %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:150
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "Neispravan email za %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:165
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "Neprepoznata vrsta polja: %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:173
+msgid "Settings successfully saved!"
+msgstr "Postavke su uspješno spremljene!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:238
+msgid "Main plugin settings"
+msgstr "Glavne postavke plugina"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:242
+msgid "Email settings"
+msgstr "Email postavke"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:246
+msgid "Integration with other plugins"
+msgstr "Integracija s ostalim pluginima"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:249
+msgid ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+msgstr ""
+"Ovaj plugin može se integrirati s PTA Member Directory and Contact Form "
+"pluginom za postavljanje kontakata za svaku listu za prijavu, s kontakt "
+"linkovima koji su usmjereni na kontakt obrazac."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:250
+#, php-format
+msgid ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+msgstr ""
+"Traži za \"PTA Member Directory\" iz stranice za instalaciju plugina, ili "
+"preuzmite iz Wordpress.org ovdje: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:258 classes/class-pta_sus_options.php:269
+#: classes/class-pta_sus_options.php:280
+msgid "None"
+msgstr "Nijedno"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:262
+msgid ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+msgstr ""
+"Stranica u koju ste umetnuli shortcode</em> [pta_sign_up_sheet] <em>za "
+"stvaranje glavne stranice za prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:273
+msgid ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+msgstr ""
+"Stranica za member directory u koju ste umetnuli shortcode "
+"[pta_member_directory]"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:284
+msgid ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+msgstr ""
+"Stranica za member directory kontakt obrazac u koju ste umetnuli shortcode "
+"[pta_member_contact] ako koristite odvojenu kontakt formu."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:289
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr ""
+"Poruka koju vide korisnici na stranicama za prijavu volontera kada je u Test "
+"načinu rada."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:294
+msgid ""
+"The message users see on volunteer sign-up pages when they are not logged in "
+"and the Login Required option is enabled."
+msgstr ""
+"Poruka koju vide korisnici na stranicama za prijavu volontera kada oni nisu "
+"logirani a opcija Login Obavezan je omogućena."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:299
+msgid ""
+"The email address that confirmation and reminder emails will be sent from."
+msgstr "Email adresa s koje će biti poslana potvrdna i podsjetna email poruka."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:304
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr "Odgovori-Na email adresu za potvrdne i podsjetne email poruka."
+
+#: classes/class-pta_sus_options.php:309
+msgid ""
+"Global CC email address for signup confirmation and signup cleared emails. "
+"This email is in ADDITION TO the chair contact emails for sheets and will "
+"apply to ALL sheets. Useful for notifying admin or the head volunteer "
+"coordinator. Leave blank to only notify the chairs entered for each sheet."
+msgstr ""
+"Email adresa za slanje kopije email poruke za potvrdu prijave i obrisane "
+"prijave. Ova email adresa je DODATAK UZ email adrese voditelja za liste, te "
+"će se primjenjivati na SVE liste. Korisno za obavještavanje administratora "
+"ili glavnog koordinatora volontera. Ostavite prazno ako želite obavijestiti "
+"samo voditelje unešene za svaku listu."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:314
+msgid "Subject line for signup confirmation email messages"
+msgstr "Predmet za email poruke za potvrdu prijave"
+
+#: classes/class-pta_sus_options.php:319
+msgid "Subject line for cleared signup email messages"
+msgstr "Predmet za email poruke za obrisane prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:324
+msgid "Subject line for signup reminder email messages."
+msgstr "Predmet za email poruke za podsjetnik za prijavljene volontere"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:329
+msgid ""
+"Max # of reminder emails to send out in a hour. Leave blank or zero for no "
+"limit."
+msgstr ""
+"Maks # podsjetnih email poruka za poslati u jednom satu. Ostavite prazno ili "
+"unesite 0 za bez ograničenja."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:338
+msgid "PTA Member Directory and Contact Form"
+msgstr "PTA Member Directory and Contact Form"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:341
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "Omogućiti integraciju sa %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:353
+msgid ""
+"Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can "
+"view public side sign-up sheets."
+msgstr ""
+"Stavlja sistem lista za prijavu volontera u Test način. Samo korisnici na "
+"razini Admina mogu vidjeti liste za prijave za javnost."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:365
+msgid ""
+"If checked filled sign-up slots will show \"Filled\" instead of first name "
+"and last initial of volunteer."
+msgstr ""
+"Ako je uključeno, ispunjeno mjesto za prijavu će pokazati \"Popunjeno\" "
+"umjesto imena i inicijala prezimena volontera."
+
+#: classes/class-pta_sus_options.php:377
+msgid "If checked sheet chair contact info will NOT be shown to the public."
+msgstr ""
+"Ako je uključeno, kontakt podaci voditelja NEĆE biti prikazani za javnost."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:389
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr ""
+"Ako je uključeno, Tekuća događanja će biti prikazana u sidebar widgetu."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:401
+msgid ""
+"If checked, Ongoing events will be shown at the bottom of sign up sheet "
+"lists (and widget, if enabled)."
+msgstr ""
+"Ako je uključeno, Tekuća događanja će biti prikazana na dnu lista za prijavu "
+"(i widgetu, ako je omogućeno)."
+
+#: classes/class-pta_sus_options.php:413
+msgid ""
+"If checked, the Phone field will be removed from the public Sign-Up form."
+msgstr ""
+"Ako je uključeno, polje za telefon će biti uklonjeno za javnost iz Forme za "
+"prijavu."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:426 classes/class-pta_sus_options.php:438
+#: classes/class-pta_sus_options.php:450 classes/class-pta_sus_options.php:462
+#: classes/class-pta_sus_options.php:474 classes/class-pta_sus_options.php:486
+#: classes/class-pta_sus_options.php:498
+msgid "YES."
+msgstr "DA."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:426
+msgid ""
+"Force user to be logged in before they can view or sign-up for any volunteer "
+"sheets."
+msgstr ""
+"Prisilite korisnika da bude logiran prije nego što može vidjeti ili se "
+"prijaviti za neku od volonterskih lista."
+
+#: classes/class-pta_sus_options.php:438
+msgid ""
+"Turn off the notice strongly suggesting volunteers login before signing up "
+"for a volunteer slot (on signup form page) and the notice to login to view/"
+"edit signups on the main volunteer list page."
+msgstr ""
+"Isključi obavijest koja snažno preporuča volonterima da se logiraju prije "
+"prijave za volontersko mjesto (na stranici s formom za prijavu) i "
+"obaviještava da se logiraju kako bi mogli vidjeti/urediti prijave na glavnoj "
+"stranici s listom volontera."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:450
+msgid ""
+"Sends site admin an email whenever a CRON job is completed (such as sending "
+"reminders or deleting expired signups)."
+msgstr ""
+"Šalje email poruku administratoru stranice svaki put kad je CRON job dovršen "
+"(kao što je slanje podsjetnika ili brisanje isteklih prijava)."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:462
+msgid ""
+"Admin reminder emails notification will include the message body of all "
+"reminders sent, useful for troubleshooting."
+msgstr ""
+"Email obavijesti podsjetnika administratoru će uključivati tijela poruka "
+"svih poslanih podsjetnika, korisno za rješavanje problema."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:474
+msgid ""
+"Shows expired tasks on the admin View Signups page for a sheet. Expired "
+"tasks are not counted in the Total Spots column."
+msgstr ""
+"Prikazuje istekle zadatke na admin stranici Vidi Prijave za listu. Istekli "
+"zadaci se ne računaju u stupcu Ukupno Mjesta."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:486
+msgid ""
+"Automatically clears expired signups from the database (runs with hourly "
+"CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr ""
+"Automatski briše istekle prijave iz baze podataka (pokreće se svakog sata s "
+"CRON funkcijom). Istekle prijave se ne broje u stupcu Popunjena Mjesta."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:498
+msgid "Hides the donation button at bottom of settings pages."
+msgstr "Sakriva dugme za donaciju na dnu stranice s postavkama."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:505
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr "Email kojeg korisnici primaju kada se prijave za volontersko mjesto."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:506 classes/class-pta_sus_options.php:514
+#: classes/class-pta_sus_options.php:522
+msgid "Available Template Tags: "
+msgstr "Dostupne Oznake (Tagovi) Predloška:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:513
+msgid "Reminder email sent to volunteers."
+msgstr "Email podsjetnik poslan volonterima."
+
+#: classes/class-pta_sus_options.php:521
+msgid ""
+"Cleared signup email sent to volunteers when they clear themselves from a "
+"signup."
+msgstr ""
+"Email poruka koja volontere obaviještava o brisanju prijave kada oni sami "
+"obrišu svoju prijavu."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:77
+msgid "Sorry! Your security nonce did not verify!"
+msgstr "Žao nam je! Vaša sigurnosna provjera nije potvrđena!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:83
+msgid ""
+"Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr ""
+"Ups! Vi ste popunili polje za spambot. Molimo da to ostavite prazno i "
+"pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:96
+msgid "Please complete all required fields."
+msgstr "Molimo da popunite sva obavezna polja."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:103
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "Nevažeći znakovi u Imenu! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:108
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "Nevažeći znakovi u Prezimenu! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:113
+msgid "Invalid Email!  Please try again."
+msgstr "Neispravan Email! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:118
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr "Nevažeći znakovi u Telefonskom broju! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:123
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr "Nevažeći znakovi u Stavci za prijavu! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:128
+#, php-format
+msgid "Please enter a number between 1 and %d for Item QTY!"
+msgstr "Molimo unesite broj između 1 i %d za Stavka KOL!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:133
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr ""
+"Skriveno polje s datumom prijave je neispravno! Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:139
+msgid "You are already signed up for this task!"
+msgstr "Već ste prijavljeni za ovaj zadatak!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:147
+msgid "Error adding signup record.  Please try again."
+msgstr "Greška prilikom dodavanja zapisa s prijavom. Molimo pokušajte ponovno."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:155
+msgid "You have been signed up!"
+msgstr "Već ste prijavljeni!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:157
+msgid "ERROR SENDING EMAIL"
+msgstr "GREŠKA PRILIKOM EMAIL SLANJA"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:172 classes/list-table.php:183
+msgid "Title"
+msgstr "Naslov"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:173
+msgid "Start Date"
+msgstr "Datum Početka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:174
+msgid "End Date"
+msgstr "Datum Završetka"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:175 classes/widget.php:103
+msgid "Open Spots"
+msgstr "Otvoreno Mjesta"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:176
+msgid "Date"
+msgstr "Datum"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:177
+msgid "No Event Chair contact info provided"
+msgstr "Niste dali kontakt podatke za Voditelja događanja"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:178
+msgid "Contact:"
+msgstr "Kontakt:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:185
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "Volunteer Sign-Up Sheets je u TEST NAČINU"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:202 classes/class-pta_sus_public.php:210
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "Trenutne Liste za Prijavu Volontera"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:232 classes/widget.php:46
+msgid "Hidden!"
+msgstr "Skriveno!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:256
+msgid "No sheets currently available at this time."
+msgstr "Trenutno nema dostupnih lista."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:291
+msgid "View &amp; sign-up"
+msgstr "Vidi i Prijavi se"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:292 classes/class-pta_sus_public.php:587
+msgid "Filled"
+msgstr "Popunjeno"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:316
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr ""
+"Molimo, logirajte se da biste pregledali i uredili svoje volonterske prijave."
+
+#: classes/class-pta_sus_public.php:328
+msgid "Not a valid signup!"
+msgstr "Nevažeća prijava!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:338
+msgid "Signup Cleared"
+msgstr "Prijava Očišćena"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:340
+msgid "ERROR clearing signup!"
+msgstr "GREŠKA prilikom brisanja prijave!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:348
+msgid "You have signed up for the following"
+msgstr "Vi ste prijavljeni za slijedeće"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:349
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "Kliknite na Očisti da uklonite sebe iz prijave."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:372
+msgid "Clear"
+msgstr "Očisti"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:399
+msgid "Sign-up sheet not found."
+msgstr "Prijavna lista nije nađena."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:439
+msgid "Event Chairs:"
+msgstr "Voditelji Događanja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:441
+msgid "Event Chair:"
+msgstr "Voditelj Događanja:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:448
+msgid "View all Sign-up Sheets"
+msgstr "Vidi sve Liste za Prijave"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:461
+msgid "This sheet is currently hidden from the public."
+msgstr "Ova lista je trenutno skrivena od javnosti."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:488
+msgid "DETAILS:"
+msgstr "DETALJNIJE:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:493
+msgid "Sign up below..."
+msgstr "Prijavite se ispod..."
+
+#: classes/class-pta_sus_public.php:495
+msgid "All spots have been filled."
+msgstr "Sva mjesta su popunjena."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:520
+msgid "No tasks were found for "
+msgstr "Nema pronađenih zadataka za"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:540
+msgid "Available Spots"
+msgstr "Dostupno Mjesta"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:624
+msgid "Sign up "
+msgstr "Prijava"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:652
+msgid "Sign Up"
+msgstr "Prijava"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:653
+msgid "You are signing up for... "
+msgstr "Vi se prijavljujete za..."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:655
+#, php-format
+msgid "on %s"
+msgstr "na %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:664
+msgid "First Name"
+msgstr "Ime"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:665
+msgid "Last Name"
+msgstr "Prezime"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:703
+msgid ""
+"If you have an account, it is strongly recommended that you <strong>login "
+"before you sign up</strong> so that you can view and edit all your signups."
+msgstr ""
+"Ako imate članski račun na stranici, preporučuje se da se <strong>logirate "
+"prije nego što se prijavite</strong> za volontiranje, tako da možete vidjeti "
+"i uređivati sve svoje prijave."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:749
+#, php-format
+msgid "Item QTY (1 - %d): "
+msgstr "Stavka KOL (1 - %d): "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:752
+msgid "Only 1 remaining! Your quantity will be set to 1."
+msgstr "Samo 1 preostalo! Vaša količina će biti postavljena na 1."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:777
+msgid "Sign me up!"
+msgstr "Prijavi me!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:778
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; povratak na Listu za Prijavu"
+
+# @ pta_volunteer_sus
+#: classes/data.php:707
+#, php-format
+msgid "%s is a required field."
+msgstr "%s je obavezno polje."
+
+# @ pta_volunteer_sus
+#: classes/data.php:718
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "Nevažeći znakovi u polju %s."
+
+# @ pta_volunteer_sus
+#: classes/data.php:738
+msgid "Invalid email."
+msgstr "Neispravan email."
+
+# @ pta_volunteer_sus
+#: classes/data.php:746 classes/data.php:760
+msgid "Invalid date."
+msgstr "Neispravan datum."
+
+# @ pta_volunteer_sus
+#: classes/data.php:769
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "Molimo samo brojeve za %s!"
+
+# @ pta_volunteer_sus
+#: classes/data.php:776
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "Molimo samo DA ili NE za %s!"
+
+# @ pta_volunteer_sus
+#: classes/data.php:783
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "Neispravna vrijednost za %s"
+
+# @ pta_volunteer_sus
+#: classes/data.php:791
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "Neispravan vremenski format za %s"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:108 classes/list-table.php:230
+msgid "Restore"
+msgstr "Vrati"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:108 classes/list-table.php:229
+msgid "Delete"
+msgstr "Obriši"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:110
+msgid "View Sign-ups"
+msgstr "Vidi Prijave"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:113
+msgid "Copy"
+msgstr "Kopiraj"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:114
+msgid "Trash"
+msgstr "Smeće"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:139
+msgid "Yes"
+msgstr "Da"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:141
+msgid "NO"
+msgstr "NE"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:182
+msgid "ID#"
+msgstr "ID#"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:184
+msgid "Visible"
+msgstr "Vidljivo"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:185
+msgid "Event Type"
+msgstr "Vrsta Događanja"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:186
+msgid "First Date"
+msgstr "Prvi Datum"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:187
+msgid "Last Date"
+msgstr "Posljednji Datum"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:188
+msgid "# Dates"
+msgstr "# Datuma"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:189
+msgid "# Tasks"
+msgstr "# Zadataka"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:190
+msgid "Total Spots"
+msgstr "Ukupno Mjesta"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:191
+msgid "Filled Spots"
+msgstr "Popunjeno Mjesta"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:234
+msgid "Move to Trash"
+msgstr "Premjesti u Smeće"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:235
+msgid "Toggle Visibility"
+msgstr "Prebaci Vidljivost"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:268
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "Greška prilikom premještanja liste# %d u smeće."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:271
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d lista je premješteno u smeće."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:279
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "Greška prilikom brisanja liste# %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:282
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "%d lista je obrisano."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:290
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "Greška prilikom vraćanja liste# %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:293
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "%d lista je vraćeno."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:301
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "Greška prilikom prebacivanja vidljivosti za listu# %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:304
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "Vidljivost je prebačena za %d liste."
+
+# @ pta_volunteer_sus
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "PTA Volunteer Sign-up Sheet list Widget."
+
+# @ pta_volunteer_sus
+#: classes/widget.php:120
+msgid "Current Volunteer Opportunities"
+msgstr "Trenutne prilike za volontiranje"
+
+# @ pta_volunteer_sus
+#: classes/widget.php:128
+msgid "# of items to show (-1 for all):"
+msgstr "# stavki za prikaz (-1 za sve):"
+
+# @ pta_volunteer_sus
+#: classes/widget.php:132
+msgid "CSS Class for ul list of signups"
+msgstr "CSS Class za ul liste prijava"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:122
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "Pospremanje Volonterskih prijava je dovršeno!"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:124
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr "%d isteklih prijava je obrisano."
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:437
+msgid "Extensions"
+msgstr "Extensions"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:439
+msgid "Docs"
+msgstr "Docs"

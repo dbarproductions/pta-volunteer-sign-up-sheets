@@ -1,0 +1,22 @@
+.pta_sus .fixed .column-task_num,
+.pta_sus .fixed .column-spot_num,
+.pta_sus .fixed .column-filled_spot_num {
+    width: 10%;
+    }
+.pta_sus .fixed .column-id {
+    width: 5%;
+    }
+.pta_sus .tasks LI {
+    background: transparent url("../images/icon-drag-y.png") no-repeat scroll left center;
+    padding-left: 16px;
+    min-height: 20px;
+    }
+.pta_sus .tasks LI:hover {
+    cursor: move;
+    }
+.pta_sus .tasks LI.ui-sortable-helper{
+    cursor: move;
+    }
+.pta_toggle {
+    display: none;
+}

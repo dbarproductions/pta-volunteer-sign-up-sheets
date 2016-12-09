@@ -1,0 +1,1444 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
+"POT-Creation-Date: 2014-03-13 08:58-0800\n"
+"PO-Revision-Date: 2014-03-15 06:14-0500\n"
+"Last-Translator: Simon Samson <contact@sitestraduction.com>\n"
+"Language-Team: Simon Samson <contact@sitestraduction.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.4\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: es\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: classes/class-pta_csv_exporter.php:37 classes/class-pta_sus_admin.php:107
+#: classes/class-pta_sus_admin.php:337 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Usted no tiene los permisos necesarios para acceder a esta página."
+
+#: classes/class-pta_csv_exporter.php:44
+msgid "Invalid Report Data!"
+msgstr "Informe de dato inválido!"
+
+#: classes/class-pta_sus_admin.php:24
+msgid "Sign-up Sheets"
+msgstr "Hojas de inscripción"
+
+#: classes/class-pta_sus_admin.php:25 classes/class-pta_sus_admin.php:140
+msgid "Sign-up Sheets "
+msgstr "Hojas de inscripción"
+
+#: classes/class-pta_sus_admin.php:25
+msgid "All Sheets"
+msgstr "Todas las hojas"
+
+#: classes/class-pta_sus_admin.php:26
+msgid "Add New Sheet"
+msgstr "Crear Nueva Hoja"
+
+#: classes/class-pta_sus_admin.php:26 classes/class-pta_sus_admin.php:141
+msgid "Add New"
+msgstr "Crear nuevo"
+
+#: classes/class-pta_sus_admin.php:27 pta-volunteer-sign-up-sheets.php:394
+msgid "Settings"
+msgstr "Ajustes"
+
+#: classes/class-pta_sus_admin.php:28 classes/class-pta_sus_admin.php:89
+msgid "CRON Functions"
+msgstr "Funciones CRON"
+
+#: classes/class-pta_sus_admin.php:58
+msgid "Last reminders sent:"
+msgstr "Últimos recordatorios enviados:"
+
+#: classes/class-pta_sus_admin.php:59 classes/class-pta_sus_admin.php:63
+#, php-format
+msgid "Date: %s"
+msgstr "Fecha: %s"
+
+#: classes/class-pta_sus_admin.php:60 classes/class-pta_sus_admin.php:64
+#, php-format
+msgid "Time: %s"
+msgstr "Hora: %s"
+
+#: classes/class-pta_sus_admin.php:61 classes/class-pta_sus_admin.php:75
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "1 recordatorio enviado"
+msgstr[1] "%d recordatorios enviados"
+
+#: classes/class-pta_sus_admin.php:62
+msgid "Last reminder check:"
+msgstr "Último control del recordatorio:"
+
+#: classes/class-pta_sus_admin.php:81
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "1 inscripción eliminada"
+msgstr[1] "%d inscripciones eliminadas"
+
+#: classes/class-pta_sus_admin.php:90
+msgid "Volunteer Reminders"
+msgstr "Recordatorios para los Voluntarios"
+
+#: classes/class-pta_sus_admin.php:91
+msgid ""
+"The system automatically checks if it needs to send reminders hourly via a "
+"CRON function. If you are testing, or don't want to wait for the next CRON "
+"job to be triggered, you can trigger the reminders function with the button "
+"below."
+msgstr ""
+"El sistema comprueba automáticamente si necesita enviar recordatorios por "
+"hora a través de una función CRON. Si está probando, o no quiere esperar "
+"para  la siguiente activación de una función CRON, puede desencadenar la  "
+"función recordatorios con el botón de abajo.."
+
+#: classes/class-pta_sus_admin.php:93
+msgid "Send Reminders"
+msgstr "Envia Recordatorios"
+
+#: classes/class-pta_sus_admin.php:95 classes/class-pta_sus_admin.php:97
+msgid "Clear Expired Signups"
+msgstr "Borra Inscripciones expiradas"
+
+#: classes/class-pta_sus_admin.php:96
+msgid ""
+"If you have disabled the automatic clearing of expired signups, you can use "
+"this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT "
+"BE UNDONE!"
+msgstr ""
+"Si ha desactivado la borradura automática de suscripciones expiradas, usted "
+"puede usar esto para borrar TODAS las suscripciones caducadas de TODAS las "
+"hojas. NOTA: Esta acción no se puede deshacer!"
+
+#: classes/class-pta_sus_admin.php:123
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "Error borrando la plaza (ID# %s)"
+
+#: classes/class-pta_sus_admin.php:126
+msgid "Spot has been cleared."
+msgstr "La plaza ha sido borrada."
+
+#: classes/class-pta_sus_admin.php:140
+msgid "Sheet Details"
+msgstr "Detalles de la Hoja"
+
+#: classes/class-pta_sus_admin.php:147
+msgid "Error restoring sheet."
+msgstr "Error al restaurar la  hoja."
+
+#: classes/class-pta_sus_admin.php:149
+msgid "Sheet has been restored."
+msgstr "La hoja ha sido restaurada."
+
+#: classes/class-pta_sus_admin.php:153
+msgid "Error moving sheet to trash."
+msgstr "Error moviendo la hoja a la papelera."
+
+#: classes/class-pta_sus_admin.php:155
+msgid "Sheet has been moved to trash."
+msgstr "La hoja ha sido movido a la papelera."
+
+#: classes/class-pta_sus_admin.php:159
+msgid "Error permanently deleting sheet."
+msgstr "Error al eliminar de forma permanente la hoja."
+
+#: classes/class-pta_sus_admin.php:161
+msgid "Sheet has been permanently deleted."
+msgstr "La hoja ha sido borrado de forma permanente."
+
+#: classes/class-pta_sus_admin.php:165
+msgid "Error copying sheet."
+msgstr "Error al copiar la hoja."
+
+#: classes/class-pta_sus_admin.php:167
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "La hoja ha sido copiado a la nueva hoja con ID #"
+
+#: classes/class-pta_sus_admin.php:167 classes/class-pta_sus_admin.php:707
+#: classes/class-pta_sus_admin.php:711 classes/class-pta_sus_admin.php:721
+msgid "Edit"
+msgstr "Modificar"
+
+#: classes/class-pta_sus_admin.php:171
+msgid "Error toggling sheet visibility."
+msgstr "error alternado la visibilidad de la hoja."
+
+#: classes/class-pta_sus_admin.php:177
+msgid "No sign-up sheet found."
+msgstr "Sin hoja de inscripción encontrada."
+
+#: classes/class-pta_sus_admin.php:183
+msgid "Event Type: "
+msgstr "Tipo de evento:"
+
+#: classes/class-pta_sus_admin.php:184
+msgid "Signups"
+msgstr "Inscripciones"
+
+#: classes/class-pta_sus_admin.php:189
+msgid "No tasks were found."
+msgstr "No se encontraron tareas."
+
+#: classes/class-pta_sus_admin.php:196 classes/class-pta_sus_admin.php:247
+#: classes/class-pta_sus_admin.php:269 classes/class-pta_sus_public.php:190
+#: classes/class-pta_sus_public.php:428
+msgid "Task/Item"
+msgstr "Tarea/Artículo"
+
+#: classes/class-pta_sus_admin.php:197 classes/class-pta_sus_admin.php:249
+#: classes/class-pta_sus_admin.php:271 classes/class-pta_sus_public.php:191
+#: classes/class-pta_sus_public.php:429
+msgid "Start Time"
+msgstr "Hora de inicio"
+
+#: classes/class-pta_sus_admin.php:198 classes/class-pta_sus_admin.php:250
+#: classes/class-pta_sus_admin.php:272 classes/class-pta_sus_public.php:192
+#: classes/class-pta_sus_public.php:430
+msgid "End Time"
+msgstr "Hora de finalización"
+
+#: classes/class-pta_sus_admin.php:199
+msgid "Name"
+msgstr "Nombre"
+
+#: classes/class-pta_sus_admin.php:200 classes/class-pta_sus_public.php:541
+msgid "E-mail"
+msgstr "E-mail"
+
+#: classes/class-pta_sus_admin.php:201 classes/class-pta_sus_public.php:542
+msgid "Phone"
+msgstr "Teléfono"
+
+#: classes/class-pta_sus_admin.php:202 classes/class-pta_sus_admin.php:254
+#: classes/class-pta_sus_admin.php:276 classes/class-pta_sus_public.php:193
+#: classes/class-pta_sus_public.php:433
+msgid "Item Details"
+msgstr "Detalles del Artículo"
+
+#: classes/class-pta_sus_admin.php:235 classes/class-pta_sus_admin.php:236
+#: classes/class-pta_sus_admin.php:249 classes/class-pta_sus_admin.php:250
+#: classes/class-pta_sus_admin.php:262 classes/class-pta_sus_admin.php:263
+#: classes/class-pta_sus_admin.php:271 classes/class-pta_sus_admin.php:272
+#: classes/class-pta_sus_emails.php:73 classes/class-pta_sus_emails.php:74
+#: classes/class-pta_sus_emails.php:75 classes/class-pta_sus_emails.php:79
+#: classes/class-pta_sus_emails.php:84 classes/class-pta_sus_public.php:203
+#: classes/class-pta_sus_public.php:205 classes/class-pta_sus_public.php:206
+#: classes/class-pta_sus_public.php:207 classes/class-pta_sus_public.php:465
+#: classes/class-pta_sus_public.php:466 classes/class-pta_sus_public.php:496
+#: classes/class-pta_sus_public.php:497 classes/list-table.php:68
+#: classes/list-table.php:83
+msgid "N/A"
+msgstr "N/D"
+
+#: classes/class-pta_sus_admin.php:241
+msgid "Clear Spot"
+msgstr "Borrar la plaza"
+
+#: classes/class-pta_sus_admin.php:248 classes/class-pta_sus_admin.php:270
+msgid "Task Date"
+msgstr "Fecha para la tarea"
+
+#: classes/class-pta_sus_admin.php:251 classes/class-pta_sus_admin.php:273
+msgid "Volunteer Name"
+msgstr "Nombre del voluntario"
+
+#: classes/class-pta_sus_admin.php:252 classes/class-pta_sus_admin.php:274
+msgid "Volunteer Email"
+msgstr "E-mail del voluntario"
+
+#: classes/class-pta_sus_admin.php:253 classes/class-pta_sus_admin.php:275
+msgid "Volunteer Phone"
+msgstr "Teléfono del voluntario"
+
+#: classes/class-pta_sus_admin.php:264
+msgid "(empty)"
+msgstr "(vacío)"
+
+#: classes/class-pta_sus_admin.php:273
+msgid "empty"
+msgstr "vacío"
+
+#: classes/class-pta_sus_admin.php:294
+msgid "Export Sheet as CSV"
+msgstr "Exportar la Hoja como CSV"
+
+#: classes/class-pta_sus_admin.php:317
+msgid "All "
+msgstr "Todo"
+
+#: classes/class-pta_sus_admin.php:318
+msgid "Trash "
+msgstr "Papelera"
+
+#: classes/class-pta_sus_admin.php:381
+msgid "You must enter a date!"
+msgstr "Debe introducir una fecha!"
+
+#: classes/class-pta_sus_admin.php:384
+msgid "Invalid date!"
+msgstr "Fecha inválida!"
+
+#: classes/class-pta_sus_admin.php:391
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "Debe introducir al menos dos fechas para un evento Periódico!"
+
+#: classes/class-pta_sus_admin.php:396
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "Fechas inválidas! Introduzca al menos 2 fechas válidas."
+
+#: classes/class-pta_sus_admin.php:435 classes/class-pta_sus_admin.php:503
+#: classes/class-pta_sus_admin.php:529
+msgid "person"
+msgid_plural "people"
+msgstr[0] "persona"
+msgstr[1] "personas"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:436
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
+"signed up.  Please clear all spots first before changing this task date."
+msgstr ""
+"No se puede cambiar la tarea \"%1$s\"\"  a una nueva fecha, ya que tiene "
+"%2$d %3$s sregistrados. Por favor, borrar todos las plazas antes de cambiar "
+"esta fecha para la tarea."
+
+#: classes/class-pta_sus_admin.php:472
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "una fecha"
+msgstr[1] "unas fechas"
+
+#: classes/class-pta_sus_admin.php:473
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "esa fecha"
+msgstr[1] "esas fechas"
+
+#: classes/class-pta_sus_admin.php:472
+msgid "You are trying to remove "
+msgstr "Usted está tratando de eliminar."
+
+#: classes/class-pta_sus_admin.php:474
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "esta fecha"
+msgstr[1] "estas fechas"
+
+#: classes/class-pta_sus_admin.php:474
+msgid "Please check "
+msgstr "Por favor, consulte"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:505
+#, php-format
+msgid ""
+"The number of spots for task \"%1$s\" cannot be set below %2$d because it "
+"currently has %2$d %3$s signed up.  Please clear some spots first before "
+"updating this task."
+msgstr ""
+"El número de plazass para la tarea \"%1$s\" no se puede establecer por "
+"debajo de %2$d porque tiene actualmente %2$d %3$s registrados. Por favor "
+"elimina algunas plazas antes de actualizar esta tarea."
+
+#: classes/class-pta_sus_admin.php:514
+msgid "You must enter at least one task!"
+msgstr "Debe introducir al menos una tarea!"
+
+# %1$s = Task Title
+# %2$d = # of signups
+# %3$s = person or people
+#: classes/class-pta_sus_admin.php:530
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
+"Please clear all spots first before removing this task."
+msgstr ""
+"La tarea  \"%1$s\" no puede ser eliminada porque tiene %2$d %3$s "
+"registrados. Por favor elimina todas las plazas antes de actualizar esta "
+"tarea."
+
+#: classes/class-pta_sus_admin.php:572
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "tarea"
+msgstr[1] "tareas"
+
+#: classes/class-pta_sus_admin.php:572
+#, php-format
+msgid "Error saving %d "
+msgstr "Error guardando %d"
+
+#: classes/class-pta_sus_admin.php:597 classes/class-pta_sus_admin.php:670
+msgid "Error updating sheet."
+msgstr "Error actualizando la hoja."
+
+#: classes/class-pta_sus_admin.php:610
+msgid "Error removing a task."
+msgstr "Error al quitar una tarea."
+
+#: classes/class-pta_sus_admin.php:627
+msgid ""
+"Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr ""
+"Por favor seleccione una posición O introducir manualmente la información de "
+"contacto del Coordinador. NO Ambos!"
+
+#: classes/class-pta_sus_admin.php:630
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr ""
+"Por favor, introduzca el nombre del Coordinador(es) Y su correo electrónico "
+"(s)! "
+
+#: classes/class-pta_sus_admin.php:633
+msgid "Please either select a position or type in the chair contact info!"
+msgstr ""
+"Por favor seleccione una posición o escriba la información de contacto par "
+"un coordinador!"
+
+#: classes/class-pta_sus_admin.php:636
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr ""
+"Por favor, introduzca el nombre del Coordinador(s) Y su correo electrónico "
+"(s)! "
+
+#: classes/class-pta_sus_admin.php:654
+msgid "A Sheet with the same name and date already exists!"
+msgstr "Una hoja con el mismo nombre y la misma fecha ya existe!"
+
+#: classes/class-pta_sus_admin.php:662
+msgid "Error adding sheet."
+msgstr "Error al añadir la hoja."
+
+#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:711
+#: classes/class-pta_sus_admin.php:721
+msgid "ADD"
+msgstr "AÑADIR"
+
+#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:721
+msgid "Tasks"
+msgstr "Tareas"
+
+#: classes/class-pta_sus_admin.php:711
+msgid "Sign-up Sheet"
+msgstr "Hoja de Inscripción."
+
+#: classes/class-pta_sus_admin.php:715 classes/class-pta_sus_admin.php:729
+#: classes/list-table.php:112
+msgid "Edit Tasks"
+msgstr "Modificar las Tareas"
+
+#: classes/class-pta_sus_admin.php:717
+msgid "Dates and Tasks are added on the next page"
+msgstr "Las fechas y las tareas se agregan en la página siguiente"
+
+#: classes/class-pta_sus_admin.php:722
+msgid "Tasks Successfully Updated!"
+msgstr "Tareas han actualizado correctamente!"
+
+#: classes/class-pta_sus_admin.php:726 classes/list-table.php:111
+msgid "Edit Sheet"
+msgstr "Modificar la Hoja"
+
+#: classes/class-pta_sus_admin.php:727
+msgid "Sheet Updated!"
+msgstr "Hoja actualizada!"
+
+#: classes/class-pta_sus_admin.php:767
+msgid "Single"
+msgstr "Simple"
+
+#: classes/class-pta_sus_admin.php:768
+msgid "Recurring"
+msgstr "Periódico"
+
+#: classes/class-pta_sus_admin.php:769
+msgid "Multi-Day"
+msgstr "Mult-Día"
+
+#: classes/class-pta_sus_admin.php:770 classes/class-pta_sus_public.php:143
+#: classes/class-pta_sus_public.php:144
+msgid "Ongoing"
+msgstr "En marcha"
+
+#: classes/class-pta_sus_admin.php:780
+msgid "Select Event Type"
+msgstr "Seleccionar el tipo de evento"
+
+#: classes/class-pta_sus_admin.php:791 classes/widget.php:124
+msgid "Title:"
+msgstr "Título:"
+
+#: classes/class-pta_sus_admin.php:793
+msgid "Title of event, program or function"
+msgstr "Título del evento, programa o función"
+
+#: classes/class-pta_sus_admin.php:798 classes/class-pta_sus_admin.php:802
+msgid "Event Type:"
+msgstr "Tipo de evento:"
+
+#: classes/class-pta_sus_admin.php:812
+msgid "1st Reminder # of days:"
+msgstr "Primero Recordatorio # de días:"
+
+#: classes/class-pta_sus_admin.php:814
+msgid ""
+"# of days before the event date to send the first reminder. Leave blank (or "
+"0) for no automatic reminders"
+msgstr ""
+"# de días antes de la fecha del evento para enviar el primer  recordatorio. "
+"Dejar en blanco (o 0) para no tener recordatorios automáticos"
+
+#: classes/class-pta_sus_admin.php:817
+msgid "2nd Reminder # of days:"
+msgstr "Segundo Recordatorio # de días"
+
+#: classes/class-pta_sus_admin.php:819
+msgid ""
+"# of days before the event date to send the second reminder. Leave blank (or "
+"0) for no second reminder"
+msgstr ""
+"# de días antes de la fecha del evento para enviar el secundo recordatorio. "
+"Dejar en blanco (o 0) para no tener un secundo recordatorio"
+
+#: classes/class-pta_sus_admin.php:824
+msgid "Visible to Public?"
+msgstr "¿Visible al Público?"
+
+#: classes/class-pta_sus_admin.php:826
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
+"from the public. Administrators and Sign-Up Sheet Managers can still see "
+"hidden sheets."
+msgstr ""
+"<strong> Desmarque </ strong> si quieres <strong>ocultar</ strong> esta hoja "
+"por parte del público. Administradores y Gerentes de la Hoja de  "
+"inscripción  pueden todavía ver las hojas ocultas."
+
+#: classes/class-pta_sus_admin.php:832
+msgid "Contact Info:"
+msgstr "Información de contacto:"
+
+#: classes/class-pta_sus_admin.php:838
+msgid "Select Position"
+msgstr "Seleccione una Posición"
+
+#: classes/class-pta_sus_admin.php:846
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr ""
+"Seleccione un programa, comité, o posición, para utilizar el formulario de "
+"contacto:"
+
+#: classes/class-pta_sus_admin.php:851
+msgid ""
+"<strong><em>OR</em></strong>, manually enter chair names and contact emails "
+"below."
+msgstr ""
+"<strong><em> O </ em> </ strong>, introduzca manualmente los nombres y "
+"correos electrónicos de contacto del Coordinador por debajo"
+
+#: classes/class-pta_sus_admin.php:856
+msgid "Chair Name(s):"
+msgstr "Nombre del Coordinador(s):"
+
+#: classes/class-pta_sus_admin.php:858
+msgid "Separate multiple names with commas"
+msgstr "Separe los distintos nombres con comas"
+
+#: classes/class-pta_sus_admin.php:861
+msgid "Chair Email(s):"
+msgstr "E-mail (s) del coordinador:"
+
+#: classes/class-pta_sus_admin.php:863
+msgid "Separate multiple emails with commas"
+msgstr "Separe los múltiples correos electrónicos: con comas:"
+
+#: classes/class-pta_sus_admin.php:873
+msgid "Program/Event Details (optional):"
+msgstr " Detalles del Programa /Evento (opcional):"
+
+#: classes/class-pta_sus_admin.php:881
+msgid "Save Sheet"
+msgstr "Guardar la hoja"
+
+#: classes/class-pta_sus_admin.php:892
+msgid "Select the date for "
+msgstr "Seleccione la fecha para"
+
+#: classes/class-pta_sus_admin.php:896
+msgid ""
+"Select a date for the event.  All tasks will then be assigned to this date."
+msgstr ""
+"Seleccione una fecha para el evento. Todas las tareas serán asignadas a esta "
+"fecha."
+
+#: classes/class-pta_sus_admin.php:900
+msgid "Select ALL the dates for "
+msgstr "Seleccione TODAS las fechas para"
+
+#: classes/class-pta_sus_admin.php:904
+msgid ""
+"Select all the dates for the event. Copies of the tasks will be created for "
+"each date."
+msgstr ""
+"Seleccione todas las fechas del evento. Copias de las tareas se crearán para "
+"cada fecha."
+
+#: classes/class-pta_sus_admin.php:909
+msgid "Tasks for "
+msgstr "Tareas para"
+
+#: classes/class-pta_sus_admin.php:910
+msgid "Tasks/Items"
+msgstr "Tareas/Artículos"
+
+#: classes/class-pta_sus_admin.php:911
+msgid ""
+"Enter tasks or items below. Drag and drop to change sort order. Times are "
+"optional. If you need details for an item or task (such as what dish they "
+"are bringing for a lunch) check the Details Needed box.<br/>\n"
+"            Click on (+) to add additional tasks, or (-) to remove a task.  "
+"At least one task/item must be entered.  If # needed is left blank, the "
+"value will be set to 1."
+msgstr ""
+"Introduzca las tareas o artículos abajo. Arrastra y suelta para cambiar el "
+"orden de clasificación. Los tiempos son opcionales. Si necesita detalles de "
+"un elemento o tarea (por ejemplo, qué plato que están trayendo para un "
+"almuerzo) marque la casilla  Detalles necesarios. <br/>\n"
+"             Haga clic en (+) para añadir tareas adicionales, o (-) para "
+"eliminar una tarea. Al menos una tarea /artículo debe ser ingresado. Si # "
+"necesario se deja en blanco, el valor se establecerá a 1."
+
+#: classes/class-pta_sus_admin.php:918
+msgid "Task/Item:"
+msgstr "Tarea/Artículo:"
+
+#: classes/class-pta_sus_admin.php:920
+msgid "Date:"
+msgstr "Fecha:"
+
+#: classes/class-pta_sus_admin.php:923
+msgid "# of People/Items Needed:"
+msgstr "# de De Personas/Articulos necesarios:"
+
+#: classes/class-pta_sus_admin.php:924
+msgid "Start Time:"
+msgstr "Hora de inicio"
+
+#: classes/class-pta_sus_admin.php:925
+msgid "End Time:"
+msgstr "Hora de finalización:"
+
+#: classes/class-pta_sus_admin.php:926
+msgid "Details Needed? "
+msgstr "¿Detalles necesarios?"
+
+#: classes/class-pta_sus_admin.php:950
+msgid "Save"
+msgstr "Guardar"
+
+#: classes/class-pta_sus_emails.php:215
+msgid "Volunteer Signup Reminders sent"
+msgstr " Recordatorios de Inscripción del  Voluntario enviados"
+
+#: classes/class-pta_sus_emails.php:216 pta-volunteer-sign-up-sheets.php:118
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr ""
+"Se ha completado la hoja de inscripción de los Voluntarios trabajo CRON ."
+
+#: classes/class-pta_sus_emails.php:217
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "Se enviaron %d correos electrónicos de recordatorio."
+
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "Documentación"
+
+#: classes/class-pta_sus_options.php:34
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "Configuración de las hojas de inscripción de los Voluntarios PTA "
+
+#: classes/class-pta_sus_options.php:38 classes/class-pta_sus_options.php:77
+msgid "Main Settings"
+msgstr "Ajustes principales"
+
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:94
+msgid "Email Settings"
+msgstr "Configuración del correo electrónico"
+
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:105
+msgid "Integration Settings"
+msgstr "Parámetros de integración"
+
+#: classes/class-pta_sus_options.php:60
+msgid ""
+"Please help support continued development of this plugin! Any amount helps!"
+msgstr ""
+"Por favor, ayuda a apoyar el desarrollo continuo de este plugin! Cualquier "
+"cantidad de dinero ayuda!"
+
+#: classes/class-pta_sus_options.php:78
+msgid "Enable Test Mode"
+msgstr "Activar el modo de prueba"
+
+#: classes/class-pta_sus_options.php:79
+msgid "Test Mode Message:"
+msgstr "Mensaje del modo de prueba:"
+
+#: classes/class-pta_sus_options.php:80
+msgid "Volunteer Sign Up Page"
+msgstr "Página de inscripción del Voluntario"
+
+#: classes/class-pta_sus_options.php:81
+msgid "Hide volunteer names from public?"
+msgstr "Ocultar los nombres de los voluntarios del público?"
+
+#: classes/class-pta_sus_options.php:82
+msgid "Show Ongoing events in Widget?"
+msgstr "¿Mostrar eventos en curso en los Widget?"
+
+#: classes/class-pta_sus_options.php:83
+msgid "Show Ongoing events last?"
+msgstr "¿Mostrar eventos en curso por último?"
+
+#: classes/class-pta_sus_options.php:84
+msgid "Login Required?"
+msgstr "¿Se requiere conectarse?"
+
+#: classes/class-pta_sus_options.php:85
+msgid "Login Required Message:"
+msgstr "Mensaje requerido para acceder:"
+
+#: classes/class-pta_sus_options.php:86
+msgid "Enable CRON Notifications?"
+msgstr "¿Activar las Notificaciones CRON?"
+
+#: classes/class-pta_sus_options.php:87
+msgid "Detailed Reminder Notifications?"
+msgstr "¿Notificaciones detalladas del recordatorio?"
+
+#: classes/class-pta_sus_options.php:88
+msgid "Show Expired Tasks?"
+msgstr "¿Mostrar tareas expiradas?"
+
+#: classes/class-pta_sus_options.php:89
+msgid "Automatically clear expired signups?"
+msgstr "¿Borrrar las suscripciones caducadas automáticamente?"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Hide donation button?"
+msgstr "¿Ocultar el botón de donación?"
+
+#: classes/class-pta_sus_options.php:95
+msgid "FROM email:"
+msgstr "DE correo electrónico:"
+
+#: classes/class-pta_sus_options.php:96
+msgid "Reply-To email:"
+msgstr "Correo electrónico Responder_ a:"
+
+#: classes/class-pta_sus_options.php:97
+msgid "Confirmation email subject:"
+msgstr "Asunto del correo electrónico de confirmación"
+
+#: classes/class-pta_sus_options.php:98
+msgid "Confirmation email template:"
+msgstr "Plantilla del correo electrónico de confirmación:"
+
+#: classes/class-pta_sus_options.php:99
+msgid "Reminder email subject:"
+msgstr "Asunto del correo electrónico de recordatorio:"
+
+#: classes/class-pta_sus_options.php:100
+msgid "Reminder email template:"
+msgstr "Plantilla del correo electrónico de recordartorio:"
+
+#: classes/class-pta_sus_options.php:101
+msgid "Max Reminders per Hour:"
+msgstr " Recordatorios Max por hora:"
+
+#: classes/class-pta_sus_options.php:107
+msgid "Enable PTA Member Directory:"
+msgstr "Activar el Directorio de usuarios PTA:"
+
+#: classes/class-pta_sus_options.php:108
+msgid "Member Directory Page:"
+msgstr "Página del Directorio de usuarios:"
+
+#: classes/class-pta_sus_options.php:109
+msgid "Contact Form Page:"
+msgstr "Página del Formulario de Contacto:"
+
+#: classes/class-pta_sus_options.php:125
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "Entrada inválida para %s!"
+
+#: classes/class-pta_sus_options.php:134
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "Correo electrónico inválido para %s!"
+
+#: classes/class-pta_sus_options.php:143
+#, php-format
+msgid "Invalid characters in %s!"
+msgstr "Invalidos caracteres en %s!"
+
+#: classes/class-pta_sus_options.php:155
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "Tipo de campo no reconocido: %s!"
+
+#: classes/class-pta_sus_options.php:163
+msgid "Settings successfully saved!"
+msgstr "Configuración guardada correctamente!"
+
+#: classes/class-pta_sus_options.php:214
+msgid "Main plugin settings"
+msgstr "Configuración del plugin principales"
+
+#: classes/class-pta_sus_options.php:218
+msgid "Email settings"
+msgstr "Configuración del correo electrónico"
+
+#: classes/class-pta_sus_options.php:222
+msgid "Integration with other plugins"
+msgstr "Integración con otros plugins"
+
+#: classes/class-pta_sus_options.php:225
+msgid ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+msgstr ""
+"Este plugin se puede integrar con el Directorio de miembros PTA y el  Plugin "
+"de Formulario de contacto para establecer contactos para cada hoja de "
+"inscripción, con enlaces de contacto que se dirigen al formulario de "
+"contacto."
+
+#: classes/class-pta_sus_options.php:226
+#, php-format
+msgid ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+msgstr ""
+"Buscar para  \"PTA Member Directory\" desde tu página Instalar Plugins, o "
+"descargar de Wordpress.org aquí: %s"
+
+#: classes/class-pta_sus_options.php:234 classes/class-pta_sus_options.php:245
+#: classes/class-pta_sus_options.php:256
+msgid "None"
+msgstr "Ninguno"
+
+#: classes/class-pta_sus_options.php:238
+msgid ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+msgstr ""
+"La página donde  pones el código abreviado </em> [pta_sign_up_sheet] "
+"<em>para generar la página principal de inscripciones"
+
+#: classes/class-pta_sus_options.php:249
+msgid ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+msgstr ""
+"La página del directorio de miembros donde  pones el código abreviado "
+"[pta_member_directory]"
+
+#: classes/class-pta_sus_options.php:260
+msgid ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+msgstr ""
+"La página del directorio de formulario de contacto del miembro donde  pones "
+"el código abreviado [pta_member_contact] si usted está utilizando el "
+"formulario de contacto separado."
+
+#: classes/class-pta_sus_options.php:265
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr ""
+"El mensaje que los usuarios ven en las páginas de inscripción de los "
+"voluntarios en modo de prueba."
+
+#: classes/class-pta_sus_options.php:270
+msgid ""
+"The message users see on volunteer sign-up pages when they are not logged in "
+"and the Login Required option is enabled."
+msgstr ""
+"El mensaje que los usuarios ven en las páginas de inscripción de los "
+"voluntarios cuando no están conectados y cuando la opción Inicio de sesión "
+"requerida está activada."
+
+#: classes/class-pta_sus_options.php:275
+msgid ""
+"The email address that confirmation and reminder emails will be sent from."
+msgstr ""
+"La dirección de correo electrónico de la que los correos electrónicos de "
+"confirmación y de recordatorio  serán enviados."
+
+#: classes/class-pta_sus_options.php:280
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr ""
+"La dirección de correo electrónico de Respuesta_a para los correos "
+"electrónicos de confirmación y de recordatorio."
+
+#: classes/class-pta_sus_options.php:285
+msgid "Subject line for signup confirmation email messages"
+msgstr ""
+"La línea de asunto de los correso electrónicos de mensajes de confirmación "
+"de inscripción."
+
+#: classes/class-pta_sus_options.php:290
+msgid "Subject line for signup reminder email messages."
+msgstr ""
+"La línea de asunto de los correso electrónicos de mensajes de recordatorio."
+
+#: classes/class-pta_sus_options.php:295
+msgid ""
+"Max # of reminder emails to send out in a hour. Leave blank or zero for no "
+"limit."
+msgstr ""
+"Número máximo de correos electrónicos de recordatorio para enviar en una "
+"hora. Dejar en blanco o cero para ningún límite."
+
+#: classes/class-pta_sus_options.php:304
+msgid "PTA Member Directory and Contact Form"
+msgstr "Directorio PTA de miembros y Formulario de contacto"
+
+#: classes/class-pta_sus_options.php:307
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "Activar  la integración con el %s"
+
+#: classes/class-pta_sus_options.php:319
+msgid ""
+"Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can "
+"view public side sign-up sheets."
+msgstr ""
+"Pone el sistema Hoja de Inscripción de Voluntario en modo de prueba. Sólo "
+"los usuarios de nivel de administrador pueden ver las hojas de inscripción "
+"del lado del público."
+
+#: classes/class-pta_sus_options.php:331
+msgid ""
+"If checked filled sign-up slots will show \"Filled\" instead of first name "
+"and last initial of volunteer."
+msgstr ""
+"Si estan marcadas las ranuras de inscripción rellenas mostrarán \"Filled\" "
+"en lugar del nombre  y de la inicial del apellido del voluntario."
+
+#: classes/class-pta_sus_options.php:343
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr ""
+"Si estan marcados. los eventos en curso serán mostrados en el widget de la "
+"barra lateral."
+
+#: classes/class-pta_sus_options.php:355
+msgid ""
+"If checked, Ongoing events will be shown at the bottom of sign up sheet "
+"lists (and widget, if enabled)."
+msgstr ""
+"Si estan marcados,los eventos en curso serán mostrados en la parte inferior "
+"de la hoja de la lista de inscripcionnes (y el widget, si está activado)."
+
+#: classes/class-pta_sus_options.php:368 classes/class-pta_sus_options.php:380
+#: classes/class-pta_sus_options.php:392 classes/class-pta_sus_options.php:404
+#: classes/class-pta_sus_options.php:416 classes/class-pta_sus_options.php:428
+msgid "YES."
+msgstr "Sí"
+
+#: classes/class-pta_sus_options.php:368
+msgid ""
+"Force user to be logged in before they can view or sign-up for any volunteer "
+"sheets."
+msgstr ""
+"Forzar al usuario a estar conectado antes de que puedan ver o inscribirse "
+"para cualquier hoja de voluntariado."
+
+#: classes/class-pta_sus_options.php:380
+msgid ""
+"Sends site admin an email whenever a CRON job is completed (such as sending "
+"reminders or deleting expired signups)."
+msgstr ""
+"Envía al sitio de administración un correo electrónico cada vez que se "
+"completa una tarea CRON (como el envío de recordatorios o eliminar "
+"suscripciones expiradas)."
+
+#: classes/class-pta_sus_options.php:392
+msgid ""
+"Admin reminder emails notification will include the message body of all "
+"reminders sent, useful for troubleshooting."
+msgstr ""
+"Correos electrónicos de notificación de recordatorio al administración "
+"incluirá el cuerpo del mensaje de todos los recordatorios enviados, algo "
+"útil para soluciónar problemas."
+
+#: classes/class-pta_sus_options.php:404
+msgid ""
+"Shows expired tasks on the admin View Signups page for a sheet. Expired "
+"tasks are not counted in the Total Spots column."
+msgstr ""
+"Muestra las tareas expiradas en la página del administrador Ver "
+"inscripciones para una hoja. Tareas expiradas no se cuentan en la columna "
+"Total de Plazas ."
+
+#: classes/class-pta_sus_options.php:416
+msgid ""
+"Automatically clears expired signups from the database (runs with hourly "
+"CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr ""
+"Borra automáticamente las suscripciones caducadas de la base de datos (se "
+"ejecuta con la función CRON cada hora). Las suscripciones caducadas no se "
+"cuentan en la columna Plazas Rellenas. "
+
+#: classes/class-pta_sus_options.php:428
+msgid "Hides the donation button at bottom of settings pages."
+msgstr ""
+"Oculta el botón de donación en la parte inferior de las páginas de "
+"configuración."
+
+#: classes/class-pta_sus_options.php:435
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr ""
+"El e-mail recebido por el usuario cuando se inscriben para una ranura de "
+"voluntarios."
+
+#: classes/class-pta_sus_options.php:436 classes/class-pta_sus_options.php:444
+msgid "Available Template Tags: "
+msgstr "Etiquetas de Plantilla Disponible:"
+
+#: classes/class-pta_sus_options.php:443
+msgid "Reminder email sent to volunteers."
+msgstr "E-mail de recordatorio enviado a los voluntarios."
+
+#: classes/class-pta_sus_public.php:48
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "Las hojas de inscripcion de los voluntarios están en MODO DE PRUEBA"
+
+#: classes/class-pta_sus_public.php:65 classes/class-pta_sus_public.php:73
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "Las hojas de inscripcion de Voluntarios actuales"
+
+#: classes/class-pta_sus_public.php:95 classes/widget.php:46
+msgid "Hidden!"
+msgstr "Oculto"
+
+#: classes/class-pta_sus_public.php:107
+msgid "No sheets currently available at this time."
+msgstr "No hay hojas disponibles en este momento."
+
+#: classes/class-pta_sus_public.php:114 classes/class-pta_sus_public.php:188
+#: classes/list-table.php:171
+msgid "Title"
+msgstr "Título"
+
+#: classes/class-pta_sus_public.php:115
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#: classes/class-pta_sus_public.php:116
+msgid "End Date"
+msgstr "Fecha de finalización"
+
+#: classes/class-pta_sus_public.php:117 classes/widget.php:103
+msgid "Open Spots"
+msgstr "Plazas Abiertas"
+
+#: classes/class-pta_sus_public.php:146
+msgid "View &amp; sign-up"
+msgstr "Ver &amp; inscripción"
+
+#: classes/class-pta_sus_public.php:146 classes/class-pta_sus_public.php:474
+msgid "Filled"
+msgstr "Relleno"
+
+#: classes/class-pta_sus_public.php:160
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr ""
+"Por favor inicia sesión para ver y modificar sus inscripciones de voluntario"
+
+#: classes/class-pta_sus_public.php:171
+msgid "Signup Cleared"
+msgstr "Inscripción eliminada"
+
+#: classes/class-pta_sus_public.php:173
+msgid "ERROR clearing signup!"
+msgstr "ERROR eliminando la inscripción!"
+
+#: classes/class-pta_sus_public.php:181
+msgid "You have signed up for the following"
+msgstr "Usted se ha inscrito en la siguiente"
+
+#: classes/class-pta_sus_public.php:182
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "Haga clic en Eliminar para darse de baja de una inscripción"
+
+#: classes/class-pta_sus_public.php:189
+msgid "Date"
+msgstr "Fecha:"
+
+#: classes/class-pta_sus_public.php:208
+msgid "Clear"
+msgstr "Eliminar"
+
+#: classes/class-pta_sus_public.php:221
+msgid "Sign-up sheet not found."
+msgstr "Sin hoja de inscripción encontrada."
+
+#: classes/class-pta_sus_public.php:244 classes/class-pta_sus_public.php:247
+msgid "Contact:"
+msgstr "Contacto:"
+
+#: classes/class-pta_sus_public.php:249 classes/class-pta_sus_public.php:252
+#: classes/class-pta_sus_public.php:265
+msgid "No Event Chair contact info provided"
+msgstr "No  tiene información de contacto del coordinador del evento proveida"
+
+#: classes/class-pta_sus_public.php:261
+msgid "Event Chairs:"
+msgstr "Coordinadores del evento:"
+
+#: classes/class-pta_sus_public.php:263
+msgid "Event Chair:"
+msgstr "Coordinador del evento:"
+
+#: classes/class-pta_sus_public.php:272
+msgid "View all Sign-up Sheets"
+msgstr "Ver todas las hojas de inscripción "
+
+#: classes/class-pta_sus_public.php:281
+msgid "This sheet is currently hidden from the public."
+msgstr "Esta hoja está oculta al público."
+
+#: classes/class-pta_sus_public.php:295
+msgid ""
+"Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr ""
+"¡Huy! Llenaste en el campo spambot. Por favor, deje en blanco y vuelve a "
+"intentarlo."
+
+#: classes/class-pta_sus_public.php:305
+msgid "Please complete all required fields."
+msgstr "Por favor, complete todos los campos obligatorios."
+
+#: classes/class-pta_sus_public.php:310
+msgid "Please enter the item you are bringing."
+msgstr "Introduzca el articulo que usted está trayendo."
+
+#: classes/class-pta_sus_public.php:317
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "Caracteres inválidos en el Nombre! Por favor, inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:322
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "Caracteres inválidos en el Apellido! Por favor, inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:327
+msgid "Invalid Email!  Please try again."
+msgstr "Correo electrónico! Por favor, inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:332
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr ""
+"Caracteres inválidos en el número de teléfono! Por favor, inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:337
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr ""
+"Caracteres inválidos en el Articulo de la  Inscripción! Por favor, inténtelo "
+"de nuevo."
+
+#: classes/class-pta_sus_public.php:342
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr ""
+"El campo oculto de la fecha de inscripción no es válido! Por favor, "
+"inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:350
+msgid "Error adding signup record.  Please try again."
+msgstr ""
+"Error al agregar el registro de inscripción! Por favor, inténtelo de nuevo."
+
+#: classes/class-pta_sus_public.php:358
+msgid "You have been signed up!"
+msgstr "Usted ha sido suscrito!"
+
+#: classes/class-pta_sus_public.php:360
+msgid "ERROR SENDING EMAIL"
+msgstr "ERROR ENVIANDO EL CORREO ELECTRÓNICO"
+
+#: classes/class-pta_sus_public.php:391
+msgid "DETAILS:"
+msgstr "DETALLES:"
+
+#: classes/class-pta_sus_public.php:394
+msgid "Sign up below..."
+msgstr "Inscríbete a continuación ..."
+
+#: classes/class-pta_sus_public.php:415
+msgid "No tasks were found for "
+msgstr "No se encontraron tareas para"
+
+#: classes/class-pta_sus_public.php:431
+msgid "Available Spots"
+msgstr "Plazas disponibles"
+
+#: classes/class-pta_sus_public.php:504
+msgid "Sign up "
+msgstr "Inscripción"
+
+#: classes/class-pta_sus_public.php:527
+msgid "Sign Up"
+msgstr "Inscripción"
+
+#: classes/class-pta_sus_public.php:528
+msgid "You are signing up for... "
+msgstr "Usted se inscribe para ..."
+
+#: classes/class-pta_sus_public.php:530
+#, php-format
+msgid "on %s"
+msgstr "en %s"
+
+#: classes/class-pta_sus_public.php:534
+msgid "Start Time: "
+msgstr "Hora de inicio"
+
+#: classes/class-pta_sus_public.php:537
+msgid "End Time: "
+msgstr "Hora de finalización:"
+
+#: classes/class-pta_sus_public.php:539
+msgid "First Name"
+msgstr "Nombre"
+
+#: classes/class-pta_sus_public.php:540
+msgid "Last Name"
+msgstr "Apellido"
+
+#: classes/class-pta_sus_public.php:573
+msgid ""
+"If you have an account, it is strongly recommended that you <em style=\"text-"
+"decoration:underline;\">login before you sign up</em> so that you can view "
+"and edit all your signups."
+msgstr ""
+"Si usted tiene una cuenta, se recomienda encarecidamente que <em style="
+"\"text-decoration:underline;\">se connecta antes de inscribirse</em> de modo "
+"que usted puede ver y modificar todas sus suscripciones."
+
+#: classes/class-pta_sus_public.php:600
+msgid "Item you are bringing"
+msgstr "Artículo que está trayendo"
+
+#: classes/class-pta_sus_public.php:620
+msgid "Sign me up!"
+msgstr "Inscriba me!"
+
+#: classes/class-pta_sus_public.php:621
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; volver a la Hoja de Inscripción"
+
+#: classes/data.php:633
+#, php-format
+msgid "%s is a required field."
+msgstr "%s es un campo requerido."
+
+#: classes/data.php:644
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "Caracteres inválidos en el campo %s. "
+
+#: classes/data.php:664
+msgid "Invalid email."
+msgstr "Email inválido."
+
+#: classes/data.php:672 classes/data.php:686
+msgid "Invalid date."
+msgstr "Fecha inválida!"
+
+#: classes/data.php:695
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "Los números sólo para %s  por favor!"
+
+#: classes/data.php:702
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "SÍ o NO sólo para %s por favor!"
+
+#: classes/data.php:709
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "Valor inválido  para %s!"
+
+#: classes/data.php:717
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "Formato de hora inválido para %s!"
+
+#: classes/list-table.php:108 classes/list-table.php:219
+msgid "Restore"
+msgstr "Restaurar"
+
+#: classes/list-table.php:108 classes/list-table.php:218
+msgid "Delete"
+msgstr "Borrar"
+
+#: classes/list-table.php:110
+msgid "View Sign-ups"
+msgstr "Ver Inscripciones"
+
+#: classes/list-table.php:113
+msgid "Copy"
+msgstr "Copiar"
+
+#: classes/list-table.php:114
+msgid "Trash"
+msgstr "Papelera"
+
+#: classes/list-table.php:139
+msgid "Yes"
+msgstr "Sí"
+
+#: classes/list-table.php:141
+msgid "NO"
+msgstr "NON"
+
+#: classes/list-table.php:170
+msgid "ID#"
+msgstr "ID #"
+
+#: classes/list-table.php:172
+msgid "Visible"
+msgstr "Visible"
+
+#: classes/list-table.php:173
+msgid "Event Type"
+msgstr "Tipo de evento"
+
+#: classes/list-table.php:174
+msgid "First Date"
+msgstr "Primera Fecha"
+
+#: classes/list-table.php:175
+msgid "Last Date"
+msgstr "Última Fecha"
+
+#: classes/list-table.php:176
+msgid "# Dates"
+msgstr "# Fechas"
+
+#: classes/list-table.php:177
+msgid "# Tasks"
+msgstr "# Tareas"
+
+#: classes/list-table.php:178
+msgid "Total Spots"
+msgstr "Total de Plazas"
+
+#: classes/list-table.php:179
+msgid "Filled Spots"
+msgstr "Plazas rellenas"
+
+#: classes/list-table.php:223
+msgid "Move to Trash"
+msgstr "Mover a la Papelera"
+
+#: classes/list-table.php:224
+msgid "Toggle Visibility"
+msgstr "Mostrar/Ocultar la Visibilidad"
+
+#: classes/list-table.php:258
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "Error moviendo la hoja # %d para la papelera"
+
+#: classes/list-table.php:261
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d hojas se han movido a la papelera."
+
+#: classes/list-table.php:269
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "Error al eliminar la hoja # %d."
+
+#: classes/list-table.php:272
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "se han suprimido %d hojas."
+
+#: classes/list-table.php:280
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "Error al restaurar hoja # %d."
+
+#: classes/list-table.php:283
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "%d hojas han sido restauradas."
+
+#: classes/list-table.php:291
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "Error Mostrando/Ocultando la visibilidad de la hoja # %d."
+
+#: classes/list-table.php:294
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "Visibilidad Mostrada/Ocultada para %d hojas "
+
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "Widget de la lista de Hoja de Inscripción de Voluntario PTA"
+
+#: classes/widget.php:120
+msgid "Current Volunteer Opportunities"
+msgstr "Oportunidades actuales para Voluntarios"
+
+#: classes/widget.php:128
+msgid "# of items to show (-1 for all):"
+msgstr "# De artículos (-1 para todos) para mostrar:"
+
+#: classes/widget.php:132
+msgid "Main sign-up page permalink"
+msgstr "Enlace permanente de la página de  inscripción principal "
+
+#: classes/widget.php:136
+msgid "CSS Class for ul list of signups"
+msgstr "Clase CSS para la lista de los ul de las suscripciones "
+
+#: pta-volunteer-sign-up-sheets.php:117
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "Limpieza de la Inscripción del Voluntario Completada!"
+
+#: pta-volunteer-sign-up-sheets.php:119
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr " se suprimieron %d suscripciones caducadas"
+
+#: pta-volunteer-sign-up-sheets.php:390
+msgid "Extensions"
+msgstr "Extensiones"
+
+#: pta-volunteer-sign-up-sheets.php:392
+msgid "Docs"
+msgstr "Docs"

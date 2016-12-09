@@ -1,0 +1,1812 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PTA Volunteer Sign Up Sheets v1.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-02 08:29-0800\n"
+"PO-Revision-Date: 2015-08-11 16:12+0200\n"
+"Last-Translator: Jacopo Belluz <j.belluz@libero.it>\n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 1.8.4\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Textdomain-Support: yes\n"
+"X-Poedit-SearchPath-0: .\n"
+
+# @ default
+# @ pta_volunteer_sus
+#: classes/class-pta_csv_exporter.php:37 classes/class-pta_sus_admin.php:116
+#: classes/class-pta_sus_admin.php:353 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr "Privilegi insufficienti per accedere all pagina."
+
+# @ default
+#: classes/class-pta_csv_exporter.php:44
+msgid "Invalid Report Data!"
+msgstr "Dati Estratti non validi!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:26 classes/class-pta_sus_admin.php:27
+msgid "Sign-up Sheets"
+msgstr "Adesioni EVENTI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:27
+msgid "All Sheets"
+msgstr "Tutti i Moduli"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:28
+msgid "Add New Sheet"
+msgstr "Aggiungi Modulo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:28 classes/class-pta_sus_admin.php:150
+msgid "Add New"
+msgstr "Aggiungi"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:29 pta-volunteer-sign-up-sheets.php:441
+msgid "Settings"
+msgstr "Impostazioni"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:30 classes/class-pta_sus_admin.php:98
+msgid "CRON Functions"
+msgstr "Funzioni CRON"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:57 classes/class-pta_sus_admin.php:1008
+msgid "Item you are bringing"
+msgstr "Beni che fornisci"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:67
+msgid "Last reminders sent:"
+msgstr "Ultimi Promemoria spediti:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:68 classes/class-pta_sus_admin.php:72
+#, php-format
+msgid "Date: %s"
+msgstr "Data: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:69 classes/class-pta_sus_admin.php:73
+#, php-format
+msgid "Time: %s"
+msgstr "Periodo: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:70 classes/class-pta_sus_admin.php:84
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "1 Promemoria spedito"
+msgstr[1] "%d Promemoria spediti"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:71
+msgid "Last reminder check:"
+msgstr "Ultimo controllo Promemoria:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:90
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "1 adesione rimossa"
+msgstr[1] "%d adesioni rimosse"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:99
+msgid "Volunteer Reminders"
+msgstr "PROMEMORIA ADESORE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:100
+msgid ""
+"The system automatically checks if it needs to send reminders hourly via a "
+"CRON function. If you are testing, or don't want to wait for the next CRON "
+"job to be triggered, you can trigger the reminders function with the button "
+"below."
+msgstr ""
+"Questo sistema controlla ogni ora, attraverso una funzione CRON, se è "
+"necessario o meno spedire i Promemoria. In fasi di collaudo o quando lo si "
+"ritiene necessario, potete lanciare subito i Promemoria attraverso il "
+"pulsante qui sotto."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:102
+msgid "Send Reminders"
+msgstr "SPEDISCI PROMEMORIA"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:104 classes/class-pta_sus_admin.php:106
+msgid "Clear Expired Signups"
+msgstr "RIMUOVI ADESIONI SCADUTE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:105
+msgid ""
+"If you have disabled the automatic clearing of expired signups, you can use "
+"this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT "
+"BE UNDONE!"
+msgstr ""
+"Se è stata disabilitata la Rimozione Automatica Adesioni Scadute, qui potete "
+"agire manualmente ripulendo TUTTI i Moduli al contempo. NOTA BENE: QUESTA "
+"AZIONE È DEFINITIVA!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:132
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "Errore nel cancellare la Richiesta (ID # %s)"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:135
+#, fuzzy
+msgid "Spot has been cleared."
+msgstr "Richiesta Cancellata."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:149
+msgid "Sheet Details"
+msgstr "DETTAGLI MODULO"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:149
+msgid "Sign-up Sheets "
+msgstr "MODULI ADESIONE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:156
+msgid "Error restoring sheet."
+msgstr "Errore nel ripristino Modulo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:158
+msgid "Sheet has been restored."
+msgstr "Modulo ripristinato"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:162
+msgid "Error moving sheet to trash."
+msgstr "Errore nello spostare il Modulo in cestino"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:164
+msgid "Sheet has been moved to trash."
+msgstr "Modulo spostato in cestino"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:168
+msgid "Error permanently deleting sheet."
+msgstr "Errore nel cancellare permanentemente il Modulo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:170
+msgid "Sheet has been permanently deleted."
+msgstr "Modulo cancellato permanentemente"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:174
+msgid "Error copying sheet."
+msgstr "Errore nel copiare il Modulo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:176
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "Modulo clonato con ID #"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:176 classes/class-pta_sus_admin.php:737
+#: classes/class-pta_sus_admin.php:741 classes/class-pta_sus_admin.php:751
+msgid "Edit"
+msgstr "Modifica"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:180
+msgid "Error toggling sheet visibility."
+msgstr "Errore nel “cambio visibilità”"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:186
+msgid "No sign-up sheet found."
+msgstr "Nessun Modulo trovato"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:192
+msgid "Event Type: "
+msgstr "Cadenza Evento: "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:193
+msgid "Signups"
+msgstr "ADESIONI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:198
+msgid "No tasks were found."
+msgstr "Nessun Obiettivo trovato"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:205 classes/class-pta_sus_admin.php:262
+#: classes/class-pta_sus_admin.php:285 classes/class-pta_sus_public.php:56
+msgid "Task/Item"
+msgstr "Obiettivo/Strumento"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:206 classes/class-pta_sus_admin.php:264
+#: classes/class-pta_sus_admin.php:287 classes/class-pta_sus_public.php:57
+msgid "Start Time"
+msgstr "Inizio"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:207 classes/class-pta_sus_admin.php:265
+#: classes/class-pta_sus_admin.php:288 classes/class-pta_sus_public.php:58
+msgid "End Time"
+msgstr "Termine"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:208
+msgid "Name"
+msgstr "Nome"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:209 classes/class-pta_sus_public.php:666
+msgid "E-mail"
+msgstr "E-mail"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:210 classes/class-pta_sus_public.php:667
+msgid "Phone"
+msgstr "Tel./Cell."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:211 classes/class-pta_sus_admin.php:269
+#: classes/class-pta_sus_admin.php:292 classes/class-pta_sus_public.php:59
+msgid "Item Details"
+msgstr "Dettagli a Riguardo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:212 classes/class-pta_sus_admin.php:270
+#: classes/class-pta_sus_public.php:60
+msgid "Item Qty"
+msgstr "Q.tà"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:245 classes/class-pta_sus_admin.php:246
+#: classes/class-pta_sus_admin.php:264 classes/class-pta_sus_admin.php:265
+#: classes/class-pta_sus_admin.php:278 classes/class-pta_sus_admin.php:279
+#: classes/class-pta_sus_admin.php:287 classes/class-pta_sus_admin.php:288
+#: classes/class-pta_sus_emails.php:108 classes/class-pta_sus_emails.php:109
+#: classes/class-pta_sus_emails.php:110 classes/class-pta_sus_emails.php:114
+#: classes/class-pta_sus_emails.php:119 classes/class-pta_sus_public.php:61
+#: classes/list-table.php:66 classes/list-table.php:81
+msgid "N/A"
+msgstr "N/D"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:252
+msgid "Clear Spot"
+msgstr "Cancella Richiesta"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:263 classes/class-pta_sus_admin.php:286
+msgid "Task Date"
+msgstr "Data Obiettivo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:266 classes/class-pta_sus_admin.php:289
+msgid "Volunteer Name"
+msgstr "Nome Adesore"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:267 classes/class-pta_sus_admin.php:290
+msgid "Volunteer Email"
+msgstr "E-mail Adesore"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:268 classes/class-pta_sus_admin.php:291
+msgid "Volunteer Phone"
+msgstr "Tel. Adesore"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:280
+msgid "(empty)"
+msgstr "(vuoto)"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:289
+msgid "empty"
+msgstr "vuoto"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:310
+msgid "Export Sheet as CSV"
+msgstr "Esporta in CSV"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:333
+msgid "All "
+msgstr "Tutti "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:334
+msgid "Trash "
+msgstr "Cestino "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:397
+msgid "You must enter a date!"
+msgstr "Devi inserire una Data!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:400
+msgid "Invalid date!"
+msgstr "Data scritta male!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:407
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "Servono almeno 2 date per un Evento Ricorrente!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:412
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "Date scritte male! Inserirne almeno 2 scritte bene!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:453 classes/class-pta_sus_admin.php:521
+#: classes/class-pta_sus_admin.php:547
+msgid "person"
+msgid_plural "people"
+msgstr[0] "persona"
+msgstr[1] "persone"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:454
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
+"signed up.  Please clear all spots first before changing this task date."
+msgstr ""
+"All’Obiettivo \"%1$s\" non può esser cambiata la data poichè già %2$d %3$s "
+"si sono iscritti. Prima di cambiar data si devono cancellare tutte le "
+"Richieste."
+
+#: classes/class-pta_sus_admin.php:490
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "una data"
+msgstr[1] "delle date"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:491
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "quella data"
+msgstr[1] "quelle date"
+
+#: classes/class-pta_sus_admin.php:490
+msgid "You are trying to remove "
+msgstr "Stai tentando di cancellare "
+
+#: classes/class-pta_sus_admin.php:492
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "questa data"
+msgstr[1] "queste date"
+
+#: classes/class-pta_sus_admin.php:492
+msgid "Please check "
+msgstr "Controlla "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:523
+#, php-format
+msgid ""
+"The number of spots for task \"%1$s\" cannot be set below %2$d because it "
+"currently has %2$d %3$s signed up.  Please clear some spots first before "
+"updating this task."
+msgstr ""
+"La quantità di Richieste per l’Obiettivo \"%1$s\" non può essere impostata "
+"al di sotto di %2$d poichè esso ha già %2$d %3$s Prenotazioni. Prima di "
+"aggiornare questo Obiettivo, cancella alcune Richieste."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:532
+msgid "You must enter at least one task!"
+msgstr "Devi inserire almeno 1 Obiettivo!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:548
+#, php-format
+msgid ""
+"The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
+"Please clear all spots first before removing this task."
+msgstr ""
+"L’Obiettivo \"%1$s\" non può venir rimosso poichè ha %2$d %3$s adesioni. Per "
+"cortesia, cancella prima tutte le Richieste e poi rimuovine l’Obiettivo."
+
+#: classes/class-pta_sus_admin.php:596
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "Obiettivo."
+msgstr[1] "Obiettivi."
+
+#: classes/class-pta_sus_admin.php:596
+#, php-format
+msgid "Error saving %d "
+msgstr "Errore nel salvare  %d "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:621 classes/class-pta_sus_admin.php:700
+msgid "Error updating sheet."
+msgstr "Errore nell’aggiornare il Modulo Adesione."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:634
+msgid "Error removing a task."
+msgstr "Errore nel rimuovere un Obiettivo."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:653
+msgid ""
+"Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr ""
+"Scegliere un “Ruolo” OPPURE inserire a mano le info contatto del "
+"“Referente”. NON ENTRAMBE!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:656
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr "Inserire Nome Referente(i) COMPLETI di E-mail(s)!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:659
+msgid "Please either select a position or type in the chair contact info!"
+msgstr "Selezionare o un Ruolo od inserire le Info Contatti del Referente(i)!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:662
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr "Inserire Nome Referente(i) completi di E-mail(s)."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:684
+msgid "A Sheet with the same name already exists!"
+msgstr "Modulo Adesione di pari nome già esistente!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:692
+msgid "Error adding sheet."
+msgstr "Errore nell’aggiungere il Modulo."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:737 classes/class-pta_sus_admin.php:741
+#: classes/class-pta_sus_admin.php:751
+msgid "ADD"
+msgstr "AGGIUNGI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:737 classes/class-pta_sus_admin.php:751
+msgid "Tasks"
+msgstr "Obiettivi"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:741
+msgid "Sign-up Sheet"
+msgstr "MODULO ADESIONE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:745 classes/class-pta_sus_admin.php:759
+#: classes/list-table.php:112
+msgid "Edit Tasks"
+msgstr "Mod. Obiettivi"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:747
+msgid "Dates and Tasks are added on the next page"
+msgstr "Date ed Obiettivi aggiunti nella pagina seguente"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:752
+msgid "Tasks Successfully Updated!"
+msgstr "Obiettivi aggiornati con successo!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:756 classes/list-table.php:111
+msgid "Edit Sheet"
+msgstr "Mod. Modulo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:757
+msgid "Sheet Updated!"
+msgstr "Modulo aggiornato!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:800 classes/list-table.php:154
+msgid "Single"
+msgstr "SINGOLA EDIZIONE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:801 classes/list-table.php:155
+msgid "Recurring"
+msgstr "RICORRENTE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:802 classes/list-table.php:156
+msgid "Multi-Day"
+msgstr "GIORNI CONSECUTIVI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:803 classes/class-pta_sus_public.php:290
+#: classes/list-table.php:157
+msgid "Ongoing"
+msgstr "IN CORSO"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:820
+msgid "Select Event Type"
+msgstr "Scegli Cadenza Evento"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:831 classes/widget.php:124
+msgid "Title:"
+msgstr "TITOLO EVENTO:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:833
+msgid "Title of event, program or function"
+msgstr "Titolo dell’Evento, del Programma o dell’Attività"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:838 classes/class-pta_sus_admin.php:842
+msgid "Event Type:"
+msgstr "CADENZA EVENTO:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:852
+msgid "1st Reminder # of days:"
+msgstr "1° Promemoria a giorni:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:854
+msgid ""
+"# of days before the event date to send the first reminder. Leave blank (or "
+"0) for no automatic reminders"
+msgstr ""
+"Numero di giorni prima di spedire il 1° Promemoria. Lasciare vuoto (o zero) "
+"per disinserire i Promemoria Automatici."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:857
+msgid "2nd Reminder # of days:"
+msgstr "2° Promemoria a giorni:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:859
+msgid ""
+"# of days before the event date to send the second reminder. Leave blank (or "
+"0) for no second reminder"
+msgstr ""
+"Numero di giorni prima di spedire il 2° Promemoria. Lasciare vuoto (o zero) "
+"per disinserire il 2° Promemoria."
+
+#: classes/class-pta_sus_admin.php:864
+msgid "Show Clear links for signups?"
+msgstr "MOSTRA “Cancellami” nelle Adesioni."
+
+#: classes/class-pta_sus_admin.php:866
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>HIDE</strong> the clear link "
+"in the user's signup list. Administrators and Sign-Up Sheet Managers can "
+"still clear volunteers from signups in the admin dashboard."
+msgstr ""
+"<strong>DESELEZIONA</strong> per <strong>NASCONDERE</strong> il link "
+"“Cancella” nella lista adesione mostrata agli utenti. Gli Admin WordPress e "
+"gli Utenti deputati potranno comunque cancellare gli Adesori da qual si "
+"voglia Modulo Adesione attraverso la schermata amministrativa."
+
+#: classes/class-pta_sus_admin.php:869
+msgid "# of days to allow clear:"
+msgstr "Attiva “Termine Diritto di Recesso”"
+
+#: classes/class-pta_sus_admin.php:871
+msgid ""
+"If the above option is checked, enter the MINIMUM # of days before the "
+"signup event/item date during which volunteers can clear their signups. "
+"Leave blank (or 0) to allow them to clear themselves at any time."
+msgstr ""
+"Se l’opzione “Termine Diritto di Recesso” è attiva, inserire il MAX "
+"CONSENTITO di giorni entro i quali agli Adesori è permesso cancellare la "
+"propria adesione. Lasciare vuoto (o zero) per permettergli di cancellare la "
+"propria adesione in qualunque momento."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:876
+msgid "Visible to Public?"
+msgstr "Visibilie a Chiunque."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:878
+msgid ""
+"<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
+"from the public. Administrators and Sign-Up Sheet Managers can still see "
+"hidden sheets."
+msgstr ""
+"<strong>DESELEZIONA</strong> per <strong>NASCONDERE</strong> questo Modulo "
+"Adesione ad Utenti NON Registrati. Gli Admin WordPress e gli Utenti deputati "
+"potranno comunque vedere i Moduli Adesione nascosti."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:884
+msgid "Contact Info:"
+msgstr "Info Contatto"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:890
+msgid "Select Position"
+msgstr "Scegli Ruolo"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:898
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr ""
+"Selezionare un Programma, un Comitato od un Ruolo cui sia permesso usare il "
+"Modulo Contatti"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:903
+msgid ""
+"<strong><em>OR</em></strong>, manually enter chair names and contact emails "
+"below."
+msgstr ""
+"<strong><em>OPPURE</em></strong> inserire a mano, qui sotto, i Nomi "
+"Referente(i) e le loro e-mail."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:908
+msgid "Chair Name(s):"
+msgstr "Nome Referente(i)"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:910
+msgid "Separate multiple names with commas"
+msgstr "Separare con la virgola in caso di più nomi."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:913
+msgid "Chair Email(s):"
+msgstr "E-Mail Referente(i):"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:915
+msgid "Separate multiple emails with commas"
+msgstr "Separare con la virgola in caso di più e-mail."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:925
+msgid "Program/Event Details (optional):"
+msgstr "Dettagli Evento (opzionale):"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:935
+msgid "Save Sheet"
+msgstr "SALVA MODULO"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:946
+msgid "Select the date for "
+msgstr "Scegli Data per "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:950
+msgid ""
+"Select a date for the event.  All tasks will then be assigned to this date."
+msgstr ""
+"Selezionare una Data per l’Evento. Tale Data verrà assegnata a tutti gli "
+"Obiettivi."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:954
+msgid "Select ALL the dates for "
+msgstr "Scegli TUTTE le Date per "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:958
+msgid ""
+"Select all the dates for the event. Copies of the tasks will be created for "
+"each date."
+msgstr ""
+"Selezionare tutte le Date per l’Evento. Gli Obiettivi verranno copiati per "
+"ogni singola Data."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:963
+msgid "Tasks for "
+msgstr "Obiettivi per "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:964
+msgid "Tasks/Items"
+msgstr "Obiettivi/Strumenti"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:965
+msgid ""
+"Enter tasks or items below. Drag and drop to change sort order. Times are "
+"optional. If you need details for an item or task (such as what dish they "
+"are bringing for a lunch) check the Details Needed box.<br/>\n"
+"            Click on (+) to add additional tasks, or (-) to remove a task.  "
+"At least one task/item must be entered.  If # needed is left blank, the "
+"value will be set to 1."
+msgstr ""
+"Inserisci Obiettivi o Strumenti di seguito. Tienili cliccati e trascinali "
+"per cambiarne l’ordine. Inizio e Termine sono opzionali. Se dei dettagli su "
+"Obiettivi o Strumenti son necessari marca l’opzione “Obbligo Dettagli”.<br/"
+">\n"
+"            Clicca su (+) e su (-) per aggiungere o togliere Obiettivi e/o "
+"Strumenti, MA lasciane almeno 1! Se # Necessario rimane vuoto, viene "
+"assegnato in automatico il valore 1."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:972
+msgid "Task/Item:"
+msgstr "Obiettivo/Strumento:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:974
+msgid "Date:"
+msgstr "Data:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:977
+msgid "# Needed:"
+msgstr "Necessari:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:978
+msgid "Start Time:"
+msgstr "Inizio"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:979
+msgid "End Time:"
+msgstr "Termine"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:980
+msgid "Allow Duplicates? "
+msgstr "Consenti Duplicati "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:989
+msgid "Enable Quantities? "
+msgstr "Attiva le Q.tà "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:998
+msgid "Details Needed? "
+msgstr "Obbligo Dettagli "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:1008
+msgid "Details text:"
+msgstr "Testo Dettagli:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_admin.php:1026
+msgid "Save"
+msgstr "SALVA"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:254
+msgid "Volunteer Signup Reminders sent"
+msgstr "Promemoria per Adesori spediti."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:255 pta-volunteer-sign-up-sheets.php:123
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr "CRON Job Modulo Adesori completato."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_emails.php:256
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "%d e-mails Promemoria spedite."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "Manualistica"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:34
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "PTA Volunteer Sign-up Sheets - Impostazioni"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:38 classes/class-pta_sus_options.php:85
+msgid "Main Settings"
+msgstr "GENERALI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:105
+msgid "Email Settings"
+msgstr "E-MAILS"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:119
+msgid "Integration Settings"
+msgstr "Imp. Altri Plugin"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:64
+msgid ""
+"Please help support continued development of this plugin! Any amount helps!"
+msgstr ""
+"Aiutate cortesemente al continuo sviluppo di questo Plugin! Qualunque cifra "
+"è veramente di aiuto!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:86
+msgid "Enable Test Mode"
+msgstr "ABILITA MODALITA’ TEST"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:87
+msgid "Test Mode Message:"
+msgstr "Messaggio se in Modalità Test:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:88
+msgid "Volunteer Sign Up Page"
+msgstr "Pagina d’Adesione"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:89
+msgid "Hide volunteer names from public?"
+msgstr "NASCONDI i nomi degli Adesori ai non registrati"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Hide chair contact info from public?"
+msgstr "NASCONDI le info contatto dei Referenti ai non registrati"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:91
+msgid "Show Ongoing events in Widget?"
+msgstr "MOSTRA prossimi Eventi nella Widget"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:92
+msgid "Show Ongoing events last?"
+msgstr "MOSTRA i prossimi Eventi solo alla fine"
+
+#: classes/class-pta_sus_options.php:93
+msgid "Remove Phone field from Signup form?"
+msgstr "RIMUOVI Campo Tel. dal Modulo Adesione"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:94
+msgid "Login Required?"
+msgstr "Obbligo di Login"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:95
+msgid "Login Required Message:"
+msgstr "Messaggio se vi è l’Obbligo di Login:"
+
+#: classes/class-pta_sus_options.php:96
+msgid "Disable Login Notices?"
+msgstr "DISABILITA la notifica di Login"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:97
+msgid "Enable CRON Notifications?"
+msgstr "ABILITA notifiche di CRON Job"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:98
+msgid "Detailed Reminder Notifications?"
+msgstr "ABILITA Dettagli nelle notifiche dei Promemoria"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:99
+msgid "Show Expired Tasks?"
+msgstr "MOSTRA Obiettivi scaduti"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:100
+msgid "Automatically clear expired signups?"
+msgstr "AUTO CANCELLA adesione scadute"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:101
+msgid "Hide donation button?"
+msgstr "NASCONI pulsante DONAZIONI."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:106
+msgid "FROM email:"
+msgstr "MITTENTE AUTOMATICO:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:107
+msgid "Reply-To email:"
+msgstr "DESTINATARIO DI SISTEMA:"
+
+#: classes/class-pta_sus_options.php:108
+msgid "CC email:"
+msgstr "ALTRI DESTINATARI DI SISTEMA:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:109
+msgid "Confirmation email subject:"
+msgstr "OGGETTO e-mail di Conferma:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:110
+msgid "Confirmation email template:"
+msgstr "MODELLO e-mail di Conferma:"
+
+#: classes/class-pta_sus_options.php:111
+msgid "Cleared signup email subject:"
+msgstr "OGGETTO e-mail Cancellazione Adesione:"
+
+#: classes/class-pta_sus_options.php:112
+msgid "Cleared signup email template:"
+msgstr "MODELLO e-mail Cancellazione Adesione:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:113
+msgid "Reminder email subject:"
+msgstr "OGGETTO e-mail Promemoria:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:114
+msgid "Reminder email template:"
+msgstr "MODELLO e-mail Promemoria:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:115
+msgid "Max Reminders per Hour:"
+msgstr "MAX Promemoria/ora:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:121
+msgid "Enable PTA Member Directory:"
+msgstr "ABILITA “PTA Member Directory and Contact Form”:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:122
+msgid "Member Directory Page:"
+msgstr "Pagina “PTA Member Directory and Contact Form”:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:123
+msgid "Contact Form Page:"
+msgstr "Pagina Modulo Contatti:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:139
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "Inserimento non valido per %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:150
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "E-mail non valida per %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:165
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "Tipologia campo non riconosciuta: %s!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:173
+msgid "Settings successfully saved!"
+msgstr "Impostazioni salvate con successo!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:238
+msgid "Main plugin settings"
+msgstr "Impostazioni Generali “PTA Volunteer Sign-Up Sheets”"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:242
+msgid "Email settings"
+msgstr ""
+"Impostazione per i vari modelli E-Mail che vengono utilizzati dal plugin in "
+"automatico."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:246
+msgid "Integration with other plugins"
+msgstr "Integrazione con altri Plugins"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:249
+msgid ""
+"This plugin can integrate with the PTA Member Directory and Contact Form "
+"plugin to set contacts for each sign-up sheet, with contact links being "
+"directed to the contact form."
+msgstr ""
+"“PTA Volunteer Sign-UP” può integrarsi col plugin “PTA Member Directory and "
+"Contact Form”, in modo da poter impostare i Contatti per ciascun Modulo "
+"Adesioni in sincronia con tale plugin supplementare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:250
+#, php-format
+msgid ""
+"Search for \"PTA Member Directory\" from your Install Plugins page, or "
+"download from Wordpress.org here: %s"
+msgstr ""
+"Cerca \"PTA Member Directory\" nella tua pagina Plugins di WordPress o "
+"scaricalo da Wordpress.org qui: %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:258 classes/class-pta_sus_options.php:269
+#: classes/class-pta_sus_options.php:280
+msgid "None"
+msgstr "Nessuno/a"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:262
+msgid ""
+"The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to "
+"generate the main sign-ups page"
+msgstr ""
+"La Pagina WordPress dove inserisci lo “shortcode”</em> [pta_sign_up_sheet] "
+"<em> per generare a sua volta la Pagina Principale dei Moduli Adesione."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:273
+msgid ""
+"The member directory page where you put the shortcode [pta_member_directory]"
+msgstr ""
+"La Pagina WordPress dove hai inserito lo “shortcode” [pta_member_directory] "
+"di “PTA Member Directory and Contact Form”, per l’appunto."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:284
+msgid ""
+"The member directory contact form page where you put the shortcode "
+"[pta_member_contact] if you are using the separate contact form."
+msgstr ""
+"La Pagina WordPress dove hai inserito lo “shortcode” [pta_member_contact] di "
+"“PTA Member Directory and Contact Form” qualora tu stia usando il modulo "
+"contatti separatamente."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:289
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr ""
+"Messaggio che gli Utenti vedono nelle pagine di Adesione durante la Modalità "
+"Test."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:294
+msgid ""
+"The message users see on volunteer sign-up pages when they are not logged in "
+"and the Login Required option is enabled."
+msgstr ""
+"Messaggio che gli Utenti vedono nelle pagine di Adesione quando NON hanno "
+"fatto Login MA avete attivato l’opzione “Obbligo Login”."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:299
+msgid ""
+"The email address that confirmation and reminder emails will be sent from."
+msgstr ""
+"L’indirizzo che compare come Mittente delle e-mail di “Promemoria” e "
+"“Conferma”."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:304
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr ""
+"L’indirizzo che viene usato dall’Utente quando clicca su “RISPONDI” alle e-"
+"mail di “Promemoria” e “Conferma”."
+
+#: classes/class-pta_sus_options.php:309
+msgid ""
+"Global CC email address for signup confirmation and signup cleared emails. "
+"This email is in ADDITION TO the chair contact emails for sheets and will "
+"apply to ALL sheets. Useful for notifying admin or the head volunteer "
+"coordinator. Leave blank to only notify the chairs entered for each sheet."
+msgstr ""
+"Lista indirizzi separati da virgola di “Destinatari di Sistema "
+"Supplementari” per le e-mail “Conferma” e “Cancellazione Adesione”.\n"
+"Verrà applicata a TUTTI i Moduli Adesione ed è IN AGGIUNTA a quello delle e-"
+"mail di contatto del/dei Referente(i). Di solito è una lista di indirizzi "
+"del personale burocratico organizzativo dell’Evento. LASCIARE VUOTO SE "
+"volete vengano utilizzati solo gli indirizzi inseriti in ciascun singolo "
+"Modulo Adesioni."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:314
+msgid "Subject line for signup confirmation email messages"
+msgstr "Testo che compare come Oggetto della e-mail di Conferma Adesione"
+
+#: classes/class-pta_sus_options.php:319
+msgid "Subject line for cleared signup email messages"
+msgstr "Testo che compare come Oggetto della e-mail di Cancellata Adesione"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:324
+msgid "Subject line for signup reminder email messages."
+msgstr "Testo che compare come Oggetto della e-mail di Promemoria Adesore"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:329
+msgid ""
+"Max # of reminder emails to send out in a hour. Leave blank or zero for no "
+"limit."
+msgstr ""
+"NUM MAX e-mail/ora di Promemoria da auto spedire. Lasciar vuoto o zero per "
+"un numero illimitato."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:338
+msgid "PTA Member Directory and Contact Form"
+msgstr "“PTA Member Directory and Contact Form”"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:341
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "ABILITA integrazione con %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:353
+msgid ""
+"Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can "
+"view public side sign-up sheets."
+msgstr ""
+"Mette in Modalità Test “PTA Volunteer Sign-Up Sheet”. Solo gli "
+"Amministratori del blog sono in grado di continuare a vedere i risultati."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:365
+msgid ""
+"If checked filled sign-up slots will show \"Filled\" instead of first name "
+"and last initial of volunteer."
+msgstr ""
+"- Le Adesioni compilate mostreranno “Compilato” anzichè le iniziali di nome "
+"e cognome."
+
+#: classes/class-pta_sus_options.php:377
+msgid "If checked sheet chair contact info will NOT be shown to the public."
+msgstr ""
+"- Le info contatto del Referente(i) NON verranno mostrate pubblicamente."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:389
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr "- Gli Eventi In Corso verranno mostrati in Widget."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:401
+msgid ""
+"If checked, Ongoing events will be shown at the bottom of sign up sheet "
+"lists (and widget, if enabled)."
+msgstr ""
+"- Gli Eventi In Corso verranno mostrati solo in fondo sia al Modulo Adesione "
+"che in Widget (se abilitata)."
+
+#: classes/class-pta_sus_options.php:413
+msgid ""
+"If checked, the Phone field will be removed from the public Sign-Up form."
+msgstr "- Il campo Telefono verrà rimosso dal Modulo Adesione online."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:426 classes/class-pta_sus_options.php:438
+#: classes/class-pta_sus_options.php:450 classes/class-pta_sus_options.php:462
+#: classes/class-pta_sus_options.php:474 classes/class-pta_sus_options.php:486
+#: classes/class-pta_sus_options.php:498
+msgid "YES."
+msgstr "- "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:426
+msgid ""
+"Force user to be logged in before they can view or sign-up for any volunteer "
+"sheets."
+msgstr ""
+"Forza l’Utente blog a fare Login prima che possa vedere qualsiasi Modulo "
+"Adesione o aderirvi."
+
+#: classes/class-pta_sus_options.php:438
+msgid ""
+"Turn off the notice strongly suggesting volunteers login before signing up "
+"for a volunteer slot (on signup form page) and the notice to login to view/"
+"edit signups on the main volunteer list page."
+msgstr ""
+"Spegne l’avviso a fare Login prima di poter Vedere/Aderire a qualsivoglia "
+"modulo o pagina moduli."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:450
+msgid ""
+"Sends site admin an email whenever a CRON job is completed (such as sending "
+"reminders or deleting expired signups)."
+msgstr ""
+"Spedisce all’Amministratore blog una e-mail ogni qualvolta un CRON Job è "
+"stato completato (come spedire Promemoria o Cancellare Adesioni Scadute)."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:462
+msgid ""
+"Admin reminder emails notification will include the message body of all "
+"reminders sent, useful for troubleshooting."
+msgstr ""
+"L’e-mail di notifica dei Promemoria per gli Amministratori includeranno il "
+"corpo di ciascuna e-mail Promemoria spedita, utile per tracciare problemi."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:474
+msgid ""
+"Shows expired tasks on the admin View Signups page for a sheet. Expired "
+"tasks are not counted in the Total Spots column."
+msgstr ""
+"Mostra gli “Obiettivi Scaduti” nella pagina “Controlla Adesioni” di un "
+"modulo. Gli “Obiettivi Scaduti” non vengono contati nella colonna “Richieste "
+"Totali”"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:486
+msgid ""
+"Automatically clears expired signups from the database (runs with hourly "
+"CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr ""
+"Cancella in automatico le Adesioni Scadute dal database con CRON a cadenza "
+"oraria. Le Adesioni Scadute non vengono contate nella colonna “Richieste "
+"Compilate”."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:498
+msgid "Hides the donation button at bottom of settings pages."
+msgstr ""
+"Nasconde il pulsante DONAZIONI posto in fondo alle pagine delle Impostazioni."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:505
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr "L’e-mail che l’Adesore riceve dopo aver completato un’adesione."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:506 classes/class-pta_sus_options.php:514
+#: classes/class-pta_sus_options.php:522
+msgid "Available Template Tags: "
+msgstr "TAG autocompilativi: "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_options.php:513
+msgid "Reminder email sent to volunteers."
+msgstr "E-mail Promemoria spedita agli Adesori."
+
+#: classes/class-pta_sus_options.php:521
+msgid ""
+"Cleared signup email sent to volunteers when they clear themselves from a "
+"signup."
+msgstr ""
+"E-mail di Adesione Cancellata qualora siano gli Adesori stessi a cancellarsi."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:77
+msgid "Sorry! Your security nonce did not verify!"
+msgstr "Spiacenti! La tua chiave temporale di sicurezza non è verificata!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:83
+msgid ""
+"Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr "Oops! Hai compilato nel campo “spambot”. Lascialo vuoto e ritenta."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:96
+msgid "Please complete all required fields."
+msgstr "Compila TUTTI i campi richiesti."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:103
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "Caratteri proibiti nel campo Nome! Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:108
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "Caratteri proibiti nel campo Cognome! Riprova ridigitandoli."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:113
+msgid "Invalid Email!  Please try again."
+msgstr "E-mail non valida! Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:118
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr "Caratteri proibiti nel campo Telefono! Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:123
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr "Caratteri proibiti nel campo Strumenti! Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:128
+#, php-format
+msgid "Please enter a number between 1 and %d for Item QTY!"
+msgstr "Inserisci in “Q.tà” numeri compresi tra 1 e %d."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:133
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr "Caratteri proibiti nel campo nascosto Data Adesione! Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:139
+msgid "You are already signed up for this task!"
+msgstr "Siete già Adesori di questo Obiettivo!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:147
+msgid "Error adding signup record.  Please try again."
+msgstr "Errore nella registrazione in database di questa Adesione. Ritentare."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:155
+msgid "You have been signed up!"
+msgstr "Adesione registrata!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:157
+msgid "ERROR SENDING EMAIL"
+msgstr "ERRORE nello Spedire l’E-mail"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:172 classes/list-table.php:183
+msgid "Title"
+msgstr "TITOLO MODULO"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:173
+msgid "Start Date"
+msgstr "Data inizio"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:174
+msgid "End Date"
+msgstr "Data termine"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:175 classes/widget.php:103
+msgid "Open Spots"
+msgstr "Richieste Scoperte"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:176
+msgid "Date"
+msgstr "Data"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:177
+msgid "No Event Chair contact info provided"
+msgstr "Il Referente(i) è senza info contatti."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:178
+msgid "Contact:"
+msgstr "Contatta:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:185
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "I Moduli Adesione sono in MODALITA’ TEST"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:202 classes/class-pta_sus_public.php:210
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "Moduli Adesione data In Corso"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:232 classes/widget.php:46
+msgid "Hidden!"
+msgstr "Nascosto!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:256
+msgid "No sheets currently available at this time."
+msgstr "Nessun Modulo disponibile al momento."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:291
+msgid "View &amp; sign-up"
+msgstr "Controlla &amp; Prenotati"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:292 classes/class-pta_sus_public.php:587
+msgid "Filled"
+msgstr "Compilato"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:316
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr "Fai Login per poter controllare e modificare le Tue Adesioni."
+
+#: classes/class-pta_sus_public.php:328
+msgid "Not a valid signup!"
+msgstr "Adesione non valida!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:338
+msgid "Signup Cleared"
+msgstr "Adesione Cancellata!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:340
+msgid "ERROR clearing signup!"
+msgstr "ERRORE nel cancellare l’Adesione!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:348
+msgid "You have signed up for the following"
+msgstr "Hai compilato Adesioni per ciò che segue:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:349
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "Clicca su “CANCELLAMI” per rimuoverti da un’Adesione ad un Obiettivo."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:372
+msgid "Clear"
+msgstr "CANCELLAMI"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:399
+msgid "Sign-up sheet not found."
+msgstr "Modulo Adesioni non trovato."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:439
+msgid "Event Chairs:"
+msgstr "Referenti:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:441
+msgid "Event Chair:"
+msgstr "Referente:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:448
+msgid "View all Sign-up Sheets"
+msgstr "TUTTI i Moduli"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:461
+msgid "This sheet is currently hidden from the public."
+msgstr "Questo Modulo è attualmente nascosto al Pubblico."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:488
+msgid "DETAILS:"
+msgstr "dettagli:"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:493
+msgid "Sign up below..."
+msgstr "Prenota nella griglia l’apporto di tua competenza"
+
+#: classes/class-pta_sus_public.php:495
+msgid "All spots have been filled."
+msgstr "Tutte le Richieste sono state compilate."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:520
+msgid "No tasks were found for "
+msgstr "Nessun Obiettivo trovato per "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:540
+msgid "Available Spots"
+msgstr "Numero Richieste Disponibili"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:624
+msgid "Sign up "
+msgstr "Prenotami "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:652
+msgid "Sign Up"
+msgstr "PRENOTAZIONE / ADESIONE"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:653
+msgid "You are signing up for... "
+msgstr "Stai Prenotando / Aderendo a: "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:655
+#, php-format
+msgid "on %s"
+msgstr "del %s"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:664
+msgid "First Name"
+msgstr "NOME"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:665
+msgid "Last Name"
+msgstr "COGNOME"
+
+#: classes/class-pta_sus_public.php:703
+msgid ""
+"If you have an account, it is strongly recommended that you <strong>login "
+"before you sign up</strong> so that you can view and edit all your signups."
+msgstr ""
+"Se hai un blog account, è fortemente raccomandato <strong>fare Login prima "
+"di Aderire</strong>, in modo da poter controllare e modificare tutte le "
+"proprie adesioni."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:749
+#, php-format
+msgid "Item QTY (1 - %d): "
+msgstr "Q.TA’ Strumenti (1 - %d): "
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:752
+msgid "Only 1 remaining! Your quantity will be set to 1."
+msgstr "Q.tà necessaria 1! Auto reimpostata quindi ad 1."
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:777
+msgid "Sign me up!"
+msgstr "CONFERMO!"
+
+# @ pta_volunteer_sus
+#: classes/class-pta_sus_public.php:778
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; torna al precedente Modulo Adesione"
+
+# @ pta_volunteer_sus
+#: classes/data.php:707
+#, php-format
+msgid "%s is a required field."
+msgstr "%s è un campo obbligatorio."
+
+# @ pta_volunteer_sus
+#: classes/data.php:718
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "Carattere non valido nel campo %s."
+
+# @ pta_volunteer_sus
+#: classes/data.php:738
+msgid "Invalid email."
+msgstr "E-mail non valida."
+
+# @ pta_volunteer_sus
+#: classes/data.php:746 classes/data.php:760
+msgid "Invalid date."
+msgstr "Data non valida."
+
+# @ pta_volunteer_sus
+#: classes/data.php:769
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "Solo numeri per %s"
+
+# @ pta_volunteer_sus
+#: classes/data.php:776
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "Soltanto SI o NO in %s"
+
+# @ pta_volunteer_sus
+#: classes/data.php:783
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "Valore non valido per %s"
+
+# @ pta_volunteer_sus
+#: classes/data.php:791
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "Formato temporale non valido per %s"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:108 classes/list-table.php:230
+msgid "Restore"
+msgstr "Ripristina"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:108 classes/list-table.php:229
+msgid "Delete"
+msgstr "Elimina"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:110
+msgid "View Sign-ups"
+msgstr "Adesioni"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:113
+msgid "Copy"
+msgstr "Copia"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:114
+msgid "Trash"
+msgstr "Cestina"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:139
+msgid "Yes"
+msgstr "SI"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:141
+msgid "NO"
+msgstr "NO"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:182
+msgid "ID#"
+msgstr "ID#"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:184
+msgid "Visible"
+msgstr "Visibile"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:185
+msgid "Event Type"
+msgstr "Cadenza Evento"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:186
+msgid "First Date"
+msgstr "Data Inizio"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:187
+msgid "Last Date"
+msgstr "Data Ultima"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:188
+msgid "# Dates"
+msgstr "Num. Date"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:189
+msgid "# Tasks"
+msgstr "Num. Obiettivi"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:190
+msgid "Total Spots"
+msgstr "Richieste Totali"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:191
+msgid "Filled Spots"
+msgstr "Richieste Compilate"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:234
+msgid "Move to Trash"
+msgstr "Butta in Cestino"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:235
+msgid "Toggle Visibility"
+msgstr "Cambia Visibilità"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:268
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "Errore nel cestinare %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:271
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d moduli spostati in Cestino."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:279
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "Errore nel eliminare %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:282
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "%d moduli eliminati."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:290
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "Errore nel ripristinare %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:293
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "%d moduli ripristinati"
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:301
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "Errore cambio visibilità per moduli %d."
+
+# @ pta_volunteer_sus
+#: classes/list-table.php:304
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "Visibilità cambiata per moduli %d."
+
+# @ pta_volunteer_sus
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "Widget Lista “PTA Volunteer Sign-up Sheet”."
+
+# @ pta_volunteer_sus
+#: classes/widget.php:120
+msgid "Current Volunteer Opportunities"
+msgstr "Opportunità attuali d’Adesione"
+
+# @ pta_volunteer_sus
+#: classes/widget.php:128
+msgid "# of items to show (-1 for all):"
+msgstr "Num. Strumenti da mostrare (-1 per mostrarli tutti):"
+
+# @ pta_volunteer_sus
+#: classes/widget.php:132
+msgid "CSS Class for ul list of signups"
+msgstr "CSS Class per liste “ul” delle Adesioni"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:122
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "Gestione Adesioni Completata!"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:124
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr "%d Adesioni Scadute eliminate."
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:437
+msgid "Extensions"
+msgstr "Estensioni"
+
+# @ pta_volunteer_sus
+#: pta-volunteer-sign-up-sheets.php:439
+msgid "Docs"
+msgstr "Docs"
