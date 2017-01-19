@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.6.1
+Tested up to: 4.7.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -109,6 +109,11 @@ https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentati
 
 
 == Changelog ==
+**Version 1.13.1**
+
+*   Bug fix for event date value when checking date against the number of days that users are allowed to clear their own sign ups.
+*   Switched to alternate output sanitation for sign up names to allow certain latin language characters that the regular WordPress sanitation function was stripping out (and making the names blank).
+
 **Version 1.13.0.5**
 
 *   Signup Date display fix for emails

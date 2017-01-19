@@ -776,7 +776,7 @@ class PTA_SUS_Public {
 			                    }
 			                    if($show_names) {
 				                    //$display_signup = esc_html($signup->firstname).' '.esc_html(substr($signup->lastname, 0, 1)) . '.';
-				                    $display_signup = esc_html($signup->firstname.' '.$this->data->initials($signup->lastname));
+				                    $display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
 			                    } else {
 				                    $display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spot_filled_message' );
 			                    }
@@ -787,8 +787,8 @@ class PTA_SUS_Public {
 			                    $sheet = $this->data->get_sheet($sheet_id);
 			                    if ( true == $sheet->clear &&
 			                         ($signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets')) &&
-			                         ( 0 == $sheet->clear_days || $signup->signup_date == "0000-00-00"
-			                           || ( strtotime( $signup->signup_date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) ))
+			                         ( 0 == $sheet->clear_days || $signup->date == "0000-00-00"
+			                           || ( strtotime( $signup->date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) ))
 			                    ) {
 				                    $clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
 				                    $clear_url = add_query_arg($clear_args);
