@@ -123,6 +123,8 @@ class PTA_SUS_Options {
         add_settings_field('reminder_email_template', __('Reminder email template:', 'pta_volunteer_sus'), array($this, 'reminder_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('reminder_email_limit', __('Max Reminders per Hour:', 'pta_volunteer_sus'), array($this, 'reminder_email_limit_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('individual_emails', __('Separate CC/BCC to individual TO emails?', 'pta_volunteer_sus'), array($this, 'individual_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('admin_clear_emails', __('Send emails when clear from admin?', 'pta_volunteer_sus'), array($this, 'admin_clear_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('no_chair_emails', __('Disable chair emails?', 'pta_volunteer_sus'), array($this, 'no_chair_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 
         // Integration Settings
         register_setting( 'pta_volunteer_sus_integration_options', 'pta_volunteer_sus_integration_options', array($this, 'pta_sus_validate_integration_options') );
@@ -235,6 +237,8 @@ class PTA_SUS_Options {
             'reminder_email_template' => 'textarea',
             'reminder_email_limit' => 'integer',
 		    'individual_emails' => 'bool',
+            'admin_clear_emails' => 'bool',
+		    'no_chair_emails' => 'bool',
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -639,13 +643,37 @@ class PTA_SUS_Options {
 		<?php
 		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, any CC or BCC email addresses (chairs, global CC, admin) will be sent individually as separate emails, as opposed to one email with several CC or BCC addresses in the header. This could solve some email issues on some servers when using the the built-in wp_mail function (PHP sendmail), instead of an SMTP email plugin (a better choice), where none or only some of the CC/BCC recipients actually get the email. Note, however, that this could send out a large number of emails at once, and you should be aware of any server limits on the number of emails sent per hour.', 'pta_volunteer_sus').'</em>';
 	}
+	
+	public function admin_clear_emails_checkbox() {
+		if(isset($this->email_options['admin_clear_emails']) && true === $this->email_options['admin_clear_emails']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[admin_clear_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, clear emails will be sent when a spot is cleared from the admin view signups page.', 'pta_volunteer_sus').'</em>';
+	}
+
+	public function no_chair_emails_checkbox() {
+		if(isset($this->email_options['no_chair_emails']) && true === $this->email_options['no_chair_emails']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[no_chair_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
+	}
 
     public function confirmation_email_template_textarea_input() {
         echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";
         echo esc_textarea( $this->email_options['confirmation_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function reminder_email_template_textarea_input() {
@@ -653,7 +681,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['reminder_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function clear_email_template_textarea_input() {
@@ -661,7 +689,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['clear_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
 } // End Class

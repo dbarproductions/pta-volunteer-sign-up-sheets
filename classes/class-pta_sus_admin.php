@@ -14,6 +14,7 @@ class PTA_SUS_Admin {
 	private $member_directory_active;
 	public $data;
 	public $main_options;
+	public $email_options;
 
 	public function __construct() {
 		global $plugin_page;
@@ -24,6 +25,7 @@ class PTA_SUS_Admin {
 		$this->options_page = new PTA_SUS_Options();
 
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
+		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 
 		add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
@@ -115,7 +117,7 @@ class PTA_SUS_Admin {
 	/**
 	 * Admin Page: Sheets
 	 */
-	function admin_sheet_page() {
+	public function admin_sheet_page() {
 		if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta_volunteer_sus' ) );
 		}
@@ -127,6 +129,10 @@ class PTA_SUS_Admin {
 		}
 		// Remove signup record
 		if (isset($_GET['action']) && $_GET['action'] == 'clear') {
+			if($this->email_options['admin_clear_emails']) {
+				$emails = new PTA_SUS_Emails();
+				$emails->send_mail($_GET['signup_id'], false, true);
+			}
 			if (($result = $this->data->delete_signup($_GET['signup_id'])) === false) {
 				echo '<div class="error"><p>'.sprintf( __('Error clearing spot (ID # %s)', 'pta_volunteer_sus'), esc_attr($_GET['signup_id']) ).'</p></div>';
 			} else {
@@ -324,7 +330,7 @@ class PTA_SUS_Admin {
 	/**
 	 * Admin Page: Add a Sheet Page
 	 */
-	function admin_modify_sheet_page() {
+	public function admin_modify_sheet_page() {
 		if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta_volunteer_sus' ) );
 		}

@@ -77,16 +77,19 @@ class PTA_SUS_Emails {
             $message = $this->email_options['confirmation_email_template'];
         }
 
-        // Get Chair emails
-        if (isset($sheet->position) && '' != $sheet->position) {
-            $chair_emails = $this->get_member_directory_emails($sheet->position);
-        } else {
-            if('' == $sheet->chair_email) {
-                $chair_emails = false;
-            } else {
-                $chair_emails = explode(',', $sheet->chair_email);
-            }
-        }
+        // Get Chair emails, unless disabled
+	    if(!isset($this->email_options['no_chair_emails']) || false == $this->email_options['no_chair_emails']) {
+		    if (isset($sheet->position) && '' != $sheet->position) {
+			    $chair_emails = $this->get_member_directory_emails($sheet->position);
+		    } else {
+			    if('' == $sheet->chair_email) {
+				    $chair_emails = false;
+			    } else {
+				    $chair_emails = explode(',', $sheet->chair_email);
+			    }
+		    }
+	    }
+        
 	    // If global CC is set, and it's a valid email, add to chair_emails
 	    if( isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email'] ) ) {
 	    	if(empty($chair_emails)) {
@@ -95,6 +98,9 @@ class PTA_SUS_Emails {
 		    	$chair_emails[] = $this->email_options['cc_email'];
 		    }
 	    }
+	    
+	    // Chair names
+	    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
 
         $headers = array();
             $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
@@ -130,10 +136,10 @@ class PTA_SUS_Emails {
         // Replace any template tags with the appropriate variables
 	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{date}','{start_time}',
 		    '{end_time}','{item_details}','{item_qty}','{details_text}','{firstname}','{lastname}',
-		    '{contact_emails}','{site_name}','{site_url}','{phone}');
+		    '{contact_emails}','{contact_names}','{site_name}','{site_url}','{phone}');
 
 	    $replace = array($sheet->title, $sheet_details, $task->title, $date, $start_time, $end_time, $item, $signup->item_qty,
-		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, get_bloginfo('name'), get_bloginfo('url'), $signup->phone );
+		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone );
 
 	    $message = str_replace($search, $replace, $message);
 	    $subject = str_replace($search, $replace, $subject);

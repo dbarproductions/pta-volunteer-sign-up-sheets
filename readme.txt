@@ -86,8 +86,8 @@ https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentati
 
 **How do I display the signup sheets?**
 
-Use the shortcode [pta_sign_up_sheet] to display the sign-up sheets on a page. There are also shortcode arguments for id (specific sheet id), date (specific date), and list_title (change the title of the main list of signup sheets). To make generating shortcodes with arguments easier, download the free PTA Shortcodes plugin extension from: 
-https://stephensherrardplugins.com
+Use the shortcode [pta_sign_up_sheet] to display the sign-up sheets on a page. There are also shortcode arguments for id (specific sheet id), date (specific date), show_time (yes or no), and list_title (change the title of the main list of signup sheets). To make generating shortcodes with arguments easier, download the free PTA Shortcodes plugin extension from:
+https://wordpress.org/plugins-wp/pta-shortcodes/
 
 **Can I display the sheets in a calendar view?**
 
@@ -96,7 +96,7 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 
 **Can signup sheets be assigned to and displayed by groups or categories?**
 
-YES. The plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet. This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
+YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet. This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 
 == Screenshots ==
@@ -109,6 +109,15 @@ https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentati
 
 
 == Changelog ==
+**Version 1.14.0**
+
+*   Added option in email settings to send clear emails when a signup is cleared from the admin pages
+*   Add option in email settings to disable emails to chairs/contacts. This will stop all signup and clear emails from being copied to the specified chair/contact emails for a sheet. Global CC emails will still be sent.
+*   Added email template tag for chair/contact names (previously only had tag for contact emails)
+*   Minor tweak for clear sign-up links when used with the calendar view extension
+*   Refactor various public display lists and tables into their own accessible functions, for easier customizing
+*   Added Norwegian translation
+
 **Version 1.13.1**
 
 *   Bug fix for event date value when checking date against the number of days that users are allowed to clear their own sign ups.

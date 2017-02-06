@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 1.13.1
+Version: 1.14.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '1.13.1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '1.14.0');
 
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
@@ -58,9 +58,9 @@ if(!class_exists('PTA_Sign_Up_Sheet')):
 class PTA_Sign_Up_Sheet {
 	
     private $data;
+    private $public = false;
     private $emails;
     public $db_version = '1.9.2';
-    private $wp_roles;
     public $main_options;
     
     public function __construct() {
@@ -77,7 +77,6 @@ class PTA_Sign_Up_Sheet {
 
         add_action('plugins_loaded', array($this, 'init'));
         add_action('init', array($this, 'public_init' ));
-        //add_action('admin_init', array($this, 'admin_init'));
 
         add_action( 'widgets_init', array($this, 'register_sus_widget') );
 
@@ -87,7 +86,7 @@ class PTA_Sign_Up_Sheet {
     }
 
 	/**
-	 * Get all Sheets
+	 * Get a sheet by id
 	 *
 	 * @param     int     sheet_id to retrieve
 	 * @return    object    the sheet
@@ -101,6 +100,7 @@ class PTA_Sign_Up_Sheet {
 	 *
 	 * @param     bool     get just trash
 	 * @param     bool     get only active sheets or those without a set date
+	 * @param     bool     get hidden sheets or not
 	 * @return    mixed    array of sheets
 	 */
 	public function get_sheets($trash=false, $active_only=false, $show_hidden=false) {
@@ -123,17 +123,34 @@ class PTA_Sign_Up_Sheet {
 	 * @param    int        id of task
 	 * @return    mixed    array of siginups
 	 */
-	public function get_signups($task_id, $date='')
-	{
+	public function get_signups($task_id, $date='')	{
 		return $this->data->get_signups($task_id, $date);
+	}
+	
+	/**
+	 * Get html table output of sheets
+	 *
+	 * @param $sheets array sheet objects
+	 *
+	 * @return string html table output of sheets
+	 */
+	public function get_sheets_list_table($sheets) {
+		if(!is_object($this->public)) return '';
+		return $this->public->get_sheets_list_table($sheets);
+	}
+	
+	/**
+	 * Get html table output of all tasks/items user has signed up for
+	 *
+	 * @return string table list of user signups
+	 */
+	public function get_user_signups_list() {
+		if(!is_object($this->public)) return '';
+		return $this->public->get_user_signups_list();
 	}
 
     public function register_sus_widget() {
         register_widget( 'PTA_SUS_Widget' );
-    }  
-
-    public function admin_init() {
-
     }
         
     /**
@@ -175,7 +192,7 @@ class PTA_Sign_Up_Sheet {
             if (!class_exists('PTA_SUS_Public')) {
                 include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
             }
-            $pta_sus_public = new PTA_SUS_Public();
+            $this->public = new PTA_SUS_Public();
         }
     }
 
@@ -300,6 +317,8 @@ Thank You!
                     'reminder_email_template' => $remind_template,
                     'reminder_email_limit' => "",
 	                'individual_emails' => false,
+                    'admin_clear_emails' => false,
+                    'no_chair_emails' => false,
                     );
         $options = get_option( 'pta_volunteer_sus_email_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
