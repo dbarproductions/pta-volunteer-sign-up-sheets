@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.7.1
+Tested up to: 4.7.2
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -12,7 +12,16 @@ Easily create and manage sign-up sheets for volunteer activities, while protecti
 
 **PLEASE DO NOT USE THE SUPPORT FORUM FOR FEATURE REQUESTS!!**
 You may submit new features here:
-https://stephensherrardplugins.com/support/forum/feature-requests/
+https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
+
+**PLEASE READ THE DOCUMENTATION BEFORE POSTING SUPPORT REQUESTS**
+New features are being added on a fairly regular basis, and they all won't be described in this description.
+Read the documentation here:
+https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/
+
+**FEEDBACK WANTED ON CONTINUED DEVELOPMENT AND/OR A COMPLETELY REDESIGNED PRO VERSION**
+Please read the info and submit your comments and suggestions here:
+https://stephensherrardplugins.com/support/topic/more-features-or-reworked-pro-version/
 
 This plugin allows you to easily create and manage volunteer sign up sheets for your school or organization. You can define four different types of events:  Single, Recurring, Multi-Day, or Ongoing events. Single events are for events that take place on just a single date. Recurring events are events that happen more than once (such as a weekly function), but have the same needs for each date. Multi-Day events are events that are spread across more than one day, but have different needs for each day. Ongoing events do not have any dates associated with them, but are for committees or helpers that are needed on an ongoing basis.
 
@@ -38,11 +47,14 @@ Automatic Email reminders can be set for each sign-up sheet. You can specify the
 
 Simple to use custom email templates for sign-up confirmations and reminders.
 
-Features:
+**Features:**
 
+*   Version 2 adds many new features, as well as an option to output lists as divs instead of tables (for easier custom styling and mobile responsive design). See the changelog or the documentation for all the changes.
+*   Version 2 also begins re-factoring of parts of the code to make it even easier to extend or modify functionality
 *   Version 1.12.3 now supports the calendar display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/
 *   New in version 1.10, you can now specify any type of sheet as a "No Signup Event". This allows you to create non-volunteer events for display only (no signup links or available spots will be shown). You can still create tasks/items with dates, start and end times for these sheets, which could be useful for showing the schedule/agenda for an event, but you won't be able to specify quantity or other normal task options. This is useful for a combination volunteer sign-up and event calendar type of list/display (monthly calendar view add-on coming soon!).
 *   Also new in version 1.10, thanks to a code contributor, you can now move tasks from one sheet (they will be deleted from that sheet) to another sheet that you specify (they will be merged/added-to the selected sheet). Useful for merging two or more sheets into one for easier management.
+*   Version 1.9 allows admin to search user or sign-up tables for volunteers on the public sign-up form, so that they can easily sign up volunteers manually
 *	New features added in version 1.6 include the ability to allow duplicate signups on a per task basis, changing the label for the item details form field on a per task/item basis, as well as allowing volunteers to specify quanitites on a per task/item basis.
 *   Easily create volunteer sign-up sheets with unlimited number of tasks/items for each
 *	Supports Single, Recurring, Ongoing or Multi-Day Events
@@ -57,10 +69,8 @@ Features:
 *   Test Mode for entire volunteer system, which displays a message of your choosing to the public while you test the system
 *   "manage_signup_sheets" capability so you can set up other users who can create and manage sign-up sheets without giving them full admin level access.
 *	Integration with the PTA Member Directory & Contact Form plugin to quickly specify contacts for each sign-up sheet, linked to the contact form with the proper recipient already selected. http://wordpress.org/plugins/pta-member-directory/
-*	Use the free PTA Shortcodes extension to easily generate shortcodes with all possible arguments ( available at https://stephensherrardplugins.com )
+*	Use the free PTA Shortcodes extension to easily generate shortcodes with all possible arguments ( available at https://wordpress.org/plugins/pta-shortcodes/ )
 *	Version 1.4 adds Wordpress Multisite compatibility
-*	Version 1.4.2 adds Spanish translation by Simon Samson at http://sitestraduction.com -- half-price translation services for non-profits
-*	Version 1.4.5 Includes French translation, and updated Spanish translation, by Simon Samson at http://sitestraduction.com
 
 == Installation ==
 
@@ -96,26 +106,22 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 
 **Can signup sheets be assigned to and displayed by groups or categories?**
 
-YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet. This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
-
-
-== Screenshots ==
-
-Screenshots and extended description can be found at:
-https://stephensherrardplugins.com/pta-volunteer-sign-up-sheets/
-
-Documentation can be found at:
-https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/
-
+YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
-**Version 1.14.0**
+**Version 2.0.0**
 
 *   Added option in email settings to send clear emails when a signup is cleared from the admin pages
 *   Add option in email settings to disable emails to chairs/contacts. This will stop all signup and clear emails from being copied to the specified chair/contact emails for a sheet. Global CC emails will still be sent.
 *   Added email template tag for chair/contact names (previously only had tag for contact emails)
 *   Minor tweak for clear sign-up links when used with the calendar view extension
-*   Refactor various public display lists and tables into their own accessible functions, for easier customizing
+*   Refactor all public display lists and tables into their own accessible functions, for easier customizing
+*   Added option to create output using divs instead of tables, for easier styling and better responsive design (when customizing the CSS)
+*   Added option to disable loading the plugin's CSS styles. Use this when you want to create your own CSS styles for layout and messages.
+*   Added code to check if the signup form and any messages (errors or signup notices) have already been displayed on a page, and to suppress them from being output more than once for those people who want to put more than one sign-up sheet shortcode on one page without using the redirect option for sign-up forms.
+*   Added required attributes to first name, last name, and email fields on signup form. Browsers that support the required attribute will show a message if they try to submit the form without filling out those fields.
+*   Added option to set whether the phone fields is required, allowing you to have it on the signup form but still allow people to sign up without filling it out. If set to required, the required attribute will also be added to the html form field inputs.
+*   Added new check box on the task fields to set if the details field is required. This check box will only show if you first check "details needed". Setting it as not required (un-checked) will allow you to use the field to collect optional info from the volunteers, without forcing them to fill out the field.
 *   Added Norwegian translation
 
 **Version 1.13.1**

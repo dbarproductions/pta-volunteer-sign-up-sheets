@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 1.14.0
+Version: 2.0.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '1.14.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.0.0');
 
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
@@ -60,7 +60,7 @@ class PTA_Sign_Up_Sheet {
     private $data;
     private $public = false;
     private $emails;
-    public $db_version = '1.9.2';
+    public $db_version = '2.0.0';
     public $main_options;
     
     public function __construct() {
@@ -128,15 +128,27 @@ class PTA_Sign_Up_Sheet {
 	}
 	
 	/**
-	 * Get html table output of sheets
+	 * Get html output of sheets
 	 *
 	 * @param $sheets array sheet objects
 	 *
-	 * @return string html table output of sheets
+	 * @return string html output of sheets
 	 */
-	public function get_sheets_list_table($sheets) {
+	public function get_sheets_list($sheets) {
 		if(!is_object($this->public)) return '';
-		return $this->public->get_sheets_list_table($sheets);
+		return $this->public->get_sheets_list($sheets);
+	}
+	
+	/**
+	 * Get html output of a single sheet
+	 *
+	 * @param $id ID of sheet to display
+	 *
+	 * @return string html output of sheet and all tasks
+	 */
+	public function get_single_sheet($id) {
+		if(!is_object($this->public)) return '';
+		return $this->public->get_single_sheet($id);
 	}
 	
 	/**
@@ -232,6 +244,9 @@ class PTA_Sign_Up_Sheet {
                     'enable_signup_search' => false,
                     'signup_search_tables' => 'signups',
 	                'signup_redirect' => true,
+	                'phone_required' => true,
+	                'use_divs' => false,
+	                'disable_css' => false,
                     );
         $options = get_option( 'pta_volunteer_sus_main_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
@@ -427,6 +442,7 @@ Thank You!
             qty INT NOT NULL DEFAULT 1,
             need_details VARCHAR(3) NOT NULL DEFAULT 'NO',
             details_text VARCHAR(200) NOT NULL DEFAULT 'Item you are bringing',
+            details_required VARCHAR(3) NOT NULL DEFAULT 'YES',
             allow_duplicates VARCHAR(3) NOT NULL DEFAULT 'NO',
             enable_quantities VARCHAR(3) NOT NULL DEFAULT 'NO',
             position INT NOT NULL,

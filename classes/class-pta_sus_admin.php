@@ -425,6 +425,7 @@ class PTA_SUS_Admin {
 						'task_time_end'     => $_POST['task_time_end'][$key],
 						'task_qty'          => $_POST['task_qty'][$key],
 						'task_need_details' => isset($_POST['task_need_details'][$key]) ? "YES" : "NO",
+						'task_details_required' => isset($_POST['task_details_required'][$key]) ? "YES" : "NO",
 						'task_allow_duplicates' => isset($_POST['task_allow_duplicates'][$key]) ? "YES" : "NO",
 						'task_enable_quantities' => isset($_POST['task_enable_quantities'][$key]) ? "YES" : "NO",
 						'task_details_text' => $_POST['task_details_text'][$key],
@@ -553,6 +554,9 @@ class PTA_SUS_Admin {
 						if (!empty($_POST['task_title'][$key])) {
 							foreach ($this->data->tables['task']['allowed_fields'] AS $field=>$nothing) {
 								if ( 'need_details' == $field && !isset($_POST['task_'.$field][$key]) ) {
+									$task_data['task_'.$field] = 'NO';
+								}
+								if ( 'details_required' == $field && !isset($_POST['task_'.$field][$key]) ) {
 									$task_data['task_'.$field] = 'NO';
 								}
 								if ( 'allow_duplicates' == $field && !isset($_POST['task_'.$field][$key]) ) {
@@ -792,6 +796,7 @@ class PTA_SUS_Admin {
 				$task_fields['task_time_start'][] = $task->time_start;
 				$task_fields['task_time_end'][] = $task->time_end;
 				$task_fields['task_need_details'][] = $task->need_details;
+				$task_fields['task_details_required'][] = $task->details_required;
 				$task_fields['task_details_text'][] = $task->details_text;
 				$task_fields['task_allow_duplicates'][] = $task->allow_duplicates;                
 				$task_fields['task_enable_quantities'][] = $task->enable_quantities;
@@ -1056,6 +1061,14 @@ class PTA_SUS_Admin {
 					echo 'checked="checked" ';
 				}
 				echo '>';
+				// Details Required - added in version 1.14
+				echo '<span class="pta_toggle">&nbsp;&nbsp;&nbsp;'.__('Details Required? ', 'pta_volunteer_sus');
+				echo '<input type="checkbox" class="details_required" name="task_details_required['.$i.']" id="task_details_required['.$i.']" value="YES" ';
+				if (isset($f['task_details_required'][$i]) &&  $f['task_details_required'][$i] === "YES") {
+					echo 'checked="checked" ';
+				}
+				echo '></span>';
+				
 				// Details label - added in version 1.6
 				echo '<span class="pta_toggle"><br />'.__('Details text:','pta_volunteer_sus').' <input type="text" class="details_text" name="task_details_text['.$i.']" id="task_details_text['.$i.']" value="'.((isset($f['task_details_text'][$i]) ? esc_attr($f['task_details_text'][$i]) : __("Item you are bringing", "pta_volunteer_sus" ) )).'" size="25"></span>';
 			}

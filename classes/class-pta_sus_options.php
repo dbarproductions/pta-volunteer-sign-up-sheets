@@ -87,12 +87,15 @@ class PTA_SUS_Options {
         add_settings_field('test_mode_message', __('Test Mode Message:', 'pta_volunteer_sus'), array($this, 'test_mode_message_text_input'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('volunteer_page_id', __('Volunteer Sign Up Page', 'pta_volunteer_sus'), array($this, 'volunteer_page_id_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_redirect', __('Redirect Sign Ups to Main Page?', 'pta_volunteer_sus'), array($this, 'signup_redirect_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('use_divs', __('Use divs?', 'pta_volunteer_sus'), array($this, 'use_divs_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('disable_css', __('Disable plugin CSS?', 'pta_volunteer_sus'), array($this, 'disable_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_volunteer_names', __('Hide volunteer names from public?', 'pta_volunteer_sus'), array($this, 'hide_volunteer_names_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_remaining', __('Consolidate remaining slots?', 'pta_volunteer_sus'), array($this, 'show_remaining_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('hide_details_qty', __('Hide Details and Quantities', 'pta_volunteer_sus'), array($this, 'hide_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_contact_info', __('Hide chair contact info from public?', 'pta_volunteer_sus'), array($this, 'hide_contact_info_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_in_widget', __('Show Ongoing events in Widget?', 'pta_volunteer_sus'), array($this, 'show_ongoing_in_widget_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_last', __('Show Ongoing events last?', 'pta_volunteer_sus'), array($this, 'show_ongoing_last_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('phone_required', __('Phone Required?', 'pta_volunteer_sus'), array($this, 'phone_required_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('no_phone', __('Remove Phone field from Signup form?', 'pta_volunteer_sus'), array($this, 'no_phone_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('login_required', __('Login Required?', 'pta_volunteer_sus'), array($this, 'login_required_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('login_required_signup', __('Login Required for Signup?', 'pta_volunteer_sus'), array($this, 'login_required_signup_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -219,6 +222,10 @@ class PTA_SUS_Options {
 		    'signup_search_tables' => 'text',
 		    'hide_details_qty' => 'bool',
 		    'signup_redirect' => 'bool',
+            'phone_required' => 'bool',
+            'details_required' => 'bool',
+            'use_divs' => 'bool',
+            'disable_css' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -439,6 +446,45 @@ class PTA_SUS_Options {
         <?php
         echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, the number of remaining sign-up slots for a task/item will be shown on one line in the task list with a single sign-up link, instead of showing a separate line for each of the remaining quantity of that task/item.', 'pta_volunteer_sus' ) . '</em>';
     }
+	
+	public function phone_required_checkbox() {
+		if ( isset( $this->main_options['phone_required'] ) && true === $this->main_options['phone_required'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[phone_required]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, and as long as you are not hiding the phone field, the phone field will be required. Un-check if you want to show the phone field but have it be optional.', 'pta_volunteer_sus' ) . '</em>';
+	}
+	
+	public function use_divs_checkbox() {
+		if ( isset( $this->main_options['use_divs'] ) && true === $this->main_options['use_divs'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[use_divs]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, styled divs will be used to replace all tables in the public output (sheet list, task list, user signup list).', 'pta_volunteer_sus' ) . '</em>';
+	}
+	
+	public function disable_css_checkbox() {
+		if ( isset( $this->main_options['disable_css'] ) && true === $this->main_options['disable_css'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[disable_css]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, the plugin will NOT queue up its own CSS style sheet.', 'pta_volunteer_sus' ) . '</em>';
+	}
 
     public function hide_contact_info_checkbox() {
         if(isset($this->main_options['hide_contact_info']) && true === $this->main_options['hide_contact_info']) {

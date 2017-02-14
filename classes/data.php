@@ -56,6 +56,7 @@ class PTA_SUS_Data
                     'time_end' => 'time',
                     'qty' => 'int',
                     'need_details' => 'yesno',
+                    'details_required' => 'yesno',
                     'details_text' => 'text',
                     'allow_duplicates' => 'yesno',
                     'enable_quantities' => 'yesno',
@@ -386,6 +387,7 @@ class PTA_SUS_Data
                 , task.time_end AS task_time_end
                 , task.qty AS task_qty
                 , task.need_details AS need_details
+                , task.details_required AS details_required
                 , task.details_text AS details_text
                 , task.enable_quantities AS enable_quantities
                 , task.position AS task_position
@@ -585,9 +587,9 @@ class PTA_SUS_Data
         foreach ($names as $name) {
             if ($i > 1) {
                 if ($i < $count) {
-                    $html_names .= ', ';
+                    $html_names .= _x(', ', 'contact name separating character', 'pta_volunteer_sus' );
                 } else {
-                    $html_names .= ' and ';
+                    $html_names .= _x(' and ', 'separator before last contact name', 'pta_volunteer_sus' );
                 }                
             }
             $html_names .= $name;

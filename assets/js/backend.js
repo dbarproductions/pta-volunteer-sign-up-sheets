@@ -60,7 +60,11 @@ jQuery(document).ready(function($) {
                             if ($(this).is(':checkbox')) {
                                 $(this).attr('checked', false);
                                 $(this).attr('value', "YES");
-                            } 
+                            }
+                            if ($(this).hasClass('details_required')) {
+                                $(this).attr('checked', true);
+                                $(this).closest('span').hide();
+                            }
                         });
                         // Insert the new task row
                         $(this).parent("LI").after(new_row);

@@ -62,3 +62,25 @@ TABLE.pta-sus-sheets .column-view_link {
 .pta-sus-em {
     font-style: italic;
 }
+/* DIV LAYOUT STYLES */
+
+.pta-sus-sheets-table, .pta-sus-tasks-table {
+    display: table;
+    width: 100%;
+}
+
+.pta-sus-sheets-row, .pta-sus-tasks-row {
+    display: table-row;
+}
+
+.column-title, .column-date, .column-start-date, .column-end-date, .column-open-spots, .column-view-link,
+.column-task, .column-start-time, .column-end-time, .column-available-spots, .column-details, .column-qty,
+.column-consolidated, .column-group, .column-item, .column-clear, .column-signup, .consolidated, .slots {
+    display: table-cell;
+    padding:1em;
+    border:#f0f0f0 1px solid;
+}
+
+.head {
+    font-weight:bold;
+}
