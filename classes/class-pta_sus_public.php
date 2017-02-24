@@ -40,6 +40,7 @@ class PTA_SUS_Public {
 	private $date_header;
 	private $show_time;
 	private $phone_required;
+	private $show_full_name = false;
     
     public function __construct() {
         $this->data = new PTA_SUS_Data();
@@ -62,6 +63,7 @@ class PTA_SUS_Public {
         
         $this->phone_required = isset($this->main_options['phone_required']) ? $this->main_options['phone_required'] : true;
 	    $this->use_divs = isset($this->main_options['use_divs']) ? $this->main_options['use_divs'] : false;
+	    $this->show_full_name = isset($this->main_options['show_full_name']) ? $this->main_options['show_full_name'] : false;
 
         
     } // Construct
@@ -786,6 +788,11 @@ class PTA_SUS_Public {
 			        }
 		        }
 	        }
+	
+	        $one_row = false;
+	        if(!$show_all_slots && !$show_details && !$show_names && !$no_signups) {
+	        	$one_row = true;
+	        }
 
             $return .= apply_filters( 'pta_sus_before_task_list', '', $tasks );
             $return .= '<div class="pta-sus-sheets tasks">';
@@ -794,10 +801,10 @@ class PTA_SUS_Public {
                         <div class="pta-sus-tasks-row">
                             <div class="column-task head">'.esc_html($this->task_item_header).'</div>';
             } else {
-	            $return .= '<table class="pta-sus-tasks" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th class="column-task">'.esc_html($this->task_item_header).'</th>';
+	            $return .= '<table class="pta-sus-tasks">
+						<thead>
+							<tr>
+								<th class="column-task">'.esc_html($this->task_item_header).'</th>';
             }
 	        
             if ($this->show_time) {
@@ -816,25 +823,25 @@ class PTA_SUS_Public {
 			        $return .= '<th>'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</th>';
 		        }
 	        }
-            if(is_user_logged_in()) {
+            if(is_user_logged_in() && !$one_row) {
 	            if($this->use_divs) {
 		            $return .= '<div class="column-clear head"></div>';
 	            } else {
-		            $return .= '<th></th>';
+		            $return .= '<th class="column-clear"></th>';
 	            }
             }
             if ($show_details) {
 	            if($this->use_divs) {
 		            $return .= '<div class="column-details head">'.esc_html($this->item_details_header).'</div>';
 	            } else {
-		            $return .= '<th>'.esc_html($this->item_details_header).'</th>';
+		            $return .= '<th class="column-details">'.esc_html($this->item_details_header).'</th>';
 	            }
             }
             if ($show_qty) {
 	            if($this->use_divs) {
 		            $return .= '<div class="column-quantity head">'.esc_html($this->item_qty_header).'</div>';
 	            } else {
-		            $return .= '<th>'.esc_html($this->item_qty_header).'</th>';
+		            $return .= '<th class="column-quantity">'.esc_html($this->item_qty_header).'</th>';
 	            }
             }
             if($this->use_divs) {
@@ -883,7 +890,7 @@ class PTA_SUS_Public {
                 $title_shown = false;
 
                 // One simple row if everything should be consolidated (no item details or names and consolidate option is set)
-                if(!$show_all_slots && !$show_details && !$show_names && !$no_signups) {
+                if($one_row) {
                 	if($this->use_divs) {
 		                $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb pta-sus-tasks-timeb">';
 		                $return .= '<div class="column-title">'.esc_html($task->title).'</div>';
@@ -954,14 +961,14 @@ class PTA_SUS_Public {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb">';
 			                    } else {
-				                    $return .= '<tr class="pta-sus-tasks-bb">';
+				                    $return .= '<tr class="pta-sus-tasks-row pta-sus-tasks-bb">';
 			                    }
 		                    }
 	                    } else {
 		                    if($this->use_divs) {
 			                    $return .= '<div class="pta-sus-tasks-row">';
 		                    } else {
-			                    $return .= '<tr>';
+			                    $return .= '<tr class="pta-sus-tasks-row">';
 		                    }
 	                    }
 	                    if (!$title_shown) {
@@ -986,18 +993,22 @@ class PTA_SUS_Public {
 		                    if($this->use_divs) {
 			                    $return .= '<div class="column-title"></div>';
 		                    } else {
-			                    $return .= '<td></td>';
+			                    $return .= '<td class="column-title"></td>';
 		                    }
 		                    if ($this->show_time) {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-start-time"></div><div class="column-end-time"></div>';
 			                    } else {
-				                    $return .= '<td></td><td></td>';
+				                    $return .= '<td class="column-start-time"></td><td class="column-end-time"></td>';
 			                    }
 		                    }
 	                    }
 	                    if($show_names) {
-		                    $display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
+	                    	if($this->show_full_name) {
+			                    $display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
+		                    } else {
+			                    $display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
+		                    }
 	                    } else {
 		                    $display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spot_filled_message' );
 	                    }
@@ -1041,7 +1052,7 @@ class PTA_SUS_Public {
 		                    if($this->use_divs) {
 			                    $return .= '<div class="column-qty">'.("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "").'</div>';
 		                    } else {
-			                    $return .= '<td>'.("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "").'</td>';
+			                    $return .= '<td class="column-qty">'.("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "").'</td>';
 		                    }
 	                    }
 	                    if ('YES' === $task->enable_quantities) {
@@ -1078,14 +1089,14 @@ class PTA_SUS_Public {
 				                    if($this->use_divs) {
 					                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb">';
 				                    } else {
-					                    $return .= '<tr class="pta-sus-tasks-bb">';
+					                    $return .= '<tr class="pta-sus-tasks-row pta-sus-tasks-bb">';
 				                    }
 			                    }
 		                    } else {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="pta-sus-tasks-row">';
 			                    } else {
-				                    $return .= '<tr>';
+				                    $return .= '<tr class="pta-sus-tasks-row">';
 			                    }
 		                    }
 		                    if (!$title_shown) {
@@ -1110,7 +1121,7 @@ class PTA_SUS_Public {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-task"></div>';
 			                    } else {
-				                    $return .= '<td></td>';
+				                    $return .= '<td class="column-task"></td>';
 			                    }
 			                    if ($this->show_time) {
 				                    if($this->use_divs) {
@@ -1119,8 +1130,8 @@ class PTA_SUS_Public {
                                       		<div class="column-end-time"></div>';
 				                    } else {
 					                    $return .= '
-                              				<td></td>
-                              				<td></td>';
+                              				<td class="column-start-time"></td>
+                              				<td class="column-end-time"></td>';
 				                    }
 			                    }
 		                    }
@@ -1156,21 +1167,21 @@ class PTA_SUS_Public {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-clear"></div>';
 			                    } else {
-				                    $return .= '<td></td>';
+				                    $return .= '<td class="column-clear"></td>';
 			                    }
 		                    }
 		                    if($show_details) {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-details"></div>';
 			                    } else {
-				                    $return .= '<td></td>';
+				                    $return .= '<td class="column-details"></td>';
 			                    }
 		                    }
 		                    if($show_qty) {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-qty"></div>';
 			                    } else {
-				                    $return .= '<td></td>';
+				                    $return .= '<td class="column-qty"></td>';
 			                    }
 		                    }
 		                    if($this->use_divs) {

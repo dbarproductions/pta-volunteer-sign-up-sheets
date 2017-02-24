@@ -67,8 +67,17 @@ class PTA_SUS_Emails {
 
     
         if($reminder) {
-            $subject = $this->email_options['reminder_email_subject'];
-            $message = $this->email_options['reminder_email_template'];
+        	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
+		        $subject = $this->email_options['reminder2_email_subject'];
+	        } else {
+		        $subject = $this->email_options['reminder_email_subject'];
+	        }
+	        if( 2 == $reminder && isset($this->email_options['reminder2_email_template']) && '' !== $this->email_options['reminder2_email_template']) {
+		        $message = $this->email_options['reminder2_email_template'];
+	        } else {
+		        $message = $this->email_options['reminder_email_template'];
+	        }
+            
         } elseif ($clear) {
             $subject = $this->email_options['clear_email_subject'];
             $message = $this->email_options['clear_email_template'];
@@ -260,8 +269,10 @@ class PTA_SUS_Emails {
                 		break;
                 	}
                 }
+                
+                $reminder = $event->reminder_num;
 
-                if ($this->send_mail($event->signup_id, $reminder = true) == TRUE) { 
+                if ($this->send_mail($event->signup_id, $reminder ) == TRUE) {
                     // Keep track of # of reminders sent
                     $reminder_count++; 
                     // Add reminder message to reminders_log

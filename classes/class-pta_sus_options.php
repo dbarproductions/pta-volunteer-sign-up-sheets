@@ -90,6 +90,7 @@ class PTA_SUS_Options {
 	    add_settings_field('use_divs', __('Use divs?', 'pta_volunteer_sus'), array($this, 'use_divs_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_css', __('Disable plugin CSS?', 'pta_volunteer_sus'), array($this, 'disable_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_volunteer_names', __('Hide volunteer names from public?', 'pta_volunteer_sus'), array($this, 'hide_volunteer_names_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('show_full_name', __('Show full name?', 'pta_volunteer_sus'), array($this, 'show_full_name_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_remaining', __('Consolidate remaining slots?', 'pta_volunteer_sus'), array($this, 'show_remaining_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('hide_details_qty', __('Hide Details and Quantities', 'pta_volunteer_sus'), array($this, 'hide_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_contact_info', __('Hide chair contact info from public?', 'pta_volunteer_sus'), array($this, 'hide_contact_info_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -124,6 +125,8 @@ class PTA_SUS_Options {
         add_settings_field('clear_email_template', __('Cleared signup email template:', 'pta_volunteer_sus'), array($this, 'clear_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('reminder_email_subject', __('Reminder email subject:', 'pta_volunteer_sus'), array($this, 'reminder_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('reminder_email_template', __('Reminder email template:', 'pta_volunteer_sus'), array($this, 'reminder_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('reminder2_email_subject', __('Reminder 2 email subject:', 'pta_volunteer_sus'), array($this, 'reminder2_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('reminder2_email_template', __('Reminder 2 email template:', 'pta_volunteer_sus'), array($this, 'reminder2_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('reminder_email_limit', __('Max Reminders per Hour:', 'pta_volunteer_sus'), array($this, 'reminder_email_limit_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('individual_emails', __('Separate CC/BCC to individual TO emails?', 'pta_volunteer_sus'), array($this, 'individual_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('admin_clear_emails', __('Send emails when clear from admin?', 'pta_volunteer_sus'), array($this, 'admin_clear_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -225,7 +228,8 @@ class PTA_SUS_Options {
             'phone_required' => 'bool',
             'details_required' => 'bool',
             'use_divs' => 'bool',
-            'disable_css' => 'bool'
+            'disable_css' => 'bool',
+            'show_full_name' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -242,6 +246,8 @@ class PTA_SUS_Options {
             'clear_email_template' => 'textarea',
             'reminder_email_subject' => 'text',
             'reminder_email_template' => 'textarea',
+		    'reminder2_email_subject' => 'text',
+		    'reminder2_email_template' => 'textarea',
             'reminder_email_limit' => 'integer',
 		    'individual_emails' => 'bool',
             'admin_clear_emails' => 'bool',
@@ -379,6 +385,11 @@ class PTA_SUS_Options {
 	    echo '<input id="reminder_email_subject" name="pta_volunteer_sus_email_options[reminder_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reminder_email_subject"]).'" />';
         echo '<em> '. __('Subject line for signup reminder email messages. Template tags can be used.', 'pta_volunteer_sus') . '</em>';
     }
+	
+	public function reminder2_email_subject_text_input() {
+		echo '<input id="reminder2_email_subject" name="pta_volunteer_sus_email_options[reminder2_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reminder2_email_subject"]).'" />';
+		echo '<em> '. __('Subject line for signup reminder #2 email messages. LEAVE BLANK to use same subject template (above) for both reminders. Template tags can be used.', 'pta_volunteer_sus') . '</em>';
+	}
 
     public function reminder_email_limit_text_input() {
         echo "<input id='reminder_email_limit' name='pta_volunteer_sus_email_options[reminder_email_limit]' size='5' type='text' value='{$this->email_options['reminder_email_limit']}' />";
@@ -421,6 +432,18 @@ class PTA_SUS_Options {
         <em><?php _e('If checked filled sign-up slots will show "Filled" instead of first name and last initial of volunteer.', 'pta_volunteer_sus'); ?></em>
         <?php
     }
+	
+	public function show_full_name_checkbox() {
+		if(isset($this->main_options['show_full_name']) && true === $this->main_options['show_full_name']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[show_full_name]" type="checkbox" value="1" <?php echo $checked; ?> />
+        <em><?php _e('If checked, and not hiding names (above), this will show the full first and last name instead of first name and last initial', 'pta_volunteer_sus'); ?></em>
+		<?php
+	}
 
 	public function hide_details_qty_checkbox() {
 		if(isset($this->main_options['hide_details_qty']) && true === $this->main_options['hide_details_qty']) {
@@ -729,6 +752,14 @@ class PTA_SUS_Options {
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta_volunteer_sus');
         echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
     }
+	
+	public function reminder2_email_template_textarea_input() {
+		echo "<textarea id='reminder2_email_template' name='pta_volunteer_sus_email_options[reminder2_email_template]' cols='55' rows='15' >";
+		echo esc_textarea( $this->email_options['reminder2_email_template'] );
+		echo '</textarea>';
+		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta_volunteer_sus');
+		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
+	}
 
     public function clear_email_template_textarea_input() {
         echo "<textarea id='clear_email_template' name='pta_volunteer_sus_email_options[clear_email_template]' cols='55' rows='15' >";

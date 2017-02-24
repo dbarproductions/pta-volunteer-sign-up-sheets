@@ -109,6 +109,13 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.0.1**
+
+*   Option to show full name when not hiding name (full first and last name instead of first name and last initial)
+*   Added optional reminder 2 email subject and message templates. If either is left blank (subject and message are checked independent of each other), then the same subject and/or message template will be used for both reminders (default)
+*   CSS fix so new div class styles don't get applied to old table elements
+*   Additional CSS classes added to table elements for easier targetting for custom styling
+
 **Version 2.0.0**
 
 *   Added option in email settings to send clear emails when a signup is cleared from the admin pages
