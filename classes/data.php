@@ -323,6 +323,11 @@ class PTA_SUS_Data
 			    'key'     => 'last_name',
 			    'value'   => $search,
 			    'compare' => 'LIKE'
+		    ),
+		    array(
+			    'key'     => 'user_email',
+			    'value'   => $search,
+			    'compare' => 'LIKE'
 		    )
 	    );
 	    $args = array(

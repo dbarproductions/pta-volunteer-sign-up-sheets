@@ -109,8 +109,18 @@ class PTA_SUS_Emails {
 	    }
 	    
 	    // Chair names
-	    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
-
+	    $names = false;
+	    if (isset($sheet->position) && '' != $sheet->position) {
+		    $names = $this->get_member_directory_names($sheet->position);
+		    if($names) {
+		    	$chair_names = implode(', ', $names);
+		    }
+	    }
+	    
+	    if(!$names) {
+		    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
+	    }
+	    
         $headers = array();
             $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
             $headers[]  = "Reply-To: " . $replyto;
@@ -201,6 +211,18 @@ class PTA_SUS_Emails {
         if(0 == count($emails)) return false;
         return $emails;
     }
+	
+	public function get_member_directory_names($group='') {
+		$args = array( 'post_type' => 'member', 'member_category' => $group );
+		$members = get_posts( $args );
+		if(!$members) return false;
+		$names = array();
+		foreach ($members as $member) {
+			$names[] = sanitize_text_field($member->post_title);
+		}
+		if(0 == count($names)) return false;
+		return $names;
+	}
 
     public function send_reminders() {
     	$limit = false;

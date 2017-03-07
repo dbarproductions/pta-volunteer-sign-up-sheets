@@ -87,6 +87,7 @@ class PTA_SUS_Options {
         add_settings_field('test_mode_message', __('Test Mode Message:', 'pta_volunteer_sus'), array($this, 'test_mode_message_text_input'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('volunteer_page_id', __('Volunteer Sign Up Page', 'pta_volunteer_sus'), array($this, 'volunteer_page_id_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_redirect', __('Redirect Sign Ups to Main Page?', 'pta_volunteer_sus'), array($this, 'signup_redirect_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('suppress_duplicates', __('Suppress Duplicate Output?', 'pta_volunteer_sus'), array($this, 'suppress_duplicates_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('use_divs', __('Use divs?', 'pta_volunteer_sus'), array($this, 'use_divs_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_css', __('Disable plugin CSS?', 'pta_volunteer_sus'), array($this, 'disable_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_volunteer_names', __('Hide volunteer names from public?', 'pta_volunteer_sus'), array($this, 'hide_volunteer_names_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -176,7 +177,11 @@ class PTA_SUS_Options {
 		                $this->{$options}[$field] = sanitize_text_field( $inputs[$field] );
 		            break;
 	            case 'bool':
-	            	$this->{$options}[$field] = (bool)$inputs[$field];
+	                if(isset($inputs[$field]) && true == $inputs[$field]) {
+		                $this->{$options}[$field] = true;
+                    } else {
+		                $this->{$options}[$field] = false;
+                    }
 	            	break;
 	            case 'textarea':
 	            	$this->{$options}[$field] = wp_kses_post($inputs[$field]);
@@ -229,7 +234,8 @@ class PTA_SUS_Options {
             'details_required' => 'bool',
             'use_divs' => 'bool',
             'disable_css' => 'bool',
-            'show_full_name' => 'bool'
+            'show_full_name' => 'bool',
+            'suppress_duplicates' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -735,6 +741,19 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_email_options[no_chair_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
 		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
+	}
+	
+	public function suppress_duplicates_checkbox() {
+		if ( isset( $this->main_options['suppress_duplicates'] ) && true === $this->main_options['suppress_duplicates'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[suppress_duplicates]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, the plugin will suppress duplicated signup forms and messages when you are using multiple shortcodes on the same page without using the redirect option (redirecting to a page with only one shortcode for signup). If you have a theme or plugin that is triggering shortcode functions more than once on a page, causing a blank page, or if you never use more than one shortcode on a page without redirecting, you can un-check this option.', 'pta_volunteer_sus' ) . '</em>';
 	}
 
     public function confirmation_email_template_textarea_input() {

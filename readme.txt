@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.7.2
+Tested up to: 4.7.3
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -109,6 +109,15 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.0.2**
+
+*   Changed conditions for the option to set "readonly" attribute for name and emails fields to be set when the login required to signup option is set (instead of the login to view option)
+*   If using the login to signup option along with the login link option, the login to sign up text will now be linked to the login page on individual sheets in the signup column.
+*   Added email field to live search for sign-up forms, and also to the displayed results, so you can now search for WordPress users by email if the users do not have a first or last name saved in their profile yet.
+*   The contact_names email template tag will now also pull names from the Member Directory plugin if you are using that integration and a position was specified as the contact.
+*   Added option to enable/disable duplicate output suppression (added in version 2.0.0) in case you have a plugin or theme that triggers shortcodes more than once on a page (before the html body) causing a blank page. If you disable this, then you should not use more than one shortcode on a single page without redirecting to a page with only one shortcode for the signup form.
+*   Updated Norwegian translation
+
 **Version 2.0.1**
 
 *   Option to show full name when not hiding name (full first and last name instead of first name and last initial)

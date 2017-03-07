@@ -3,7 +3,7 @@ function htmlDecode(value){
 }
 
 function pta_volunteer_info () {
-          jQuery("input[name=signup_firstname],input[name=signup_lastname]").autocomplete({
+          jQuery("input[name=signup_firstname],input[name=signup_lastname],input[name=signup_email]").autocomplete({
             source: function(request, response) {
                          jQuery.ajax({ url: self.location.href,
                                   data: { q: request.term,
@@ -14,7 +14,7 @@ function pta_volunteer_info () {
                                   success: function(data){
                                                 response(jQuery.map(data, function(item) {
                                                       return {
-                                                         label: htmlDecode(item.firstname)+' '+htmlDecode(item.lastname),
+                                                         label: htmlDecode(item.firstname)+' '+htmlDecode(item.lastname)+' - '+htmlDecode(item.email),
                                                          firstname: htmlDecode(item.firstname),
                                                          lastname: htmlDecode(item.lastname),
                                                          email: item.email,

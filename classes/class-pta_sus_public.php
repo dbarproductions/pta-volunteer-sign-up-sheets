@@ -34,6 +34,7 @@ class PTA_SUS_Public {
 	private $contact_label;
 	private $show_hidden = false;
 	private $signup_displayed = false;
+	private $suppress_duplicates;
 	private $use_divs = false;
 	private $hidden;
 	private $date;
@@ -64,6 +65,7 @@ class PTA_SUS_Public {
         $this->phone_required = isset($this->main_options['phone_required']) ? $this->main_options['phone_required'] : true;
 	    $this->use_divs = isset($this->main_options['use_divs']) ? $this->main_options['use_divs'] : false;
 	    $this->show_full_name = isset($this->main_options['show_full_name']) ? $this->main_options['show_full_name'] : false;
+	    $this->suppress_duplicates = isset($this->main_options['suppress_duplicates']) ? $this->main_options['suppress_duplicates'] : true;
 
         
     } // Construct
@@ -470,7 +472,7 @@ class PTA_SUS_Public {
 			    if (isset($_GET['task_id']) && $this->date) {
 				    do_action('pta_sus_before_display_signup_form', $_GET['task_id'], $this->date );
 				    $errors = '';
-				    if(!$this->errors_displayed) {
+				    if(!$this->errors_displayed || !$this->suppress_duplicates) {
 					    $errors = $this->errors;
 					    $this->errors_displayed = true;
 				    }
@@ -706,7 +708,7 @@ class PTA_SUS_Public {
         $return = apply_filters( 'pta_sus_before_display_sheets', $return, $id, $this->date );
         do_action( 'pta_sus_begin_display_sheets', $id, $this->date );
 
-	    if( !$this->messages_displayed ) {
+	    if( !$this->messages_displayed || !$this->suppress_duplicates) {
 	    	// only show messages above first list if multiple shortcodes on one page
 		    $return .= $this->messages;
 		    $this->messages_displayed = true;
@@ -1154,7 +1156,11 @@ class PTA_SUS_Public {
 			                    if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
 				                    $return .= '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
 			                    } else {
-				                    $return .= esc_html($this->main_options['login_signup_message']);
+				                    if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
+					                    $return .= '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
+				                    } else {
+					                    $return .= esc_html($this->main_options['login_signup_message']);
+				                    }
 			                    }
 			                    if($this->use_divs) {
 				                    $return .= '</div>';
@@ -1212,7 +1218,7 @@ class PTA_SUS_Public {
 			return $message;
 		}
 		
-		if(apply_filters('pta_sus_signup_form_already_displayed', $this->signup_displayed, $task_id, $date)) {
+		if( $this->suppress_duplicates && true == apply_filters('pta_sus_signup_form_already_displayed', $this->signup_displayed, $task_id, $date)) {
 			// don't show more than one signup form on a page,
 			// if admin put multiple shortcodes on a page and didn't set to redirect to main shortcode page
 			return '';
@@ -1260,7 +1266,7 @@ class PTA_SUS_Public {
             $readonly_first="";
             $readonly_last="";
             $readonly_email="";
-            if ( isset($this->main_options['login_required']) && true === $this->main_options['login_required']
+            if ( isset($this->main_options['login_required_signup']) && true === $this->main_options['login_required_signup']
                  && isset($this->main_options['readonly_signup']) && true === $this->main_options['readonly_signup']
                  && !current_user_can('manage_signup_sheets') ) {
                if (!empty($current_user->user_firstname))
