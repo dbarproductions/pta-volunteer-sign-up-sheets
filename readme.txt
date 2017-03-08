@@ -116,6 +116,7 @@ YES. The groups extension plugin now supports BuddyPress Groups as well as the G
 *   Added email field to live search for sign-up forms, and also to the displayed results, so you can now search for WordPress users by email if the users do not have a first or last name saved in their profile yet.
 *   The contact_names email template tag will now also pull names from the Member Directory plugin if you are using that integration and a position was specified as the contact.
 *   Added option to enable/disable duplicate output suppression (added in version 2.0.0) in case you have a plugin or theme that triggers shortcodes more than once on a page (before the html body) causing a blank page. If you disable this, then you should not use more than one shortcode on a single page without redirecting to a page with only one shortcode for the signup form.
+*   Changed the "clear" class on the clear signup links to "clear-signup" to avoid CSS conflicts with some themes and plugins that define anything with a "clear" class as hidden or display:none.
 *   Updated Norwegian translation
 
 **Version 2.0.1**

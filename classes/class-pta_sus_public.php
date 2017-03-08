@@ -620,13 +620,13 @@ class PTA_SUS_Public {
 				    $return .= '
                             <div class="column-item" style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</div>
                             <div class="column-qty" style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</div>
-                            <div class="column-clear" style="text-align:right;"><a class="pta-sus-link clear" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
+                            <div class="column-clear" style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
                         </div>';
 			    } else {
 				    $return .= '
                             <td style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</td>
                             <td style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</td>
-                            <td style="text-align:right;"><a class="pta-sus-link clear" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
+                            <td style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
                         </tr>';
 			    }
 		    }
@@ -1038,9 +1038,9 @@ class PTA_SUS_Public {
 	                    }
 	                    if(is_user_logged_in()) {
 		                    if($this->use_divs) {
-			                    $return .= '<div class="column-clear pta-sus-em"><a class="pta-sus-link clear" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>';
+			                    $return .= '<div class="column-clear pta-sus-em"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>';
 		                    } else {
-			                    $return .= '<td class="pta-sus-em"><a class="pta-sus-link clear" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>';
+			                    $return .= '<td class="pta-sus-em"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>';
 		                    }
 	                    }
 	                    if ($show_details) {
