@@ -109,6 +109,12 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.0.3**
+
+*   Remove any extra spaces before/after email fields on sign-up form before validating
+*   Remove slashes from previously filled in fields (names and item details), when special characters have been escaped for safety, on signup form when there is a validation error
+*   Increase the size of the signup item details database field from VARCHAR(100) to VARCHAR(300) to allow more text for those using the field for more than just simple item details
+
 **Version 2.0.2**
 
 *   Changed conditions for the option to set "readonly" attribute for name and emails fields to be set when the login required to signup option is set (instead of the login to view option)

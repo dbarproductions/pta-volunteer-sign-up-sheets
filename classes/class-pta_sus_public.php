@@ -196,12 +196,12 @@ class PTA_SUS_Public {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Last Name!  Please try again.', 'pta_volunteer_sus'), 'lastname_error_message' ).'</p>';
                 }
-            elseif ( !is_email( $_POST['signup_email'] ) )
+            elseif ( !is_email( trim($_POST['signup_email']) ) )
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Email!  Please try again.', 'pta_volunteer_sus'), 'email_error_message' ).'</p>';
                 }
-            elseif ( $_POST['signup_email'] != $_POST['signup_validate_email']  )
+            elseif ( trim($_POST['signup_email']) != trim($_POST['signup_validate_email'])  )
                 {
 	            $this->err++;
 	            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Email and Confirmation Email do not match!  Please try again.', 'pta_volunteer_sus'), 'confirmation_email_error_message' ).'</p>';
@@ -1320,11 +1320,11 @@ class PTA_SUS_Public {
 			<form name="pta_sus_signup_form" method="post" action="">
 				<p>
 					<label for="signup_firstname">'.$firstname_label.'</label>
-					<input type="text" id="signup_firstname" name="signup_firstname" value="'.((isset($_POST['signup_firstname'])) ? esc_attr($_POST['signup_firstname']) : '').'" required />
+					<input type="text" id="signup_firstname" name="signup_firstname" value="'.((isset($_POST['signup_firstname'])) ? stripslashes(esc_attr($_POST['signup_firstname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_lastname">'.$lastname_label.'</label>
-					<input type="text" id="signup_lastname" name="signup_lastname" value="'.((isset($_POST['signup_lastname'])) ? esc_attr($_POST['signup_lastname']) : '').'" required />
+					<input type="text" id="signup_lastname" name="signup_lastname" value="'.((isset($_POST['signup_lastname'])) ? stripslashes(esc_attr($_POST['signup_lastname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_email">'.$email_label.'</label>
@@ -1353,7 +1353,7 @@ class PTA_SUS_Public {
             $form .= '
             <p>
 			    <label for="signup_item">'.esc_html($task->details_text).'</label>
-			    <input type="text" id="signup_item" name="signup_item" value="'.((isset($_POST['signup_item'])) ? esc_attr($_POST['signup_item']) : '').'" '.esc_attr($details_required).' />
+			    <input type="text" id="signup_item" name="signup_item" value="'.((isset($_POST['signup_item'])) ? stripslashes(esc_attr($_POST['signup_item'])) : '').'" '.esc_attr($details_required).' />
 		    </p>';
         }
         if ($task->enable_quantities == "YES") {

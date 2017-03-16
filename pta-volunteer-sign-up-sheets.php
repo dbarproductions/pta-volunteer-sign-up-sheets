@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 2.0.2
+Version: 2.0.3
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -60,7 +60,7 @@ class PTA_Sign_Up_Sheet {
     private $data;
     private $public = false;
     private $emails;
-    public $db_version = '2.0.0';
+    public $db_version = '2.0.1';
     public $main_options;
     
     public function __construct() {
@@ -456,7 +456,7 @@ Thank You!
             id INT NOT NULL AUTO_INCREMENT,
             task_id INT NOT NULL,
             date DATE NOT NULL,
-            item VARCHAR(100) NOT NULL,
+            item VARCHAR(300) NOT NULL,
             user_id INT NOT NULL,
             firstname VARCHAR(100) NOT NULL,
             lastname VARCHAR(100) NOT NULL,
