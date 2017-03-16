@@ -469,26 +469,30 @@ class PTA_SUS_Public {
 		
 		    // Display Sign-up Form
 		    if (!$this->submitted || $this->err) {
-			    if (isset($_GET['task_id']) && $this->date) {
-				    do_action('pta_sus_before_display_signup_form', $_GET['task_id'], $this->date );
+			    if (isset($_GET['task_id']) && isset($_GET['date'])) {
+				    do_action('pta_sus_before_display_signup_form', $_GET['task_id'], $_GET['date'] );
 				    $errors = '';
 				    if(!$this->errors_displayed || !$this->suppress_duplicates) {
 					    $errors = $this->errors;
 					    $this->errors_displayed = true;
 				    }
-				    return $errors . $this->display_signup_form($_GET['task_id'], $this->date);
+				    return $errors . $this->display_signup_form($_GET['task_id'], $_GET['date']);
 			    }
 		    }
 		
 		    // Sheet Details
-		    // Need to escape/sanitize all output to screen
 		    if (!$this->submitted || $this->success || $this->err) {
 			    $future_dates = false;
-			    $task_dates = $this->data->get_all_task_dates($sheet->id);
-			    foreach ($task_dates as $tdate) {
-				    if($tdate >= current_time('Y-m-d') || "0000-00-00" == $tdate) {
-					    $future_dates = true;
-					    break;
+			    if($this->date && $this->date >= current_time('Y-m-d')) {
+			    	$task_dates = array($this->date);
+			    	$future_dates = true;
+			    } else {
+				    $task_dates = $this->data->get_all_task_dates($sheet->id);
+				    foreach ($task_dates as $tdate) {
+					    if($tdate >= current_time('Y-m-d') || "0000-00-00" == $tdate) {
+						    $future_dates = true;
+						    break;
+					    }
 				    }
 			    }
 			

@@ -26,7 +26,8 @@ class PTA_SUS_Options {
         if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta_volunteer_sus' ) );
         }
-        $docs_link = '<a href="http://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta_volunteer_sus') . '</a>';
+        $docs_link = '<a href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta_volunteer_sus') . '</a>';
+	    $feedback_link = '<a href="https://stephensherrardplugins.com/support/topic/more-features-or-reworked-pro-version/" target="_blank">'.__('Development Feedback Wanted', 'pta_volunteer_sus') . '</a>';
 
         ?>
         <div class="wrap pta_sus">
@@ -70,6 +71,7 @@ class PTA_SUS_Options {
                 </form>
             <?php endif; 
             if ('main_options' == $active_tab): ?>
+                <h3><?php echo $feedback_link; ?></h3>
                 <h3><?php echo $docs_link; ?></h3>
             <?php endif; 
             do_action('pta_sus_settings_after_submit_button', $active_tab);

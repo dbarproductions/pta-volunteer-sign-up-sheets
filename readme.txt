@@ -109,6 +109,12 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.0.4**
+
+*   Fixed issue where the wrong date could be used for a task signup if the date was specified in the shortcode, but the particular task was for a different date
+*   Updated display sheet function to work properly when you specify both a sheet ID and a Date in the shortcode to show a specific sheet, but only want to show the tasks for a specific date (applies to recurring and multi-day tasks where there is more than one date)
+*   Development feedback link added to bottom of main settings page. Please take a minute to contribute your feedback. Thanks!
+
 **Version 2.0.3**
 
 *   Remove any extra spaces before/after email fields on sign-up form before validating
