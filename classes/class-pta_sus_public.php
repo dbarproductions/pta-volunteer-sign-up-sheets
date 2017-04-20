@@ -18,6 +18,7 @@ class PTA_SUS_Public {
     public $success;
     public $errors;
     public $messages;
+    private $cleared;
     private $messages_displayed = false;
 	private $errors_displayed = false;
     private $task_item_header;
@@ -42,6 +43,9 @@ class PTA_SUS_Public {
 	private $show_time;
 	private $phone_required;
 	private $show_full_name = false;
+	private $show_phone = false;
+	private $shortcode_id = false;
+	private $show_headers = true;
     
     public function __construct() {
         $this->data = new PTA_SUS_Data();
@@ -150,6 +154,7 @@ class PTA_SUS_Public {
         $this->messages = '';
         $this->messages_displayed = false; // reset
 	    $this->errors_displayed = false; // reset
+	    $this->cleared = false;
         
         // Process Sign-up Form
         if ($this->submitted) {
@@ -280,6 +285,7 @@ class PTA_SUS_Public {
 			    $cleared = $this->data->delete_signup((int)$_GET['signup_id']);
 			    if ($cleared) {
 				    $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('Signup Cleared', 'pta_volunteer_sus'), 'signup_cleared_message' ).'</p>';
+				    $this->cleared = true;
 			    } else {
 				    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('ERROR clearing signup!', 'pta_volunteer_sus'), 'error_clearing_signup_message' ).'</p>';
 			    }
@@ -410,14 +416,36 @@ class PTA_SUS_Public {
 			    $return .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta_volunteer_sus'), 'no_permission_to_view_error_message' ).'</p>';
 			    return $return;
 		    }
+		    
+		    // check if there are any future dates for the sheet
+		    $future_dates = false;
+		    if($this->date && $this->date >= current_time('Y-m-d')) {
+			    $task_dates = array($this->date);
+			    $future_dates = true;
+		    } else {
+			    $task_dates = $this->data->get_all_task_dates($sheet->id);
+			    foreach ($task_dates as $tdate) {
+				    if($tdate >= current_time('Y-m-d') || "0000-00-00" == $tdate) {
+					    $future_dates = true;
+					    break;
+				    }
+			    }
+		    }
+		    
 		    // Allow extensions to choose if they want to show header info if not on the main volunteer page
-		    $show_headers = apply_filters( 'pta_sus_show_sheet_headers', $show = false, $sheet );
+		    $this->show_headers = apply_filters( 'pta_sus_show_sheet_headers', $this->show_headers, $sheet );
 		    $return .= apply_filters( 'pta_sus_before_display_single_sheet', '', $sheet );
+		
+		    // Show the view all link only if no sheet ID is specified within the shortcode
+		    if($this->shortcode_id !== $id) {
+			    $view_all_text = apply_filters('pta_sus_public_output', __('&laquo; View all Sign-up Sheets', 'pta_volunteer_sus'), 'view_all_sheets_link_text');
+			    $view_all_url = apply_filters('pta_sus_view_all_sheets_url', $this->all_sheets_uri, $sheet);
+			    $return .= '<p><a class="pta-sus-link view-all" href="'.esc_url($view_all_url).'">'.esc_html( $view_all_text ).'</a></p>';
+		    }
+		    
 		    // *****************************************************************************
-		    // If it's not the main
-		    // volunteer page, then change the header info -- don't show "view all..." and
-		    // don't show title and chair... instead just make a simple heading
-		    if ( is_page( $this->main_options['volunteer_page_id'] ) || $show_headers ) {
+		    // Show headers only if show_headers is true
+		    if ( $this->show_headers ) {
 			    // AFTER MAKING PTA MEMBER DIRECTORY A CLASS, WE CAN ALSO CHECK IF IT EXISTS
 			    if( isset($this->integration_options['enable_member_directory']) && true === $this->integration_options['enable_member_directory'] && function_exists('pta_member_directory_init') && '' != $sheet->position ) {
 				    // Create Contact Form link
@@ -450,10 +478,8 @@ class PTA_SUS_Public {
 			    }
 			
 			    $display_chair = apply_filters( 'pta_sus_display_chair_contact', $display_chair, $sheet );
-			    $view_all_text = apply_filters('pta_sus_public_output', __('&laquo; View all Sign-up Sheets', 'pta_volunteer_sus'), 'view_all_sheets_link_text');
-			    $view_all_url = apply_filters('pta_sus_view_all_sheets_url', $this->all_sheets_uri, $sheet);
+			    
 			    $return .= '
-                        <p><a class="pta-sus-link view-all" href="'.esc_url($view_all_url).'">'.esc_html( $view_all_text ).'</a></p>
                         <div class="pta-sus-sheet">
                             <h2>'.esc_html($sheet->title).'</h2>
                     ';
@@ -482,24 +508,11 @@ class PTA_SUS_Public {
 		
 		    // Sheet Details
 		    if (!$this->submitted || $this->success || $this->err) {
-			    $future_dates = false;
-			    if($this->date && $this->date >= current_time('Y-m-d')) {
-			    	$task_dates = array($this->date);
-			    	$future_dates = true;
-			    } else {
-				    $task_dates = $this->data->get_all_task_dates($sheet->id);
-				    foreach ($task_dates as $tdate) {
-					    if($tdate >= current_time('Y-m-d') || "0000-00-00" == $tdate) {
-						    $future_dates = true;
-						    break;
-					    }
-				    }
-			    }
 			
 			    // Make sure there are some future dates before showing anything
 			    if($future_dates) {
-				    // Only show details if there is something to show
-				    if('' != $sheet->details) {
+				    // Only show details if there is something to show, and show headers is true
+				    if('' != $sheet->details && $this->show_headers) {
 					    $return .= '<h3 class="pta-sus details-header">'.apply_filters( 'pta_sus_public_output', __('DETAILS:', 'pta_volunteer_sus'), 'sheet_details_heading' ).'</h3>';
 					    $return .= wp_kses_post($sheet->details);
 				    }
@@ -679,25 +692,46 @@ class PTA_SUS_Public {
             'id' => false,
             'date' => false,
             'show_time' => true,
+            'show_phone' => false,
+            'show_headers' => true,
             'list_title' => __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus'),
         ), $atts, 'pta_sign_up_sheet' ) );
 
         // Allow plugins or themes to modify shortcode parameters
         $id = apply_filters( 'pta_sus_shortcode_id', $id );
-        if('' == $id) $id = false;
+        if('' == $id) {
+	        $id = false;
+        }
+	    $this->shortcode_id = $id;
         $this->date = apply_filters( 'pta_sus_shortcode_date', $date );
-        if('' == $this->date) $this->date = false;
-        if('' == $list_title) $list_title = __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus');
+        if('' == $this->date) {
+	        $this->date = false;
+        }
+        if('' == $list_title) {
+	        $list_title = __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus');
+        }
         $list_title = apply_filters( 'pta_sus_shortcode_list_title', $list_title );
         if ( $show_time === 'no') {
 	        $this->show_time = false;
         } else {
-	        $this->show_time=true;
+	        $this->show_time = true;
         }
+	    if ( $show_phone === 'yes') {
+		    $this->show_phone = true;
+	    } else {
+		    $this->show_phone = false;
+	    }
+	    if ( $show_headers === 'no') {
+		    $this->show_headers = false;
+	    } else {
+		    $this->show_headers = true;
+	    }
         
-        if ($id === false && !empty($_GET['sheet_id'])) $id = (int)$_GET['sheet_id'];
+        if ($id === false && !empty($_GET['sheet_id']) && !$this->success && !$this->cleared) {
+	        $id = (int)$_GET['sheet_id'];
+        }
 
-        if ($this->date === false && !empty($_GET['date'])) {
+        if ($this->date === false && !empty($_GET['date']) && !$this->success && !$this->cleared) {
             // Make sure it's a valid date in our format first - Security check
             if ($this->data->check_date($_GET['date'])) {
                 $this->date = $_GET['date'];
@@ -826,9 +860,17 @@ class PTA_SUS_Public {
 		        if($this->use_divs) {
 			        $return .= '<div class="column-available-spots head">'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</div>';
 		        } else {
-			        $return .= '<th>'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</th>';
+			        $return .= '<th class="column-available-spots">'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</th>';
+		        }
+		        if($this->show_phone && !$one_row) {
+			        if($this->use_divs) {
+				        $return .= '<div class="column-phone head">'.esc_html( apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' ) ).'</div>';
+			        } else {
+				        $return .= '<th class="column-phone">'.esc_html( apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' ) ).'</th>';
+			        }
 		        }
 	        }
+	        
             if(is_user_logged_in() && !$one_row) {
 	            if($this->use_divs) {
 		            $return .= '<div class="column-clear head"></div>';
@@ -1040,6 +1082,13 @@ class PTA_SUS_Public {
 	                    } else {
 		                    $return .= '<td class="pta-sus-em">#'.$i.': '.$display_signup.'</td>';
 	                    }
+	                    if($this->show_phone) {
+		                    if($this->use_divs) {
+			                    $return .= '<div class="column-phone">'.esc_html($signup->phone).'</div>';
+		                    } else {
+			                    $return .= '<td class="column-phone">'.esc_html($signup->phone).'</td>';
+		                    }
+	                    }
 	                    if(is_user_logged_in()) {
 		                    if($this->use_divs) {
 			                    $return .= '<div class="column-clear pta-sus-em"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>';
@@ -1170,6 +1219,13 @@ class PTA_SUS_Public {
 				                    $return .= '</div>';
 			                    } else {
 				                    $return .= '</td>';
+			                    }
+			                    if($this->show_phone) {
+				                    if($this->use_divs) {
+					                    $return .= '<div class="column-phone"></div>';
+				                    } else {
+					                    $return .= '<td class="column-phone"></td>';
+				                    }
 			                    }
 		                    }
 
@@ -1378,7 +1434,7 @@ class PTA_SUS_Public {
         $form .= apply_filters( 'pta_sus_signup_form_after_details_field', '', $task, $date );
 
         // Spam check and form submission
-        $go_back_args = array('task_id' => false, 'date' => $date, 'sheet_id' => $_GET['sheet_id']);
+        $go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $_GET['sheet_id']);
         $go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
         $form .= '
 			<div style="visibility:hidden"> 
