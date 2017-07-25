@@ -15,9 +15,10 @@ class PTA_SUS_Admin {
 	public $data;
 	public $main_options;
 	public $email_options;
+	public $table;
 
 	public function __construct() {
-		global $plugin_page;
+		global $plugin_page, $pta_sus_sheet_page_suffix;
 		$this->page_url = admin_url("admin.php?page=$plugin_page");
 		$this->data = new PTA_SUS_Data();
 
@@ -29,7 +30,7 @@ class PTA_SUS_Admin {
 
 		add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
-		$sheet_page_suffix = add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta_volunteer_sus'), __('Add New', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
+		$pta_sus_sheet_page_suffix = add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta_volunteer_sus'), __('Add New', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta_volunteer_sus'), __('Email Volunteers', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta_volunteer_sus'), __('Settings', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta_volunteer_sus'), __('CRON Functions', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
@@ -41,7 +42,7 @@ class PTA_SUS_Admin {
 			$this->member_directory_active = false;
 		}
 
-		add_action('admin_print_scripts-' . $sheet_page_suffix, array($this, 'add_sheet_admin_scripts') );       
+		add_action('admin_print_scripts-' . $pta_sus_sheet_page_suffix, array($this, 'add_sheet_admin_scripts') );
 	}
 
 	/**
@@ -52,6 +53,8 @@ class PTA_SUS_Admin {
 	}
 
 	public function add_sheet_admin_scripts() {
+		$screen = get_current_screen();
+		//var_dump($screen);
 		wp_enqueue_script( 'jquery-plugin', plugins_url( '../assets/js/jquery.plugin.min.js' , __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_script( 'jquery-datepick', plugins_url( '../assets/js/jquery.datepick.js' , __FILE__ ), array( 'jquery' ), '5.0.0' );
 		wp_enqueue_script( 'jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
@@ -137,6 +140,7 @@ class PTA_SUS_Admin {
 				echo '<div class="error"><p>'.sprintf( __('Error clearing spot (ID # %s)', 'pta_volunteer_sus'), esc_attr($_GET['signup_id']) ).'</p></div>';
 			} else {
 				if ($result > 0) echo '<div class="updated"><p>'.__('Spot has been cleared.', 'pta_volunteer_sus').'</p></div>';
+				do_action('pta_sus_admin_clear_signup', $_GET['signup_id']);
 			}
 		}
 
@@ -417,7 +421,7 @@ class PTA_SUS_Admin {
 			// created a posted_tasks array of fields we want to validate
 			$posted_tasks = array();
 			foreach ($keys_to_process as $index => $key) {
-				$posted_tasks[] = array(
+				$posted_tasks[] = apply_filters('pta_sus_posted_task_values', array(
 						'task_sheet_id'     => $_POST['sheet_id'],
 						'task_title'        => $_POST['task_title'][$key],
 						'task_dates'         => (isset($_POST['task_dates'][$key])) ? $_POST['task_dates'][$key] : '',
@@ -430,7 +434,7 @@ class PTA_SUS_Admin {
 						'task_enable_quantities' => isset($_POST['task_enable_quantities'][$key]) ? "YES" : "NO",
 						'task_details_text' => $_POST['task_details_text'][$key],
 						'task_id'           => (isset($_POST['task_id'][$key]) && 0 != $_POST['task_id'][$key]) ? (int)$_POST['task_id'][$key] : -1,
-						);
+						), $key);
 			}
 
 			foreach ($posted_tasks as $task) {
@@ -567,9 +571,9 @@ class PTA_SUS_Admin {
 								}
 								if (isset($_POST['task_'.$field][$key])) {
 									$task_data['task_'.$field] = $_POST['task_'.$field][$key];
-									$task_data['task_position'] = $i;
 								}
 							}
+							$task_data['task_position'] = $i;
 							if ( "Single" == $_POST['sheet_type'] || "Ongoing" == $_POST['sheet_type'] ) {
 								$task_data['task_dates'] = $dates[0];
 							} elseif ( "Recurring" == $_POST['sheet_type'] ) {
@@ -581,10 +585,16 @@ class PTA_SUS_Admin {
 							if (empty($_POST['task_id'][$key])) {
 								if (($result = $this->data->add_task($task_data, $sheet_id, $no_signups)) === false) {
 									$task_err++;
+								} else {
+									global $wpdb;
+									$task_id = $wpdb->insert_id; // get the inserted task id
+									do_action('pta_sus_add_task', $task_data, $sheet_id, $task_id, $key);
 								}
 							} else {
 								if (($result = $this->data->update_task($task_data, $_POST['task_id'][$key], $no_signups)) === false) {
 									$task_err++;
+								} else {
+									do_action('pta_sus_update_task', $task_data, $sheet_id, $_POST['task_id'][$key], $key);
 								}
 							}
 						}
@@ -632,6 +642,8 @@ class PTA_SUS_Admin {
 					foreach ($tasks_to_delete AS $task_id) {
 						if ($this->data->delete_task($task_id) === false) {
 							echo '<div class="error"><p><strong>'.__('Error removing a task.', 'pta_volunteer_sus').'</strong></p></div>';
+						} else {
+							do_action('pta_sus_delete_task', $task_id);
 						}
 					}
 				}
@@ -781,8 +793,8 @@ class PTA_SUS_Admin {
 
 	private function get_fields($id='') {
 		if('' == $id) return false;
+		$sheet_fields = array();
 		if ($sheet = $this->data->get_sheet($id)) {
-			$sheet_fields = array();
 			foreach($sheet AS $k=>$v) $sheet_fields['sheet_'.$k] = $v;
 		}
 		$task_fields = array();
@@ -1022,19 +1034,21 @@ class PTA_SUS_Admin {
 			do_action( 'pta_sus_tasks_form_task_loop_start', $f, $i );
 			echo '
 				<li id="task-'.$i.'">
-				'.__('Task/Item:', 'pta_volunteer_sus').' <input type="text" name="task_title['.$i.']" id="task_title['.$i.']" value="'.((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')).'" size="20">&nbsp;&nbsp;&nbsp;';
+				'.__('Task/Item:', 'pta_volunteer_sus').' <input type="text" name="task_title['.$i.']" id="task_title['.$i.']" value="'.((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')).'" size="20">&nbsp;&nbsp;';
 			if ( "Multi-Day" == $f['sheet_type'] ) {
-				echo __('Date:','pta_volunteer_sus').' <input type="text" class="singlePicker" name="task_dates['.$i.']" id="singlePicker['.$i.']" value="'.((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')).'" size="10">&nbsp;&nbsp;&nbsp;';
+				echo __('Date:','pta_volunteer_sus').' <input type="text" class="singlePicker" name="task_dates['.$i.']" id="singlePicker['.$i.']" value="'.((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')).'" size="10">&nbsp;&nbsp;';
 			}
 			if(!$no_signups) {
 				echo __('# Needed:','pta_volunteer_sus').' <input type="text" name="task_qty['.$i.']" id="task_qty['.$i.']" value="'.((isset($f['task_qty'][$i]) ? (int)$f['task_qty'][$i] : '')).'" size="3">';
 			}
 			echo
-				'&nbsp;&nbsp;&nbsp;'.__('Start Time:', 'pta_volunteer_sus').' <input type="text" class="timepicker" id="timepicker_start['.$i.']" name="task_time_start['.$i.']" value="'.((isset($f['task_time_start'][$i]) ? esc_attr($f['task_time_start'][$i]) : '')).'" size="10">
-				&nbsp;&nbsp;&nbsp;'.__('End Time:', 'pta_volunteer_sus').' <input type="text" class="timepicker" id="timepicker_end['.$i.']" name="task_time_end['.$i.']" value="'.((isset($f['task_time_end'][$i]) ? esc_attr($f['task_time_end'][$i]) : '')).'" size="10">';
+				'&nbsp;&nbsp;'.__('Start Time:', 'pta_volunteer_sus').' <input type="text" class="timepicker" id="timepicker_start['.$i.']" name="task_time_start['.$i.']" value="'.((isset($f['task_time_start'][$i]) ? esc_attr($f['task_time_start'][$i]) : '')).'" size="10">
+				&nbsp;&nbsp;'.__('End Time:', 'pta_volunteer_sus').' <input type="text" class="timepicker" id="timepicker_end['.$i.']" name="task_time_end['.$i.']" value="'.((isset($f['task_time_end'][$i]) ? esc_attr($f['task_time_end'][$i]) : '')).'" size="10">';
+			
+			do_action('pta_sus_task_form_task_loop_after_times', $f, $i);
 
 			if(!$no_signups) {
-				echo '&nbsp;&nbsp;&nbsp;'.__('Allow Duplicates? ', 'pta_volunteer_sus');
+				echo '&nbsp;&nbsp;'.__('Allow Duplicates? ', 'pta_volunteer_sus');
 				if (!isset($f['task_allow_duplicates'][$i])) {
 					$f['task_allow_duplicates'][$i] = "NO";
 				}
@@ -1043,7 +1057,7 @@ class PTA_SUS_Admin {
 					echo 'checked="checked" ';
 				}
 				echo '>
-				&nbsp;&nbsp;&nbsp;'.__('Enable Quantities? ', 'pta_volunteer_sus');
+				&nbsp;&nbsp;'.__('Enable Quantities? ', 'pta_volunteer_sus');
 				if (!isset($f['task_enable_quantities'][$i])) {
 					$f['task_enable_quantities'][$i] = "NO";
 				}
@@ -1052,7 +1066,7 @@ class PTA_SUS_Admin {
 					echo 'checked="checked" ';
 				}
 				echo '>
-				&nbsp;&nbsp;&nbsp;'.__('Details Needed? ', 'pta_volunteer_sus');
+				&nbsp;&nbsp;'.__('Details Needed? ', 'pta_volunteer_sus');
 				if (!isset($f['task_need_details'][$i])) {
 					$f['task_need_details'][$i] = "NO";
 				}
@@ -1062,7 +1076,7 @@ class PTA_SUS_Admin {
 				}
 				echo '>';
 				// Details Required - added in version 1.14
-				echo '<span class="pta_toggle">&nbsp;&nbsp;&nbsp;'.__('Details Required? ', 'pta_volunteer_sus');
+				echo '<span class="pta_toggle">&nbsp;&nbsp;'.__('Details Required? ', 'pta_volunteer_sus');
 				echo '<input type="checkbox" class="details_required" name="task_details_required['.$i.']" id="task_details_required['.$i.']" value="YES" ';
 				if (isset($f['task_details_required'][$i]) &&  $f['task_details_required'][$i] === "YES") {
 					echo 'checked="checked" ';
@@ -1072,7 +1086,7 @@ class PTA_SUS_Admin {
 				// Details label - added in version 1.6
 				echo '<span class="pta_toggle"><br />'.__('Details text:','pta_volunteer_sus').' <input type="text" class="details_text" name="task_details_text['.$i.']" id="task_details_text['.$i.']" value="'.((isset($f['task_details_text'][$i]) ? esc_attr($f['task_details_text'][$i]) : __("Item you are bringing", "pta_volunteer_sus" ) )).'" size="25"></span>';
 			}
-
+			do_action('pta_sus_task_form_task_loop_before_li_close', $f, $i); // use this to insert extra task fields
 			echo '&nbsp;&nbsp;<input type="hidden" name="task_id['.$i.']" id="task_id['.$i.']" value="'.((isset($f['task_id'][$i]) ? (int)$f['task_id'][$i] : '')).'">
 				<a href="#" class="add-task-after">(+)</a>
 				<a href="#" class="remove-task">(-)</a>

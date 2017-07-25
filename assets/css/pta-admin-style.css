@@ -9,7 +9,9 @@
 .pta_sus .tasks LI {
     background: transparent url("../images/icon-drag-y.png") no-repeat scroll left center;
     padding-left: 16px;
+    padding-bottom: 0.5em;
     min-height: 20px;
+    border-bottom: 1px solid darkgrey;
     }
 .pta_sus .tasks LI:hover {
     cursor: move;

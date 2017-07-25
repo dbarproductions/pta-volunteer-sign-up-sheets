@@ -170,86 +170,97 @@ class PTA_SUS_Public {
                 $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Oops! You filled in the spambot field. Please leave it blank and try again.', 'pta_volunteer_sus'), 'spambot_error_message' ).'</p>';
                 return;
             }
+	
+	        // Give other plugins a chance to modify signup data
+	        $posted = apply_filters('pta_sus_signup_posted_values', $_POST);
 
-            $task = $this->data->get_task(intval($_POST['signup_task_id']));
+            $task = $this->data->get_task(intval($posted['signup_task_id']));
 	        $sheet = $this->data->get_sheet(intval($task->sheet_id));
 	        
 	        $details_required = isset($task->details_required) && "YES" == $task->details_required;
 
             //Error Handling
             if (
-                empty($_POST['signup_firstname'])
-                || empty($_POST['signup_lastname'])
-                || empty($_POST['signup_email'])
-                || empty($_POST['signup_validate_email'])
-                || (false == $this->main_options['no_phone'] && empty($_POST['signup_phone']) && $this->phone_required)
-                || ("YES" == $task->need_details && $details_required && (!isset($_POST['signup_item']) || empty($_POST['signup_item'])))
-                || ("YES" == $task->enable_quantities && !isset($_POST['signup_item_qty']))
+                empty($posted['signup_firstname'])
+                || empty($posted['signup_lastname'])
+                || empty($posted['signup_email'])
+                || empty($posted['signup_validate_email'])
+                || (false == $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)
+                || ("YES" == $task->need_details && $details_required && (!isset($posted['signup_item']) || empty($posted['signup_item'])))
+                || ("YES" == $task->enable_quantities && !isset($posted['signup_item_qty']))
             ) {
                 $this->err++;
                 $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Please complete all required fields.', 'pta_volunteer_sus'), 'required_fields_error_message' ).'</p>';
             }
 
             // Check for non-allowed characters
-            elseif (! $this->data->check_allowed_text(stripslashes($_POST['signup_firstname'])))
+            elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_firstname'])))
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in First Name!  Please try again.', 'pta_volunteer_sus'), 'firstname_error_message' ).'</p>';
                 }
-            elseif (! $this->data->check_allowed_text(stripslashes($_POST['signup_lastname'])))
+            elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_lastname'])))
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Last Name!  Please try again.', 'pta_volunteer_sus'), 'lastname_error_message' ).'</p>';
                 }
-            elseif ( !is_email( trim($_POST['signup_email']) ) )
+            elseif ( !is_email( trim($posted['signup_email']) ) )
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Email!  Please try again.', 'pta_volunteer_sus'), 'email_error_message' ).'</p>';
                 }
-            elseif ( trim($_POST['signup_email']) != trim($_POST['signup_validate_email'])  )
+            elseif ( trim($posted['signup_email']) != trim($posted['signup_validate_email'])  )
                 {
 	            $this->err++;
 	            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Email and Confirmation Email do not match!  Please try again.', 'pta_volunteer_sus'), 'confirmation_email_error_message' ).'</p>';
                 }
-            elseif (false == $this->main_options['no_phone'] && preg_match("/[^0-9\-\.\(\)\ \+]/", $_POST['signup_phone']))
+            elseif (false == $this->main_options['no_phone'] && preg_match("/[^0-9\-\.\(\)\ \+]/", $posted['signup_phone']))
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Phone Number!  Please try again.', 'pta_volunteer_sus'), 'phone_error_message' ).'</p>';
                 }
-            elseif ( "YES" == $task->need_details && ! $this->data->check_allowed_text(stripslashes($_POST['signup_item'])))
+            elseif ( "YES" == $task->need_details && ! $this->data->check_allowed_text(stripslashes($posted['signup_item'])))
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Signup Item!  Please try again.', 'pta_volunteer_sus'), 'item_details_error_message' ).'</p>';
                 }
-            elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($_POST['signup_item_qty']) || (int)$_POST['signup_item_qty'] < 1 || (int)$_POST['signup_item_qty'] > $this->data->get_available_qty($task->id, $_POST['signup_date'], $task->qty) ) )
+            elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty) ) )
                 {
                     $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta_volunteer_sus'), (int)$this->data->get_available_qty($task->id, $_POST['signup_date'], $task->qty), 'item_quantity_error_message' ).'</p>');
+                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta_volunteer_sus'), (int)$this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty), 'item_quantity_error_message' ).'</p>');
                 }
-            elseif (!$this->data->check_date($_POST['signup_date']))
+            elseif (!$this->data->check_date($posted['signup_date']))
                 {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Hidden signup date field is invalid!  Please try again.', 'pta_volunteer_sus'), 'signup_date_error_message' ).'</p>';
                 }
-            // If no errors so far, Check for duplicate signups if not allowed
-            if (!$this->err && 'NO' == $task->allow_duplicates) {
-                if( $this->data->check_duplicate_signup( $_POST['signup_task_id'], $_POST['signup_date'], $_POST['signup_firstname'], $_POST['signup_lastname']) ) {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for this task!', 'pta_volunteer_sus'), 'signup_duplicate_error_message' ).'</p>';
-                }
+            // Allow extensions to bypass duplicate checks
+	        $perform_duplicate_checks = apply_filters('pta_sus_perform_duplicate_checks', true, $task, $sheet);
+            if($perform_duplicate_checks) {
+	            // If no errors so far, Check for duplicate signups if not allowed
+	            if (!$this->err && 'NO' == $task->allow_duplicates) {
+		            if( $this->data->check_duplicate_signup( $posted['signup_task_id'], $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname']) ) {
+			            $this->err++;
+			            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for this task!', 'pta_volunteer_sus'), 'signup_duplicate_error_message' ).'</p>';
+		            }
+	            }
+	            if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
+		            $this->err++;
+		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta_volunteer_sus'), 'signup_duplicate_time_error_message' ).'</p>';
+	            }
             }
-            if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $_POST['signup_date'], $_POST['signup_firstname'], $_POST['signup_lastname'])) {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta_volunteer_sus'), 'signup_duplicate_time_error_message' ).'</p>';
-            }
+            
             // Add Signup
             if (!$this->err) {
-                do_action( 'pta_sus_before_add_signup', $_POST,$_POST['signup_task_id']);
-                $signup_id=$this->data->add_signup($_POST,$_POST['signup_task_id']);
+            	$signup_task_id = $posted['signup_task_id'];
+            	
+                do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
+                $signup_id=$this->data->add_signup($posted,$signup_task_id);
                 if ( $signup_id === false) {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta_volunteer_sus'), 'add_signup_database_error_message' ).'</p>';
                 } else {
+	                do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
                     if(!class_exists('PTA_SUS_Emails')) {
                         include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
                     }
@@ -286,6 +297,7 @@ class PTA_SUS_Public {
 			    if ($cleared) {
 				    $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('Signup Cleared', 'pta_volunteer_sus'), 'signup_cleared_message' ).'</p>';
 				    $this->cleared = true;
+				    do_action('pta_sus_signup_cleared', $signup);
 			    } else {
 				    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('ERROR clearing signup!', 'pta_volunteer_sus'), 'error_clearing_signup_message' ).'</p>';
 			    }
@@ -568,6 +580,8 @@ class PTA_SUS_Public {
                                 <th class="column-date">'.esc_html($this->date_header).'</th>
                                 <th class="column-task">'.esc_html($this->task_item_header).'</th>';
 		    }
+		
+		    $return .= apply_filters( 'pta_sus_user_signups_list_headers_after_task', '', $this->use_divs );
 		    
 		    if ($this->show_time) {
 			    if($this->use_divs) {
@@ -620,6 +634,8 @@ class PTA_SUS_Public {
                             <td>'.(($signup->signup_date == "0000-00-00") ? esc_html($this->na_text) : date_i18n(get_option("date_format"), strtotime($signup->signup_date))).'</td>
                             <td>'.esc_html($signup->task_title).'</td>';
 			    }
+			
+			    $return .= apply_filters( 'pta_sus_user_signups_list_content_after_task', '', $signup, $this->use_divs );
 			    
 			    if ($this->show_time) {
 				    if($this->use_divs) {
@@ -846,7 +862,9 @@ class PTA_SUS_Public {
 							<tr>
 								<th class="column-task">'.esc_html($this->task_item_header).'</th>';
             }
-	        
+            
+	        $return .= apply_filters( 'pta_sus_task_list_header_after_name', '', $tasks, $this->use_divs );
+            
             if ($this->show_time) {
 	            if($this->use_divs) {
 		            $return .= '<div class="column-start-time head">'.esc_html($this->start_time_header).'</div>
@@ -946,6 +964,9 @@ class PTA_SUS_Public {
 		                $return .= '<tr class="pta-sus-tasks-bb pta-sus-tasks-timeb consolidated">';
 		                $return .= '<td class="column-title">'.esc_html($task->title).'</td>';
 	                }
+	
+	                $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
+                	
                     if ($this->show_time) {
 	                    if($this->use_divs) {
 		                    $return .= '
@@ -1026,6 +1047,9 @@ class PTA_SUS_Public {
 		                    } else {
 			                    $return .= '<td class="column-title">'.esc_html($task->title).'</td>';
 		                    }
+		
+		                    $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
+		                    
 		                    if ($this->show_time) {
 			                    if($this->use_divs) {
 				                    $return .= '
@@ -1043,6 +1067,8 @@ class PTA_SUS_Public {
 		                    } else {
 			                    $return .= '<td class="column-title"></td>';
 		                    }
+		                    
+		                    $return .= apply_filters( 'pta_sus_task_list_content_after_name_blank', '', $task, $sheet_id, $this->use_divs );
 		                    if ($this->show_time) {
 			                    if($this->use_divs) {
 				                    $return .= '<div class="column-start-time"></div><div class="column-end-time"></div>';
@@ -1161,6 +1187,8 @@ class PTA_SUS_Public {
 			                    } else {
 				                    $return .= '<td>'.esc_html($task->title).'</td>';
 			                    }
+			                    
+			                    $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
 			                    if ($this->show_time) {
 				                    if($this->use_divs) {
 					                    $return .= '
@@ -1178,6 +1206,8 @@ class PTA_SUS_Public {
 			                    } else {
 				                    $return .= '<td class="column-task"></td>';
 			                    }
+			                    
+			                    $return .= apply_filters( 'pta_sus_task_list_content_after_name_blank', '', $task, $sheet_id, $this->use_divs );
 			                    if ($this->show_time) {
 				                    if($this->use_divs) {
 					                    $return .= '
@@ -1319,6 +1349,8 @@ class PTA_SUS_Public {
         $phone_label = apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'phone_label' );
 
         $form .= apply_filters( 'pta_sus_signup_form_before_form_fields', '<br/>', $task, $date );
+		// Give other plugins a chance to modify signup data
+		$posted = apply_filters('pta_sus_signup_posted_values', $_POST);
         if ( is_user_logged_in() ) {
             $current_user = wp_get_current_user();
             if ( !($current_user instanceof WP_User) )
@@ -1380,25 +1412,25 @@ class PTA_SUS_Public {
 			<form name="pta_sus_signup_form" method="post" action="">
 				<p>
 					<label for="signup_firstname">'.$firstname_label.'</label>
-					<input type="text" id="signup_firstname" name="signup_firstname" value="'.((isset($_POST['signup_firstname'])) ? stripslashes(esc_attr($_POST['signup_firstname'])) : '').'" required />
+					<input type="text" id="signup_firstname" name="signup_firstname" value="'.((isset($posted['signup_firstname'])) ? stripslashes(esc_attr($posted['signup_firstname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_lastname">'.$lastname_label.'</label>
-					<input type="text" id="signup_lastname" name="signup_lastname" value="'.((isset($_POST['signup_lastname'])) ? stripslashes(esc_attr($_POST['signup_lastname'])) : '').'" required />
+					<input type="text" id="signup_lastname" name="signup_lastname" value="'.((isset($posted['signup_lastname'])) ? stripslashes(esc_attr($posted['signup_lastname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_email">'.$email_label.'</label>
-					<input type="text" id="signup_email" name="signup_email" value="'.((isset($_POST['signup_email'])) ? esc_attr($_POST['signup_email']) : '').'" required />
+					<input type="text" id="signup_email" name="signup_email" value="'.((isset($posted['signup_email'])) ? esc_attr($posted['signup_email']) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_validate_email">'.$validate_email_label.'</label>
-					<input type="text" id="signup_validate_email" name="signup_validate_email" value="'.((isset($_POST['signup_validate_email'])) ? esc_attr($_POST['signup_validate_email']) : '').'" required />
+					<input type="text" id="signup_validate_email" name="signup_validate_email" value="'.((isset($posted['signup_validate_email'])) ? esc_attr($posted['signup_validate_email']) : '').'" required />
 				</p>';
             if( false == $this->main_options['no_phone'] ) {
                 $form .= '
                 <p>
                     <label for="signup_phone">'.$phone_label.'</label>
-                    <input type="text" id="signup_phone" name="signup_phone" value="'.((isset($_POST['signup_phone'])) ? esc_attr($_POST['signup_phone']) : '').'" '.esc_attr($phone_required).' />
+                    <input type="text" id="signup_phone" name="signup_phone" value="'.((isset($posted['signup_phone'])) ? esc_attr($posted['signup_phone']) : '').'" '.esc_attr($phone_required).' />
                 </p>';
             }
         }
@@ -1413,7 +1445,7 @@ class PTA_SUS_Public {
             $form .= '
             <p>
 			    <label for="signup_item">'.esc_html($task->details_text).'</label>
-			    <input type="text" id="signup_item" name="signup_item" value="'.((isset($_POST['signup_item'])) ? stripslashes(esc_attr($_POST['signup_item'])) : '').'" '.esc_attr($details_required).' />
+			    <input type="text" id="signup_item" name="signup_item" value="'.((isset($posted['signup_item'])) ? stripslashes(esc_attr($posted['signup_item'])) : '').'" '.esc_attr($details_required).' />
 		    </p>';
         }
         if ($task->enable_quantities == "YES") {
@@ -1421,7 +1453,7 @@ class PTA_SUS_Public {
             $available = $this->data->get_available_qty($task_id, $date, $task->qty);
             if ($available > 1) {
                 $form .= '<label for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
-                <input type="text" id="signup_item_qty" name="signup_item_qty" value="'.((isset($_POST['signup_item_qty'])) ? (int)($_POST['signup_item_qty']) : '').'" />';
+                <input type="text" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" />';
             } elseif ( 1 == $available) {
                 $form .= '<strong>'.apply_filters( 'pta_sus_public_output', __('Only 1 remaining! Your quantity will be set to 1.', 'pta_volunteer_sus'), 'only_1_remaining' ).'</strong>';
                 $form .= '<input type="hidden" name="signup_item_qty" value="1" />';

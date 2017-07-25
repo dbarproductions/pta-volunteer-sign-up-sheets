@@ -365,6 +365,44 @@ class PTA_SUS_Data
         $results = $this->stripslashes_full($results);
         return $results;
     }
+	
+	/**
+	 * Get all the signups for a given user id
+	 * Return info on what they signed up for
+	 * @param  int $user_id wordpress uer id
+	 * @return Object Array    Returns an array of objects with the user's signup info
+	 */
+	public function get_detailed_signup($signup_id) {
+		$signup_table = $this->tables['signup']['name'];
+		$task_table = $this->tables['task']['name'];
+		$sheet_table = $this->tables['sheet']['name'];
+		$safe_sql = $this->wpdb->prepare("SELECT
+            $signup_table.id AS id,
+            $signup_table.task_id AS task_id,
+            $signup_table.user_id AS user_id,
+            $signup_table.date AS signup_date,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+            $sheet_table.title AS title,
+            $sheet_table.id AS sheet_id,
+            $sheet_table.clear AS clear,
+            $sheet_table.clear_days AS clear_days,
+            $task_table.dates AS task_dates
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+            WHERE $signup_table.id = %d AND $sheet_table.trash = 0
+            AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')
+            ORDER BY signup_date, time_start
+            ", $signup_id, $this->now);
+		$results = $this->wpdb->get_results($safe_sql);
+		$results = $this->stripslashes_full($results);
+		return $results[0];
+	}
+    
     /**
      * Get all data -- Right now this is only used for CRON remider emails, so can probably get rid of a lot of the select fields
      * 
@@ -528,6 +566,7 @@ class PTA_SUS_Data
         $sheet_table = $this->tables['sheet']['name'];
         $safe_sql = $this->wpdb->prepare("SELECT
             $signup_table.id AS id,
+            $signup_table.task_id AS task_id,
             $signup_table.user_id AS user_id, 
             $signup_table.date AS signup_date,
             $signup_table.item AS item,
@@ -536,6 +575,7 @@ class PTA_SUS_Data
             $task_table.time_start AS time_start,
             $task_table.time_end AS time_end,
             $sheet_table.title AS title,
+            $sheet_table.id AS sheet_id,
             $sheet_table.clear AS clear,
             $sheet_table.clear_days AS clear_days,
             $task_table.dates AS task_dates 
@@ -579,6 +619,43 @@ class PTA_SUS_Data
 		}
 		$sql .= " ORDER BY signup_date, time_start";
 		$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id, $date);
+		$results = $this->wpdb->get_results($safe_sql);
+		$results = $this->stripslashes_full($results);
+		return $results;
+	}
+	
+	/**
+	 * Get all the signups for all users
+	 * Return info on what they signed up for
+	 *
+	 * @return Object Array    Returns an array of objects with signup info
+	 */
+	public function get_all_signups() {
+		$signup_table = $this->tables['signup']['name'];
+		$task_table = $this->tables['task']['name'];
+		$sheet_table = $this->tables['sheet']['name'];
+		$safe_sql = $this->wpdb->prepare("SELECT
+            $signup_table.id AS id,
+            $signup_table.task_id AS task_id,
+            $signup_table.user_id AS user_id,
+            $signup_table.date AS signup_date,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+            $sheet_table.title AS title,
+            $sheet_table.id AS sheet_id,
+            $sheet_table.clear AS clear,
+            $sheet_table.clear_days AS clear_days,
+            $task_table.dates AS task_dates
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+            WHERE $sheet_table.trash = 0
+            AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')
+            ORDER BY signup_date, time_start
+            ", $this->now);
 		$results = $this->wpdb->get_results($safe_sql);
 		$results = $this->stripslashes_full($results);
 		return $results;

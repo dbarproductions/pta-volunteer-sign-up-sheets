@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 2.1.0
+Version: 2.2.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.0.4');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.2.0');
 
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
@@ -28,7 +28,7 @@ if (!class_exists('PTA_SUS_Widget')) require_once 'classes/widget.php';
 if (!class_exists('PTA_SUS_CSV_EXPORTER')) require_once 'classes/class-pta_csv_exporter.php';
 if (!class_exists('PTA_SUS_Emails')) require_once 'classes/class-pta_sus_emails.php';
 
-// To resolve fatal erros with PHP versions < 5.3 that don't have str_getcsv function
+// To resolve fatal errors with PHP versions < 5.3 that don't have str_getcsv function
 if(!function_exists('str_getcsv')) {
     function str_getcsv($input, $delimiter = ',', $enclosure = '"') {
 
@@ -57,8 +57,8 @@ if(!class_exists('PTA_Sign_Up_Sheet')):
 
 class PTA_Sign_Up_Sheet {
 	
-    private $data;
-    private $public = false;
+    public $data;
+    public $public = false;
     private $emails;
     public $db_version = '2.0.1';
     public $main_options;
@@ -115,6 +115,36 @@ class PTA_Sign_Up_Sheet {
 	 */
 	public function get_tasks($sheet_id, $date = '') {
 		return $this->data->get_tasks($sheet_id, $date);
+	}
+	
+	/**
+	 * Get task by id
+	 *
+	 * @param     int        id of task
+	 * @return    object    task
+	 */
+	public function get_task($task_id) {
+		return $this->data->get_task($task_id);
+	}
+	
+	/**
+	 * Get signup by id
+	 *
+	 * @param     int        id of signup
+	 * @return    object    signup
+	 */
+	public function get_signup($signup_id) {
+		return $this->data->get_signup($signup_id);
+	}
+	
+	/**
+	 * Get signup by id
+	 *
+	 * @param     int        id of signup
+	 * @return    object    signup with more details from joins
+	 */
+	public function get_detailed_signup($signup_id) {
+		return $this->data->get_detailed_signup($signup_id);
 	}
 
 	/**
