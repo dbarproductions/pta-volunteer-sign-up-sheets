@@ -279,6 +279,7 @@ class PTA_Sign_Up_Sheet {
 	                'disable_css' => false,
 	                'show_full_name' => false,
 	                'suppress_duplicates' => true,
+	                'show_remaining_slots_csv_export' => true,
                     );
         $options = get_option( 'pta_volunteer_sus_main_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades

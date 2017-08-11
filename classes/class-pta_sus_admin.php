@@ -116,6 +116,54 @@ class PTA_SUS_Admin {
 		echo $cleared_message;
 		echo '</div>';
 	}
+	
+	public function output_signup_column_data($slug, $i, $sheet, $task, $signup) {
+		switch ($slug) {
+			case 'task':
+				$title = apply_filters('pta_sus_admin_signup_display_task_title', ($i === 1) ? esc_html($task->title) : '', $task);
+				echo '<strong>'.wp_kses_post($title).'</strong>';
+				break;
+			case 'start':
+				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
+				echo wp_kses_post($start);
+				break;
+			case 'end':
+				$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
+				echo wp_kses_post($end);
+				break;
+			case 'name':
+				$name = '<em>'.esc_html($signup->firstname).' '.esc_html($signup->lastname).'</em>';
+				$name = apply_filters('pta_sus_admin_signup_display_name', $name, $sheet, $signup );
+				echo '#'.$i.': '.wp_kses_post($name);
+				break;
+			case 'email':
+				$email = apply_filters('pta_sus_admin_signup_display_email', $signup->email, $sheet, $signup);
+				echo '<a href="mailto:'.esc_attr($email).'">'.esc_html($email).'</a>';
+				break;
+			case 'phone':
+				$phone = apply_filters('pta_sus_admin_signup_display_phone', $signup->phone, $sheet, $signup);
+				echo '<a href="tel:'.esc_attr($phone).'">'.esc_html($phone).'</a>';
+				break;
+			case 'details':
+				$details = apply_filters('pta_sus_admin_signup_display_details', $signup->item, $sheet, $signup);
+				echo wp_kses_post($details);
+				break;
+			case 'qty':
+				$qty = apply_filters('pta_sus_admin_signup_display_quantity', $signup->item_qty, $sheet, $signup);
+				echo wp_kses_post($qty);
+				break;
+			case 'actions':
+				$clear_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;signup_id='.$signup->id.'&amp;action=clear';
+				$nonced_clear_url = wp_nonce_url( $clear_url, 'clear', '_sus_nonce' );
+				$actions = '<span class="delete"><a href="'. esc_url($nonced_clear_url) . '">'.__('Clear Spot', 'pta_volunteer_sus').'</a></span>';
+				$actions .= apply_filters('pta_sus_admin_signup_display_actions', '', $signup); // allow other extensions to add additional actions
+				echo $actions;
+				break;
+			default:
+				do_action('pta_sus_admin_signup_column_data', $slug, $i, $sheet, $task, $signup);
+				break;
+		}
+	}
 
 	/**
 	 * Admin Page: Sheets
@@ -182,12 +230,14 @@ class PTA_SUS_Admin {
 				echo '<div class="error"><p>'.__('Error permanently deleting sheet.', 'pta_volunteer_sus').'</p></div>';
 			} elseif ($result > 0) {
 				echo '<div class="updated"><p>'.__('Sheet has been permanently deleted.', 'pta_volunteer_sus').'</p></div>';
+				do_action('pta_sus_sheet_deleted', $sheet_id);
 			}
 		} elseif ($copy) {
 			if (($new_id = $this->data->copy_sheet($sheet_id)) === false) {
 				echo '<div class="error"><p>'.__('Error copying sheet.', 'pta_volunteer_sus').'</p></div>';
 			} else {
 				echo '<div class="updated"><p>'.__('Sheet has been copied to new sheet ID #', 'pta_volunteer_sus').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta_volunteer_sus').'</a>).</p></div>';
+				do_action('pta_sus_sheet_copied', $sheet_id, $new_id);
 			}
 		} elseif ($toggle_visibility) {
 			if ($toggled = $this->data->toggle_visibility($sheet_id) === false) {
@@ -209,93 +259,7 @@ class PTA_SUS_Admin {
 				if (!($tasks = $this->data->get_tasks($sheet_id))) {
 					echo '<p>'.__('No tasks were found.', 'pta_volunteer_sus').'</p>';
 				} else {
-					$all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
-					echo '
-						<table class="wp-list-table widefat" cellspacing="0">
-						<thead>
-						<tr>
-						<th>'.__('Task/Item', 'pta_volunteer_sus').'</th>
-						<th>'.__('Start Time', 'pta_volunteer_sus').'</th>
-						<th>'.__('End Time', 'pta_volunteer_sus').'</th>
-						<th>'.__('Name', 'pta_volunteer_sus').'</th>
-						<th>'.__('E-mail', 'pta_volunteer_sus').'</th>
-						<th>'.__('Phone', 'pta_volunteer_sus').'</th>
-						<th>'.__('Item Details', 'pta_volunteer_sus').'</th>
-						<th>'.__('Item Qty', 'pta_volunteer_sus').'</th>
-						<th></th>
-						</tr>
-						</thead>
-						<tbody>
-						';
-					foreach ($all_task_dates as $tdate) {
-						// check if we want to show expired tasks and Skip any task whose date has already passed
-						if ( !$this->main_options['show_expired_tasks']) {
-							if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
-						}
-
-						if ("0000-00-00" == $tdate) {
-							$show_date = false;
-						} else {
-							$show_date = mysql2date( get_option('date_format'), $tdate, $translate = true );
-							echo '<tr><th colspan="8"><strong>'.$show_date.'</strong></th></tr>';
-						}        
-						foreach ($tasks as $task) {
-							$task_dates = explode(',', $task->dates);
-							if(!in_array($tdate, $task_dates)) continue;
-							echo '<tr>';
-
-							$i=1;
-							$signups = $this->data->get_signups($task->id, $tdate);
-							foreach ($signups AS $signup) {
-								$clear_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$_GET['sheet_id'].'&amp;signup_id='.$signup->id.'&amp;action=clear';
-								$nonced_clear_url = wp_nonce_url( $clear_url, 'clear', '_sus_nonce' );
-								echo '
-									<tr>
-									<td>'.(($i === 1) ? esc_html($task->title) : '' ).'</td>
-									<td>'.(("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</td>
-									<td>'.(("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</td>
-									<td>#'.$i.': <em>'.esc_html($signup->firstname).' '.esc_html($signup->lastname).'</em>
-									<td>'.esc_html($signup->email).'</td>
-									<td>'.esc_html($signup->phone).'</td>
-									<td>'.esc_html($signup->item).'</td>
-									<td>'.(int)($signup->item_qty).'</td>
-									<td><span class="delete"><a href="'. esc_url($nonced_clear_url) . '">'.__('Clear Spot', 'pta_volunteer_sus').'</a></span></td>
-									</tr>
-									';
-								if ('YES' === $task->enable_quantities) {
-									$i += $signup->item_qty;
-								} else {
-									$i++;
-								} 
-							}
-							// Remaining empty spots
-							for ($i=$i; $i<=$task->qty; $i++) {
-								echo '
-									<tr>
-									<td>'.(($i === 1) ? esc_html($task->title) : '' ).'</td>
-									<td>'.(("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</td>
-									<td>'.(("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</td>
-									<td colspan="5">#'.$i.': '.__('(empty)', 'pta_volunteer_sus').'</td>
-									</tr>
-									';
-							}
-
-							echo '</tr>';
-						}
-
-					}
-					
-					$export_url = add_query_arg(array('pta-action' => 'export', 'sheet_id' => $sheet_id), $this->page_url);
-					$export_transposed_url = add_query_arg(array('pta-action' => 'export_transposed', 'sheet_id' => $sheet_id), $this->page_url);
-					$nonced_export_url = wp_nonce_url($export_url, 'pta-export');
-					$nonced_export_transposed_url = wp_nonce_url($export_transposed_url, 'pta-export');
-					echo '
-						</tbody>
-						</table>
-						<br />
-						<a href="'.esc_url($nonced_export_url).'" class="button-primary">'.__('Export Sheet as CSV', 'pta_volunteer_sus').'</a>
-						<a href="'.esc_url($nonced_export_transposed_url).'" class="button-primary">'.__('Export Sheet as transposed simplified CSV', 'pta_volunteer_sus').'</a>
-						';
+					include('admin-view-signups-html.php');
 				}
 
 			}

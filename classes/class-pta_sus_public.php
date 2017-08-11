@@ -954,6 +954,9 @@ class PTA_SUS_Public {
                 }
 
                 $title_shown = false;
+                
+                // Allow extensions to determine if signup links should be shown
+                $allow_signups = apply_filters('pta_sus_allow_signups', true, $task, $sheet_id, $date);
 
                 // One simple row if everything should be consolidated (no item details or names and consolidate option is set)
                 if($one_row) {
@@ -996,7 +999,7 @@ class PTA_SUS_Public {
 	                } else {
 		                $return .= '<td class="column-consolidated">'.esc_html($filled_text);
 	                }
-                    if($remaining > 0) {
+                    if($remaining > 0 && $allow_signups) {
                         if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
 		                    $return .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
 	                    } else {
@@ -1236,13 +1239,15 @@ class PTA_SUS_Public {
 				                    }
 				                    $return .= apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
 			                    }
-			                    if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
-				                    $return .= '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
-			                    } else {
-				                    if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-					                    $return .= '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
+			                    if($allow_signups) {
+				                    if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
+					                    $return .= '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
 				                    } else {
-					                    $return .= esc_html($this->main_options['login_signup_message']);
+					                    if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
+						                    $return .= '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
+					                    } else {
+						                    $return .= esc_html($this->main_options['login_signup_message']);
+					                    }
 				                    }
 			                    }
 			                    if($this->use_divs) {

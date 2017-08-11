@@ -140,12 +140,12 @@ class PTA_SUS_Data
     public function get_sheet($id)
     {
         $results = $this->wpdb->get_results($this->wpdb->prepare("SELECT * FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id));
-        if($results = $this->stripslashes_full($results)) {
-            return $results[0];
-        } else {
-            return false;
-        }
-        
+	    if(!empty($results) && isset($results[0])) {
+		    $result = $this->stripslashes_full($results[0]);
+		    return $result;
+	    } else {
+		    return false;
+	    }
     }
     
     /**
@@ -158,8 +158,12 @@ class PTA_SUS_Data
             FROM ".$this->tables['sheet']['name']." 
             WHERE trash = %d
             ", $trash));
-        $results = $this->stripslashes_full($results);
-        return $results[0]->count;
+	    if(!empty($results) && isset($results[0])) {
+		    $result = $this->stripslashes_full($results[0]);
+		    return $result->count;
+	    } else {
+		    return false;
+	    }
     }
     
     /**
@@ -173,8 +177,12 @@ class PTA_SUS_Data
             FROM ".$this->tables['sheet']['name']." 
             WHERE title = %s AND trash = 0
         ", $title));
-        $results = $this->stripslashes_full($results);
-        return $results[0]->count;
+	    if(!empty($results) && isset($results[0])) {
+		    $result = $this->stripslashes_full($results[0]);
+		    return $result->count;
+	    } else {
+		    return false;
+	    }
     }
 
     /**
@@ -186,8 +194,12 @@ class PTA_SUS_Data
             FROM ".$this->tables['signup']['name']." 
             WHERE task_id = %d AND date = %s AND firstname = %s AND lastname = %s
         ", $task_id, $signup_date, $firstname, $lastname));
-        $results = $this->stripslashes_full($results);
-        return $results[0]->count;
+	    if(!empty($results) && isset($results[0])) {
+		    $result = $this->stripslashes_full($results[0]);
+		    return $result->count;
+	    } else {
+		    return false;
+	    }
     }
 
     /**
@@ -269,8 +281,12 @@ class PTA_SUS_Data
     public function get_task($id)
     {
         $results = $this->wpdb->get_results($this->wpdb->prepare("SELECT * FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
-        $results = $this->stripslashes_full($results);
-        return $results[0];
+	    if(!empty($results) && isset($results[0])) {
+		    $result = $this->stripslashes_full($results[0]);
+		    return $result;
+	    } else {
+		    return false;
+	    }
     }
 
     /**
@@ -377,30 +393,34 @@ class PTA_SUS_Data
 		$task_table = $this->tables['task']['name'];
 		$sheet_table = $this->tables['sheet']['name'];
 		$safe_sql = $this->wpdb->prepare("SELECT
-            $signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-            $sheet_table.title AS title,
-            $sheet_table.id AS sheet_id,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $signup_table.id = %d AND $sheet_table.trash = 0
-            AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')
-            ORDER BY signup_date, time_start
-            ", $signup_id, $this->now);
+        $signup_table.id AS id,
+        $signup_table.task_id AS task_id,
+        $signup_table.user_id AS user_id,
+        $signup_table.date AS signup_date,
+        $signup_table.item AS item,
+        $signup_table.item_qty AS item_qty,
+        $task_table.title AS task_title,
+        $task_table.time_start AS time_start,
+        $task_table.time_end AS time_end,
+        $task_table.qty AS task_qty,
+        $sheet_table.title AS title,
+        $sheet_table.id AS sheet_id,
+        $sheet_table.clear AS clear,
+        $sheet_table.clear_days AS clear_days,
+        $task_table.dates AS task_dates
+        FROM  $signup_table
+        INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+        INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+        WHERE $signup_table.id = %d AND $sheet_table.trash = 0
+        ORDER BY signup_date, time_start
+        ", $signup_id, $this->now);
 		$results = $this->wpdb->get_results($safe_sql);
-		$results = $this->stripslashes_full($results);
-		return $results[0];
+		if(!empty($results) && isset($results[0])) {
+			$result = $this->stripslashes_full($results[0]);
+			return $result;
+		} else {
+			return false;
+		}
 	}
     
     /**
@@ -444,8 +464,8 @@ class PTA_SUS_Data
                 , email
                 , phone
             FROM  ".$this->tables['sheet']['name']." sheet
-            LEFT JOIN ".$this->tables['task']['name']." task ON sheet.id = task.sheet_id
-            LEFT JOIN ".$this->tables['signup']['name']." signup ON task.id = signup.task_id
+            INNER JOIN ".$this->tables['task']['name']." task ON sheet.id = task.sheet_id
+            INNER JOIN ".$this->tables['signup']['name']." signup ON task.id = signup.task_id
         ");
         $results = $this->stripslashes_full($results);
         return $results;
@@ -628,13 +648,14 @@ class PTA_SUS_Data
 	 * Get all the signups for all users
 	 * Return info on what they signed up for
 	 *
+	 * @param Bool true to show expired signups
 	 * @return Object Array    Returns an array of objects with signup info
 	 */
-	public function get_all_signups() {
+	public function get_all_signups($show_expired = false) {
 		$signup_table = $this->tables['signup']['name'];
 		$task_table = $this->tables['task']['name'];
 		$sheet_table = $this->tables['sheet']['name'];
-		$safe_sql = $this->wpdb->prepare("SELECT
+		$sql = "SELECT
             $signup_table.id AS id,
             $signup_table.task_id AS task_id,
             $signup_table.user_id AS user_id,
@@ -652,10 +673,16 @@ class PTA_SUS_Data
             FROM  $signup_table
             INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
             INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $sheet_table.trash = 0
-            AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')
-            ORDER BY signup_date, time_start
-            ", $this->now);
+            WHERE $sheet_table.trash = 0";
+		if(!$show_expired) {
+			$sql .= " AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')";
+		}
+		$sql .= " ORDER BY signup_date, time_start";
+        if($show_expired) {
+        	$safe_sql = $sql;
+        } else {
+        	$safe_sql = $this->wpdb->prepare($sql, $this->now);
+        }
 		$results = $this->wpdb->get_results($safe_sql);
 		$results = $this->stripslashes_full($results);
 		return $results;
@@ -867,9 +894,22 @@ class PTA_SUS_Data
     public function delete_signup($id) {
         return $this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['signup']['name']." WHERE id = %d" , $id));
     }
-
-    public function delete_expired_signups() {
-        return $this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['signup']['name']." WHERE %s > ADDDATE(date, 1)", $this->now));
+	
+	/**
+	 * @param array $exlude array of ids to NOT delete
+	 *
+	 * @return false|int
+	 */
+    public function delete_expired_signups($exclude = array()) {
+    	$exclude = apply_filters('pta_sus_delete_expired_signups_exclusions', $exclude);
+	    $sql = "DELETE FROM ".$this->tables['signup']['name']." WHERE %s > ADDDATE(date, 1)";
+    	if(!empty($exclude)) {
+    		$clean_ids = array_map('absint', $exclude);
+    		$exclusions = implode(',', $clean_ids);
+		    $sql .= " AND id NOT IN ($exclusions)";
+	    }
+	    $safe_sql = $this->wpdb->prepare($sql, $this->now);
+        return $this->wpdb->query($safe_sql);
     }
     
     /**
@@ -895,6 +935,8 @@ class PTA_SUS_Data
         
         $new_sheet_id = $this->wpdb->insert_id;
         
+        $new_tasks = array();
+        
         $tasks = $this->get_tasks($id);
         foreach ($tasks AS $task) {
             $new_fields = array();
@@ -903,6 +945,15 @@ class PTA_SUS_Data
                 $new_fields['task_'.$field] = $task[$field];
             }
             if ($this->add_task($new_fields, $new_sheet_id) === false) return false;
+            $new_task_id = $this->wpdb->insert_id;
+            $old_task_id = $task['id'];
+            $new_tasks[$old_task_id] = $new_task_id;
+        }
+        
+        if(!empty($new_tasks)) {
+        	$data = array('sheet_id' => $id, 'tasks' => $new_tasks);
+        	// store array of copied tasks to temporary option for possible use in other extensions
+	        update_option('pta_sus_copied_tasks', $data);
         }
         
         return $new_sheet_id;

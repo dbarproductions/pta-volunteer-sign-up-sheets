@@ -82,14 +82,10 @@ class PTA_SUS_CSV_EXPORTER {
 		header("Pragma: no-cache");
 		header("Expires: 0");
 		$fp = fopen('php://output', 'w');
-
-		// Initialize our report array for exporting the sheet as CSV
-		$report = array();
-		// Tasks
-		$export_tdate="";
+		
 		$old_tdate="";
 
-		$headers = array(
+		$headers = apply_filters('pta_sus_export_headers', array(
 				__("Task Date", 'pta_volunteer_sus'),
 				__("Task/Item", 'pta_volunteer_sus'),
 				__("Start Time", 'pta_volunteer_sus'),
@@ -99,7 +95,7 @@ class PTA_SUS_CSV_EXPORTER {
 				__("Volunteer Phone", 'pta_volunteer_sus'),
 				__("Item Details", 'pta_volunteer_sus'),
 				__("Item Qty", 'pta_volunteer_sus')
-				);
+				), $sheet);
 		fputcsv($fp, $headers);
 		
 		$tasks = $data->get_tasks($sheet_id);
@@ -130,7 +126,7 @@ class PTA_SUS_CSV_EXPORTER {
 						$i++;
 					} 
 					// Save report row
-					$line = array(
+					$line = apply_filters('pta_sus_csv_export_line_values', array(
 							$export_tdate,
 							$task->title,
 							(("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)) ),
@@ -140,28 +136,30 @@ class PTA_SUS_CSV_EXPORTER {
 							$signup->phone,
 							$signup->item,
 							$signup->item_qty
-							);
+					), $signup, $task, $tdate );
 					fputcsv($fp, $this->clean_csv($line));
 				}
-				// Remaining empty spots
-				for ($i=$i; $i<=$task->qty; $i++) {
-					// to make sure the same date is only shown once in CSV
-					if ($tdate==$old_tdate) {
-						$export_tdate="";
-					} else {
-						$export_tdate=$tdate;
-						$old_tdate=$tdate;
-					}
-					// Save empty signup row in report
-					$line = array(
+				if(isset($this->main_options['show_remaining_slots_csv_export']) && true == $this->main_options['show_remaining_slots_csv_export']) {
+					// Remaining empty spots
+					for ($i=$i; $i<=$task->qty; $i++) {
+						// to make sure the same date is only shown once in CSV
+						if ($tdate==$old_tdate) {
+							$export_tdate="";
+						} else {
+							$export_tdate=$tdate;
+							$old_tdate=$tdate;
+						}
+						// Save empty signup row in report
+						$line = array(
 							$export_tdate,
 							$task->title,
 							(("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)) ),
-							(("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)) ),
-							__("empty", 'pta_volunteer_sus')
-							);
-					fputcsv($fp, $this->clean_csv($line));
+							(("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)) )
+						);
+						fputcsv($fp, $this->clean_csv($line));
+					}
 				}
+				
 			}
 
 		}
@@ -186,12 +184,6 @@ class PTA_SUS_CSV_EXPORTER {
 		header("Pragma: no-cache");
 		header("Expires: 0");
 		$fp = fopen('php://output', 'w');
-
-		// Initialize our report array for exporting the sheet as CSV
-		$report = array();
-		// Tasks
-		$export_tdate="";
-		$old_tdate="";
 
 		$tasks = $data->get_tasks($sheet_id);
 		$all_task_dates = $data->get_all_task_dates((int)$sheet->id);
@@ -247,9 +239,7 @@ class PTA_SUS_CSV_EXPORTER {
 		header("Expires: 0");
 		$fp = fopen('php://output', 'w');
 
-		$old_tdate="";
-
-		$headers = array(
+		$headers = apply_filters('pta_sus_export_all_data_headers', array(
 			__("Sheet", 'pta_volunteer_sus'),
 			__("Signup Date", 'pta_volunteer_sus'),
 			__("Task/Item", 'pta_volunteer_sus'),
@@ -260,7 +250,7 @@ class PTA_SUS_CSV_EXPORTER {
 			__("Volunteer Phone", 'pta_volunteer_sus'),
 			__("Item Details", 'pta_volunteer_sus'),
 			__("Item Qty", 'pta_volunteer_sus')
-		);
+		));
 		fputcsv($fp, $headers);
 
 		$ongoing_label = apply_filters( 'pta_sus_public_output', __('Ongoing', 'pta_volunteer_sus'), 'ongoing_event_type_start_end_label' );
@@ -268,7 +258,7 @@ class PTA_SUS_CSV_EXPORTER {
 		foreach ($rows as $row) {
 
 			// Save report row
-			$line = array(
+			$line = apply_filters('pta_sus_csv_export_all_data_line_values', array(
 				$row->sheet_title,
 				(($row->signup_date == '0000-00-00') ? esc_html( $ongoing_label ) : date_i18n(get_option('date_format'), strtotime($row->signup_date))),
 				$row->task_title,
@@ -279,7 +269,7 @@ class PTA_SUS_CSV_EXPORTER {
 				$row->phone,
 				$row->item,
 				$row->item_qty
-			);
+			), $row);
 			fputcsv($fp, $this->clean_csv($line));
 
 		}

@@ -112,6 +112,7 @@ class PTA_SUS_Options {
         add_settings_field('detailed_reminder_admin_emails', __('Detailed Reminder Notifications?', 'pta_volunteer_sus'), array($this, 'detailed_reminder_admin_emails_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_expired_tasks', __('Show Expired Tasks?', 'pta_volunteer_sus'), array($this, 'show_expired_tasks_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('clear_expired_signups', __('Automatically clear expired signups?', 'pta_volunteer_sus'), array($this, 'clear_expired_signups_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('show_remaining_slots_csv_export', __('Show remaining slots on sheet CSV exports?', 'pta_volunteer_sus'), array($this, 'show_remaining_slots_csv_export_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_signup_search', __('Enable Sign-up form live search?', 'pta_volunteer_sus'), array($this, 'enable_signup_search_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_search_tables', __('Live Search Tables', 'pta_volunteer_sus'), array($this, 'signup_search_tables_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta_volunteer_sus'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -237,7 +238,8 @@ class PTA_SUS_Options {
             'use_divs' => 'bool',
             'disable_css' => 'bool',
             'show_full_name' => 'bool',
-            'suppress_duplicates' => 'bool'
+            'suppress_duplicates' => 'bool',
+            'show_remaining_slots_csv_export' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -671,6 +673,18 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_main_options[clear_expired_signups]" type="checkbox" value="1" <?php echo $checked; ?> />
         <?php
         echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Automatically clears expired signups from the database (runs with hourly CRON function). Expired signups are not counted in the Filled Spots column.', 'pta_volunteer_sus').'</em>';
+    }
+    
+    public function show_remaining_slots_csv_export_checkbox() {
+	    if(isset($this->main_options['show_remaining_slots_csv_export']) && true === $this->main_options['show_remaining_slots_csv_export']) {
+		    $checked = 'checked="checked"';
+	    } else {
+		    $checked = '';
+	    }
+	    ?>
+        <input name="pta_volunteer_sus_main_options[show_remaining_slots_csv_export]" type="checkbox" value="1" <?php echo $checked; ?> />
+	    <?php
+	    echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Check this to show remaining spots for a task as rows in the sheet CSV export (previous default behavior). Uncheck to only show rows for filled spots.', 'pta_volunteer_sus').'</em>';
     }
 
     public function hide_donation_button_checkbox() {

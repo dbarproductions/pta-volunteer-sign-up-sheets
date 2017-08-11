@@ -58,9 +58,9 @@ class PTA_SUS_Emails {
 
         do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear );
         
-        $from = $this->email_options['from_email'];
+        $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear);
         if (empty($from)) $from = get_bloginfo('admin_email');
-        $replyto = $this->email_options['replyto_email'];
+	    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear);
         if (empty($replyto)) $replyto = get_bloginfo('admin_email');
 
         $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
@@ -85,6 +85,10 @@ class PTA_SUS_Emails {
             $subject = $this->email_options['confirmation_email_subject'];
             $message = $this->email_options['confirmation_email_template'];
         }
+        
+        // Allow extensions to modify subject and template
+	    $subject = apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear);
+	    $message = apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear);
 
         // Get Chair emails, unless disabled
 	    if(!isset($this->email_options['no_chair_emails']) || false == $this->email_options['no_chair_emails']) {
@@ -122,19 +126,19 @@ class PTA_SUS_Emails {
 	    }
 	    
         $headers = array();
-            $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
-            $headers[]  = "Reply-To: " . $replyto;
-            $headers[]  = "Content-Type: text/plain; charset=utf-8";
-            $headers[]  = "Content-Transfer-Encoding: 8bit";
-            if ( !$reminder && !$this->email_options['individual_emails'] ) {
-                if (!empty($chair_emails)) {
-                    // CC to all chairs for signups/clears, but not reminders
-                    foreach ($chair_emails as $cc) {
-                        $headers[] = 'Bcc: ' . $cc;
-                    }
-                }           	
-
+        $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
+        $headers[]  = "Reply-To: " . $replyto;
+        $headers[]  = "Content-Type: text/plain; charset=utf-8";
+        $headers[]  = "Content-Transfer-Encoding: 8bit";
+        if ( !$reminder && !$this->email_options['individual_emails'] ) {
+            if (!empty($chair_emails)) {
+                // CC to all chairs for signups/clears, but not reminders
+                foreach ($chair_emails as $cc) {
+                    $headers[] = 'Bcc: ' . $cc;
+                }
             }
+
+        }
 
         // Calculate some Variables for display
         $date = ($signup->date == '0000-00-00') ? __('N/A', 'pta_volunteer_sus') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
@@ -159,6 +163,10 @@ class PTA_SUS_Emails {
 
 	    $replace = array($sheet->title, $sheet_details, $task->title, $date, $start_time, $end_time, $item, $signup->item_qty,
 		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone );
+	    
+	    // Allow extension to modify/add to search and replace arrays
+	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear);
+	    $replace = apply_filters('pta_sus_email_replace', $replace, $signup, $reminder, $clear);
 
 	    $message = str_replace($search, $replace, $message);
 	    $subject = str_replace($search, $replace, $subject);
