@@ -105,10 +105,14 @@ class PTA_SUS_Emails {
         
 	    // If global CC is set, and it's a valid email, add to chair_emails
 	    if( isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email'] ) ) {
-	    	if(empty($chair_emails)) {
-	    		$chair_emails = array($this->email_options['cc_email']);
-		    } else {
-		    	$chair_emails[] = $this->email_options['cc_email'];
+	    	// other plugins can modify CC address, or set it blank to disable
+	    	$cc = apply_filters('pta_sus_email_ccmail', $this->email_options['cc_email'], $signup, $task, $sheet, $reminder, $clear);
+	    	if(!empty($cc) && is_email($cc)) {
+			    if(empty($chair_emails)) {
+				    $chair_emails = array($cc);
+			    } else {
+				    $chair_emails[] = $cc;
+			    }
 		    }
 	    }
 	    
@@ -137,7 +141,6 @@ class PTA_SUS_Emails {
                     $headers[] = 'Bcc: ' . $cc;
                 }
             }
-
         }
 
         // Calculate some Variables for display

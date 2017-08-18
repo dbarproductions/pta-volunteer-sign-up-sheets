@@ -405,6 +405,9 @@ class PTA_SUS_Data
         $task_table.qty AS task_qty,
         $sheet_table.title AS title,
         $sheet_table.id AS sheet_id,
+        $sheet_table.details AS sheet_details,
+        $sheet_table.chair_name AS chair_name,
+        $sheet_table.chair_email AS chair_email,
         $sheet_table.clear AS clear,
         $sheet_table.clear_days AS clear_days,
         $task_table.dates AS task_dates
