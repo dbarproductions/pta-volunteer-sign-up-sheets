@@ -118,6 +118,10 @@ YES. The groups extension plugin now supports BuddyPress Groups as well as the G
 *   Lots of extra hooks added for developers to extend the functionality
 *   Rewrote admin side "View Signups" page with hooks for modifying columns and data, as well as consolidating remaining spots
 *   Added option to show/hide remaining empty slots as rows in the CSV export for a sheet. Default is now NOT to show those empty slots.
+*   Fixed problem with contact_emails template tag being replace with "N/A" if emails to chairs was disabled in email settings
+*   Added option to use chair emails as the reply-to email address
+*   Added option to disable ALL emails (including reminders).
+*   Removed the "transposed simplified" csv export option, as it didn't always work right (3rd party contribution), and there is now the option to not show empty rows in regular csv exports
 
 **Version 2.1.0**
 

@@ -46,15 +46,10 @@ class PTA_SUS_CSV_EXPORTER {
 				case 'export':
 					$this->export_report($sheet_id);
 					break;
-				case 'export_transposed':
-					$this->export_report_transposed($sheet_id);
-					break;
 				case 'export_all':
 					$this->export_all();
 					break;
 			}
-
-
 		}
 
 	}
@@ -162,64 +157,6 @@ class PTA_SUS_CSV_EXPORTER {
 				
 			}
 
-		}
-
-		fclose($fp);
-		exit;
-	}
-
-	public function export_report_transposed($sheet_id) {
-
-		$data = new PTA_SUS_Data();
-		if ( !$sheet_id ) {
-			wp_die( __( 'Invalid sheet id!' ) );
-		}
-		$sheet = $data->get_sheet($sheet_id);
-		if ( !$sheet ) {
-			wp_die( __( 'Invalid sheet id!' ) );
-		}
-
-		header("Content-type: text/csv");
-		header("Content-Disposition: attachment; filename=report-".date('Ymd-His').".csv");
-		header("Pragma: no-cache");
-		header("Expires: 0");
-		$fp = fopen('php://output', 'w');
-
-		$tasks = $data->get_tasks($sheet_id);
-		$all_task_dates = $data->get_all_task_dates((int)$sheet->id);
-		$headers=array(__("Task/Dates",'pta_volunteer_sus'));
-		foreach ($all_task_dates as $tdate) {
-			// check if we want to show expired tasks and Skip any task whose date has already passed
-			if ( !$this->main_options['show_expired_tasks']) {
-				if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
-			}
-			$headers[]=$tdate;
-		}
-		fputcsv($fp, $headers);
-
-		foreach ($tasks as $task) {
-			$line=array();
-			$line[]=$task->title;
-
-			foreach ($all_task_dates as $tdate) {
-				$found=0;
-				$found_signups=array();
-				// check if we want to show expired tasks and Skip any task whose date has already passed
-				//if ( !$this->main_options['show_expired_tasks']) {
-				//	if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
-				//}
-				$signups = $data->get_signups($task->id, $tdate);
-				foreach ($signups AS $tmp_signup) {
-					$unique=$tmp_signup->firstname.' '.$data->initials($tmp_signup->lastname);
-					$found_signups[]=$unique;
-					$found=1;
-				}
-				if ($found)
-					$line[]=join("\r\n",$found_signups);
-				else
-					$line[]="";
-			}
-			fputcsv($fp, $this->clean_csv($line));
 		}
 
 		fclose($fp);

@@ -28,7 +28,7 @@ class PTA_SUS_Admin {
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 
-		add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
+		add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'), null, 93);
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 		$pta_sus_sheet_page_suffix = add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta_volunteer_sus'), __('Add New', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta_volunteer_sus'), __('Email Volunteers', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
@@ -460,12 +460,9 @@ class PTA_SUS_Admin {
 					}
 				}
 			}
-
-
+			
 			if( 0 === $task_err ) {
-
-
-
+				
 				// Queue for removal: tasks where the fields were emptied out
 				for ($i = 0; $i < $count; $i++) {
 					if (empty($_POST['task_title'][$i])) {
@@ -600,8 +597,7 @@ class PTA_SUS_Admin {
 							$sheet_fields['sheet_id'] = $_POST['sheet_id'];
 						}
 					}
-
-
+					
 					// Delete unused tasks
 					foreach ($tasks_to_delete AS $task_id) {
 						if ($this->data->delete_task($task_id) === false) {

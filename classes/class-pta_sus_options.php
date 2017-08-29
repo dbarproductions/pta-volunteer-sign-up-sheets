@@ -122,6 +122,7 @@ class PTA_SUS_Options {
         add_settings_section('pta_volunteer_email', __('Email Settings', 'pta_volunteer_sus'), array($this, 'pta_volunteer_email_description'), 'pta_volunteer_sus_email');
         add_settings_field('from_email', __('FROM email:', 'pta_volunteer_sus'), array($this, 'from_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('replyto_email', __('Reply-To email:', 'pta_volunteer_sus'), array($this, 'replyto_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('replyto_chairs', __('Reply-To Chairs?', 'pta_volunteer_sus'), array($this, 'replyto_chairs_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('cc_email', __('CC email:', 'pta_volunteer_sus'), array($this, 'cc_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('confirmation_email_subject', __('Confirmation email subject:', 'pta_volunteer_sus'), array($this, 'confirmation_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('confirmation_email_template', __('Confirmation email template:', 'pta_volunteer_sus'), array($this, 'confirmation_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -135,6 +136,7 @@ class PTA_SUS_Options {
 	    add_settings_field('individual_emails', __('Separate CC/BCC to individual TO emails?', 'pta_volunteer_sus'), array($this, 'individual_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('admin_clear_emails', __('Send emails when clear from admin?', 'pta_volunteer_sus'), array($this, 'admin_clear_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('no_chair_emails', __('Disable chair emails?', 'pta_volunteer_sus'), array($this, 'no_chair_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+	    add_settings_field('disable_emails', __('Disable ALL emails?', 'pta_volunteer_sus'), array($this, 'disable_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 
         // Integration Settings
         register_setting( 'pta_volunteer_sus_integration_options', 'pta_volunteer_sus_integration_options', array($this, 'pta_sus_validate_integration_options') );
@@ -262,6 +264,8 @@ class PTA_SUS_Options {
 		    'individual_emails' => 'bool',
             'admin_clear_emails' => 'bool',
 		    'no_chair_emails' => 'bool',
+            'disable_emails' => 'bool',
+            'replyto_chairs' => 'bool',
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -757,6 +761,30 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_email_options[no_chair_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
 		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
+	}
+	
+	public function disable_emails_checkbox() {
+		if(isset($this->email_options['disable_emails']) && true === $this->email_options['disable_emails']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[disable_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, ALL emails will be disabled (including reminder emails). Useful if you want to clear and manually sign up users without emails being sent (when making corrections, for example). Reminders will start to get checked and sent again after you turn this off.', 'pta_volunteer_sus').'</em>';
+	}
+	
+	public function replyto_chairs_checkbox() {
+		if(isset($this->email_options['replyto_chairs']) && true === $this->email_options['replyto_chairs']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[replyto_chairs]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, Chair emails will be set as the reply-to address in notification emails. Above reply-to email will be ignored when this is checked.', 'pta_volunteer_sus').'</em>';
 	}
 	
 	public function suppress_duplicates_checkbox() {

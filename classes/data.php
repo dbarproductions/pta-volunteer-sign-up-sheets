@@ -583,14 +583,14 @@ class PTA_SUS_Data
      * @param  int $user_id wordpress uer id
      * @return Object Array    Returns an array of objects with the user's signup info
      */
-    public function get_user_signups($user_id) {
+    public function get_user_signups($user_id, $show_expired = false) {
         $signup_table = $this->tables['signup']['name'];
         $task_table = $this->tables['task']['name'];
         $sheet_table = $this->tables['sheet']['name'];
-        $safe_sql = $this->wpdb->prepare("SELECT
+        $sql = "SELECT
             $signup_table.id AS id,
             $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id, 
+            $signup_table.user_id AS user_id,
             $signup_table.date AS signup_date,
             $signup_table.item AS item,
             $signup_table.item_qty AS item_qty,
@@ -601,14 +601,16 @@ class PTA_SUS_Data
             $sheet_table.id AS sheet_id,
             $sheet_table.clear AS clear,
             $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates 
-            FROM  $signup_table 
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id 
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id 
-            WHERE $signup_table.user_id = %d AND $sheet_table.trash = 0 
-            AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')
-            ORDER BY signup_date, time_start
-            ", $user_id, $this->now);
+            $task_table.dates AS task_dates
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+            WHERE $signup_table.user_id = %d AND $sheet_table.trash = 0";
+        if(!$show_expired) {
+        	$sql .= " AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')";
+        }
+        $sql .= " ORDER BY signup_date, time_start";
+        $safe_sql = $this->wpdb->prepare($sql, $user_id, $this->now);
         $results = $this->wpdb->get_results($safe_sql);
         $results = $this->stripslashes_full($results);
         return $results;

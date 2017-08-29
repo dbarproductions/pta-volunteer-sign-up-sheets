@@ -52,6 +52,11 @@ class PTA_SUS_Emails {
     * @return   bool
     */
     public function send_mail($signup_id, $reminder=false, $clear=false) {
+    	// are emails disabled? Don't send any emails if disabled
+	    if(isset($this->email_options['disable_emails']) && true == $this->email_options['disable_emails']) {
+	    	return true;
+	    }
+	    
         $signup = $this->data->get_signup($signup_id);
         $task = $this->data->get_task($signup->task_id);
         $sheet = $this->data->get_sheet($task->sheet_id);
@@ -60,11 +65,8 @@ class PTA_SUS_Emails {
         
         $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear);
         if (empty($from)) $from = get_bloginfo('admin_email');
-	    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear);
-        if (empty($replyto)) $replyto = get_bloginfo('admin_email');
 
         $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
-
     
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
@@ -90,28 +92,30 @@ class PTA_SUS_Emails {
 	    $subject = apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear);
 	    $message = apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear);
 
-        // Get Chair emails, unless disabled
-	    if(!isset($this->email_options['no_chair_emails']) || false == $this->email_options['no_chair_emails']) {
-		    if (isset($sheet->position) && '' != $sheet->position) {
-			    $chair_emails = $this->get_member_directory_emails($sheet->position);
+        // Get Chair emails
+	    if (isset($sheet->position) && '' != $sheet->position) {
+		    $chair_emails = $this->get_member_directory_emails($sheet->position);
+	    } else {
+		    if('' == $sheet->chair_email) {
+			    $chair_emails = false;
 		    } else {
-			    if('' == $sheet->chair_email) {
-				    $chair_emails = false;
-			    } else {
-				    $chair_emails = explode(',', $sheet->chair_email);
-			    }
+			    $chair_emails = explode(',', $sheet->chair_email);
 		    }
 	    }
-        
-	    // If global CC is set, and it's a valid email, add to chair_emails
+	    $cc_emails = array();
+	    if(!isset($this->email_options['no_chair_emails']) || false == $this->email_options['no_chair_emails']) {
+	    	$cc_emails = $chair_emails;
+	    }
+	    
+	    // If global CC is set, and it's a valid email, add to cc_emails
 	    if( isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email'] ) ) {
 	    	// other plugins can modify CC address, or set it blank to disable
 	    	$cc = apply_filters('pta_sus_email_ccmail', $this->email_options['cc_email'], $signup, $task, $sheet, $reminder, $clear);
 	    	if(!empty($cc) && is_email($cc)) {
-			    if(empty($chair_emails)) {
-				    $chair_emails = array($cc);
+			    if(empty($cc_emails)) {
+				    $cc_emails = array($cc);
 			    } else {
-				    $chair_emails[] = $cc;
+				    $cc_emails[] = $cc;
 			    }
 		    }
 	    }
@@ -128,16 +132,30 @@ class PTA_SUS_Emails {
 	    if(!$names) {
 		    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
 	    }
+	
+	    if(isset($this->email_options['replyto_chairs']) && true == $this->email_options['replyto_chairs'] && !empty($chair_emails)) {
+	        $replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear);
+	    } else {
+		    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear);
+	    }
+	    
+	    if (empty($replyto)) $replyto = get_bloginfo('admin_email');
 	    
         $headers = array();
         $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
-        $headers[]  = "Reply-To: " . $replyto;
+        if(is_array($replyto)) {
+        	foreach ($replyto as $reply) {
+        		$headers[] = "Reply-To: " . $reply;
+	        }
+        } else {
+	        $headers[]  = "Reply-To: " . $replyto;
+        }
         $headers[]  = "Content-Type: text/plain; charset=utf-8";
         $headers[]  = "Content-Transfer-Encoding: 8bit";
         if ( !$reminder && !$this->email_options['individual_emails'] ) {
-            if (!empty($chair_emails)) {
+            if (!empty($cc_emails)) {
                 // CC to all chairs for signups/clears, but not reminders
-                foreach ($chair_emails as $cc) {
+                foreach ($cc_emails as $cc) {
                     $headers[] = 'Bcc: ' . $cc;
                 }
             }
@@ -184,12 +202,12 @@ class PTA_SUS_Emails {
         $send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear );
 
         if($send_email && !empty($subject) && !empty($message)) {
-        	if($this->email_options['individual_emails'] && !empty($chair_emails)) {
+        	if($this->email_options['individual_emails'] && !empty($cc_emails)) {
         		// Send out first email to the original TO address, set errors to result (bool)
 				$sent = wp_mail($to, $subject, $message, $headers);
 		        // loop through all chair_emails and send individually
-		        if(!empty($chair_emails)) {
-			        foreach ($chair_emails as $to) {
+		        if(!empty($cc_emails)) {
+			        foreach ($cc_emails as $to) {
 			        	if(is_email($to)) {
 					        $result = wp_mail($to, $subject, $message, $headers);
 					        if(false === $result) {

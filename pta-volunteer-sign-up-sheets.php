@@ -190,6 +190,21 @@ class PTA_Sign_Up_Sheet {
 		if(!is_object($this->public)) return '';
 		return $this->public->get_user_signups_list();
 	}
+	
+	/**
+	 * Get html table output of all tasks/items user has signed up for
+	 *
+	 * @return string table list of user signups
+	 */
+	public function get_signup_form($task_id, $date) {
+		if(!is_object($this->public)) {
+			if (!class_exists('PTA_SUS_Public')) {
+				include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
+			}
+			$this->public = new PTA_SUS_Public();
+		}
+		return $this->public->display_signup_form($task_id, $date);
+	}
 
     public function register_sus_widget() {
         register_widget( 'PTA_SUS_Widget' );
@@ -369,6 +384,8 @@ Thank You!
 	                'individual_emails' => false,
                     'admin_clear_emails' => false,
                     'no_chair_emails' => false,
+                    'disable_emails' => false,
+                    'replyto_chairs' => false,
                     );
         $options = get_option( 'pta_volunteer_sus_email_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades

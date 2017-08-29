@@ -1374,7 +1374,7 @@ class PTA_SUS_Public {
 	        }
             // Prefill user data if they are signed in
             $form .= '
-		    <form name="pta_sus_signup_form" method="post" action="">
+		    <form name="pta_sus_signup_form" id="pta_sus_signup_form" method="post" action="">
                 <input type="hidden" name="signup_user_id" value="'.$current_user->ID.'" />
 				<p>
 					<label for="signup_firstname">'.$firstname_label.'</label>
@@ -1417,25 +1417,25 @@ class PTA_SUS_Public {
 			<form name="pta_sus_signup_form" method="post" action="">
 				<p>
 					<label for="signup_firstname">'.$firstname_label.'</label>
-					<input type="text" id="signup_firstname" name="signup_firstname" value="'.((isset($posted['signup_firstname'])) ? stripslashes(esc_attr($posted['signup_firstname'])) : '').'" required />
+					<input type="text" class="required" id="signup_firstname" name="signup_firstname" value="'.((isset($posted['signup_firstname'])) ? stripslashes(esc_attr($posted['signup_firstname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_lastname">'.$lastname_label.'</label>
-					<input type="text" id="signup_lastname" name="signup_lastname" value="'.((isset($posted['signup_lastname'])) ? stripslashes(esc_attr($posted['signup_lastname'])) : '').'" required />
+					<input type="text" class="required" id="signup_lastname" name="signup_lastname" value="'.((isset($posted['signup_lastname'])) ? stripslashes(esc_attr($posted['signup_lastname'])) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_email">'.$email_label.'</label>
-					<input type="text" id="signup_email" name="signup_email" value="'.((isset($posted['signup_email'])) ? esc_attr($posted['signup_email']) : '').'" required />
+					<input type="email" class="required email" id="signup_email" name="signup_email" value="'.((isset($posted['signup_email'])) ? esc_attr($posted['signup_email']) : '').'" required />
 				</p>
 				<p>
 					<label for="signup_validate_email">'.$validate_email_label.'</label>
-					<input type="text" id="signup_validate_email" name="signup_validate_email" value="'.((isset($posted['signup_validate_email'])) ? esc_attr($posted['signup_validate_email']) : '').'" required />
+					<input type="email" class="required email" id="signup_validate_email" name="signup_validate_email" value="'.((isset($posted['signup_validate_email'])) ? esc_attr($posted['signup_validate_email']) : '').'" required />
 				</p>';
             if( false == $this->main_options['no_phone'] ) {
                 $form .= '
                 <p>
                     <label for="signup_phone">'.$phone_label.'</label>
-                    <input type="text" id="signup_phone" name="signup_phone" value="'.((isset($posted['signup_phone'])) ? esc_attr($posted['signup_phone']) : '').'" '.esc_attr($phone_required).' />
+                    <input type="tel" class="phone '.$phone_required.'" id="signup_phone" name="signup_phone" value="'.((isset($posted['signup_phone'])) ? esc_attr($posted['signup_phone']) : '').'" '.esc_attr($phone_required).' />
                 </p>';
             }
         }
@@ -1471,7 +1471,7 @@ class PTA_SUS_Public {
         $form .= apply_filters( 'pta_sus_signup_form_after_details_field', '', $task, $date );
 
         // Spam check and form submission
-        $go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $_GET['sheet_id']);
+        $go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $task->sheet_id);
         $go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
         $form .= '
 			<div style="visibility:hidden"> 
@@ -1480,12 +1480,12 @@ class PTA_SUS_Public {
 	        <p class="submit">
 	            <input type="hidden" name="signup_date" value="'.esc_attr($date).'" />
                 <input type="hidden" name="allow_duplicates" value="'.$task->allow_duplicates.'" />
-	            <input type="hidden" name="signup_task_id" value="'.esc_attr($_GET['task_id']).'" />
+	            <input type="hidden" name="signup_task_id" value="'.esc_attr($task_id).'" />
 	        	<input type="hidden" name="pta_sus_form_mode" value="submitted" />
 	        	<input type="submit" name="Submit" class="button-primary" value="'.esc_attr( apply_filters( 'pta_sus_public_output', __('Sign me up!', 'pta_volunteer_sus'), 'signup_button_text' ) ).'" />
 	            <a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta_volunteer_sus'), 'go_back_to_signup_sheet_text' ) ).'</a>
 	        </p>
-            ' . wp_nonce_field('pta_sus_signup','pta_sus_signup_nonce') . '
+            ' . wp_nonce_field('pta_sus_signup','pta_sus_signup_nonce', true, false) . '
 		</form>
 		';
         $form .= '</div>';

@@ -22,9 +22,7 @@ $columns = apply_filters('pta_sus_admin_view_signups_columns', array(
 ), $sheet);
 $col_span = count($columns);
 $export_url = add_query_arg(array('pta-action' => 'export', 'sheet_id' => $sheet_id), $this->page_url);
-$export_transposed_url = add_query_arg(array('pta-action' => 'export_transposed', 'sheet_id' => $sheet_id), $this->page_url);
 $nonced_export_url = wp_nonce_url($export_url, 'pta-export');
-$nonced_export_transposed_url = wp_nonce_url($export_transposed_url, 'pta-export');
 if (!$tasks) {
 	echo '<p class="error">'.__('No sign-up sheet found.', 'pta_volunteer_sus').'</p>';
 	return;
@@ -93,4 +91,3 @@ if (!$tasks) {
 </table>
 <br/>
 <a href="<?php echo esc_url($nonced_export_url); ?>" class="button-primary"><?php _e('Export Sheet as CSV', 'pta_volunteer_sus'); ?></a>
-<a href="<?php echo esc_url($nonced_export_transposed_url); ?>" class="button-primary"><?php _e('Export Sheet as transposed simplified CSV', 'pta_volunteer_sus'); ?></a>
