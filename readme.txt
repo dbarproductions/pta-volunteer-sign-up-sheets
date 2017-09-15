@@ -122,6 +122,8 @@ YES. The groups extension plugin now supports BuddyPress Groups as well as the G
 *   Added option to use chair emails as the reply-to email address
 *   Added option to disable ALL emails (including reminders).
 *   Removed the "transposed simplified" csv export option, as it didn't always work right (3rd party contribution), and there is now the option to not show empty rows in regular csv exports
+*   Stripslashes from email subject and message templates before sending email
+*   More global/public accessible functions for generating html output (user signups, tasks list, signup form) and getting data from the plugin for use in other plugins
 
 **Version 2.1.0**
 

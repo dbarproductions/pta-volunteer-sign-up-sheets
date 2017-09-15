@@ -192,9 +192,9 @@ class PTA_Sign_Up_Sheet {
 	}
 	
 	/**
-	 * Get html table output of all tasks/items user has signed up for
+	 * Get html signup form for a specific task and date
 	 *
-	 * @return string table list of user signups
+	 * @return string html signup form
 	 */
 	public function get_signup_form($task_id, $date) {
 		if(!is_object($this->public)) {

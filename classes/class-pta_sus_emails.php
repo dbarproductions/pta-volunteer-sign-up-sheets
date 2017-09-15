@@ -89,8 +89,8 @@ class PTA_SUS_Emails {
         }
         
         // Allow extensions to modify subject and template
-	    $subject = apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear);
-	    $message = apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear);
+	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear));
+	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear));
 
         // Get Chair emails
 	    if (isset($sheet->position) && '' != $sheet->position) {
