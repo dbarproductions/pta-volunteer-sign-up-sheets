@@ -994,7 +994,7 @@ class PTA_SUS_Admin {
 			do_action( 'pta_sus_tasks_form_task_loop_start', $f, $i );
 			echo '
 				<li id="task-'.$i.'">
-				'.__('Task/Item:', 'pta_volunteer_sus').' <input type="text" name="task_title['.$i.']" id="task_title['.$i.']" value="'.((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')).'" size="20">&nbsp;&nbsp;';
+				'.__('Task/Item:', 'pta_volunteer_sus').' <input type="text" name="task_title['.$i.']" id="task_title['.$i.']" value="'.((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')).'" size="40">&nbsp;&nbsp;';
 			if ( "Multi-Day" == $f['sheet_type'] ) {
 				echo __('Date:','pta_volunteer_sus').' <input type="text" class="singlePicker" name="task_dates['.$i.']" id="singlePicker['.$i.']" value="'.((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')).'" size="10">&nbsp;&nbsp;';
 			}
@@ -1008,7 +1008,7 @@ class PTA_SUS_Admin {
 			do_action('pta_sus_task_form_task_loop_after_times', $f, $i);
 
 			if(!$no_signups) {
-				echo '&nbsp;&nbsp;'.__('Allow Duplicates? ', 'pta_volunteer_sus');
+				echo '<br/>'.__('Allow Duplicates? ', 'pta_volunteer_sus');
 				if (!isset($f['task_allow_duplicates'][$i])) {
 					$f['task_allow_duplicates'][$i] = "NO";
 				}

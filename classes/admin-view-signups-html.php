@@ -51,14 +51,14 @@ if (!$tasks) {
 		foreach ($tasks as $task):
 			$task_dates = explode(',', $task->dates);
 			if(!in_array($tdate, $task_dates)) continue;
-			$i=1;
+			$i=0;
 			$signups = $this->data->get_signups($task->id, $tdate);
 		?>
 			
 			<?php foreach ($signups AS $signup): ?>
 			<tr>
 				<?php foreach ($columns as $slug => $label): ?>
-				<td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i, $sheet, $task, $signup); ?></td>
+				<td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup); ?></td>
 				<?php endforeach; ?>
 				<?php
 					if ('YES' === $task->enable_quantities) {
@@ -71,9 +71,9 @@ if (!$tasks) {
 			<?php endforeach; ?>
 			
 			<?php if($i < $task->qty):
-			$remaining = $task->qty - $i + 1;
+			$remaining = $task->qty - $i;
 			// Maybe add title
-            $task_title = apply_filters('pta_sus_admin_signup_display_task_title', ($i === 1) ? esc_html($task->title) : '', $task);
+            $task_title = apply_filters('pta_sus_admin_signup_display_task_title', ($i === 0) ? esc_html($task->title) : '', $task);
             $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
 			$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? __("N/A", 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
 			$remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);

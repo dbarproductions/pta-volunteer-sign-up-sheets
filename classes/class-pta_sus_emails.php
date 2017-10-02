@@ -58,6 +58,7 @@ class PTA_SUS_Emails {
 	    }
 	    
         $signup = $this->data->get_signup($signup_id);
+	    if(!$signup) return false;
         $task = $this->data->get_task($signup->task_id);
         $sheet = $this->data->get_sheet($task->sheet_id);
 
