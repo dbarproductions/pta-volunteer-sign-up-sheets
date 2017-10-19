@@ -91,7 +91,15 @@ class PTA_SUS_Data
      * @param     bool     get only active sheets or those without a set date
      * @return    mixed    array of sheets
      */
-    public function get_sheets($trash=false, $active_only=false, $show_hidden=false) {
+    public function get_sheets($trash=false, $active_only=false, $show_hidden=false, $order_by='first_date', $order = 'ASC') {
+    	$order_by = sanitize_key($order_by);
+    	if(!in_array($order_by, array('first_date', 'last_date', 'title', 'id'))) {
+		    $order_by='first_date';
+	    }
+	    $order = sanitize_text_field(strtoupper($order));
+    	if(!in_array($order, array('ASC', 'DESC'))) {
+    		$order = 'ASC';
+	    }
         $SQL = "
             SELECT * 
             FROM ".$this->tables['sheet']['name']." 
@@ -104,7 +112,7 @@ class PTA_SUS_Data
             $SQL .= " AND visible = 1";
         }
         $SQL .= "
-            ORDER BY first_date DESC, id DESC
+            ORDER BY $order_by $order, id DESC
         ";
         $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash, $this->now));
         $results = $this->stripslashes_full($results);
@@ -205,7 +213,7 @@ class PTA_SUS_Data
     /**
      * Return # of signups that have matching sheet_id, start date/time and signup names
      */
-    public function check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname) {
+    public function check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname, $check_all = false) {
 
 	    if( '' === $task->time_start || '' === $task->time_end ) {
 		    // don't check if the task doesn't have both start and end time
@@ -218,8 +226,14 @@ class PTA_SUS_Data
 	        $task_end = strtotime('01-02-2015 '. $task->time_end);
         }
 
-	    // Gets all signup data by user name for sheet and signup date
-        $signups = $this->get_sheet_signups_by_user_name($firstname, $lastname, $sheet->id, $signup_date);
+	    if($check_all) {
+        	// Gets all user signups for all sheets
+		    $signups = $this->get_all_signups_by_user_name($firstname, $lastname, $signup_date);
+	    } else {
+		    // Gets all signup data by user name for sheet and signup date
+		    $signups = $this->get_sheet_signups_by_user_name($firstname, $lastname, $sheet->id, $signup_date);
+	    }
+     
 	    $duplicate = false;
 
 	    foreach($signups as $signup) {
@@ -644,6 +658,39 @@ class PTA_SUS_Data
 		}
 		$sql .= " ORDER BY signup_date, time_start";
 		$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id, $date);
+		$results = $this->wpdb->get_results($safe_sql);
+		$results = $this->stripslashes_full($results);
+		return $results;
+	}
+	
+	public function get_all_signups_by_user_name($firstname, $lastname, $date = false ) {
+		$signup_table = $this->tables['signup']['name'];
+		$task_table = $this->tables['task']['name'];
+		$sheet_table = $this->tables['sheet']['name'];
+		$sql = "SELECT
+			$signup_table.id AS id,
+            $signup_table.task_id AS task_id,
+            $signup_table.user_id AS user_id,
+            $signup_table.date AS signup_date,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+            $sheet_table.title AS title,
+            $sheet_table.clear AS clear,
+            $sheet_table.clear_days AS clear_days,
+            $task_table.dates AS task_dates
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+            WHERE $signup_table.firstname = %s AND $signup_table.lastname = %s
+            AND $sheet_table.trash = 0";
+		if($date) {
+			$sql .= "  AND $signup_table.date = %s";
+		}
+		$sql .= " ORDER BY signup_date, time_start";
+		$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $date);
 		$results = $this->wpdb->get_results($safe_sql);
 		$results = $this->stripslashes_full($results);
 		return $results;

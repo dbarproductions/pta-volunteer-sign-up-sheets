@@ -108,6 +108,7 @@ class PTA_SUS_Options {
         add_settings_field('readonly_signup', __('Read Only Signup?', 'pta_volunteer_sus'), array($this, 'readonly_signup_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_login_link', __('Show Login Link?', 'pta_volunteer_sus'), array($this, 'show_login_link_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('disable_signup_login_notice', __('Disable Login Notices?', 'pta_volunteer_sus'), array($this, 'disable_signup_login_notice_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('no_global_overlap', __('Prevent Global Overlapping Signups?', 'pta_volunteer_sus'), array($this, 'no_global_overlap_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_cron_notifications', __('Enable CRON Notifications?', 'pta_volunteer_sus'), array($this, 'enable_cron_notifications_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('detailed_reminder_admin_emails', __('Detailed Reminder Notifications?', 'pta_volunteer_sus'), array($this, 'detailed_reminder_admin_emails_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_expired_tasks', __('Show Expired Tasks?', 'pta_volunteer_sus'), array($this, 'show_expired_tasks_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -241,7 +242,8 @@ class PTA_SUS_Options {
             'disable_css' => 'bool',
             'show_full_name' => 'bool',
             'suppress_duplicates' => 'bool',
-            'show_remaining_slots_csv_export' => 'bool'
+            'show_remaining_slots_csv_export' => 'bool',
+            'no_global_overlap' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -630,6 +632,18 @@ class PTA_SUS_Options {
         <?php
         echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Turn off the notice strongly suggesting volunteers login before signing up for a volunteer slot (on signup form page) and the notice to login to view/edit signups on the main volunteer list page.', 'pta_volunteer_sus').'</em>';
     }
+
+	public function no_global_overlap_checkbox() {
+		if(isset($this->main_options['no_global_overlap']) && true === $this->main_options['no_global_overlap']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[no_global_overlap]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Checking this option will check ALL user signups, across ALL sheets, to see if the same user has already signed up for another task on the same date with overlapping times. If so, an error message will be shown and they will not be able to sign up. This is a global setting. If you only want to check for overlapping times on a single sheet, use the setting on that sheet. Checking this will ignore that per sheet setting and always check all signups for the user.', 'pta_volunteer_sus').'</em>';
+	}
 
     public function enable_cron_notifications_checkbox() {
         if(isset($this->main_options['enable_cron_notifications']) && true === $this->main_options['enable_cron_notifications']) {

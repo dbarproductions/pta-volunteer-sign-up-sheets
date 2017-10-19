@@ -46,6 +46,7 @@ class PTA_SUS_Public {
 	private $show_phone = false;
 	private $shortcode_id = false;
 	private $show_headers = true;
+	private $no_global_overlap = false;
     
     public function __construct() {
         $this->data = new PTA_SUS_Data();
@@ -70,6 +71,7 @@ class PTA_SUS_Public {
 	    $this->use_divs = isset($this->main_options['use_divs']) ? $this->main_options['use_divs'] : false;
 	    $this->show_full_name = isset($this->main_options['show_full_name']) ? $this->main_options['show_full_name'] : false;
 	    $this->suppress_duplicates = isset($this->main_options['suppress_duplicates']) ? $this->main_options['suppress_duplicates'] : true;
+	    $this->no_global_overlap = isset($this->main_options['no_global_overlap']) ? $this->main_options['no_global_overlap'] : false;
 
         
     } // Construct
@@ -245,6 +247,10 @@ class PTA_SUS_Public {
 		            }
 	            }
 	            if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
+		            $this->err++;
+		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta_volunteer_sus'), 'signup_duplicate_time_error_message' ).'</p>';
+	            }
+	            if ($this->no_global_overlap && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
 		            $this->err++;
 		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta_volunteer_sus'), 'signup_duplicate_time_error_message' ).'</p>';
 	            }
@@ -710,6 +716,8 @@ class PTA_SUS_Public {
             'show_time' => true,
             'show_phone' => false,
             'show_headers' => true,
+            'order_by' => 'first_date',
+            'order' => 'ASC',
             'list_title' => __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus'),
         ), $atts, 'pta_sign_up_sheet' ) );
 
@@ -727,6 +735,8 @@ class PTA_SUS_Public {
 	        $list_title = __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus');
         }
         $list_title = apply_filters( 'pta_sus_shortcode_list_title', $list_title );
+	    $order_by = apply_filters( 'pta_sus_shortcode_order_by', $order_by );
+	    $order = apply_filters( 'pta_sus_shortcode_order', $order );
         if ( $show_time === 'no') {
 	        $this->show_time = false;
         } else {
@@ -772,8 +782,7 @@ class PTA_SUS_Public {
             
             // Display all active
             $return .= '<h2 class="pta-sus-list-title">'.apply_filters( 'pta_sus_public_output', esc_html($list_title), 'sheet_list_title' ).'</h2>';
-            $sheets = $this->data->get_sheets(false, true, $this->show_hidden);
-            $sheets = array_reverse($sheets);
+            $sheets = $this->data->get_sheets(false, true, $this->show_hidden, $order_by, $order);
 
             // Move ongoing sheets to bottom of list if that setting is checked
             if ($this->main_options['show_ongoing_last']) {
