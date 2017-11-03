@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.8.2
+Tested up to: 4.8.3
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -113,6 +113,9 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.2.3**
+*   Updated database prepare queries to eliminate new WordPress notices in WP 4.8.3 when passing in a date value that may not be used in the SQL query.
+
 **Version 2.2.2**
 *   Added "Prevent Global Overlapping Signups" option to prevent users from signing up for tasks on the same date with overlapping times. As opposed to the per sheet option, this will check ALL user signups across ALL sheets and, when enabled, will always check for overlaps, regardless of the per sheet setting.
 *   Added order_by and order arguments to the shortcode for sorting the order of the main list of sheets. order_by can be set to "first_date", "last_date", "title", or "id". order can be either "ASC" or "DESC".

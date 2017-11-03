@@ -114,7 +114,12 @@ class PTA_SUS_Data
         $SQL .= "
             ORDER BY $order_by $order, id DESC
         ";
-        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash, $this->now));
+        if($active_only) {
+	        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash, $this->now));
+        } else {
+	        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash));
+        }
+        
         $results = $this->stripslashes_full($results);
         // Hide incomplete sheets (no tasks) from public
 
@@ -281,7 +286,12 @@ class PTA_SUS_Data
             $SQL .= "AND INSTR(`dates`, %s) > 0 ";
         }
         $SQL .= "ORDER BY position, id";
-        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id, $date));
+	    if ('' != $date ) {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id, $date));
+	    } else {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id));
+	    }
+        
         $results = $this->stripslashes_full($results);
         return $results;
     }
@@ -328,7 +338,12 @@ class PTA_SUS_Data
             $SQL .= "AND date = %s";
         }
         $SQL .= " ORDER by id";
-        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id, $date));
+	    if ('' != $date) {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id, $date));
+	    } else {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id));
+	    }
+        
         $results = $this->stripslashes_full($results);
         return $results;
     }
@@ -551,7 +566,12 @@ class PTA_SUS_Data
         if( '' != $date ) {
             $SQL .= " AND $signup_table.date = %s ";
         }
-        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $id, $this->now, $date));
+	    if( '' != $date ) {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $id, $this->now, $date));
+	    } else {
+		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $id, $this->now));
+	    }
+        
         $count = 0;
         foreach ($results as $result) {
             if ( 'YES' === $result->enable_quantities ) {
@@ -624,7 +644,11 @@ class PTA_SUS_Data
         	$sql .= " AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')";
         }
         $sql .= " ORDER BY signup_date, time_start";
-        $safe_sql = $this->wpdb->prepare($sql, $user_id, $this->now);
+	    if(!$show_expired) {
+		    $safe_sql = $this->wpdb->prepare($sql, $user_id, $this->now);
+	    } else {
+		    $safe_sql = $this->wpdb->prepare($sql, $user_id);
+	    }
         $results = $this->wpdb->get_results($safe_sql);
         $results = $this->stripslashes_full($results);
         return $results;
@@ -657,7 +681,11 @@ class PTA_SUS_Data
 			$sql .= "  AND $signup_table.date = %s";
 		}
 		$sql .= " ORDER BY signup_date, time_start";
-		$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id, $date);
+		if($date) {
+			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id, $date);
+		} else {
+			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id);
+		}
 		$results = $this->wpdb->get_results($safe_sql);
 		$results = $this->stripslashes_full($results);
 		return $results;
@@ -690,7 +718,12 @@ class PTA_SUS_Data
 			$sql .= "  AND $signup_table.date = %s";
 		}
 		$sql .= " ORDER BY signup_date, time_start";
-		$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $date);
+		if($date) {
+			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $date);
+		} else {
+			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname);
+		}
+		
 		$results = $this->wpdb->get_results($safe_sql);
 		$results = $this->stripslashes_full($results);
 		return $results;
