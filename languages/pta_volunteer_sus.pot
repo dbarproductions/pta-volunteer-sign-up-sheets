@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
-"POT-Creation-Date: 2017-10-12 21:29-0700\n"
+"POT-Creation-Date: 2017-12-07 12:37-0800\n"
 "PO-Revision-Date: 2016-02-09 19:42-0800\n"
 "Last-Translator: Stephen Sherrard <stephen@dbar-productions.com>\n"
 "Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
@@ -575,7 +575,7 @@ msgstr ""
 msgid "Select Event Type"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:837 classes/widget.php:140
+#: classes/class-pta_sus_admin.php:837 classes/widget.php:143
 msgid "Title:"
 msgstr ""
 
@@ -1498,6 +1498,7 @@ msgid ""
 msgstr ""
 
 #: classes/class-pta_sus_public.php:134 classes/list-table.php:184
+#: classes/widget.php:163
 msgid "Title"
 msgstr ""
 
@@ -1509,7 +1510,7 @@ msgstr ""
 msgid "End Date"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:137 classes/widget.php:117
+#: classes/class-pta_sus_public.php:137 classes/widget.php:120
 msgid "Open Spots"
 msgstr ""
 
@@ -1763,50 +1764,50 @@ msgstr ""
 msgid "&laquo; go back to the Sign-Up Sheet"
 msgstr ""
 
-#: classes/data.php:751
+#: classes/data.php:784
 msgctxt "contact name separating character"
 msgid ", "
 msgstr ""
 
-#: classes/data.php:753
+#: classes/data.php:786
 msgctxt "separator before last contact name"
 msgid " and "
 msgstr ""
 
-#: classes/data.php:1065
+#: classes/data.php:1098
 #, php-format
 msgid "%s is a required field."
 msgstr ""
 
-#: classes/data.php:1076
+#: classes/data.php:1109
 #, php-format
 msgid "Invalid characters in %s field."
 msgstr ""
 
-#: classes/data.php:1096
+#: classes/data.php:1129
 msgid "Invalid email."
 msgstr ""
 
-#: classes/data.php:1104 classes/data.php:1118
+#: classes/data.php:1137 classes/data.php:1151
 msgid "Invalid date."
 msgstr ""
 
-#: classes/data.php:1127
+#: classes/data.php:1160
 #, php-format
 msgid "Numbers only for %s please!"
 msgstr ""
 
-#: classes/data.php:1134
+#: classes/data.php:1167
 #, php-format
 msgid "YES or NO only for %s please!"
 msgstr ""
 
-#: classes/data.php:1141
+#: classes/data.php:1174
 #, php-format
 msgid "Invalid Value for %s"
 msgstr ""
 
-#: classes/data.php:1149
+#: classes/data.php:1182
 #, php-format
 msgid "Invalid time format for %s"
 msgstr ""
@@ -1851,11 +1852,11 @@ msgstr ""
 msgid "Event Type"
 msgstr ""
 
-#: classes/list-table.php:187
+#: classes/list-table.php:187 classes/widget.php:161
 msgid "First Date"
 msgstr ""
 
-#: classes/list-table.php:188
+#: classes/list-table.php:188 classes/widget.php:162
 msgid "Last Date"
 msgstr ""
 
@@ -1927,31 +1928,51 @@ msgstr ""
 msgid "PTA Volunteer Sign-up Sheet list Widget."
 msgstr ""
 
-#: classes/widget.php:136
+#: classes/widget.php:139
 msgid "Current Volunteer Opportunities"
 msgstr ""
 
-#: classes/widget.php:144
+#: classes/widget.php:147
 msgid "# of items to show (-1 for all):"
 msgstr ""
 
-#: classes/widget.php:148
+#: classes/widget.php:151
 msgid "What to show?"
 msgstr ""
 
-#: classes/widget.php:150
+#: classes/widget.php:153
 msgid "Both"
 msgstr ""
 
-#: classes/widget.php:151
+#: classes/widget.php:154
 msgid "Volunteer Events (with sign-ups)"
 msgstr ""
 
-#: classes/widget.php:152
+#: classes/widget.php:155
 msgid "No Sign-Up Events (display events only)"
 msgstr ""
 
-#: classes/widget.php:156
+#: classes/widget.php:159
+msgid "Sort By:"
+msgstr ""
+
+#: classes/widget.php:164
+msgid "Sheet ID"
+msgstr ""
+
+#: classes/widget.php:168
+msgid "Sort Order:"
+msgstr ""
+
+#: classes/widget.php:170
+msgid "Ascending"
+msgstr ""
+
+#: classes/widget.php:171
+msgid "Descending"
+msgstr ""
+
+#: classes/widget.php:175
 msgid "CSS Class for ul list of signups"
 msgstr ""
 

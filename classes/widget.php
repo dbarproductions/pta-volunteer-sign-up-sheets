@@ -45,10 +45,13 @@ class PTA_SUS_Widget extends WP_Widget
             $show_hidden = true;
             $hidden = '<br/><span style="color:red;"><strong>(--'.__('Hidden!', 'pta_volunteer_sus').'--)</strong></span>';
         }
+        
+        $sort_by = isset($instance['sort_by']) && in_array($instance['sort_by'], array('first_date', 'last_date', 'title', 'id')) ? $instance['sort_by'] : 'first_date';
+        $order = isset($instance['order']) && in_array($instance['order'], array('ASC', 'DESC')) ? $instance['order'] : 'ASC';
 
 		// Check if there are sheets first, if not, we won't show anything
-		$sheets = $this->data->get_sheets(false, true, $show_hidden);
-        $sheets = array_reverse($sheets);
+		$sheets = $this->data->get_sheets(false, true, $show_hidden, $sort_by, $order);
+        
         if (empty($sheets)) {
             return;
         }
@@ -133,7 +136,7 @@ class PTA_SUS_Widget extends WP_Widget
 	 */
 	public function form( $instance ) {
 		/* Set up default widget settings. */
-		$defaults = array( 'title' => __('Current Volunteer Opportunities', 'pta_volunteer_sus'), 'num_items' => 10, 'permalink' => 'volunteer-sign-ups', 'show_what' => 'both', 'list_class' => '');
+		$defaults = array( 'title' => __('Current Volunteer Opportunities', 'pta_volunteer_sus'), 'num_items' => 10, 'permalink' => 'volunteer-sign-ups', 'show_what' => 'both', 'sort_by' => 'first_date', 'order' => 'ASC', 'list_class' => '');
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		?>
 		<p>
@@ -152,6 +155,22 @@ class PTA_SUS_Widget extends WP_Widget
 				<option value="events" <?php selected($instance['show_what'], 'events' ); ?>><?php _e( 'No Sign-Up Events (display events only)', 'pta_volunteer_sus' ); ?></option>
 			</select>
 		</p>
+        <p>
+            <label for="<?php echo $this->get_field_name( 'sort_by' ); ?>"><?php _e( 'Sort By:', 'pta_volunteer_sus' ); ?></label>
+            <select class="widefat" id="<?php echo $this->get_field_id( 'sort_by' ); ?>" name="<?php echo $this->get_field_name( 'sort_by' ); ?>">
+                <option value="first_date" <?php selected($instance['sort_by'], 'first_date' ); ?>><?php _e( 'First Date', 'pta_volunteer_sus' ); ?></option>
+                <option value="last_date" <?php selected($instance['sort_by'], 'last_date' ); ?>><?php _e( 'Last Date', 'pta_volunteer_sus' ); ?></option>
+                <option value="title" <?php selected($instance['sort_by'], 'title' ); ?>><?php _e( 'Title', 'pta_volunteer_sus' ); ?></option>
+                <option value="id" <?php selected($instance['sort_by'], 'id' ); ?>><?php _e( 'Sheet ID', 'pta_volunteer_sus' ); ?></option>
+            </select>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_name( 'order' ); ?>"><?php _e( 'Sort Order:', 'pta_volunteer_sus' ); ?></label>
+            <select class="widefat" id="<?php echo $this->get_field_id( 'order' ); ?>" name="<?php echo $this->get_field_name( 'order' ); ?>">
+                <option value="ASC" <?php selected($instance['order'], 'ASC' ); ?>><?php _e( 'Ascending', 'pta_volunteer_sus' ); ?></option>
+                <option value="DESC" <?php selected($instance['order'], 'DESC' ); ?>><?php _e( 'Descending', 'pta_volunteer_sus' ); ?></option>
+            </select>
+        </p>
 		<p>
 		<label for="<?php echo $this->get_field_name( 'list_class' ); ?>"><?php _e( 'CSS Class for ul list of signups', 'pta_volunteer_sus' ); ?></label> 
 		<input class="widefat" id="<?php echo $this->get_field_id( 'list_class' ); ?>" name="<?php echo $this->get_field_name( 'list_class' ); ?>" type="text" value="<?php echo esc_attr( $instance['list_class'] ); ?>" />
@@ -175,6 +194,8 @@ class PTA_SUS_Widget extends WP_Widget
 		$instance['num_items'] = ( !empty( $new_instance['num_items'] ) ) ? (int)strip_tags( $new_instance['num_items'] ) : '';
 		$instance['list_class'] = ( !empty( $new_instance['list_class'] ) ) ? strip_tags( $new_instance['list_class'] ) : '';
 		$instance['show_what'] = ( !empty( $new_instance['show_what'] ) ) ? sanitize_key( $new_instance['show_what'] ) : 'both';
+		$instance['sort_by'] = ( !empty( $new_instance['sort_by'] ) && in_array($new_instance['sort_by'], array('first_date', 'last_date', 'title', 'id')) ) ?$new_instance['sort_by'] : 'first_date';
+		$instance['order'] = ( !empty( $new_instance['order'] ) && in_array($new_instance['order'], array('ASC', 'DESC')) ) ? $new_instance['order'] : 'ASC';
 		return $instance;
 	}
 
