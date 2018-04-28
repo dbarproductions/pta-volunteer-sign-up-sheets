@@ -109,15 +109,16 @@ class PTA_SUS_Emails {
 	    }
 	    
 	    // If global CC is set, and it's a valid email, add to cc_emails
-	    if( isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email'] ) ) {
-	    	// other plugins can modify CC address, or set it blank to disable
-	    	$cc = apply_filters('pta_sus_email_ccmail', $this->email_options['cc_email'], $signup, $task, $sheet, $reminder, $clear);
-	    	if(!empty($cc) && is_email($cc)) {
-			    if(empty($cc_emails)) {
-				    $cc_emails = array($cc);
-			    } else {
-				    $cc_emails[] = $cc;
-			    }
+	    $global_cc = isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email']) ? $this->email_options['cc_email'] : '';
+	    
+	    // other plugins can modify CC address, or set it blank to disable
+	    $cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear);
+	    	
+        if(!empty($cc) && is_email($cc)) {
+		    if(empty($cc_emails)) {
+			    $cc_emails = array($cc);
+		    } else {
+			    $cc_emails[] = $cc;
 		    }
 	    }
 	    

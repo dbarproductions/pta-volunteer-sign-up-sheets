@@ -445,7 +445,7 @@ class PTA_SUS_Data
         INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
         WHERE $signup_table.id = %d AND $sheet_table.trash = 0
         ORDER BY signup_date, time_start
-        ", $signup_id, $this->now);
+        ", $signup_id);
 		$results = $this->wpdb->get_results($safe_sql);
 		if(!empty($results) && isset($results[0])) {
 			$result = $this->stripslashes_full($results[0]);

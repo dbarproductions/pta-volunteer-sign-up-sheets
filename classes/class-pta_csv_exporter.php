@@ -71,6 +71,8 @@ class PTA_SUS_CSV_EXPORTER {
 		if ( !$sheet ) {
 			wp_die( __( 'Invalid sheet id!' ) );
 		}
+		
+		$show_all_dates = isset($this->main_options['show_dates_csv_export']) && true == $this->main_options['show_dates_csv_export'];
 
 		header("Content-type: text/csv");
 		header("Content-Disposition: attachment; filename=report-".date('Ymd-His').".csv");
@@ -108,13 +110,18 @@ class PTA_SUS_CSV_EXPORTER {
 				$i=1;
 				$signups = $data->get_signups($task->id, $tdate);
 				foreach ($signups AS $signup) {
-					// to make sure the same date is only shown once in CSV
-					if ($tdate==$old_tdate) {
-						$export_tdate="";
+					if($show_all_dates) {
+						$export_tdate = $tdate;
 					} else {
-						$export_tdate=$tdate;
-						$old_tdate=$tdate;
+						// to make sure the same date is only shown once in CSV
+						if ($tdate==$old_tdate) {
+							$export_tdate="";
+						} else {
+							$export_tdate=$tdate;
+							$old_tdate=$tdate;
+						}
 					}
+					
 					if ('YES' === $task->enable_quantities) {
 						$i += $signup->item_qty;
 					} else {
@@ -137,12 +144,16 @@ class PTA_SUS_CSV_EXPORTER {
 				if(isset($this->main_options['show_remaining_slots_csv_export']) && true == $this->main_options['show_remaining_slots_csv_export']) {
 					// Remaining empty spots
 					for ($i=$i; $i<=$task->qty; $i++) {
-						// to make sure the same date is only shown once in CSV
-						if ($tdate==$old_tdate) {
-							$export_tdate="";
+						if($show_all_dates) {
+							$export_tdate = $tdate;
 						} else {
-							$export_tdate=$tdate;
-							$old_tdate=$tdate;
+							// to make sure the same date is only shown once in CSV
+							if ($tdate==$old_tdate) {
+								$export_tdate="";
+							} else {
+								$export_tdate=$tdate;
+								$old_tdate=$tdate;
+							}
 						}
 						// Save empty signup row in report
 						$line = array(

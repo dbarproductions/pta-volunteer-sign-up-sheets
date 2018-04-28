@@ -373,6 +373,8 @@ class PTA_SUS_Public {
 			    $open_spots = 1;
 			    $view_signup_text = apply_filters( 'pta_sus_public_output', __('View Event &raquo;', 'pta_volunteer_sus'), 'view_event_link_text' );
 		    }
+		
+		    $view_signup_text = apply_filters( 'pta_sus_view_signup_text_for_sheet', $view_signup_text, $sheet );
 			
 		    if($this->use_divs) {
 			    $return .= '
