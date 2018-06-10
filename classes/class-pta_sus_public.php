@@ -60,6 +60,7 @@ class PTA_SUS_Public {
 	    $this->integration_options = get_option( 'pta_volunteer_sus_integration_options' );
 
         add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
+	    add_shortcode('pta_user_signups', array($this, 'process_user_signups_shortcode'));
         
         add_action('wp_enqueue_scripts', array($this, 'add_css_and_js_to_frontend'));
 
@@ -681,6 +682,14 @@ class PTA_SUS_Public {
 		    $return .= apply_filters( 'pta_sus_after_user_signups_list_table', '' );
 		    return $return;
 	    }
+    }
+
+    public function process_user_signups_shortcode() {
+    	$return = $this->get_user_signups_list();
+    	if(empty($return)) {
+    		$return = __('You do not have any current signups', 'pta_volunteer_sus');
+	    }
+	    return $return;
     }
 
 	/**

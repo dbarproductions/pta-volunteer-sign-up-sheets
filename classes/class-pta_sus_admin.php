@@ -67,7 +67,6 @@ class PTA_SUS_Admin {
 		wp_localize_script('pta-sus-backend', 'PTA_Backend_js', $translation_array);
 	}
 
-
 	public function admin_reminders_page() {
 		$messages = '';
 		$cleared_message = '';

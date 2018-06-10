@@ -611,6 +611,119 @@ class PTA_SUS_Data
         return $total_spots;
     }
 
+    public function get_gdpr_user_export_items($email) {
+    	$export_items = array();
+	    $user = get_user_by( 'email', $email );
+	    $user_id = false;
+	    if ( $user && $user->ID ) {
+	    	$user_id = $user->ID;
+	    }
+
+	    // Core group IDs include 'comments', 'posts', etc.
+	    // But you can add your own group IDs as needed
+	    $group_id = 'user-volunteer-signups';
+	    // Optional group label. Core provides these for core groups.
+	    // If you define your own group, the first exporter to
+	    // include a label will be used as the group label in the
+	    // final exported report
+	    $group_label = __( 'User Volunteer Signup Data', 'pta_volunteer_sus' );
+
+	    $signup_table = $this->tables['signup']['name'];
+	    $task_table = $this->tables['task']['name'];
+	    $sheet_table = $this->tables['sheet']['name'];
+	    $sql = "SELECT
+            $signup_table.id AS id,
+            $signup_table.date AS signup_date,
+            $signup_table.firstname AS firstname,
+            $signup_table.lastname AS lastname,
+            $signup_table.email AS email,
+            $signup_table.phone AS phone,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+            $sheet_table.title AS title 
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id";
+	    if($user_id > 0) {
+	    	$sql .= " WHERE ($signup_table.email = %s OR $signup_table.user_id = %d) AND $sheet_table.trash = 0";
+	    } else {
+		    $sql .= " WHERE $signup_table.email = %s AND $sheet_table.trash = 0";
+	    }
+
+	    $sql .= " ORDER BY signup_date, time_start";
+	    if($user_id > 0) {
+		    $safe_sql = $this->wpdb->prepare($sql, $email, $user_id);
+	    } else {
+		    $safe_sql = $this->wpdb->prepare($sql, $email);
+	    }
+
+	    $results = $this->wpdb->get_results($safe_sql);
+	    if(!empty($results)) {
+		    $results = $this->stripslashes_full($results);
+		    foreach ($results as $signup) {
+			    // Most item IDs should look like postType-postID
+			    // If you don't have a post, comment or other ID to work with,
+			    // use a unique value to avoid having this item's export
+			    // combined in the final report with other items of the same id
+			    $item_id = "pta-volunteer-signup-sheets-{$signup->id}";
+			    $data = array();
+			    $value = esc_html($signup->title. ' - ' . $signup->task_title);
+			    if('0000-00-00' != $signup->signup_date) {
+			    	$value .= ' - '. date_i18n(get_option("date_format"), strtotime($signup->signup_date));
+			    }
+			    if(!empty($signup->item)) {
+			    	$value .= ' - ' . esc_html($signup->item);
+			    }
+			    $data[] = array(
+			    	'name' => __('Signup Item', 'pta_volunteer_sus' ),
+				    'value' => $value
+			    );
+			    $data[] = array(
+				    'name' => __('Signup Name', 'pta_volunteer_sus' ),
+				    'value' => esc_html($signup->firstname . ' ' .$signup->lastname)
+			    );
+			    $data[] = array(
+				    'name' => __('Signup Email', 'pta_volunteer_sus' ),
+				    'value' => esc_html($signup->email)
+			    );
+			    $data[] = array(
+				    'name' => __('Signup Phone', 'pta_volunteer_sus' ),
+				    'value' => esc_html($signup->phone)
+			    );
+			    // Add this group of items to the exporters data array.
+			    $export_items[] = array(
+				    'group_id'    => $group_id,
+				    'group_label' => $group_label,
+				    'item_id'     => $item_id,
+				    'data'        => $data,
+			    );
+		    }
+	    }
+
+	    return $export_items;
+    }
+
+    public function gdpr_delete_user_data($email) {
+    	$user_id = false;
+	    $user = get_user_by( 'email', $email );
+	    if($user && $user->ID) {
+	    	$user_id = $user->ID;
+	    }
+	    $signup_table = $this->tables['signup']['name'];
+	    $where = array();
+	    $where_format = array();
+	    $where['email'] = $email;
+	    $where_format[] = '%s';
+	    if($user_id > 0) {
+	    	$where['user_id'] = $user_id;
+	    	$where_format[] = '%d';
+	    }
+    	return $this->wpdb->delete($signup_table, $where, $where_format);
+    }
+
     /**
      * Get all the signups for a given user id
      * Return info on what they signed up for

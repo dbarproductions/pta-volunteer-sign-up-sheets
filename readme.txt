@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.9.5
+Tested up to: 4.9.6
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -113,6 +113,10 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
 == Changelog ==
+**Version 2.4.0**
+*   Added GDPR functions to hook in with new WordPress 4.9.6 GDPR functions. Signup data included in personal data exporter, and also for personal data eraser.
+*   Added [pta_user_signups] shortcode to display list of user signups on any page.
+
 **Version 2.3.1**
 *   Option to show date on every line of CSV export of sheets
 *   Minor fix in SQL query to prevent PHP notices for extra unused query argument

@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 2.3.1
+Version: 2.4.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.3.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.4.0');
 
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
@@ -592,6 +592,100 @@ function pta_vol_sus_plugin_action_links( $links, $file ) {
     $settings_link = '<a href="' . admin_url( 'admin.php?page=pta-sus-settings_settings' ) . '">' . __( 'Settings', 'pta_volunteer_sus' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
+}
+
+/**
+ * Register exporter for Plugin user data.
+ *
+ * @see https://github.com/allendav/wp-privacy-requests/blob/master/EXPORT.md
+ *
+ * @param $exporters
+ *
+ * @return array
+ */
+function pta_sus_register_exporters( $exporters ) {
+	$exporters[] = array(
+		'exporter_friendly_name' => __( 'Volunteer Sign Up Data', 'pta_volunteer_sus' ),
+		'callback'               => 'pta_sus_user_data_exporter',
+	);
+	return $exporters;
+}
+add_filter( 'wp_privacy_personal_data_exporters', 'pta_sus_register_exporters');
+
+/**
+ * Exporter for Plugin user data.
+ *
+ * @see https://github.com/allendav/wp-privacy-requests/blob/master/EXPORT.md
+ *
+ * @param     $email_address
+ * @param int $page
+ *
+ * @return array
+ */
+function pta_sus_user_data_exporter($email_address, $page = 1) {
+	global $pta_sus;
+	$export_items = $pta_sus->data->get_gdpr_user_export_items($email_address);
+
+	// Returns an array of exported items for this pass, but also a boolean whether this exporter is finished.
+	//If not it will be called again with $page increased by 1.
+	return array(
+		'data' => $export_items,
+		'done' => true,
+	);
+}
+
+/**
+ * Register eraser for Plugin user data.
+ *
+ * @param array $erasers
+ *
+ * @return array
+ */
+function pta_sus_plugin_register_erasers( $erasers = array() ) {
+	$erasers[] = array(
+		'eraser_friendly_name' => __( 'Volunteer Sign Up Data', 'pta_volunteer_sus' ),
+		'callback'               => 'pta_sus_user_data_eraser',
+	);
+	return $erasers;
+}
+add_filter( 'wp_privacy_personal_data_erasers', 'pta_sus_plugin_register_erasers' );
+
+/**
+ * Eraser for Plugin user data.
+ *
+ * @param     $email_address
+ * @param int $page
+ *
+ * @return array
+ */
+function pta_sus_user_data_eraser( $email_address, $page = 1 ) {
+	if ( empty( $email_address ) ) {
+		return array(
+			'items_removed'  => false,
+			'items_retained' => false,
+			'messages'       => array(),
+			'done'           => true,
+		);
+	}
+	$messages = array();
+	$items_removed  = false;
+	$items_retained = false;
+	global $pta_sus;
+	$results = $pta_sus->data->gdpr_delete_user_data($email_address);
+	if ( false === $results ) {
+		$messages[] = __( 'Your Volunteer Sign Up Info was unable to be removed at this time.');
+		$items_retained = true;
+	} else {
+		$items_removed = true;
+	}
+	// Returns an array of exported items for this pass, but also a boolean whether this exporter is finished.
+	//If not it will be called again with $page increased by 1.
+	return array(
+		'items_removed'  => $items_removed,
+		'items_retained' => $items_retained,
+		'messages'       => $messages,
+		'done'           => true,
+	);
 }
 
 /* EOF */
