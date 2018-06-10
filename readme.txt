@@ -35,7 +35,7 @@ In the settings, you can choose to require that users be logged in to view and/o
 
 There is also a hidden spambot field to prevent signup form submission from spambots.
 
-If a user is logged in when they sign up, the system will keep track of the user ID, and on the main volunteer sign-ups page, they will also see a list of items/tasks that they have signed up for, and it will give them a link to clear each sign up if they need to cancel or reschedule. If they are not logged in when they sign up, but they use the same email as a registered user, that sign-up will be linked to that user's account.
+If a user is logged in when they sign up, the system will keep track of the user ID, and on the main volunteer sign-ups page, they will also see a list of items/tasks that they have signed up for, and it will give them a link to clear each sign up if they need to cancel or reschedule. If they are not logged in when they sign up, but they use the same email as a registered user, that sign-up will be linked to that user's account. In version 2.4 you can use the new shortcode [pta_user_signups] to also show the list of the current user's signups on any page (along with clear links, if allowed).
 
 Admin users can use the "live search" option on the front end sign up form to search for volunteers in either the plugin's signups table, the WordPress users table, or both. If the admin then selects a volunteer, they can sign up that volunteer, and the signup will be assigned to that user's account (if your volunteers have user accounts).
 
@@ -53,6 +53,8 @@ Simple to use custom email templates for sign-up confirmations and reminders.
 
 **Features:**
 
+*   Version 2.4 adds a new shortcode [pta_user_signups] that will allow you to show a list of the current logged in user's signups on any page (with clear links, if allowed). There are no arguments for this new shortcode.
+*   Version 2.4 also integrates with the GDPR privacy functions of WordPress 4.9.6. Exported personal data from WordPress will include any signups for the specified email or user ID associated with that email. If the user requests their data be deleted, that same user signup data will be deleted along with all other WordPress data for that user.
 *   Version 2 adds many new features, as well as an option to output lists as divs instead of tables (for easier custom styling and mobile responsive design). See the changelog or the documentation for all the changes.
 *   Version 2 also begins re-factoring of parts of the code to make it even easier to extend or modify functionality
 *   Version 1.12.3 now supports the calendar display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/
@@ -112,10 +114,20 @@ https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar
 
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 
+**Is this plugin GDPR compliant?**
+
+Maybe? That all depends on you and what else you have done with your site!
+
+Version 2.4 of the plugin integrates with the GDPR features of WordPress 4.9.6. Meaning, if someone requests an export of their personal data, any signup data associated with that person's provided email (along with any user ID associated with that email) will be included in the personal data export that you generate from WordPress admin. Similarly, if a person requests that their info be deleted, then any signups associated with the provided email (or a user ID associated with that email) will also be deleted and those signup slots will become available again.
+
+This alone will not make your site GDPR compliant. You will need to study up on GDPR and take all the necessary actions for your site to make sure you are in compliance. If you have people using the signup sheets in countries covered by the GDPR, then somewhere on your site, you should be letting them know what information you are collecting when they signup for something, based on what fields you have activated for signups in this plugin. You may also want to set this plugin so that only registered users can signup for events, and then you can present your privacy policy and some sort of agreement check box for them when they are registering for your site.
+
+If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
+
 == Changelog ==
 **Version 2.4.0**
 *   Added GDPR functions to hook in with new WordPress 4.9.6 GDPR functions. Signup data included in personal data exporter, and also for personal data eraser.
-*   Added [pta_user_signups] shortcode to display list of user signups on any page.
+*   Added [pta_user_signups] shortcode to display list of user signups (with clear links, if allowed) on any page.
 
 **Version 2.3.1**
 *   Option to show date on every line of CSV export of sheets
