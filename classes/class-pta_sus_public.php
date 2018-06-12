@@ -684,7 +684,15 @@ class PTA_SUS_Public {
 	    }
     }
 
-    public function process_user_signups_shortcode() {
+    public function process_user_signups_shortcode($atts) {
+	    extract( shortcode_atts( array(
+		    'show_time' => true,
+	    ), $atts, 'pta_user_signups' ) );
+	    if ( $show_time === 'no') {
+		    $this->show_time = false;
+	    } else {
+		    $this->show_time = true;
+	    }
     	$return = $this->get_user_signups_list();
     	if(empty($return)) {
     		$return = __('You do not have any current signups', 'pta_volunteer_sus');

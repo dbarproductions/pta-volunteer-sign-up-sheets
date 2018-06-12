@@ -125,6 +125,9 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 2.4.1**
+*   Fix to show start and end time columns on the user signups list displayed by the new [pta_user_signups] shortcode. Times will now be displayed by default. As with the main shortcode, you can now set a show_time argument to "no" to hide the start and end time columns.
+
 **Version 2.4.0**
 *   Added GDPR functions to hook in with new WordPress 4.9.6 GDPR functions. Signup data included in personal data exporter, and also for personal data eraser.
 *   Added [pta_user_signups] shortcode to display list of user signups (with clear links, if allowed) on any page.
