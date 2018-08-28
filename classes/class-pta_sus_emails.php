@@ -182,10 +182,10 @@ class PTA_SUS_Emails {
         // Replace any template tags with the appropriate variables
 	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{date}','{start_time}',
 		    '{end_time}','{item_details}','{item_qty}','{details_text}','{firstname}','{lastname}',
-		    '{contact_emails}','{contact_names}','{site_name}','{site_url}','{phone}');
+		    '{contact_emails}','{contact_names}','{site_name}','{site_url}','{phone}', '{email}');
 
 	    $replace = array($sheet->title, $sheet_details, $task->title, $date, $start_time, $end_time, $item, $signup->item_qty,
-		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone );
+		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone, $signup->email );
 	    
 	    // Allow extension to modify/add to search and replace arrays
 	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear);
@@ -204,7 +204,7 @@ class PTA_SUS_Emails {
         $send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear );
 
         if($send_email && !empty($subject) && !empty($message)) {
-        	if($this->email_options['individual_emails'] && !empty($cc_emails)) {
+        	if($this->email_options['individual_emails'] && !empty($cc_emails) && !$reminder) {
         		// Send out first email to the original TO address, set errors to result (bool)
 				$sent = wp_mail($to, $subject, $message, $headers);
 		        // loop through all chair_emails and send individually

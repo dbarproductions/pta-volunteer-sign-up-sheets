@@ -117,6 +117,7 @@ class PTA_SUS_Options {
 	    add_settings_field('show_dates_csv_export', __('Show date on every line of sheet CSV exports?', 'pta_volunteer_sus'), array($this, 'show_dates_csv_export_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_signup_search', __('Enable Sign-up form live search?', 'pta_volunteer_sus'), array($this, 'enable_signup_search_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_search_tables', __('Live Search Tables', 'pta_volunteer_sus'), array($this, 'signup_search_tables_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('admin_only_settings', __('Admin Only Settings Access?', 'pta_volunteer_sus'), array($this, 'admin_only_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta_volunteer_sus'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
@@ -245,7 +246,8 @@ class PTA_SUS_Options {
             'suppress_duplicates' => 'bool',
             'show_remaining_slots_csv_export' => 'bool',
             'show_dates_csv_export' => 'bool',
-            'no_global_overlap' => 'bool'
+            'no_global_overlap' => 'bool',
+		    'admin_only_settings' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -788,7 +790,7 @@ class PTA_SUS_Options {
 		?>
         <input name="pta_volunteer_sus_email_options[no_chair_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
-		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up, reminders, and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
 	}
 	
 	public function disable_emails_checkbox() {
@@ -828,12 +830,25 @@ class PTA_SUS_Options {
 		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, the plugin will suppress duplicated signup forms and messages when you are using multiple shortcodes on the same page without using the redirect option (redirecting to a page with only one shortcode for signup). If you have a theme or plugin that is triggering shortcode functions more than once on a page, causing a blank page, or if you never use more than one shortcode on a page without redirecting, you can un-check this option.', 'pta_volunteer_sus' ) . '</em>';
 	}
 
+	public function admin_only_settings_checkbox() {
+		if ( isset( $this->main_options['admin_only_settings'] ) && true === $this->main_options['admin_only_settings'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[admin_only_settings]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to only allow Admin to access the Settings and CRON Functions pages for this plugin.', 'pta_volunteer_sus' ) . '</em>';
+	}
+
     public function confirmation_email_template_textarea_input() {
         echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";
         echo esc_textarea( $this->email_options['confirmation_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function reminder_email_template_textarea_input() {
@@ -841,7 +856,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['reminder_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 	
 	public function reminder2_email_template_textarea_input() {
@@ -849,7 +864,7 @@ class PTA_SUS_Options {
 		echo esc_textarea( $this->email_options['reminder2_email_template'] );
 		echo '</textarea>';
 		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta_volunteer_sus');
-		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
+		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
 	}
 
     public function clear_email_template_textarea_input() {
@@ -857,7 +872,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['clear_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
 } // End Class

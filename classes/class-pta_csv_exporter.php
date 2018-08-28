@@ -33,7 +33,7 @@ class PTA_SUS_CSV_EXPORTER {
 	 */
 	public function export_csv() {
 		$export = isset($_REQUEST['pta-action']) ? $_REQUEST['pta-action'] : '';
-		if ( in_array($export, array('export', 'export_transposed','export_all')) ) {
+		if ( in_array($export, array('export', 'export_all')) ) {
 			check_admin_referer('pta-export');
 			if (!current_user_can('manage_options') && !current_user_can('manage_pta') && !current_user_can('manage_signup_sheets'))  {
 				wp_die( __( 'You do not have sufficient permissions to access this page.' ) );

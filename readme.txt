@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.9.6
+Tested up to: 4.9.8
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -125,6 +125,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 2.4.2**
+*   Fix to allow Sign Up Sheet managers to save plugin settings (previously they could see the page but would get a permissions level error if tried to save the settings).
+*   New option to only allow admin level users to view Settings and CRON Functions pages. This way you can allow Signup Sheet Mangers to create/edit sheets, but keep them away from the settings and cron functions.
+*   Added {email} template tag for all emails, which will show the volunteer's email they signed up with (different from the {contact_emails} template tag).
+*   Code fix to prevent reminder emails from also getting sent to chairs/contacts when you set the emails to be sent individually (instead of CC/BCC).
+
 **Version 2.4.1**
 *   Fix to show start and end time columns on the user signups list displayed by the new [pta_user_signups] shortcode. Times will now be displayed by default. As with the main shortcode, you can now set a show_time argument to "no" to hide the start and end time columns.
 

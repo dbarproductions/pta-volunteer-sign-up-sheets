@@ -16,6 +16,7 @@ class PTA_SUS_Admin {
 	public $main_options;
 	public $email_options;
 	public $table;
+	private $show_settings;
 
 	public function __construct() {
 		global $plugin_page, $pta_sus_sheet_page_suffix;
@@ -28,13 +29,17 @@ class PTA_SUS_Admin {
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 
+		$this->show_settings = (current_user_can('manage_options') || !isset($this->main_options['admin_only_settings']) || false == $this->main_options['admin_only_settings']);
+
 		add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'), null, 93);
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 		$pta_sus_sheet_page_suffix = add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta_volunteer_sus'), __('Add New', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 		add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta_volunteer_sus'), __('Email Volunteers', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
-		add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta_volunteer_sus'), __('Settings', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
-		add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta_volunteer_sus'), __('CRON Functions', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
-		add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta_volunteer_sus'), __('Add Ons', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
+		if($this->show_settings) {
+			add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta_volunteer_sus'), __('Settings', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
+			add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta_volunteer_sus'), __('CRON Functions', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
+			add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta_volunteer_sus'), __('Add Ons', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
+		}
 
 		if (is_plugin_active( 'pta-member-directory/pta-member-directory.php' )) {
 			$this->member_directory_active = true;
@@ -43,6 +48,16 @@ class PTA_SUS_Admin {
 		}
 
 		add_action('admin_print_scripts-' . $pta_sus_sheet_page_suffix, array($this, 'add_sheet_admin_scripts') );
+
+		if($this->show_settings) {
+			add_filter( 'option_page_capability_pta_volunteer_sus_main_options', array($this,'pta_settings_permissions'), 10, 1 );
+		}
+
+
+	}
+
+	public function pta_settings_permissions( $capability ) {
+		return 'manage_signup_sheets';
 	}
 
 	/**
