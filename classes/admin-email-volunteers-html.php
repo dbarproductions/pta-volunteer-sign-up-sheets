@@ -12,8 +12,8 @@ $name = $user->user_firstname . ' ' . $user->user_lastname;
 $selected = isset($_POST['sheet_select']) ? absint($_POST['sheet_select']) : 0;
 $from_name = isset($_POST['from_name']) ? sanitize_text_field($_POST['from_name']) : $name;
 $reply = isset($_POST['reply_to']) ? sanitize_text_field($_POST['reply_to']) : $user->user_email;
-$subject = isset($_POST['subject']) ? sanitize_text_field($_POST['subject']) : '';
-$mail_message = isset($_POST['message']) ? wp_kses_post($_POST['message']) : '';
+$subject = isset($_POST['subject']) ? stripslashes(sanitize_text_field($_POST['subject'])) : '';
+$mail_message = isset($_POST['message']) ? stripslashes(sanitize_textarea_field($_POST['message'])) : '';
 $checked = isset($_POST['individually']) ? absint($_POST['individually']) : 0;
 ?>
 <div class="wrap pta_sus">

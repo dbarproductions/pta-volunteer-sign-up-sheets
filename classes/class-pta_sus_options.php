@@ -790,7 +790,7 @@ class PTA_SUS_Options {
 		?>
         <input name="pta_volunteer_sus_email_options[no_chair_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
-		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up, reminders, and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
+		echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('If checked, sign-up and clear emails will NOT get copied to chairs/contacts.', 'pta_volunteer_sus').'</em>';
 	}
 	
 	public function disable_emails_checkbox() {

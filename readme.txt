@@ -125,6 +125,9 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 2.4.2.1**
+*   Small fix to strip slashes from sanitized subject and message body of the Email Volunteers form before sending.
+
 **Version 2.4.2**
 *   Fix to allow Sign Up Sheet managers to save plugin settings (previously they could see the page but would get a permissions level error if tried to save the settings).
 *   New option to only allow admin level users to view Settings and CRON Functions pages. This way you can allow Signup Sheet Mangers to create/edit sheets, but keep them away from the settings and cron functions.

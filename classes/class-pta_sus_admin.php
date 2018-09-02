@@ -1145,13 +1145,13 @@ class PTA_SUS_Admin {
 			$messages .= '<div class="error"><p><strong>'.__('Please enter a valid reply to email, or leave blank for none.', 'pta_volunteer_sus').'</strong></p></div>';
 		}
 		if(isset($_POST['subject']) && '' !== sanitize_text_field($_POST['subject'])) {
-			$subject = sanitize_text_field($_POST['subject']);
+			$subject = stripslashes(sanitize_text_field($_POST['subject']));
 		} else {
 			$errors++;
 			$messages .= '<div class="error"><p><strong>'.__('Please enter a subject', 'pta_volunteer_sus').'</strong></p></div>';
 		}
 		if(isset($_POST['message']) && '' !== wp_kses_post(trim($_POST['message']))) {
-			$message = wp_kses_post($_POST['message']);
+			$message = stripslashes(sanitize_textarea_field($_POST['message']));
 		} else {
 			$errors++;
 			$messages .= '<div class="error"><p><strong>'.__('Please enter a message', 'pta_volunteer_sus').'</strong></p></div>';
