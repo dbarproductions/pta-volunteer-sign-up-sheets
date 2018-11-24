@@ -125,6 +125,9 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 2.4.2.3**
+**  Fixed typo in the filter hook for the item quantity error message that would cause a fatal error when that error should be shown and when used with another plugin (such as the Customizer or Calendar Display) that was tapping into that filter hook to modify the text.
+
 **Version 2.4.2.2**
 **  Update version number in header
 

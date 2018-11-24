@@ -230,7 +230,8 @@ class PTA_SUS_Public {
             elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty) ) )
                 {
                     $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta_volunteer_sus'), (int)$this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty), 'item_quantity_error_message' ).'</p>');
+                    $variable = (int)$this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta_volunteer_sus'), $variable), 'item_quantity_error_message', $variable ).'</p>';
                 }
             elseif (!$this->data->check_date($posted['signup_date']))
                 {
