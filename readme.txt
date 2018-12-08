@@ -126,39 +126,49 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 
 == Changelog ==
 **Version 2.4.2.3**
-**  Fixed typo in the filter hook for the item quantity error message that would cause a fatal error when that error should be shown and when used with another plugin (such as the Customizer or Calendar Display) that was tapping into that filter hook to modify the text.
+
+*  Fixed typo in the filter hook for the item quantity error message that would cause a fatal error when that error should be shown and when used with another plugin (such as the Customizer or Calendar Display) that was tapping into that filter hook to modify the text.
 
 **Version 2.4.2.2**
-**  Update version number in header
+
+* Update version number in header
 
 **Version 2.4.2.1**
+
 *   Small fix to strip slashes from sanitized subject and message body of the Email Volunteers form before sending.
 
 **Version 2.4.2**
+
 *   Fix to allow Sign Up Sheet managers to save plugin settings (previously they could see the page but would get a permissions level error if tried to save the settings).
 *   New option to only allow admin level users to view Settings and CRON Functions pages. This way you can allow Signup Sheet Mangers to create/edit sheets, but keep them away from the settings and cron functions.
 *   Added {email} template tag for all emails, which will show the volunteer's email they signed up with (different from the {contact_emails} template tag).
 *   Code fix to prevent reminder emails from also getting sent to chairs/contacts when you set the emails to be sent individually (instead of CC/BCC).
 
 **Version 2.4.1**
+
 *   Fix to show start and end time columns on the user signups list displayed by the new [pta_user_signups] shortcode. Times will now be displayed by default. As with the main shortcode, you can now set a show_time argument to "no" to hide the start and end time columns.
 
 **Version 2.4.0**
+
 *   Added GDPR functions to hook in with new WordPress 4.9.6 GDPR functions. Signup data included in personal data exporter, and also for personal data eraser.
 *   Added [pta_user_signups] shortcode to display list of user signups (with clear links, if allowed) on any page.
 
 **Version 2.3.1**
+
 *   Option to show date on every line of CSV export of sheets
 *   Minor fix in SQL query to prevent PHP notices for extra unused query argument
 *   Additional filter hooks for extensions
 
 **Version 2.3.0**
+
 *   Added sort by and order options to the widget.
 
 **Version 2.2.3**
+
 *   Updated database prepare queries to eliminate new WordPress notices in WP 4.8.3 when passing in a date value that may not be used in the SQL query.
 
 **Version 2.2.2**
+
 *   Added "Prevent Global Overlapping Signups" option to prevent users from signing up for tasks on the same date with overlapping times. As opposed to the per sheet option, this will check ALL user signups across ALL sheets and, when enabled, will always check for overlaps, regardless of the per sheet setting.
 *   Added order_by and order arguments to the shortcode for sorting the order of the main list of sheets. order_by can be set to "first_date", "last_date", "title", or "id". order can be either "ASC" or "DESC".
 
