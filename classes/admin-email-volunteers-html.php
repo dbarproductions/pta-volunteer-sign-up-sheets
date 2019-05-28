@@ -40,6 +40,13 @@ $checked = isset($_POST['individually']) ? absint($_POST['individually']) : 0;
 					<input type="text" name="from_name" value="<?php echo esc_attr($from_name); ?>" size="35" />
 				</td>
 			</tr>
+            <tr>
+                <th><label for="from_email"><?php _e('From Email:', 'pta_volunteer_sus'); ?></label></th>
+                <td>
+                    <input type="text" name="from_email" value="<?php echo esc_attr($user->user_email); ?>" size="35" />
+                    <em><?php _e('If blank, the admin email will be used for the FROM email address.', 'pta_volunteer_sus'); ?></em>
+                </td>
+            </tr>
 			<tr>
 				<th><label for="reply_to"><?php _e('Reply To:', 'pta_volunteer_sus'); ?></label></th>
 				<td>

@@ -601,7 +601,7 @@ class PTA_SUS_Admin {
 						}
 						if ($needs_update) {
 							$result = $this->data->update_sheet($sheet_fields, (int)$_POST['sheet_id']);
-							if(!$result) {
+							if(false === $result) {
 								$task_err++;
 								echo '<div class="error"><p><strong>'.__('Error updating sheet.', 'pta_volunteer_sus').'</strong></p></div>';
 							}
@@ -1165,9 +1165,9 @@ class PTA_SUS_Admin {
 				$messages .= '<div class="error"><p><strong>'.__('No signups found for that sheet', 'pta_volunteer_sus').'</strong></p></div>';
 			} else {
 				// Send some emails!
-				$user_email = isset($_POST['user_email']) ? sanitize_text_field($_POST['user_email']) : get_option('admin_email');
+				$from_email = isset($_POST['from_email']) ? sanitize_email($_POST['from_email']) : get_option('admin_email');
 				$headers = array();
-				$headers[]  = "From: " . $from_name . " <" . $user_email . ">";
+				$headers[]  = "From: " . $from_name . " <" . $from_email . ">";
 				$headers[]  = "Reply-To: " . $reply_to;
 				$headers[]  = "Content-Type: text/plain; charset=utf-8";
 				$headers[]  = "Content-Transfer-Encoding: 8bit";

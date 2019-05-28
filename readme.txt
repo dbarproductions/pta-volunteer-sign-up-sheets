@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 4.9.8
+Tested up to: 5.2.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -125,6 +125,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 2.4.3**
+
+*   Added a FROM email address field to the admin Email Volunteers page so you can specify a from email address that matches your sending domain instead of using the email of the logged in user.
+*   Updated the "Tested up to" WordPress version
+
 **Version 2.4.2.3**
 
 *  Fixed typo in the filter hook for the item quantity error message that would cause a fatal error when that error should be shown and when used with another plugin (such as the Customizer or Calendar Display) that was tapping into that filter hook to modify the text.
