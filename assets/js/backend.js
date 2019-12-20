@@ -15,7 +15,7 @@ jQuery(document).ready(function($) {
     monthsToShow: 1, dateFormat: 'yyyy-mm-dd',
     showTrigger: '#calImg'});
 
-    $('.timepicker').timepicker({
+    $('.pta-timepicker').timepicker({
     showPeriod: true,
     showLeadingZero: true,
     defaultTime: '',
@@ -27,7 +27,17 @@ jQuery(document).ready(function($) {
             $(this).closest('li').find('.pta_toggle').show();
         }
     });
-    
+
+    function toggle_description(id) {
+        $('#task_description_'+id).toggle();
+        $('.pta_sus_task_description').not('#task_description_'+id).hide();
+    }
+
+    $('.task_description_trigger').on('click', function(e){
+        e.preventDefault();
+        let id = $(this).attr('id').split('_').pop();
+        toggle_description(id);
+    });
 
     $('.details_checkbox').change(function() {
         $(this).closest('li').find('.pta_toggle').toggle(this.checked);
@@ -38,13 +48,14 @@ jQuery(document).ready(function($) {
         var row_key = last_css_id.substr(last_css_id.indexOf("-") + 1);
         var default_text = PTA_Backend_js.default_text;
         $(".add-task-after").on('click', function() {
+            $('.pta_sus_task_description').hide();
             row_key++;
             // Clone the last row
             var new_row = $(".tasks LI").last().clone();
             // Change the id of the li element
             $(new_row).attr('id', "task-" + row_key);
             // Change name and id attributes to new row_key values
-            new_row.find('input, select').each(function() {
+            new_row.find('input, select, textarea').each(function() {
                 var currentNameAttr = $(this).attr('name'); // get the current name attribute
                 var currentIdAttr = $(this).attr('id'); // get the current id attribute
                 // construct new name & id attributes
@@ -65,6 +76,10 @@ jQuery(document).ready(function($) {
                     $(this).attr('checked', true);
                     $(this).closest('span').hide();
                 }
+                if($(this).is('textarea')) {
+                    $(this).closest('div.pta_sus_task_description').attr('id', 'task_description_' + row_key);
+                    $(this).val();
+                }
             });
             // Insert the new task row
             $(this).parent("LI").after(new_row);
@@ -82,7 +97,15 @@ jQuery(document).ready(function($) {
             new_row.find('.details_checkbox').change(function() {
                 $(this).closest('li').find('.pta_toggle').toggle(this.checked);
             });
-
+            new_row.find('a.task_description_trigger').each(function(){
+                var currentIdAttr = $(this).attr('id'); // get the current id attribute
+                var newIdAttr = currentIdAttr.replace(/\d+/, row_key);
+                $(this).attr('id', newIdAttr).on('click', function(e){
+                    e.preventDefault();
+                    let id = $(this).attr('id').split('_').pop();
+                    toggle_description(id);
+                });   // set the new id attribute
+            });
             return false;
         });
         $(".remove-task").live('click', function() {
@@ -93,5 +116,271 @@ jQuery(document).ready(function($) {
             return false;
         });
     }
+
+    var sheetTitleSpan = $('span#sheet_title');
+    if(sheetTitleSpan.length) {
+        var sheetTitle = sheetTitleSpan.text();
+    }
+    var sheetInfoSpan = $('span#sheet-info');
+    var sheetInfoText ='';
+    if(sheetInfoSpan.length) {
+        var sheetInfo = sheetInfoSpan.html();
+        var regex = /<br\s*[\/]?>/gi;
+        sheetInfoText = sheetInfo.replace(regex, "\n").replace('&nbsp;', " ").replace('&nbsp;', " ");
+    }
+
+    var ptaTable = $('#pta-sheet-signups').DataTable( {
+        order: [],
+        rowGroup: {
+            dataSrc: [ 0, 1 ]
+        },
+        columnDefs: [ {
+            targets: [ 1, 0 ],
+            visible: false
+        } ],
+        dom: '<B>lfrtip',
+        colReorder: true,
+        responsive: false,
+        stateSave: false,
+        pageLength: 100,
+        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, "All" ]],
+        buttons: [
+            {
+                extend: 'excel',
+                text: 'Export to Excel',
+                title: sheetTitle,
+                message: sheetInfoText,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV',
+                title: sheetTitle,
+                message: sheetInfoText,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'pdf',
+                text: 'Save as PDF',
+                title: sheetTitle,
+                message: sheetInfoText,
+                orientation: 'landscape',
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'print',
+                text: 'Print',
+                title: sheetTitle,
+                message: sheetInfo,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                },
+                customize: function (win) {
+                    $(win.document.body).find('table').addClass('display').css('font-size', '11px');
+                }
+            },
+            'colvis',
+            {
+                text: 'Hide Remaining',
+                action: function ( e, dt, node, config ) {
+                    ptaTable.rows('.remaining').remove().draw( false );
+                    this.disable();
+                }
+            }
+        ]
+    } );
+
+    ptaTable.columns( '.select-filter' ).every( function () {
+        var that = this;
+
+        // Create the select list and search operation
+        var select = $('<select />')
+            .appendTo(
+                this.footer()
+            )
+            .on( 'change', function () {
+                var seachVal = $.fn.dataTable.util.escapeRegex(
+                    $(this).val()
+                );
+                that.search( seachVal ? '^'+seachVal+'$' : '', true, false ).draw();
+            } );
+
+        // Get the search data for the first column and add to the select list
+        select.append( $('<option value="">Show All</option>') );
+        this
+            .cache( 'search' )
+            .sort()
+            .unique()
+            .each( function ( d ) {
+                if('' !== d) {
+                    select.append( $('<option value="'+d+'">'+d+'</option>') );
+                }
+            } );
+    } );
+
+    var allTable = $('#pta-all-data').DataTable( {
+        order: [],
+        rowGroup: {
+            dataSrc: [ 0, 1, 2 ]
+        },
+        columnDefs: [ {
+            targets: [ 2, 1, 0 ],
+            visible: false
+        } ],
+        dom: '<B>lfrtip',
+        colReorder: true,
+        responsive: false,
+        stateSave: false,
+        pageLength: 100,
+        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, "All" ]],
+        buttons: [
+            {
+                extend: 'excel',
+                text: 'Export to Excel',
+                title: sheetTitle,
+                message: sheetInfoText,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV',
+                title: sheetTitle,
+                message: sheetInfoText,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'pdf',
+                text: 'Save as PDF',
+                title: sheetTitle,
+                message: sheetInfoText,
+                orientation: 'landscape',
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                }
+            },
+            {
+                extend: 'print',
+                text: 'Print',
+                title: sheetTitle,
+                message: sheetInfo,
+                exportOptions: {
+                    columns: ':visible',
+                    format: {
+                        body: function ( data, column, row ) {
+                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
+                            var content = $('<div>' + a + '</div>');
+                            content.find('a').replaceWith(function() { return this.childNodes; });
+                            return content.text();
+                        }
+                    }
+                },
+                customize: function (win) {
+                    $(win.document.body).find('table').addClass('display').css('font-size', '11px');
+                }
+            },
+            'colvis',
+            {
+                text: 'Hide Remaining',
+                action: function ( e, dt, node, config ) {
+                    allTable.rows('.remaining').remove().draw( false );
+                    this.disable();
+                }
+            }
+        ]
+    } );
+
+    allTable.columns( '.select-filter' ).every( function () {
+        var that = this;
+
+        // Create the select list and search operation
+        var select = $('<select />')
+            .appendTo(
+                this.footer()
+            )
+            .on( 'change', function () {
+                var seachVal = $.fn.dataTable.util.escapeRegex(
+                    $(this).val()
+                );
+                that.search( seachVal ? '^'+seachVal+'$' : '', true, false ).draw();
+            } );
+
+        // Get the search data for the first column and add to the select list
+        select.append( $('<option value="">Show All</option>') );
+        this
+            .cache( 'search' )
+            .sort()
+            .unique()
+            .each( function ( d ) {
+                if('' !== d) {
+                    select.append( $('<option value="'+d+'">'+d+'</option>') );
+                }
+            } );
+    } );
 
 });

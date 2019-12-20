@@ -16,6 +16,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     private $data;
     private $rows = array();
     private $show_trash;
+    private $per_page=20;
     
     /**
     * construct
@@ -25,10 +26,10 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function __construct()
     {
-        global $status, $page;
+        global $status, $page, $pta_sus;
         
         // Set data and convert to array
-        $this->data = new PTA_SUS_Data();
+        $this->data = $pta_sus->data;
                 
         //Set parent defaults
         parent::__construct( array(
@@ -309,6 +310,9 @@ class PTA_SUS_List_Table extends WP_List_Table
     function set_show_trash($show_trash) {
         $this->show_trash = $show_trash;
     }
+	function set_per_page($per_page=20) {
+		$this->per_page = $per_page;
+	}
     /**
     * Get data and prepare for use
     * 
@@ -317,15 +321,32 @@ class PTA_SUS_List_Table extends WP_List_Table
         $this->process_bulk_action();
         $rows = (array)$this->data->get_sheets($this->show_trash, $active_only = false, $show_hidden = true);
         foreach ($rows AS $k=>$v) {
+        	// if search is set, skip any that title doesn't match search string
+	        if(isset($_REQUEST['s']) && '' !== $_REQUEST['s']) {
+	        	if(false === stripos($v->title, $_REQUEST['s'])) {
+	        		continue;
+		        }
+	        }
+	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-visible-filter']) && in_array($_REQUEST['pta-visible-filter'], array('visible','hidden'))) {
+	            $compare = 'visible' === $_REQUEST['pta-visible-filter'] ? "1" : "0";
+	            if($compare != $v->visible) {
+	                continue;
+                }
+            }
+	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring'))) {
+		        if($_REQUEST['pta-type-filter'] !== $v->type) {
+			        continue;
+		        }
+	        }
             $this->rows[$k] = (array)$v;
         }
-        $per_page = 20;
+	    $this->rows = apply_filters( 'pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
+        $per_page = $this->per_page;
         $columns = $this->get_columns();
         $hidden = array();
         $sortable = $this->get_sortable_columns();
         
         $this->_column_headers = array($columns, $hidden, $sortable);
-        
 
         // Sort Data
         function usort_reorder($a,$b)
@@ -351,6 +372,30 @@ class PTA_SUS_List_Table extends WP_List_Table
             'total_pages'   => ceil($total_items/$per_page)
         ) );
     }
+
+	function extra_tablenav( $which ) {
+		if ( $which == "top" ){
+		    $visible = isset($_REQUEST['pta-visible-filter']) ? $_REQUEST['pta-visible-filter'] : '';
+			$type = isset($_REQUEST['pta-type-filter']) ? $_REQUEST['pta-type-filter'] : '';
+			?>
+			<div class="alignleft actions bulkactions">
+                <select name="pta-visible-filter" class="pta-filter">
+                    <option value=""><?php _e('Show All', 'pta_volunteer_sus'); ?></option>
+                    <option value="visible" <?php selected('visible',$visible,true); ?>><?php _e('Show Only Visible', 'pta_volunteer_sus'); ?></option>
+                    <option value="hidden" <?php selected('hidden',$visible,true); ?>><?php _e('Show Only Hidden', 'pta_volunteer_sus'); ?></option>
+                </select>
+                <select name="pta-type-filter" class="pta-filter">
+                    <option value=""><?php _e('Show All Event Types', 'pta_volunteer_sus'); ?></option>
+                    <option value="Single" <?php selected('Single',$type,true); ?>><?php _e('Show Only Single Events', 'pta_volunteer_sus'); ?></option>
+                    <option value="Multi-Day" <?php selected('Multi-Day',$type,true); ?>><?php _e('Show Only Multi-Day Events', 'pta_volunteer_sus'); ?></option>
+                    <option value="Recurring" <?php selected('Recurring',$type,true); ?>><?php _e('Show Only Recurring Events', 'pta_volunteer_sus'); ?></option>
+                </select>
+			</div>
+			<?php
+            do_action('pta_sus_sheets_list_table_after_filters');
+			submit_button( __('Filter Sheets','pta_volunteer_sus'), '', 'pta-filter-submit', false, array( 'id' => 'filter-submit' ) );
+		}
+	}
     
 }
 /* EOF */

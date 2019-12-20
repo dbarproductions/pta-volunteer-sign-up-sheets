@@ -1,0 +1,1862 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
+"POT-Creation-Date: 2018-06-09 19:21-0700\n"
+"PO-Revision-Date: 2019-06-24 22:33+0900\n"
+"Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: pta-volunteer-sign-up-sheets.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: Jeehyo Chung <jeezchung@gmail.com> and Julia Choi <yjchoi21@student.kis.or.kr> \n"
+"Language: ko_KR\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: classes/admin-addons-html.php:10 classes/class-pta_sus_admin.php:37
+msgid "Add Ons"
+msgstr "추가 기능"
+
+#: classes/admin-addons-html.php:11
+msgid "The purchase of Add Ons helps support further development and new features!"
+msgstr "추가 기능을 누르면 부가 개발 및 새로운 기능이 지원됩니다!"
+
+#: classes/admin-addons-html.php:15
+msgid "PTA Volunteer Sign Up Sheets Calendar Display"
+msgstr "PTA 봉사자 신청 시트 달력 보기"
+
+#: classes/admin-addons-html.php:22
+msgid "PTA Volunteer Sign-up Sheets Customizer"
+msgstr "PTA 봉사자 신청 시트 맞춤 변경"
+
+#: classes/admin-addons-html.php:29
+msgid "PTA Volunteer Sign Up Sheet Groups"
+msgstr "PTA 봉사자 신청 시트 그룹"
+
+#: classes/admin-email-volunteers-html.php:20
+#: classes/class-pta_sus_admin.php:34
+msgid "Email Volunteers"
+msgstr "봉사자들에게 이메일 보내기"
+
+#: classes/admin-email-volunteers-html.php:22
+msgid "Compose and send a message to all volunteers currently in the sign-ups database table, or select a specific sheet to send an email to all volunteers signed up for that specific sheet."
+msgstr "최근 등록 데이터베이스 차트에 있는 모든 봉사자들에게 메세지를 작성하고 보내기 혹은 특정 시트로 등록한 모든 봉사자들에게 이메일 보낼 특정 시트 선택하기."
+
+#: classes/admin-email-volunteers-html.php:26
+msgid "Recipients"
+msgstr "받는 사람"
+
+#: classes/admin-email-volunteers-html.php:29
+#: classes/class-pta_sus_admin.php:32
+msgid "All Sheets"
+msgstr "모든 시트"
+
+#: classes/admin-email-volunteers-html.php:34
+msgid "Select a sheet to email all volunteers currently signed up for that sheet, or select \"All Sheets\" to email ALL volunteers currently signed up for ANY sheet."
+msgstr "최근 시트에 등록된 모든 봉사자들에게 이메일 보낼 양식을 선택, 혹은 어떤 시트에 최근 등록한 모든 봉사자들에게 이메일 보낼 \\“모든 시트\\” 선택하기."
+
+#: classes/admin-email-volunteers-html.php:38
+msgid "From Name:"
+msgstr "보내는 사람 이름:"
+
+#: classes/admin-email-volunteers-html.php:44
+msgid "Reply To:"
+msgstr "답변하기:"
+
+#: classes/admin-email-volunteers-html.php:47
+msgid "Reply to email address. Should be your own email address, unless you want them to reply to another email."
+msgstr "이메일 주소로 답변하기. 다른 주소로  답장을 하기 원할 경우를 제외하고 반드시 자신의 메일 주소로 답장해야 함."
+
+#: classes/admin-email-volunteers-html.php:51
+msgid "Subject:"
+msgstr "제목:"
+
+#: classes/admin-email-volunteers-html.php:57
+msgid "Message:"
+msgstr "메시지:"
+
+#: classes/admin-email-volunteers-html.php:63
+msgid "Send Individual Emails?"
+msgstr "개인에게 이메일 보내기?"
+
+#: classes/admin-email-volunteers-html.php:65
+msgid "YES. "
+msgstr "네. "
+
+#: classes/admin-email-volunteers-html.php:66
+msgid "Check this to send a single individual email to each volunteer (along with a copy to yourself). Leave un-checked to send one email to yourself with all volunteers added as BCC recipients. If you are not using a SMTP mailer plugin, and some volunteers are not receiving the emails due to your server not liking the formatting of the BCC headers, then check this box so emails are sent one at a time."
+msgstr "각 봉사자에게 이메일을 보내려면 여기를 체크(자신에게도 복사를 함). 자신에게로 보낸 이메일은 체크하지 않은채로 보내고 모든 봉사자들을 BCC로 추가함. SMTP메일 플러그인을 사용하지 않아서 BCC제목의 포맷이 서버에 부적합하여 몇 봉사자들이 메일을 받지 못한다면, 이메일이 한번에 보내지도록 이 박스를 체크."
+
+#: classes/admin-email-volunteers-html.php:74
+msgid "SEND Email"
+msgstr "이메일 보내기"
+
+#: classes/admin-email-volunteers-html.php:75
+#, php-format
+msgid "A copy will also be sent to your registered email address: %s"
+msgstr "당신의 등록된 이메일 주소로 복사본이 발신됩니다: %s"
+
+#: classes/admin-view-signups-html.php:13 classes/class-pta_csv_exporter.php:87
+#: classes/class-pta_csv_exporter.php:193 classes/class-pta_sus_public.php:128
+msgid "Task/Item"
+msgstr "업무/항목"
+
+#: classes/admin-view-signups-html.php:14 classes/class-pta_csv_exporter.php:88
+#: classes/class-pta_csv_exporter.php:194 classes/class-pta_sus_public.php:129
+msgid "Start Time"
+msgstr "시작 시간"
+
+#: classes/admin-view-signups-html.php:15 classes/class-pta_csv_exporter.php:89
+#: classes/class-pta_csv_exporter.php:195 classes/class-pta_sus_public.php:130
+msgid "End Time"
+msgstr "종료 시간"
+
+#: classes/admin-view-signups-html.php:16
+msgid "Name"
+msgstr "이름"
+
+#: classes/admin-view-signups-html.php:17 classes/class-pta_sus_public.php:1372
+msgid "E-mail"
+msgstr "이메일"
+
+#: classes/admin-view-signups-html.php:18 classes/class-pta_sus_public.php:905
+#: classes/class-pta_sus_public.php:907 classes/class-pta_sus_public.php:1374
+msgid "Phone"
+msgstr "전화번호"
+
+#: classes/admin-view-signups-html.php:19 classes/class-pta_csv_exporter.php:93
+#: classes/class-pta_csv_exporter.php:199 classes/class-pta_sus_public.php:131
+msgid "Item Details"
+msgstr "세부 항목"
+
+#: classes/admin-view-signups-html.php:20 classes/class-pta_csv_exporter.php:94
+#: classes/class-pta_csv_exporter.php:200 classes/class-pta_sus_public.php:132
+msgid "Item Qty"
+msgstr "항목 수량"
+
+#: classes/admin-view-signups-html.php:27 classes/class-pta_sus_admin.php:249
+msgid "No sign-up sheet found."
+msgstr "신청 시트가 검색되지 않습니다."
+
+#: classes/admin-view-signups-html.php:77
+#: classes/admin-view-signups-html.php:78
+#: classes/class-pta_csv_exporter.php:134
+#: classes/class-pta_csv_exporter.php:135
+#: classes/class-pta_csv_exporter.php:162
+#: classes/class-pta_csv_exporter.php:163
+#: classes/class-pta_csv_exporter.php:213
+#: classes/class-pta_csv_exporter.php:214 classes/class-pta_sus_admin.php:126
+#: classes/class-pta_sus_admin.php:130 classes/class-pta_sus_emails.php:167
+#: classes/class-pta_sus_emails.php:168 classes/class-pta_sus_emails.php:169
+#: classes/class-pta_sus_emails.php:173 classes/class-pta_sus_emails.php:178
+#: classes/class-pta_sus_public.php:133 classes/list-table.php:67
+#: classes/list-table.php:82
+msgid "N/A"
+msgstr "N/A"
+
+#: classes/admin-view-signups-html.php:79
+#, php-format
+msgid "%d remaining"
+msgstr "%d 남았음"
+
+#: classes/admin-view-signups-html.php:93
+msgid "Export Sheet as CSV"
+msgstr "시트를 CSV로 보냄"
+
+#: classes/class-pta_csv_exporter.php:39 classes/class-pta_sus_admin.php:172
+#: classes/class-pta_sus_admin.php:302 classes/class-pta_sus_options.php:27
+msgid "You do not have sufficient permissions to access this page."
+msgstr "당신은 이 페이지를 접근할 승인이 없습니다."
+
+#: classes/class-pta_csv_exporter.php:68 classes/class-pta_csv_exporter.php:72
+msgid "Invalid sheet id!"
+msgstr "유효하지 않은 시트 아이디!"
+
+#: classes/class-pta_csv_exporter.php:86
+msgid "Task Date"
+msgstr "업무 날짜"
+
+#: classes/class-pta_csv_exporter.php:90 classes/class-pta_csv_exporter.php:196
+msgid "Volunteer Name"
+msgstr "봉사자 이름"
+
+#: classes/class-pta_csv_exporter.php:91 classes/class-pta_csv_exporter.php:197
+msgid "Volunteer Email"
+msgstr "봉사자 이메일"
+
+#: classes/class-pta_csv_exporter.php:92 classes/class-pta_csv_exporter.php:198
+msgid "Volunteer Phone"
+msgstr "봉사자 전화번호"
+
+#: classes/class-pta_csv_exporter.php:181
+msgid "Nothing to export!"
+msgstr "보낼 내용이 없습니다!"
+
+#: classes/class-pta_csv_exporter.php:191
+msgid "Sheet"
+msgstr "시트"
+
+#: classes/class-pta_csv_exporter.php:192
+msgid "Signup Date"
+msgstr "신청 날짜"
+
+#: classes/class-pta_csv_exporter.php:204 classes/class-pta_sus_admin.php:793
+#: classes/class-pta_sus_public.php:369 classes/list-table.php:158
+msgid "Ongoing"
+msgstr "진행 중"
+
+#: classes/class-pta_sus_admin.php:31 classes/class-pta_sus_admin.php:32
+msgid "Sign-up Sheets"
+msgstr "신청 시트"
+
+#: classes/class-pta_sus_admin.php:33
+msgid "Add New Sheet"
+msgstr "새로운 시트 추가"
+
+#: classes/class-pta_sus_admin.php:33 classes/class-pta_sus_admin.php:208
+msgid "Add New"
+msgstr "새롭게 추가"
+
+#: classes/class-pta_sus_admin.php:35 pta-volunteer-sign-up-sheets.php:592
+msgid "Settings"
+msgstr "설정"
+
+#: classes/class-pta_sus_admin.php:36 classes/class-pta_sus_admin.php:106
+msgid "CRON Functions"
+msgstr "CRON 기능"
+
+#: classes/class-pta_sus_admin.php:66 classes/class-pta_sus_admin.php:1046
+msgid "Item you are bringing"
+msgstr "가져온 항목"
+
+#: classes/class-pta_sus_admin.php:75
+msgid "Last reminders sent:"
+msgstr "남은 알림을 보냄:"
+
+#: classes/class-pta_sus_admin.php:76 classes/class-pta_sus_admin.php:80
+#, php-format
+msgid "Date: %s"
+msgstr "날짜: %s"
+
+#: classes/class-pta_sus_admin.php:77 classes/class-pta_sus_admin.php:81
+#, php-format
+msgid "Time: %s"
+msgstr "시간: %s"
+
+#: classes/class-pta_sus_admin.php:78 classes/class-pta_sus_admin.php:92
+#, php-format
+msgid "1 reminder sent"
+msgid_plural "%d reminders sent"
+msgstr[0] "%d 알림 보냄"
+
+#: classes/class-pta_sus_admin.php:79
+msgid "Last reminder check:"
+msgstr "마지막 알림 확인:"
+
+#: classes/class-pta_sus_admin.php:98
+#, php-format
+msgid "1 signup cleared"
+msgid_plural "%d signups cleared"
+msgstr[0] "등록 %d 삭제됨"
+
+#: classes/class-pta_sus_admin.php:107
+msgid "Volunteer Reminders"
+msgstr "봉사자들에게 알림"
+
+#: classes/class-pta_sus_admin.php:108
+msgid "The system automatically checks if it needs to send reminders hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the reminders function with the button below."
+msgstr "이 시스템은 CRON 기능으로 매 시간 알림 전송 필요 여부를 자동으로 확인합니다. 테스트 중이거나 다음 CRON 기능이 작동되기까지 기다리지 않으려면, 아래 버튼을 눌러 알림 기능을 작동할 수 있습니다."
+
+#: classes/class-pta_sus_admin.php:110
+msgid "Send Reminders"
+msgstr "알림 전송"
+
+#: classes/class-pta_sus_admin.php:112 classes/class-pta_sus_admin.php:114
+msgid "Clear Expired Signups"
+msgstr "만기된 신청서 지움"
+
+#: classes/class-pta_sus_admin.php:113
+msgid "If you have disabled the automatic clearing of expired signups, you can use this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CANNOT BE UNDONE!"
+msgstr "만기된 신청서를 자동으로 삭제하는 것을 비활성화 하셨으면, 여기서 모든 신청서에 만기된 신청을 삭제할 수 있습니다. <strong>경고: 이 행위는 돌이킬 수 없는 점을 유의하세요</strong>!"
+
+#: classes/class-pta_sus_admin.php:157
+msgid "Clear Spot"
+msgstr "시간대 삭제"
+
+#: classes/class-pta_sus_admin.php:187
+#, php-format
+msgid "Error clearing spot (ID # %s)"
+msgstr "(ID # %s) 시간대를 삭제하는 중 에러 발생"
+
+#: classes/class-pta_sus_admin.php:189
+msgid "Spot has been cleared."
+msgstr "시간대가 삭제되었습니다."
+
+#: classes/class-pta_sus_admin.php:207
+msgid "Sheet Details"
+msgstr "시트의 자세한 사항"
+
+#: classes/class-pta_sus_admin.php:207
+msgid "Sign-up Sheets "
+msgstr "신청서 시트 "
+
+#: classes/class-pta_sus_admin.php:209
+msgid "Export ALL Data as CSV"
+msgstr "모든 데이터를 CSV로 보내기"
+
+#: classes/class-pta_sus_admin.php:217
+msgid "Error restoring sheet."
+msgstr "시트를 복구 중 에러 생김."
+
+#: classes/class-pta_sus_admin.php:219
+msgid "Sheet has been restored."
+msgstr "시트 복구 완료."
+
+#: classes/class-pta_sus_admin.php:223
+msgid "Error moving sheet to trash."
+msgstr "시트를 쓰레기통에 보내는 중 에러 생김."
+
+#: classes/class-pta_sus_admin.php:225
+msgid "Sheet has been moved to trash."
+msgstr "시트를 쓰레기통으로 보냄."
+
+#: classes/class-pta_sus_admin.php:229
+msgid "Error permanently deleting sheet."
+msgstr "시트를 영구적으로 삭제하던 중 에러 생김."
+
+#: classes/class-pta_sus_admin.php:231
+msgid "Sheet has been permanently deleted."
+msgstr "시트가 영구적으로 삭제됨."
+
+#: classes/class-pta_sus_admin.php:236
+msgid "Error copying sheet."
+msgstr "시트를 복사는 중 에러 발생."
+
+#: classes/class-pta_sus_admin.php:238
+msgid "Sheet has been copied to new sheet ID #"
+msgstr "시트가 새로운 시트 ID #로 복사됨"
+
+#: classes/class-pta_sus_admin.php:238 classes/class-pta_sus_admin.php:726
+#: classes/class-pta_sus_admin.php:730 classes/class-pta_sus_admin.php:740
+msgid "Edit"
+msgstr "수정"
+
+#: classes/class-pta_sus_admin.php:243
+msgid "Error toggling sheet visibility."
+msgstr "시트 보이기 토글링 중 에러 발생."
+
+#: classes/class-pta_sus_admin.php:253
+msgid "Event Type: "
+msgstr "이벤트 종류: "
+
+#: classes/class-pta_sus_admin.php:254
+msgid "Signups"
+msgstr "등록 신청하기"
+
+#: classes/class-pta_sus_admin.php:259
+msgid "No tasks were found."
+msgstr "작업이 발견되지 않음."
+
+#: classes/class-pta_sus_admin.php:284
+msgid "All "
+msgstr "전부 "
+
+#: classes/class-pta_sus_admin.php:285
+msgid "Trash "
+msgstr "쓰레기 "
+
+#: classes/class-pta_sus_admin.php:325
+msgid "Tasks Successfully Moved!"
+msgstr "작업이 성공적으로 옭겨짐!"
+
+#: classes/class-pta_sus_admin.php:326
+msgid "For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save."
+msgstr "변경된 내용은 보고 새로운 작업 날짜를 업데이트 하려면, 작업을 수정한 후 저장하기를 누르세요."
+
+#: classes/class-pta_sus_admin.php:361
+msgid "You must enter a date!"
+msgstr "날짜를 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:364
+msgid "Invalid date!"
+msgstr "유효하지 않은 날짜입니다!"
+
+#: classes/class-pta_sus_admin.php:371
+msgid "You must enter at least two dates for a Recurring event!"
+msgstr "반복되는이벤트에는 최소 두 가지 날짜를 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:376
+msgid "Invalid dates!  Enter at least 2 valid dates."
+msgstr "유효하지 않은 날짜! 최소 두 가지 날짜를 입력하시오."
+
+#: classes/class-pta_sus_admin.php:418 classes/class-pta_sus_admin.php:483
+#: classes/class-pta_sus_admin.php:509
+msgid "person"
+msgid_plural "people"
+msgstr[0] "사람"
+
+#: classes/class-pta_sus_admin.php:419
+#, php-format
+msgid "The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s signed up.  Please clear all spots first before changing this task date."
+msgstr "\"%1$s\" 작업은 %2$d %3$s 건이 등록되었기에 새로운 날짜로 변경이 불가합니다. 이 작업 날짜를 변경하기 전에 모든 시간대를 먼저 정리하세요."
+
+#: classes/class-pta_sus_admin.php:455
+msgid "a date"
+msgid_plural "dates"
+msgstr[0] "날짜"
+
+#: classes/class-pta_sus_admin.php:456
+msgid "that date"
+msgid_plural "those dates"
+msgstr[0] "그 날짜"
+
+#: classes/class-pta_sus_admin.php:455
+msgid "You are trying to remove "
+msgstr "삭제를 시도하는 중 "
+
+#: classes/class-pta_sus_admin.php:457
+msgid "this date"
+msgid_plural "these dates"
+msgstr[0] "이 날짜"
+
+#: classes/class-pta_sus_admin.php:457
+msgid "Please check "
+msgstr "확인하세요 "
+
+#: classes/class-pta_sus_admin.php:485
+#, php-format
+msgid "The number of spots for task \"%1$s\" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task."
+msgstr "현재 %2$d %3$s 건이 등록했기 때문에 \"%1$s\" 시간대를 %2$d 이하로 지정하실 수 없습니다.이 작업을 업데이트를 하려면 시간대를 정리하세요."
+
+#: classes/class-pta_sus_admin.php:494
+msgid "You must enter at least one task!"
+msgstr "최소 한가지 업무를 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:510
+#, php-format
+msgid "The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up. Please clear all spots first before removing this task."
+msgstr "%2$d %3$s 건이 신청되었기 때문에 \"%1$s\" 업무을 삭제될 수 없습니다. 이 작업을 삭제하려면 모든 시간대를 정리하세요."
+
+#: classes/class-pta_sus_admin.php:566
+msgid "task."
+msgid_plural "tasks."
+msgstr[0] "업무."
+
+#: classes/class-pta_sus_admin.php:566
+#, php-format
+msgid "Error saving %d "
+msgstr "%d 저장 중 에러 발생 "
+
+#: classes/class-pta_sus_admin.php:591 classes/class-pta_sus_admin.php:688
+msgid "Error updating sheet."
+msgstr "시트 업데이트 중 에러 발생."
+
+#: classes/class-pta_sus_admin.php:603
+msgid "Error removing a task."
+msgstr "작업 제거 중 에러 발생."
+
+#: classes/class-pta_sus_admin.php:623
+msgid "Please select a Position OR manually enter Chair contact info. NOT Both!"
+msgstr "직위를 선택 또는 직접 대표의 연락처를 입력하세요. <strong>한 가지만요</strong>!"
+
+#: classes/class-pta_sus_admin.php:626
+msgid "Please enter Chair Name(s) AND Email(s)!"
+msgstr "대표의 이름과 이메일을 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:629
+msgid "Please either select a position or type in the chair contact info!"
+msgstr "직위를 선택 또는 대표자의 연락처를 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:632
+msgid "Please enter Chair Name(s) and Email(s)!"
+msgstr "대표자의 이름과 이메일 주소를 입력하세요!"
+
+#: classes/class-pta_sus_admin.php:670
+msgid "A Sheet with the same name already exists!"
+msgstr "동일한 이름의 시트가 이미 존재합니다!"
+
+#: classes/class-pta_sus_admin.php:678
+msgid "Error adding sheet."
+msgstr "시트 추가하던 중 오류 발생."
+
+#: classes/class-pta_sus_admin.php:726 classes/class-pta_sus_admin.php:730
+#: classes/class-pta_sus_admin.php:740
+msgid "ADD"
+msgstr "추가하기"
+
+#: classes/class-pta_sus_admin.php:726 classes/class-pta_sus_admin.php:740
+msgid "Tasks"
+msgstr "업무"
+
+#: classes/class-pta_sus_admin.php:730
+msgid "Sign-up Sheet"
+msgstr "신청 등록 시트"
+
+#: classes/class-pta_sus_admin.php:734 classes/class-pta_sus_admin.php:748
+#: classes/list-table.php:113
+msgid "Edit Tasks"
+msgstr "업무 수정하기"
+
+#: classes/class-pta_sus_admin.php:736
+msgid "Dates and Tasks are added on the next page"
+msgstr "일정과 업무는 다음 페이지에 추가됩니다"
+
+#: classes/class-pta_sus_admin.php:741
+msgid "Tasks Successfully Updated!"
+msgstr "업무가 성공적으로 업데이트 되었습니다!"
+
+#: classes/class-pta_sus_admin.php:745 classes/list-table.php:112
+msgid "Edit Sheet"
+msgstr "시트 수정하기"
+
+#: classes/class-pta_sus_admin.php:746
+msgid "Sheet Updated!"
+msgstr "시트 업데이트 완료!"
+
+#: classes/class-pta_sus_admin.php:790 classes/list-table.php:155
+msgid "Single"
+msgstr "한 번 있는"
+
+#: classes/class-pta_sus_admin.php:791 classes/list-table.php:156
+msgid "Recurring"
+msgstr "여러 번 발생하는"
+
+#: classes/class-pta_sus_admin.php:792 classes/list-table.php:157
+msgid "Multi-Day"
+msgstr "여러 날"
+
+#: classes/class-pta_sus_admin.php:825
+msgid "Select Event Type"
+msgstr "이벤트 종류 선택"
+
+#: classes/class-pta_sus_admin.php:836 classes/widget.php:143
+msgid "Title:"
+msgstr "제목:"
+
+#: classes/class-pta_sus_admin.php:838
+msgid "Title of event, program or function"
+msgstr "이벤트, 프로그램 또는 행사 의 제목"
+
+#: classes/class-pta_sus_admin.php:843 classes/class-pta_sus_admin.php:847
+msgid "Event Type:"
+msgstr "이벤트 종류:"
+
+#: classes/class-pta_sus_admin.php:858
+msgid "No Signup Event?"
+msgstr "신청 등록이 필요없는 이벤트?"
+
+#: classes/class-pta_sus_admin.php:860
+msgid "Check this for an event where no sign-ups are needed (display only). You can still enter tasks, which could be used to show a schedule, but you can not enter quantities and there will be no signup links."
+msgstr "신청 등록이 필요없는 (보기만 가능) 이벤트를 원하면 여기를 체크하세요. 스케줄이 보이는 업무를 등록할 수 있으나, 수량이나 신청 링크는 없습니다."
+
+#: classes/class-pta_sus_admin.php:865
+msgid "1st Reminder # of days:"
+msgstr "# 날 전 첫번째 미리 알림:"
+
+#: classes/class-pta_sus_admin.php:867
+msgid "# of days before the event date to send the first reminder. Leave blank (or 0) for no automatic reminders"
+msgstr "이벤트가 있기 전 # 며칠 전에 첫번째 알림. 자동 알림을 원하면 빈 칸 (혹은 0)으로 놔두세요"
+
+#: classes/class-pta_sus_admin.php:870
+msgid "2nd Reminder # of days:"
+msgstr "#일의 두번째 알림:"
+
+#: classes/class-pta_sus_admin.php:872
+msgid "# of days before the event date to send the second reminder. Leave blank (or 0) for no second reminder"
+msgstr "이벤트 일정의 두 번째 알림을 보내기 #일 전. 두 번째 알림을 취소하려면 빈칸으로 놔두던지 (0)를 입력하세요"
+
+#: classes/class-pta_sus_admin.php:877
+msgid "Show Clear links for signups?"
+msgstr "치운 신청 등록 링크를 보이게 하실래요?"
+
+#: classes/class-pta_sus_admin.php:879
+msgid "<strong>Uncheck</strong> if you want to <strong>HIDE</strong> the clear link in the user's sign up list. Administrators and Sign-Up Sheet Managers can still clear volunteers from signups in the admin dashboard."
+msgstr "유저 가입 목록에 링크가 <strong>보이지 않길</strong> 원하시면 박스를 <strong>선택하지 마</strong>십시오. 관리자와 목록 경영자는 자원 봉사자를 목록에 없앨 수 있는 권한이 있습니다."
+
+#: classes/class-pta_sus_admin.php:882
+msgid "# of days to allow clear:"
+msgstr "치우기 #일 남음:"
+
+#: classes/class-pta_sus_admin.php:884
+msgid "If the above option is checked, enter the MINIMUM # of days before the signup event/item date during which volunteers can clear their signups. Leave blank (or 0) to allow them to clear themselves at any time."
+msgstr "위에 옵션을 선택하셨으면, 이벤트나 아이템 날짜 전 이름 치울수 있는 최소한 기간 (#일)을 입력하십시오. 봉사자 이름을 자유대로 치울수 있게 허락하실려면 빈칸을 채우거나 0 입력하십시오."
+
+#: classes/class-pta_sus_admin.php:889
+msgid "Visible to Public?"
+msgstr "전체공개로 할까요?"
+
+#: classes/class-pta_sus_admin.php:891
+msgid "<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet from the public. Administrators and Sign-Up Sheet Managers can still see hidden sheets."
+msgstr "전체공개 원하시지 않는다면 박스를 <strong>선택하지 마</strong>십시오. 관리자와 목록 경영자는 숨겨진 별지를 볼수가 있음을 참고하세요."
+
+#: classes/class-pta_sus_admin.php:896
+msgid "Allow Duplicate Signup Times?"
+msgstr "같은 시간에 중복으로 신청 등록이 가능하게 허용합니까?"
+
+#: classes/class-pta_sus_admin.php:898
+msgid "Check this to allow a volunteer to signup for more than one task (in this sheet) with overlapping time ranges."
+msgstr "중복되는 시간대에서 봉사자가 한 가지 이상의 업무를 신청할 수 있도록 (이 시트에서) 하기."
+
+#: classes/class-pta_sus_admin.php:905
+msgid "Contact Info:"
+msgstr "연락처 정보:"
+
+#: classes/class-pta_sus_admin.php:911
+msgid "Select Position"
+msgstr "직위 선택"
+
+#: classes/class-pta_sus_admin.php:919
+msgid "Select a program, committee, or position, to use the contact form:"
+msgstr "연락처 양식에 프로그램, 위원회, 직위를 선택하세요:"
+
+#: classes/class-pta_sus_admin.php:920
+msgid "Position:"
+msgstr "직위:"
+
+#: classes/class-pta_sus_admin.php:924
+msgid "<strong><em>OR</em></strong>, manually enter chair names and contact emails below."
+msgstr "<strong><em>또는</em></strong>, 대표의 이름과 연락처를 기재하세요."
+
+#: classes/class-pta_sus_admin.php:929
+msgid "Chair Name(s):"
+msgstr "대표자 이름:"
+
+#: classes/class-pta_sus_admin.php:931
+msgid "Separate multiple names with commas"
+msgstr "여러 이름일 경우 쉼표로 분리"
+
+#: classes/class-pta_sus_admin.php:934
+msgid "Chair Email(s):"
+msgstr "대표자 이메일:"
+
+#: classes/class-pta_sus_admin.php:936
+msgid "Separate multiple emails with commas"
+msgstr "여러 이메일 주소는 쉼표로 분리"
+
+#: classes/class-pta_sus_admin.php:946
+msgid "Program/Event Details (optional):"
+msgstr "프로그램/이벤트 내용 (선택 가능):"
+
+#: classes/class-pta_sus_admin.php:956
+msgid "Save Sheet"
+msgstr "시트 저장"
+
+#: classes/class-pta_sus_admin.php:969
+msgid "Select the date for "
+msgstr "날짜 선택하기 "
+
+#: classes/class-pta_sus_admin.php:973
+msgid "Select a date for the event.  All tasks will then be assigned to this date."
+msgstr "이벤트 날짜 선택하기. 모든 작업은 그 날짜로 지정됩니다."
+
+#: classes/class-pta_sus_admin.php:977
+msgid "Select ALL the dates for "
+msgstr " 모든 날짜를 선택하세요"
+
+#: classes/class-pta_sus_admin.php:981
+msgid "Select all the dates for the event. Copies of the tasks will be created for each date."
+msgstr "이 이벤트를 위해 모든 날짜를 선택하세요. 각 날짜에 작업이 생성됩니다."
+
+#: classes/class-pta_sus_admin.php:986
+msgid "Tasks for * "
+msgstr " *를 위한 업무"
+
+#: classes/class-pta_sus_admin.php:987
+msgid "Tasks/Items"
+msgstr "업무/항목"
+
+#: classes/class-pta_sus_admin.php:988
+msgid "Enter tasks or items below. Drag and drop to change sort order. Times are optional. If you need details for an item or task (such as what dish they are bringing for a lunch) check the Details Needed box.<br/>\n\t\t\t\t\tClick on (+) to add additional tasks, or (-) to remove a task. At least one task/item must be entered. If # needed is left blank, the value will be set to 1."
+msgstr "아래에 업무 또는 항목을 입력하세요. 끌어놓기로 순서를 정리함. 시간대는 선택입니다. 항목이나 업무에 관한 자세한 사항은(점심에 어떤 요리를 가져와야 하는 등)자세한 사항 박스를 체크하세요. <br/>\n\t\t\t\t\t업무 추가는 (+) 또는 업무 제거는 (-)를 클릭하세요. 반드시 최소한 한 가지 업무/항목을 입력하셔야 합니다. 필요한 # 이 빈칸이면, 가치는 1로 지정합니다."
+
+#: classes/class-pta_sus_admin.php:996
+msgid "Task/Item:"
+msgstr "업무/항목:"
+
+#: classes/class-pta_sus_admin.php:998
+msgid "Date:"
+msgstr "날짜:"
+
+#: classes/class-pta_sus_admin.php:1001
+msgid "# Needed:"
+msgstr "# 필요:"
+
+#: classes/class-pta_sus_admin.php:1004
+msgid "Start Time:"
+msgstr "시작 시간:"
+
+#: classes/class-pta_sus_admin.php:1005
+msgid "End Time:"
+msgstr "종료 시간:"
+
+#: classes/class-pta_sus_admin.php:1010
+msgid "Allow Duplicates?"
+msgstr "복사에 동의하세요?"
+
+#: classes/class-pta_sus_admin.php:1019
+msgid "Enable Quantities?"
+msgstr "수량을 활성화 하실래요?"
+
+#: classes/class-pta_sus_admin.php:1028
+msgid "Details Needed?"
+msgstr "자세한 내용이 필요하세요?"
+
+#: classes/class-pta_sus_admin.php:1038
+msgid "Details Required?"
+msgstr "자세한 내용이 요구하실래요?"
+
+#: classes/class-pta_sus_admin.php:1046
+msgid "Details text:"
+msgstr "자세한 텍스트:"
+
+#: classes/class-pta_sus_admin.php:1068
+msgid "Save"
+msgstr "저장"
+
+#: classes/class-pta_sus_admin.php:1075
+msgid "Move tasks"
+msgstr "작업을 옮기기"
+
+#: classes/class-pta_sus_admin.php:1080
+msgid "Move all tasks of this sheet to sheet"
+msgstr "이 시트의 모든 작업을 다른 시트로 보내기"
+
+#: classes/class-pta_sus_admin.php:1089
+msgid "Move"
+msgstr "이동"
+
+#: classes/class-pta_sus_admin.php:1118
+msgid "Invalid sheet selection"
+msgstr "유효하지 않은 양식 선택"
+
+#: classes/class-pta_sus_admin.php:1124
+msgid "Please enter a From Name"
+msgstr "이메일의 발신자의 이름을 입력"
+
+#: classes/class-pta_sus_admin.php:1130
+msgid "Please enter a valid reply to email, or leave blank for none."
+msgstr "이메일 답변은 유효한 방식을 입력, 또는 빈 칸으로 해놓으세요."
+
+#: classes/class-pta_sus_admin.php:1136
+msgid "Please enter a subject"
+msgstr "제목을 입력하세요"
+
+#: classes/class-pta_sus_admin.php:1142
+msgid "Please enter a message"
+msgstr "메세지를 입력하세요"
+
+#: classes/class-pta_sus_admin.php:1150
+msgid "No signups found for that sheet"
+msgstr "신청이 안된 등록지입니다"
+
+#: classes/class-pta_sus_admin.php:1191
+#, php-format
+msgid "%s Emails Sent!"
+msgstr "%s 이메일이 발송되었습니다!"
+
+#: classes/class-pta_sus_admin.php:1192
+#, php-format
+msgid "Emails sent to: %s"
+msgstr "%s로 이메일 발송"
+
+#: classes/class-pta_sus_admin.php:1194
+msgid "The WordPress Mail function reported a problem sending one or more emails."
+msgstr "이메일을 보내던 중 워드프레스 메일 기능에서 문제를 발견함."
+
+#: classes/class-pta_sus_emails.php:355
+msgid "Volunteer Signup Reminders sent"
+msgstr "봉사 신청 등록 알림 발송됨"
+
+#: classes/class-pta_sus_emails.php:356 pta-volunteer-sign-up-sheets.php:240
+msgid "Volunteer signup sheet CRON job has been completed."
+msgstr "봉사자 신청 등록 시트 CRON 작업이 완료되었습니다."
+
+#: classes/class-pta_sus_emails.php:357
+#, php-format
+msgid "%d reminder emails were sent."
+msgstr "%d 알림 이메일 발송됨."
+
+#: classes/class-pta_sus_options.php:29
+msgid "Documentation"
+msgstr "문서 기록"
+
+#: classes/class-pta_sus_options.php:30
+msgid "Development Feedback Wanted"
+msgstr "진행 중인 피드백 필요"
+
+#: classes/class-pta_sus_options.php:35
+msgid "PTA Volunteer Sign-up Sheets Settings"
+msgstr "PTA 봉사자 신청 등록 시트 설정"
+
+#: classes/class-pta_sus_options.php:39 classes/class-pta_sus_options.php:87
+msgid "Main Settings"
+msgstr "메인 설정"
+
+#: classes/class-pta_sus_options.php:40 classes/class-pta_sus_options.php:124
+msgid "Email Settings"
+msgstr "이메일 설정"
+
+#: classes/class-pta_sus_options.php:41 classes/class-pta_sus_options.php:145
+msgid "Integration Settings"
+msgstr "통합 설정"
+
+#: classes/class-pta_sus_options.php:65
+msgid "Please help support continued development of this plugin! Any amount helps!"
+msgstr "이 플러그인의 지속적인 계발을 위해 지원 바랍니다! 어떤 금액이라도 도움이 됩니다!"
+
+#: classes/class-pta_sus_options.php:88
+msgid "Enable Test Mode"
+msgstr "시험 모드 허용"
+
+#: classes/class-pta_sus_options.php:89
+msgid "Test Mode Message:"
+msgstr "시험 모드 메시지:"
+
+#: classes/class-pta_sus_options.php:90
+msgid "Volunteer Sign Up Page"
+msgstr "봉사자 신청 페이지"
+
+#: classes/class-pta_sus_options.php:91
+msgid "Redirect Sign Ups to Main Page?"
+msgstr "가입자를 메인 페이지로 다시 이동할까요?"
+
+#: classes/class-pta_sus_options.php:92
+msgid "Suppress Duplicate Output?"
+msgstr "중복된 출력을 방지하실래요?"
+
+#: classes/class-pta_sus_options.php:93
+msgid "Use divs?"
+msgstr "div를 사용합니까?"
+
+#: classes/class-pta_sus_options.php:94
+msgid "Disable plugin CSS?"
+msgstr "플러그인 CSS를 비활성화 하시겠습니까?"
+
+#: classes/class-pta_sus_options.php:95
+msgid "Hide volunteer names from public?"
+msgstr "봉사자 이름을 전체공개에서 숨길까요?"
+
+#: classes/class-pta_sus_options.php:96
+msgid "Show full name?"
+msgstr "이름 전체를 공개할까요?"
+
+#: classes/class-pta_sus_options.php:97
+msgid "Consolidate remaining slots?"
+msgstr "나머지 시간대를 통합시킬까요?"
+
+#: classes/class-pta_sus_options.php:98
+msgid "Hide Details and Quantities"
+msgstr "자세한 내용과 수량을 숨기기"
+
+#: classes/class-pta_sus_options.php:99
+msgid "Hide chair contact info from public?"
+msgstr "대표자의 연락처를 비공개로 할까요?"
+
+#: classes/class-pta_sus_options.php:100
+msgid "Show Ongoing events in Widget?"
+msgstr "위젯에서 진행하는 이벤트를 보이기로 설정할까요?"
+
+#: classes/class-pta_sus_options.php:101
+msgid "Show Ongoing events last?"
+msgstr "진행하는 이벤트를 마지막에 보이도록 할까요?"
+
+#: classes/class-pta_sus_options.php:102
+msgid "Phone Required?"
+msgstr "전화번호가 필요하나요?"
+
+#: classes/class-pta_sus_options.php:103
+msgid "Remove Phone field from Signup form?"
+msgstr "가입할 때 전화번호 란을 없앨까요?"
+
+#: classes/class-pta_sus_options.php:104
+msgid "Login Required?"
+msgstr "로그인이 필요하나요?"
+
+#: classes/class-pta_sus_options.php:105
+msgid "Login Required for Signup?"
+msgstr "가입할 때 로긴이 필요하나요?"
+
+#: classes/class-pta_sus_options.php:106
+msgid "Login Required Message:"
+msgstr "로긴이 필요한 메시지:"
+
+#: classes/class-pta_sus_options.php:107
+msgid "Login to Sign-Up Message:"
+msgstr "신청 메시지를 위해 로그인:"
+
+#: classes/class-pta_sus_options.php:108
+msgid "Read Only Signup?"
+msgstr "신청서를 보기만으로 설정?"
+
+#: classes/class-pta_sus_options.php:109
+msgid "Show Login Link?"
+msgstr "로그인 링크를 공개 할까요?"
+
+#: classes/class-pta_sus_options.php:110
+msgid "Disable Login Notices?"
+msgstr "로그인 알림 기능을 끌까요?"
+
+#: classes/class-pta_sus_options.php:111
+msgid "Prevent Global Overlapping Signups?"
+msgstr "글로벌 중복 신청을 방지 하실래요?"
+
+#: classes/class-pta_sus_options.php:112
+msgid "Enable CRON Notifications?"
+msgstr "CRON 알림을 허용할까요?"
+
+#: classes/class-pta_sus_options.php:113
+msgid "Detailed Reminder Notifications?"
+msgstr "자세한 알림 기능?"
+
+#: classes/class-pta_sus_options.php:114
+msgid "Show Expired Tasks?"
+msgstr "만기된 업무를 공개할까요?"
+
+#: classes/class-pta_sus_options.php:115
+msgid "Automatically clear expired signups?"
+msgstr "만기된 신청을 자동으로 삭제하기?"
+
+#: classes/class-pta_sus_options.php:116
+msgid "Show remaining slots on sheet CSV exports?"
+msgstr "CSV 파일로 내보내기에서 나머지 슬롯 보이게 하기?"
+
+#: classes/class-pta_sus_options.php:117
+msgid "Show date on every line of sheet CSV exports?"
+msgstr "CSV 파일로 내보내기에서 시트의 모든 줄에 날짜를 표기하겠습니까?"
+
+#: classes/class-pta_sus_options.php:118
+msgid "Enable Sign-up form live search?"
+msgstr "신청서를 라이브 검색으로 설정하겠습니까?"
+
+#: classes/class-pta_sus_options.php:119
+msgid "Live Search Tables"
+msgstr "라이브 검색 테이블"
+
+#: classes/class-pta_sus_options.php:120
+msgid "Hide donation button?"
+msgstr "기부 버튼을 비공개 하실래요?"
+
+#: classes/class-pta_sus_options.php:125
+msgid "FROM email:"
+msgstr "발신자 이메일:"
+
+#: classes/class-pta_sus_options.php:126
+msgid "Reply-To email:"
+msgstr "이메일에 답변하기:"
+
+#: classes/class-pta_sus_options.php:127
+msgid "Reply-To Chairs?"
+msgstr "답변하기-대표님께?"
+
+#: classes/class-pta_sus_options.php:128
+msgid "CC email:"
+msgstr "CC 이메일:"
+
+#: classes/class-pta_sus_options.php:129
+msgid "Confirmation email subject:"
+msgstr "확인 이메일 주제:"
+
+#: classes/class-pta_sus_options.php:130
+msgid "Confirmation email template:"
+msgstr "확인 이메일 템플레이트:"
+
+#: classes/class-pta_sus_options.php:131
+msgid "Cleared signup email subject:"
+msgstr "이메일 가입 신청 주제:"
+
+#: classes/class-pta_sus_options.php:132
+msgid "Cleared signup email template:"
+msgstr "신청서 이메일 템플레이트 제거됨:"
+
+#: classes/class-pta_sus_options.php:133
+msgid "Reminder email subject:"
+msgstr "알림 이메일 제목:"
+
+#: classes/class-pta_sus_options.php:134
+msgid "Reminder email template:"
+msgstr "알림 이메일 템플레이트:"
+
+#: classes/class-pta_sus_options.php:135
+msgid "Reminder 2 email subject:"
+msgstr "이메일 제목 2 건 알림:"
+
+#: classes/class-pta_sus_options.php:136
+msgid "Reminder 2 email template:"
+msgstr "이메일 템플레이트 2건 알림:"
+
+#: classes/class-pta_sus_options.php:137
+msgid "Max Reminders per Hour:"
+msgstr "시간 당 최대 알림:"
+
+#: classes/class-pta_sus_options.php:138
+msgid "Separate CC/BCC to individual TO emails?"
+msgstr "참조/복사본 이메일을 따로 보내세요?"
+
+#: classes/class-pta_sus_options.php:139
+msgid "Send emails when clear from admin?"
+msgstr "애드민이 비울 때 이메일 수신하겠습니까?"
+
+#: classes/class-pta_sus_options.php:140
+msgid "Disable chair emails?"
+msgstr "대표자 이메일 비활성화 시키겠습니까?"
+
+#: classes/class-pta_sus_options.php:141
+msgid "Disable ALL emails?"
+msgstr "모든 이메일 비활성화 시키겠습니까?"
+
+#: classes/class-pta_sus_options.php:147
+msgid "Enable PTA Member Directory:"
+msgstr "PTA 멤버 주소록 활성시키기:"
+
+#: classes/class-pta_sus_options.php:148
+msgid "Member Directory Page:"
+msgstr "멤버 주소록 페이지:"
+
+#: classes/class-pta_sus_options.php:149
+msgid "Contact Form Page:"
+msgstr "연락처 페이지:"
+
+#: classes/class-pta_sus_options.php:165
+#, php-format
+msgid "Invalid entry for %s!"
+msgstr "%s에 입력하신 내용은 유효하지 않습니다!"
+
+#: classes/class-pta_sus_options.php:179
+#, php-format
+msgid "Invalid email for %s!"
+msgstr "%s은 이메일이 유효하지 않음!"
+
+#: classes/class-pta_sus_options.php:198
+#, php-format
+msgid "Unrecognized field type: %s!"
+msgstr "알 수 없는 내용: %s!"
+
+#: classes/class-pta_sus_options.php:206
+msgid "Settings successfully saved!"
+msgstr "설정이 성공적으로 저장됐습니다!"
+
+#: classes/class-pta_sus_options.php:296
+msgid "Main plugin settings"
+msgstr "메인 플러그인 설정"
+
+#: classes/class-pta_sus_options.php:300
+msgid "Email settings"
+msgstr "이메일 설정"
+
+#: classes/class-pta_sus_options.php:304
+msgid "Integration with other plugins"
+msgstr "다른 플러그인과 통합"
+
+#: classes/class-pta_sus_options.php:307
+msgid "This plugin can integrate with the PTA Member Directory and Contact Form plugin to set contacts for each sign-up sheet, with contact links being directed to the contact form."
+msgstr "이 플러그인은 PTA Member Directory과 Contact Form 플러그인이랑 각각의 가입 신청서에 연락처를 맡기 위해 통합 가능합니다. 연락처 링크는 바로 연락처 양식에 바로 연결됩니다."
+
+#: classes/class-pta_sus_options.php:308
+#, php-format
+msgid "Search for \"PTA Member Directory\" from your Install Plugins page, or download from Wordpress.org here: %s"
+msgstr "플러그인 페이지에서 \"PTA Member Directory\"를 검색하거나 %s에서 워드프레스를 다운로드하세요."
+
+#: classes/class-pta_sus_options.php:316 classes/class-pta_sus_options.php:327
+#: classes/class-pta_sus_options.php:338
+msgid "None"
+msgstr "없음"
+
+#: classes/class-pta_sus_options.php:320
+msgid "The page where you put the shortcode <em>[pta_sign_up_sheet]</em> to generate the main sign-ups page. If you are using the widget, this MUST be set to a page with the main shortcode on it, or your widget links will NOT work!"
+msgstr "메인 신청서를 생성하기 위한 <em>[pta_sign_up_sheet]</em>를 쇼트코드를 입력하는 페이지. 위젯을 사용하신다면, 메인 쇼트코드가 있는 페이지에 생성되지 않을 경우, 위젯 링크는 작동이 <strong>안됩</strong>니다!"
+
+#: classes/class-pta_sus_options.php:331
+msgid "The member directory page where you put the shortcode [pta_member_directory]"
+msgstr "쇼트코드 [pta_member_directory]를 입력하는 회원 디렉토리 페이지"
+
+#: classes/class-pta_sus_options.php:342
+msgid "The member directory contact form page where you put the shortcode [pta_member_contact] if you are using the separate contact form."
+msgstr "만약 따로 연락처 양식 사용하시면 쇼트코드 [pta_member_contact]를 입력하는 회원 디렉토리 연락처 양식 페이지."
+
+#: classes/class-pta_sus_options.php:348
+msgid "Sign-Ups"
+msgstr "등록 신청하기"
+
+#: classes/class-pta_sus_options.php:349
+msgid "WP Users"
+msgstr "WP 사용자"
+
+#: classes/class-pta_sus_options.php:350
+msgid "Both Tables"
+msgstr "각 테이블"
+
+#: classes/class-pta_sus_options.php:359
+msgid "If live search is enabled, select if you want to search for volunteers in the sign-up table, or for users in the WP Users table, or both tables."
+msgstr "라이브 검색이 생성되고, 봉사자들을 검색하려면 신청 테이블 또는 워드 프레스 테이블, 혹은 두 테이블 모두 선택하세요."
+
+#: classes/class-pta_sus_options.php:364
+msgid "The message users see on volunteer sign-up pages when in test mode."
+msgstr "시험 모드일 때 유저들이 봉사 신청 페이지에 볼 수 있는 메시지."
+
+#: classes/class-pta_sus_options.php:369
+msgid "The message users see on volunteer sign-up pages when they are not logged in and the Login Required option is enabled."
+msgstr "메시지 사용자는 봉사 신청 페이지에서 로그인 안된 상태를 볼 수 있고, 로그인이 필요하다는 옵션이 생성됨."
+
+#: classes/class-pta_sus_options.php:374
+msgid "The message users see on task list and sign-up form when they are not logged in and the \"Login Required for Signup\" option is enabled."
+msgstr "회원 로그인이 안되어 있고 \"Login Required for Signup\" 옵션이 선택된 경우, 과제 리스트와 가입 신청서에 뜨는 창."
+
+#: classes/class-pta_sus_options.php:379
+msgid "The email address that confirmation and reminder emails will be sent from."
+msgstr "확인 및 알림 이메일이 발송되는 이메일 주소."
+
+#: classes/class-pta_sus_options.php:384
+msgid "The Reply-To email address for confirmation and reminder emails."
+msgstr "확인 이메일과 알림 이메일 답변을 위한 이메일 주소."
+
+#: classes/class-pta_sus_options.php:389
+msgid "Global CC email address for signup confirmation and signup cleared emails. This email is in ADDITION TO the chair contact emails for sheets and will apply to ALL sheets. Useful for notifying admin or the head volunteer coordinator. Leave blank to only notify the chairs entered for each sheet."
+msgstr "신청 확인과 신청 치움 이메일 받을 글로벌 CC 이메일 주소. 이 이메일은 시트 대표자 이메일이랑 같이 사용되고, 모든 시트에 활용됩니다. 관리자 혹은 봉사 조정자 대표를 연락하기 위한 유용함. 각 시트의 대표자만 연락하시기 원하면 칸 비우세요."
+
+#: classes/class-pta_sus_options.php:394
+msgid "Subject line for signup confirmation email messages. Template tags can be used."
+msgstr "신청 확인 이메일 메시지 제목, 템플레이트 태그 사용 가능."
+
+#: classes/class-pta_sus_options.php:399
+msgid "Subject line for cleared signup email messages. Template tags can be used."
+msgstr "삭제된 신청 이메일 메시지의 제목. 템플레이트 태그도 사용 가능합니다."
+
+#: classes/class-pta_sus_options.php:404
+msgid "Subject line for signup reminder email messages. Template tags can be used."
+msgstr "확인 이메일과 알림을 위한 이메일 주소. 템플레이트 태그 사용 가능."
+
+#: classes/class-pta_sus_options.php:409
+msgid "Subject line for signup reminder #2 email messages. LEAVE BLANK to use same subject template (above) for both reminders. Template tags can be used."
+msgstr "가입 알림 #2 이메일 메시지의 제목란. 위에 속하는 제1 제목란을 똑같이 사용하시길 원하면 <strong>빈칸 채우지 마</strong>십시오. 태그 본보기  사용 가능."
+
+#: classes/class-pta_sus_options.php:414
+msgid "Max # of reminder emails to send out in a hour. Leave blank or zero for no limit."
+msgstr "최대한 #건의 이메일이 한 시간 이내로 전송됩니다. 제한을 없개 하려면 빈 칸 혹은 0을 입력하세요."
+
+#: classes/class-pta_sus_options.php:423
+msgid "PTA Member Directory and Contact Form"
+msgstr "PTA Member Directory 및 Contact Form"
+
+#: classes/class-pta_sus_options.php:426
+#, php-format
+msgid "Enable integration with the %s"
+msgstr "%s와 통합 활성"
+
+#: classes/class-pta_sus_options.php:438
+msgid "Puts Volunteer Sign-up Sheet system in test mode. Only admin level users can view public side sign-up sheets."
+msgstr "봉사자 신청 시트 시스템이 테스트 모드로 됨. 애드민 등급 사용자만 공개된 신청서 시트를 볼 수 있습니다."
+
+#: classes/class-pta_sus_options.php:450
+msgid "If checked, filled sign-up slots will show \"Filled\" instead of first name and last initial of volunteer."
+msgstr "체크를 하면, 봉사자의 전체 이름 대신, 채워진 신청란에 \"채워짐\"이라고 표기됩니다."
+
+#: classes/class-pta_sus_options.php:462
+msgid "If checked, and not hiding names (above), this will show the full first and last name instead of first name and last initial."
+msgstr "(위에) 이름을 숨기지 않고 체크하면, 이름 및 성의 이니셜 대신 성씨를 포함한 전체 이름이 나옵니다."
+
+#: classes/class-pta_sus_options.php:474
+msgid "If checked the item details and quantity fields will be hidden from the task list on the sheet details page."
+msgstr "체크를 하면, 항목의 자세한 사항과 필드 수량이 시트의 자세한 페이지에 있는 업무 리스트에서 숨겨집니다."
+
+#: classes/class-pta_sus_options.php:488 classes/class-pta_sus_options.php:501
+#: classes/class-pta_sus_options.php:514 classes/class-pta_sus_options.php:527
+#: classes/class-pta_sus_options.php:587 classes/class-pta_sus_options.php:599
+#: classes/class-pta_sus_options.php:611 classes/class-pta_sus_options.php:623
+#: classes/class-pta_sus_options.php:635 classes/class-pta_sus_options.php:647
+#: classes/class-pta_sus_options.php:659 classes/class-pta_sus_options.php:671
+#: classes/class-pta_sus_options.php:683 classes/class-pta_sus_options.php:695
+#: classes/class-pta_sus_options.php:707 classes/class-pta_sus_options.php:719
+#: classes/class-pta_sus_options.php:731 classes/class-pta_sus_options.php:743
+#: classes/class-pta_sus_options.php:755 classes/class-pta_sus_options.php:767
+#: classes/class-pta_sus_options.php:779 classes/class-pta_sus_options.php:791
+#: classes/class-pta_sus_options.php:803 classes/class-pta_sus_options.php:815
+#: classes/class-pta_sus_options.php:828
+msgid "YES."
+msgstr "네."
+
+#: classes/class-pta_sus_options.php:488
+msgid "When checked, the number of remaining sign-up slots for a task/item will be shown on one line in the task list with a single sign-up link, instead of showing a separate line for each of the remaining quantity of that task/item."
+msgstr "체크를 하면, 남은 업무가 별개 줄로 나오는 대신, 한 개의 신청 링크로 업무의 남은 란의 갯수를 볼 수 있게 설정됩니다."
+
+#: classes/class-pta_sus_options.php:501
+msgid "When checked, and as long as you are not hiding the phone field, the phone field will be required. Un-check if you want to show the phone field but have it be optional."
+msgstr "체크를 하면, 전화번호 칸을 가리지 않은 한, 전화번호 칸에 입력하셔야 합니다. 전화번호 칸을 보이게 하고, 이 기능을 선택 옵션으로 하려면 체크하지 마세요."
+
+#: classes/class-pta_sus_options.php:514
+msgid "When checked, styled divs will be used to replace all tables in the public output (sheet list, task list, user signup list)."
+msgstr "체크를 하면, 전체 공개된 (시트 목록, 작업 목록, 사용자 목록) 모든 테이블이 스타일 div로 대체합니다."
+
+#: classes/class-pta_sus_options.php:527
+msgid "When checked, the plugin will NOT queue up its own CSS style sheet."
+msgstr "체크하면, 플러그인은 CSS 종류의 시트를 <strong>사용하지 않</strong>음."
+
+#: classes/class-pta_sus_options.php:538
+msgid "If checked, sheet chair contact info will NOT be shown to the public."
+msgstr "체크하면, 대표자의 연락처 시트는 <strong>전체공개되지 않</strong>음."
+
+#: classes/class-pta_sus_options.php:550
+msgid "If checked, Ongoing events will be shown in sidebar widget."
+msgstr "체크하면, 진행되는 이벤트는 사이바 위젯에 나옴."
+
+#: classes/class-pta_sus_options.php:562
+msgid "If checked, Ongoing events will be shown at the bottom of sign up sheet lists (and widget, if enabled)."
+msgstr "체크하면, 진행되는 이벤트는 신청 시트 목록 (활성화되면 위젯에도) 아래에 나옴."
+
+#: classes/class-pta_sus_options.php:574
+msgid "If checked, the Phone field will be removed from the public Sign-Up form."
+msgstr "체크하면, 전화번호 칸이 공개 신청서에서 삭제됨."
+
+#: classes/class-pta_sus_options.php:587
+msgid "Force user to be logged in before they can view or sign-up for any volunteer sheets."
+msgstr "사용자가 봉사자 시트를 보거나 신청하기 위해 로그인하게 만드는 것."
+
+#: classes/class-pta_sus_options.php:599
+msgid "Force user to be logged in before they can sign-up for any volunteer sheets. If the above box is checked, this has no effect. But you can un-check the above \"Login Required\" option to allow guests to view the sign-up sheets, but then check this box to prevent guests from signing up."
+msgstr "사용자가 봉사자 시트를 보거나 신청하기 위해 로그인하게 만드는 것. 위에 박스가 체크되면, 이기능은 아무 효력이 없습니다. 그러나 위에 \"로그인이 요구됨\" 기능을 체크하지 않으면, 모든 방문자가 신청 시트를 볼 수 있게 되며, 이 박스를 체크하면 방문자가 신청을 할 수 없게 됩니다."
+
+#: classes/class-pta_sus_options.php:611
+msgid "If you require users to be logged in to view and sign-up, enabling this option will make name and email fields on the signup form \"read only\", if the information already exists in their user meta. They will not be able to alter first name, last name, or email when signing up."
+msgstr "사용자가 신청서를 작성하거나 보기를 원할 때, 로그인을 요구하려면, 이 옵션을 생성하면, 신청서의 이름과 이메일 내용이 사용자 메타에 등록이 되어 있으면  \"보기만 하기\"로 됩니다. 신청을 할 때, 이름, 성씨 및 이메일 주소를 수정할 수 없습니다."
+
+#: classes/class-pta_sus_options.php:623
+msgid "If login is required, this will show a login link under the login required message."
+msgstr "만일 로그인이 필요하면, 로그인이 필요하다는 메시지와 함께 이 로그인 링크가 나옴."
+
+#: classes/class-pta_sus_options.php:635
+msgid "Turn off the notice strongly suggesting volunteers login before signing up for a volunteer slot (on signup form page) and the notice to login to view/edit signups on the main volunteer list page."
+msgstr "봉사 (등록  페이지에) 등록 전 로그인 추천을 하는 공고문과 메인 봉사 지원 페이지 보기 또는 수정 전에 로그인하라는 공고문 끄기."
+
+#: classes/class-pta_sus_options.php:647
+msgid "Checking this option will check ALL user signups, across ALL sheets, to see if the same user has already signed up for another task on the same date with overlapping times. If so, an error message will be shown and they will not be able to sign up. This is a global setting. If you only want to check for overlapping times on a single sheet, use the setting on that sheet. Checking this will ignore that per sheet setting and always check all signups for the user."
+msgstr "이 옵션을 선택하시면 모든 시트의 모든 회원 가입을 똑같은 날짜에 다른 업무랑 겹치는지 확인하러 선택됩니다. 선택하시면 각 시트의 설정과 상관없이 회원의 모든 신청을 확인합니다. 해당되는 경우, 오류 메시지가 뜨고 신청 가능하지 않습니다. 이것은 글로벌 설정입니다. 만약 한개의 시트에서만 겹치는 시간 확인하려면, 그 시트의 설정만 이용하세요."
+
+#: classes/class-pta_sus_options.php:659
+msgid "Sends site admin an email whenever a CRON job is completed (such as sending reminders or deleting expired signups)."
+msgstr "CRON 작업이 완료될 때마다 (알림이나 만기된 신청을 삭제하기) 애드민에게 이메일 보내기."
+
+#: classes/class-pta_sus_options.php:671
+msgid "Admin reminder emails notification will include the message body of all reminders sent, useful for troubleshooting."
+msgstr "애드민이 보내는 이메일 알림은 문제 해결에 도움되는 보낸 알림 메시지 본문을 포함한다."
+
+#: classes/class-pta_sus_options.php:683
+msgid "Shows expired tasks on the admin View Signups page for a sheet. Expired tasks are not counted in the Total Spots column."
+msgstr "시트 관리자 보기 신청 페이지의 기한이 지난 업무 보기. 기한 지난 업무는 총 자리 세로단에 포함되어 있지 않습니다."
+
+#: classes/class-pta_sus_options.php:695
+msgid "Automatically clears expired signups from the database (runs with hourly CRON function). Expired signups are not counted in the Filled Spots column."
+msgstr "모든 만료 업무를 데이터베이스에서 자동적으로 지웁니다 (매 시 CRON 기능과 같이 작동된다). 만료된 업무는 채운 자리 세로단에 포함되어 있지 않습니다."
+
+#: classes/class-pta_sus_options.php:707
+msgid "Check this to show remaining spots for a task as rows in the sheet CSV export (previous default behavior). Uncheck to only show rows for filled spots."
+msgstr "이 항목을 선택하시면 남은 자리를 CSV 수출 시트의 가로열에 표시됩니다 (이전의 기본 설정). 가로열에 채운 자리만 표시 하려면 박스 선택하지 마십시오."
+
+#: classes/class-pta_sus_options.php:719
+msgid "Check this to show the date on every row for a task in the sheet CSV export. Uncheck to show the date only on the first row for a task (previous default behavior)."
+msgstr "CSV 수출 시트에 모든 업무의 날짜 표시 하려면 선택하십시오. 선택하지 않으시면 첫 열만의 업무만 날짜 표시됩니다 (이전의 기본 설정)."
+
+#: classes/class-pta_sus_options.php:731
+msgid "Hides the donation button at bottom of settings pages."
+msgstr "설정 페이지 아래에 있는 기부 버튼을 가리기."
+
+#: classes/class-pta_sus_options.php:743
+msgid "Allows admin and sign-up sheet managers to do live search of volunteers by first or last name on the sign-up form, allowing them to sign-up other volunteers quickly from the front end. If this is disabled, the extra javascript will not be enqueued."
+msgstr "애드민 및 신청서 시트 매니저가 신청서에 있는 봉사자들의 이름 혹은 성씨로 라이즈 검색하고, 다른 봉사자들을 신속하게 등록시킬 수 있습니다. 이것이 비활성화되면 자바 스크립트를 인큐되지 못합니다."
+
+#: classes/class-pta_sus_options.php:755
+msgid "If checked, sign-up links will always go to the main volunteer page (set above). Un-check this if you are using different shortcodes on different pages to display different sheets and want to stay on that page when displaying the sign up form."
+msgstr "체크하면, 신청 링크는 메인 봉사자 페이지로 (위에 있는) 가게 됨. 여러 시트에 다른 식별 코드를 사용 중이고, 신청서를 보이면서 그 페이지에 있고 싶으면 체크하지 마세요."
+
+#: classes/class-pta_sus_options.php:767
+msgid "If checked, any CC or BCC email addresses (chairs, global CC, admin) will be sent individually as separate emails, as opposed to one email with several CC or BCC addresses in the header. This could solve some email issues on some servers when using the the built-in wp_mail function (PHP sendmail), instead of an SMTP email plugin (a better choice), where none or only some of the CC/BCC recipients actually get the email. Note, however, that this could send out a large number of emails at once, and you should be aware of any server limits on the number of emails sent per hour."
+msgstr "선택하시면 모든 CC 또는 BCC 이메일 주소가 (대표자, 글로벌 CC, 관리자) 한개의 이메일 안 여러 CC과 BCC 주소가 적혀있는 대신, 각각 따로 이메일이 전달됩니다. 선택하시면 빌트인 wp_메일 기능 (PHP 전달메일) 사용하실때의 몇몇 오류를 해결될 수가 있습니다. 이것은 일부의 CC/BCC 이메일을 보내주는 SMTP 이메일 플러그인 (추천 옵션)을 대체합니다. 대신, 이 선택은 여러개의 이메일을 동시에 보내기 때문에 서버 작동이 안될수도 있으니 서버의 시간당 이메일 보냄 제한 숫자를 잘 지켜주세요."
+
+#: classes/class-pta_sus_options.php:779
+msgid "If checked, clear emails will be sent when a spot is cleared from the admin view signups page."
+msgstr "체크를 하면, 자리가 취소되면 취소된 이메일이 애드민 신청 페이지에서 전송됩니다."
+
+#: classes/class-pta_sus_options.php:791
+msgid "If checked, sign-up and clear emails will NOT get copied to chairs/contacts."
+msgstr "체크를 하면 대표자/연락처에 신청서나 취소 이메일이 복사되지 않습니다."
+
+#: classes/class-pta_sus_options.php:803
+msgid "If checked, ALL emails will be disabled (including reminder emails). Useful if you want to clear and manually sign up users without emails being sent (when making corrections, for example). Reminders will start to get checked and sent again after you turn this off."
+msgstr "선택하시면, 모든 이메일 (알람 이메일 포함)이 불능됩니다. 이메일 보내지 않고도 회원 신청 또는 치울때 (예를 들어, 수정하는 경우에) 유용합니다. 기능 끌때는 알림이 다시 확인되고 보내집니다."
+
+#: classes/class-pta_sus_options.php:815
+msgid "If checked, Chair emails will be set as the reply-to address in notification emails. Above reply-to email will be ignored when this is checked."
+msgstr "체크하면, 대표자의 이메일이 알림 이메일에 답변하는 이메일 주소로 됩니다. 여기가 체크되면, 위에 답변 이메일은 무시됩니다."
+
+#: classes/class-pta_sus_options.php:828
+msgid "When checked, the plugin will suppress duplicated signup forms and messages when you are using multiple shortcodes on the same page without using the redirect option (redirecting to a page with only one shortcode for signup). If you have a theme or plugin that is triggering shortcode functions more than once on a page, causing a blank page, or if you never use more than one shortcode on a page without redirecting, you can un-check this option."
+msgstr "선택하시면 이 플러그인은 사본 신청 자료과 여러개의 쇼트코드를 리디렉션 옵션 (신청할때 한개의 쇼트코드를 사용하는 페이지로 리디렉션됨) 선택 없이 사용하실때 뜨는 메시지를 숨깁니다. 만약 쇼트코드 기능을 한번이상 사용 (빈 페이지가 뜸) 또는 한개의 쇼트코드 사용하실 때에도 리디렉션 되는 플러그인 또는 테마가 있으시면 선택하지 마십시오."
+
+#: classes/class-pta_sus_options.php:835
+msgid "Email user receives when they sign up for a volunteer slot."
+msgstr "봉사 등록 신청을 하면 이메일 발송됩니다."
+
+#: classes/class-pta_sus_options.php:836 classes/class-pta_sus_options.php:844
+#: classes/class-pta_sus_options.php:852 classes/class-pta_sus_options.php:860
+msgid "Available Template Tags: "
+msgstr "사용가능한 템플레이트 태그: "
+
+#: classes/class-pta_sus_options.php:843
+msgid "Reminder email sent to volunteers."
+msgstr "봉사자에게 알림 이메일 보냄."
+
+#: classes/class-pta_sus_options.php:851
+msgid "Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders"
+msgstr "#2 의 남은 이메일이 봉사자들에게 전송되었습니다. 두 알림에 같은 (처음) 메시지 템플레이트를 사용하려면, <strong>빈칸으로 두세요</strong>"
+
+#: classes/class-pta_sus_options.php:859
+msgid "Cleared signup email sent to volunteers when they clear themselves from a signup."
+msgstr "봉사자들이 등록 신청을 취소하면 신청 취소 이메일이 보내집니다."
+
+#: classes/class-pta_sus_public.php:135 classes/list-table.php:184
+#: classes/widget.php:163
+msgid "Title"
+msgstr "제목"
+
+#: classes/class-pta_sus_public.php:136
+msgid "Start Date"
+msgstr "시작 날짜"
+
+#: classes/class-pta_sus_public.php:137
+msgid "End Date"
+msgstr "마감 날짜"
+
+#: classes/class-pta_sus_public.php:138 classes/widget.php:120
+msgid "Open Spots"
+msgstr "열린 시간대"
+
+#: classes/class-pta_sus_public.php:139
+msgid "Date"
+msgstr "날짜"
+
+#: classes/class-pta_sus_public.php:140
+msgid "No Event Chair contact info provided"
+msgstr "대표 연락처 및 정보가 제공 안되었음"
+
+#: classes/class-pta_sus_public.php:141
+msgid "Contact:"
+msgstr "연락:"
+
+#: classes/class-pta_sus_public.php:147 classes/widget.php:46
+msgid "Hidden!"
+msgstr "숨겼습니다!"
+
+#: classes/class-pta_sus_public.php:167
+msgid "Sorry! Your security nonce did not verify!"
+msgstr "죄송합니다! 당신의 임시어는 확인이 안됩니다!"
+
+#: classes/class-pta_sus_public.php:173
+msgid "Oops! You filled in the spambot field. Please leave it blank and try again."
+msgstr "아이고! 스팸봇 필드에 입력하셨어요. 빈칸으로 두시고 재시도하세요."
+
+#: classes/class-pta_sus_public.php:196
+msgid "Please complete all required fields."
+msgstr "모든 필수 입력란을 채우세요."
+
+#: classes/class-pta_sus_public.php:203
+msgid "Invalid Characters in First Name!  Please try again."
+msgstr "이름에 유효하지 않은 글자가 있어요! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:208
+msgid "Invalid Characters in Last Name!  Please try again."
+msgstr "성씨에 유효하지 않은 글자가 있습니다! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:213
+msgid "Invalid Email!  Please try again."
+msgstr "유효하지 않은 이메일 주소입니다! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:218
+msgid "Email and Confirmation Email do not match!  Please try again."
+msgstr "이메일과 확인된 이메일이 일치하지 않습니다! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:223
+msgid "Invalid Characters in Phone Number!  Please try again."
+msgstr "전화 번호에 유효하지 않은 글씨가 있습니다! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:228
+msgid "Invalid Characters in Signup Item!  Please try again."
+msgstr "등록 신청서 항목에 유효하지 않은 글자가 있어요! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:233
+#, php-format
+msgid "Please enter a number between 1 and %d for Item QTY!"
+msgstr "항목 QTY를 위해 1에서 %d 까지의 번호를 입력하세요!"
+
+#: classes/class-pta_sus_public.php:238
+msgid "Hidden signup date field is invalid!  Please try again."
+msgstr "숨겨진 등록 날짜 필드가 유효하지 않아요! 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:247
+msgid "You are already signed up for this task!"
+msgstr "이미 이 작업을 신청하셨습니다!"
+
+#: classes/class-pta_sus_public.php:252 classes/class-pta_sus_public.php:256
+msgid "You are already signed up for another task in this time frame!"
+msgstr "같은 시간대에 다른 작업을 이미 신청하셨습니다!"
+
+#: classes/class-pta_sus_public.php:268
+msgid "Error adding signup record.  Please try again."
+msgstr "신청서 내용 추가 중 에러 발생. 다시 시도하세요."
+
+#: classes/class-pta_sus_public.php:276
+msgid "You have been signed up!"
+msgstr "벌써 신청하셨습니다!"
+
+#: classes/class-pta_sus_public.php:278
+msgid "ERROR SENDING EMAIL"
+msgstr "<strong>이메일 발송 중 에러 발생</strong>"
+
+#: classes/class-pta_sus_public.php:291 classes/class-pta_sus_public.php:295
+msgid "Not allowed!"
+msgstr "허용되지 않습니다!"
+
+#: classes/class-pta_sus_public.php:293
+msgid "Not a valid signup!"
+msgstr "유효하지 않은 신청 방식입니다!"
+
+#: classes/class-pta_sus_public.php:305
+msgid "Signup Cleared"
+msgstr "신청이 취소되었습니다"
+
+#: classes/class-pta_sus_public.php:309
+msgid "ERROR clearing signup!"
+msgstr "신청을 취소하는 중 <strong>에러 발생</strong>!"
+
+#: classes/class-pta_sus_public.php:370
+msgid "View &amp; sign-up &raquo;"
+msgstr "보기 &amp; 등록하기 &raquo;"
+
+#: classes/class-pta_sus_public.php:371 classes/class-pta_sus_public.php:1013
+#: classes/class-pta_sus_public.php:1110
+msgid "Filled"
+msgstr "채워짐"
+
+#: classes/class-pta_sus_public.php:375
+msgid "View Event &raquo;"
+msgstr "이벤트 보기 &raquo;"
+
+#: classes/class-pta_sus_public.php:432
+msgid "Sign-up sheet not found."
+msgstr "가입 시트 찾지 못함."
+
+#: classes/class-pta_sus_public.php:437 classes/class-pta_sus_public.php:780
+#: classes/class-pta_sus_public.php:1346
+msgid "You don't have permission to view this page."
+msgstr "당신은 이 페이지를 접하실 권한이 없습니다."
+
+#: classes/class-pta_sus_public.php:462
+msgid "&laquo; View all Sign-up Sheets"
+msgstr "&laquo; 모든 가입 시트 보기"
+
+#: classes/class-pta_sus_public.php:493
+msgid "Event Chairs:"
+msgstr "이벤트의 대표자:"
+
+#: classes/class-pta_sus_public.php:495
+msgid "Event Chair:"
+msgstr "이벤트의 대표:"
+
+#: classes/class-pta_sus_public.php:514
+msgid "This sheet is currently hidden from the public."
+msgstr "현재 이 시트는 공개 되지 않았습니다."
+
+#: classes/class-pta_sus_public.php:537
+msgid "DETAILS:"
+msgstr "<strong>자세한 내용</strong>:"
+
+#: classes/class-pta_sus_public.php:542
+msgid "Sign up below..."
+msgstr "아래에 등록 신청하세요..."
+
+#: classes/class-pta_sus_public.php:544
+msgid "All spots have been filled."
+msgstr "모든 자리가 채워졌습니다."
+
+#: classes/class-pta_sus_public.php:572
+msgid "You have signed up for the following"
+msgstr "당신은 다음 내용을 위해 등록 신청하셨습니다"
+
+#: classes/class-pta_sus_public.php:573
+msgid "Click on Clear to remove yourself from a signup."
+msgstr "신청을 취소하려면 삭제를 누르세요."
+
+#: classes/class-pta_sus_public.php:629 classes/class-pta_sus_public.php:1124
+msgid "Clear"
+msgstr "삭제됨"
+
+#: classes/class-pta_sus_public.php:690
+msgid "You do not have any current signups"
+msgstr "당신은 현재 신청서가 없습니다"
+
+#: classes/class-pta_sus_public.php:707
+msgid "Volunteer Sign-Up Sheets are in TEST MODE"
+msgstr "봉사자 등록 신청 양식은 <strong>시험 모드로</strong> 되었음"
+
+#: classes/class-pta_sus_public.php:719 classes/class-pta_sus_public.php:1331
+msgid "Login"
+msgstr "로그인"
+
+#: classes/class-pta_sus_public.php:732 classes/class-pta_sus_public.php:746
+msgid "Current Volunteer Sign-up Sheets"
+msgstr "현재 봉사 등록 신청 시트"
+
+#: classes/class-pta_sus_public.php:814
+msgid "No sheets currently available at this time."
+msgstr "현재 시트가 없습니다."
+
+#: classes/class-pta_sus_public.php:824
+msgid "Please login to view and edit your volunteer sign ups."
+msgstr "본인의 봉사자 신청 내용을 보고 수정시려면 로긴하세요."
+
+#: classes/class-pta_sus_public.php:853
+msgid "No tasks were found for "
+msgstr "아무 작업도 발견되지 않음 "
+
+#: classes/class-pta_sus_public.php:899 classes/class-pta_sus_public.php:901
+msgid "Available Spots"
+msgstr "아직 유효한 시간대"
+
+#: classes/class-pta_sus_public.php:1011
+#, php-format
+msgid "%d Filled"
+msgstr "%d 채워짐"
+
+#: classes/class-pta_sus_public.php:1015 classes/class-pta_sus_public.php:1260
+#, php-format
+msgid "%d remaining: &nbsp;"
+msgstr "%d 남음: &nbsp;"
+
+#: classes/class-pta_sus_public.php:1024 classes/class-pta_sus_public.php:1264
+msgid "Sign up &raquo;"
+msgstr "&raquo; 신청하기"
+
+#: classes/class-pta_sus_public.php:1358
+msgid "Sign Up"
+msgstr "등록 신청하기"
+
+#: classes/class-pta_sus_public.php:1359
+msgid "You are signing up for... "
+msgstr "당신은 ...을 위해 등록 신청합니다."
+
+#: classes/class-pta_sus_public.php:1361
+#, php-format
+msgid "on %s"
+msgstr "%s 일에"
+
+#: classes/class-pta_sus_public.php:1370
+msgid "First Name"
+msgstr "이름"
+
+#: classes/class-pta_sus_public.php:1371
+msgid "Last Name"
+msgstr "성씨"
+
+#: classes/class-pta_sus_public.php:1373
+msgid "Confirm E-mail"
+msgstr "이메일 확인"
+
+#: classes/class-pta_sus_public.php:1434
+msgid "If you have an account, it is strongly recommended that you <strong>login before you sign up</strong> so that you can view and edit all your signups."
+msgstr "계정이 있으신 경우, 등록하신 내용을 전부 보고 수정할 수 있도록 등록을 <strong>신청하기 전에 로그인을</strong> 하시길 강력히 권장합니다."
+
+#: classes/class-pta_sus_public.php:1480
+#, php-format
+msgid "Item QTY (1 - %d): "
+msgstr "항목 QTY (1 - %d): "
+
+#: classes/class-pta_sus_public.php:1483
+msgid "Only 1 remaining! Your quantity will be set to 1."
+msgstr "1개 남음! 당신의 수량은 1로 설정됨."
+
+#: classes/class-pta_sus_public.php:1505
+msgid "Sign me up!"
+msgstr "자신을(나를) 등록하기!"
+
+#: classes/class-pta_sus_public.php:1506
+msgid "&laquo; go back to the Sign-Up Sheet"
+msgstr "&laquo; 등록 신청서 시트로 다시 돌아가세요"
+
+#: classes/data.php:629
+msgid "User Volunteer Signup Data"
+msgstr "봉사자 등록 신청서 사용자 데이터"
+
+#: classes/data.php:681
+msgid "Signup Item"
+msgstr "등록 신청 항목"
+
+#: classes/data.php:685
+msgid "Signup Name"
+msgstr "등록 신청자의 이름"
+
+#: classes/data.php:689
+msgid "Signup Email"
+msgstr "신청자의 이메일"
+
+#: classes/data.php:693
+msgid "Signup Phone"
+msgstr "신청자의 전화번호"
+
+#: classes/data.php:897
+msgctxt "contact name separating character"
+msgid ", "
+msgstr ", "
+
+#: classes/data.php:899
+msgctxt "separator before last contact name"
+msgid " and "
+msgstr " 그리고 "
+
+#: classes/data.php:1211
+#, php-format
+msgid "%s is a required field."
+msgstr "%s 는/은 필수 필드입니다."
+
+#: classes/data.php:1222
+#, php-format
+msgid "Invalid characters in %s field."
+msgstr "%s 필드에 유효하지 않은 글자 발견."
+
+#: classes/data.php:1242
+msgid "Invalid email."
+msgstr "유효하지 않은 이메일."
+
+#: classes/data.php:1250 classes/data.php:1264
+msgid "Invalid date."
+msgstr "유효하지 않은 날짜."
+
+#: classes/data.php:1273
+#, php-format
+msgid "Numbers only for %s please!"
+msgstr "%s에는 번호만 쓰세요!"
+
+#: classes/data.php:1280
+#, php-format
+msgid "YES or NO only for %s please!"
+msgstr "%s에는 <strong>예</strong> 또는 <strong>아니오</strong>만 쓰세요!"
+
+#: classes/data.php:1287
+#, php-format
+msgid "Invalid Value for %s"
+msgstr "%s의 가치는 잘못됨"
+
+#: classes/data.php:1295
+#, php-format
+msgid "Invalid time format for %s"
+msgstr "%s의 포맷은 잘못됨"
+
+#: classes/list-table.php:109 classes/list-table.php:231
+msgid "Restore"
+msgstr "복구하기"
+
+#: classes/list-table.php:109 classes/list-table.php:230
+msgid "Delete"
+msgstr "삭제하기"
+
+#: classes/list-table.php:111
+msgid "View Sign-ups"
+msgstr "신청서를 보기"
+
+#: classes/list-table.php:114
+msgid "Copy"
+msgstr "복사하기"
+
+#: classes/list-table.php:115
+msgid "Trash"
+msgstr "쓰레기"
+
+#: classes/list-table.php:140
+msgid "Yes"
+msgstr "네"
+
+#: classes/list-table.php:142
+msgid "NO"
+msgstr "<strong>아니오</strong>"
+
+#: classes/list-table.php:183
+msgid "ID#"
+msgstr "아이디#"
+
+#: classes/list-table.php:185
+msgid "Visible"
+msgstr "보이기"
+
+#: classes/list-table.php:186
+msgid "Event Type"
+msgstr "이벤트 종류"
+
+#: classes/list-table.php:187 classes/widget.php:161
+msgid "First Date"
+msgstr "처음 날짜"
+
+#: classes/list-table.php:188 classes/widget.php:162
+msgid "Last Date"
+msgstr "마지막 날짜"
+
+#: classes/list-table.php:189
+msgid "# Dates"
+msgstr "# 날짜"
+
+#: classes/list-table.php:190
+msgid "# Tasks"
+msgstr "# 업무"
+
+#: classes/list-table.php:191
+msgid "Total Spots"
+msgstr "전체 시간대"
+
+#: classes/list-table.php:192
+msgid "Filled Spots"
+msgstr "채워진 시간대"
+
+#: classes/list-table.php:235
+msgid "Move to Trash"
+msgstr "쓰레기통으로 옮김"
+
+#: classes/list-table.php:236
+msgid "Toggle Visibility"
+msgstr "토글 보이게 하기"
+
+#: classes/list-table.php:269
+#, php-format
+msgid "Error moving sheet# %d to trash."
+msgstr "%d 시트를 쓰레기통으로 보내는 중 에러 발생."
+
+#: classes/list-table.php:272
+#, php-format
+msgid "%d sheets have been moved to the trash."
+msgstr "%d 시트를 쓰레기통으로 보냈습니다."
+
+#: classes/list-table.php:280
+#, php-format
+msgid "Error deleting sheet# %d."
+msgstr "시트# %d 삭제 중 에러 발생."
+
+#: classes/list-table.php:283
+#, php-format
+msgid "%d sheets have been deleted."
+msgstr "%d 시트가 삭제되었습니다."
+
+#: classes/list-table.php:291
+#, php-format
+msgid "Error restoring sheet# %d."
+msgstr "시트 # %d 복구하던 중 에러 발생."
+
+#: classes/list-table.php:294
+#, php-format
+msgid "%d sheets have been restored."
+msgstr "# %d 시트가 복구되었습니다."
+
+#: classes/list-table.php:302
+#, php-format
+msgid "Error toggling visibility for sheet# %d."
+msgstr "시트# %d에 보이기를 표시하거나 표시하지 않음."
+
+#: classes/list-table.php:305
+#, php-format
+msgid "Visibility toggled for %d sheets."
+msgstr "%d 시트에 보이기를 표시하거나 표시하지 않음."
+
+#: classes/widget.php:19
+msgid "PTA Volunteer Sign-up Sheet list Widget."
+msgstr "PTA 봉사자 등록 신청 시트 목록 위젯."
+
+#: classes/widget.php:139
+msgid "Current Volunteer Opportunities"
+msgstr "현재 가능한 봉사 활동"
+
+#: classes/widget.php:147
+msgid "# of items to show (-1 for all):"
+msgstr "# 개 항목을 보이기 (전부는 -1):"
+
+#: classes/widget.php:151
+msgid "What to show?"
+msgstr "무엇을 공개합니까?"
+
+#: classes/widget.php:153
+msgid "Both"
+msgstr "양쪽 다"
+
+#: classes/widget.php:154
+msgid "Volunteer Events (with sign-ups)"
+msgstr "봉사 이벤트 (신청서와 같이)"
+
+#: classes/widget.php:155
+msgid "No Sign-Up Events (display events only)"
+msgstr "신청할 수 있는 이벤트 없음 (이벤트만 공개하기)"
+
+#: classes/widget.php:159
+msgid "Sort By:"
+msgstr "정리하기:"
+
+#: classes/widget.php:164
+msgid "Sheet ID"
+msgstr "시트 ID"
+
+#: classes/widget.php:168
+msgid "Sort Order:"
+msgstr "순서대로 나열:"
+
+#: classes/widget.php:170
+msgid "Ascending"
+msgstr "밑에서 위로"
+
+#: classes/widget.php:171
+msgid "Descending"
+msgstr "위에서 밑으로"
+
+#: classes/widget.php:175
+msgid "CSS Class for ul list of signups"
+msgstr "UL 리스트의 등록 신청서는 CSS Class를 사용"
+
+#: pta-volunteer-sign-up-sheets.php:239
+msgid "Volunteer Signup Housekeeping Completed!"
+msgstr "봉사자 등록 신청서 하우스키핑 완료!"
+
+#: pta-volunteer-sign-up-sheets.php:241
+#, php-format
+msgid "%d expired signups were deleted."
+msgstr "%d 만료된 등록 신청이 삭제되었습니다."
+
+#: pta-volunteer-sign-up-sheets.php:588
+msgid "Extensions"
+msgstr "연장하기"
+
+#: pta-volunteer-sign-up-sheets.php:590
+msgid "Docs"
+msgstr "문서"
+
+#: pta-volunteer-sign-up-sheets.php:608 pta-volunteer-sign-up-sheets.php:646
+msgid "Volunteer Sign Up Data"
+msgstr "봉사자 등록 신청 데이터"
+
+#: pta-volunteer-sign-up-sheets.php:676
+msgid "Your Volunteer Sign Up Info was unable to be removed at this time."
+msgstr "현재 당신의 봉사자 등록 신청 정보는 삭제되지 못했습니다."
+
+#. Plugin Name of the plugin/theme
+msgid "PTA Volunteer Sign Up Sheets"
+msgstr "PTA 봉사자 신청 등록 시트"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wordpress.org/plugins/pta-volunteer-sign-up-sheets"
+msgstr "http://wordpress.org/plugins/pta-volunteer-sign-up-sheets"
+
+#. Description of the plugin/theme
+msgid "Volunteer sign-up sheet manager"
+msgstr "봉사자 등록 신청 시트 관리자"
+
+#. Author of the plugin/theme
+msgid "Stephen Sherrard"
+msgstr "Stephen Sherrard"
+
+#. Author URI of the plugin/theme
+msgid "https://stephensherrardplugins.com"
+msgstr "https://stephensherrardplugins.com"

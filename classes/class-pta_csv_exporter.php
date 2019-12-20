@@ -63,10 +63,10 @@ class PTA_SUS_CSV_EXPORTER {
 	 */
 	public function export_report($sheet_id) {
 
-		$data = new PTA_SUS_Data();
 		if ( !$sheet_id ) {
 			wp_die( __( 'Invalid sheet id!' ) );
 		}
+		$data = new PTA_SUS_Data();
 		$sheet = $data->get_sheet($sheet_id);
 		if ( !$sheet ) {
 			wp_die( __( 'Invalid sheet id!' ) );
@@ -250,6 +250,6 @@ class PTA_SUS_CSV_EXPORTER {
 
 } // End Class
 
-$pta_sus_csv_exporter = new PTA_SUS_CSV_EXPORTER();
+//$pta_sus_csv_exporter = new PTA_SUS_CSV_EXPORTER();
 
 /* EOF */

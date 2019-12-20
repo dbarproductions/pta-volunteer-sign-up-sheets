@@ -51,6 +51,7 @@ class PTA_SUS_Data
                 'allowed_fields' => array(
                     'sheet_id' => 'int',
                     'title' => 'text',
+                    'description' => 'textarea',
                     'dates' => 'dates',
                     'time_start' => 'time',
                     'time_end' => 'time',
@@ -295,6 +296,27 @@ class PTA_SUS_Data
         $results = $this->stripslashes_full($results);
         return $results;
     }
+
+	/**
+	 * @param int $sheet_id
+	 * @param string $date
+	 *
+	 * @return array an array of task IDs
+	 */
+    public function get_task_ids($sheet_id, $date = '') {
+		$SQL = "SELECT id FROM ".$this->tables['task']['name']." WHERE sheet_id = %d ";
+		if ('' != $date ) {
+			$SQL .= "AND INSTR(`dates`, %s) > 0 ";
+		}
+		$SQL .= "ORDER BY position, id";
+		if ('' != $date ) {
+			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id, $date));
+		} else {
+			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id));
+		}
+
+		return $results;
+	}
 
     /**
      * Get single task
@@ -581,6 +603,17 @@ class PTA_SUS_Data
             }
         }
         return $count;
+    }
+
+    public function get_all_signup_ids_for_sheet($id) {
+	    $signup_table = $this->tables['signup']['name'];
+	    $task_table = $this->tables['task']['name'];
+	    $SQL = "
+            SELECT $signup_table.id AS signup_id FROM $signup_table
+            INNER JOIN $task_table ON $task_table.id = $signup_table.task_id 
+            WHERE $task_table.sheet_id = %d 
+        ";
+	    return $this->wpdb->get_results($this->wpdb->prepare($SQL, $id));
     }
     
     /**

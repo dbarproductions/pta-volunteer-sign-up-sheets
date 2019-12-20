@@ -69,14 +69,15 @@ div.pta-sus-sheets-table, div.pta-sus-tasks-table {
     width: 100%;
 }
 
+div.pta-sus.task-info-header {
+    margin-top: 2em;
+}
+
 div.pta-sus-sheets-row, div.pta-sus-tasks-row {
     display: table-row;
 }
 
-div.column-title, div.column-date, div.column-start-date, div.column-end-date, div.column-open-spots, div.column-view-link,
-div.column-task, div.column-start-time, div.column-end-time, div.column-available-spots, div.column-details, div.column-qty,
-div.column-consolidated, div.column-group, div.column-item, div.column-clear, div.column-signup, div.consolidated, div.slots,
-div.column-phone {
+div.pta-sus-tasks-row  > div, div.pta-sus-sheets-row > div {
     display: table-cell;
     padding:1em;
     border:#f0f0f0 1px solid;
@@ -84,4 +85,8 @@ div.column-phone {
 
 div.head {
     font-weight:bold;
+}
+
+.column-start-time, .column-end-time, .column-phone, .column-clear {
+    width: 12%;
 }

@@ -104,8 +104,8 @@ class PTA_SUS_Widget extends WP_Widget
 			if('events' === $show_what && !$sheet->no_signups) continue;
 
         	$sheet_url = $permalink.'?sheet_id='.$sheet->id;
-        	$first_date = ($sheet->first_date == '0000-00-00') ? '' : date_i18n('M d', strtotime($sheet->first_date));
-        	$last_date = ($sheet->last_date == '0000-00-00') ? '' : date_i18n('M d', strtotime($sheet->last_date));
+        	$first_date = ($sheet->first_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->first_date));
+        	$last_date = ($sheet->last_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->last_date));
         	if ($first_date == $last_date) $single = true;
 
         	$open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));

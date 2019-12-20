@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 5.2.1
+Tested up to: 5.3.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -18,10 +18,6 @@ https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-
 New features are being added on a fairly regular basis, and they all won't be described in this description.
 Read the documentation here:
 https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/
-
-**FEEDBACK WANTED ON CONTINUED DEVELOPMENT AND/OR A COMPLETELY REDESIGNED PRO VERSION**
-Please read the info and submit your comments and suggestions here:
-https://stephensherrardplugins.com/support/topic/more-features-or-reworked-pro-version/
 
 This plugin allows you to easily create and manage volunteer sign up sheets for your school or organization. You can define four different types of events:  Single, Recurring, Multi-Day, or Ongoing events. Single events are for events that take place on just a single date. Recurring events are events that happen more than once (such as a weekly function), but have the same needs for each date. Multi-Day events are events that are spread across more than one day, but have different needs for each day. Ongoing events do not have any dates associated with them, but are for committees or helpers that are needed on an ongoing basis.
 
@@ -125,6 +121,25 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.0.0**
+
+*   Added an optional Task Description field for each task on a sheet
+*   When viewing a sheet, each task is now split to its own table, or table-styled div layout, and only columns applicable to that task are shown. For example, if there are no Item Details or Quantities for a task, those columns will no longer be shown.
+*   Task start and end times are now shown under the date in the "header" area of each task, and only if they are set for that task. They are no longer shown as columns in the signups list table. This gives more space per column on the screen for the shown columns, and allows more room for extensions that add additional columns to the signups list display.
+*   Added a PTA Block (under widgets group) to create sign up sheet shortcodes using the Gutenberg editor
+*   Added new show_date_start and show_date_end arguments to the shortcode to allow to remove one or both of those columns from the main sheet list
+*   Added the jQuery DataTables plugin for viewing signups in the Admin dashboard, and included functionality for export to CSV, Excel, PDF, or Print. Columns can be hidden/shown, rearranged, and data can be filtered and sorted however you like before you export or print. This now replaces the old "Export To CSV" button and function on the admin View Signups page.
+*   Cleanup and simplify some CSS for div output mode
+*   Moved the "Clear" column for individual sheets view to be after the Item Details and Item Quantity columns, so that it's always at the end of each row
+*   No longer show an empty clear column if not allowing clear for a sheet, or if within the minimum time allowed for clear.
+*   Clear column will now ALWAYS be shown to admin and signup sheet manager users on public side for easy clearing of signups (if showing individual signups in a task list)
+*   Added search box to Admin All Sheets page to search for sheets on the sheet title.
+*   Added Visibility and Sheet Type filters to Admin All Sheet list page.
+*   Some code re-organizing and rewriting
+*   Additional hooks to allow new extensions
+*   Rename "timepicker" class for admin task time selector to avoid conflicts with other time pickers using the same class name with different timepicker scripts
+*   Korean translation added, courtesy of Jeehyo Chung and Julia Choi
+
 **Version 2.4.3**
 
 *   Added a FROM email address field to the admin Email Volunteers page so you can specify a from email address that matches your sending domain instead of using the email of the logged in user.

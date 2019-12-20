@@ -46,6 +46,8 @@ class PTA_SUS_Public {
 	private $show_phone = false;
 	private $shortcode_id = false;
 	private $show_headers = true;
+	private $show_date_start = true;
+	private $show_date_end = true;
 	private $no_global_overlap = false;
     
     public function __construct() {
@@ -317,35 +319,29 @@ class PTA_SUS_Public {
 	    
 	    $return = apply_filters( 'pta_sus_before_sheet_list_table', '' );
 	    $return .= '<div class="pta-sus-sheets main">';
-	    if($this->use_divs) {
-		    $return .= '<div class="pta-sus-sheets-table">
-                            <div class="pta-sus-sheets-row">
-                                <div class="column-title head">'.esc_html( $this->title_header ).'</div>';
-	    } else {
-	    	$return .= '<table class="pta-sus-sheets" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th class="column-title head">'.esc_html( $this->title_header ).'</th>';
+	    $columns = array();
+	    $columns['column-title'] = $this->title_header;
+	    if($this->show_date_start) {
+	    	$columns['column-date_start'] = $this->start_date_header;
 	    }
-                    
-	    $return .= apply_filters( 'pta_sus_sheet_list_table_header_after_title', '', $atts, $this->use_divs );
-	    
+	    if($this->show_date_end) {
+		    $columns['column-date_end'] = $this->end_date_header;
+	    }
+	    $columns['column-open_spots'] = $this->open_spots_header;
+	    $columns['column-view_link'] = '';
+	    $columns = apply_filters('pta_sus_sheet_column_headers',$columns, $sheets, $atts);
+
 	    if($this->use_divs) {
-		    $return .=     '<div class="column-start-date head">'.esc_html( $this->start_date_header ).'</div>
-                                <div class="column-end-date head">'.esc_html( $this->end_date_header ).'</div>
-                                <div class="column-open-spots head">'.esc_html( $this->open_spots_header ).'</div>
-                                <div class="column-view-link head">&nbsp;</div>
-                            </div>
-                        ';
+		    $return .= '<div class="pta-sus-sheets-table">';
+		    ob_start();
+		    include(PTA_VOLUNTEER_SUS_DIR.'views/sheets-view-divs-header-row-html.php');
+		    $return .= ob_get_clean();
 	    } else {
-		    $return .=     '<th class="column-date start head">'.esc_html( $this->start_date_header ).'</th>
-                                <th class="column-date end head">'.esc_html( $this->end_date_header ).'</th>
-                                <th class="column-open_spots head">'.esc_html( $this->open_spots_header ).'</th>
-                                <th class="column-view_link head">&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        ';
+		    $return .= '<table class="pta-sus-sheets"><thead>';
+		    ob_start();
+		    include(PTA_VOLUNTEER_SUS_DIR.'views/sheets-view-table-header-row-html.php');
+		    $return .= ob_get_clean();
+		    $return .= '</thead><tbody>';
 	    }
 	    
 	    foreach ($sheets AS $sheet) {
@@ -377,33 +373,32 @@ class PTA_SUS_Public {
 		    }
 		
 		    $view_signup_text = apply_filters( 'pta_sus_view_signup_text_for_sheet', $view_signup_text, $sheet );
-			
-		    if($this->use_divs) {
-			    $return .= '
-                                <div style="display: table-row;"'.(($open_spots === 0) ? ' class="filled"' : '').'>
-                                    <div class="column-title"><a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a>'.$is_hidden.'</div>';
-		    } else {
-			    $return .= '
-                                <tr'.(($open_spots === 0) ? ' class="filled"' : '').'>
-                                    <td class="column-title"><a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a>'.$is_hidden.'</td>';
+
+		    $title = '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a>'.$is_hidden;
+		    $start_date = ($sheet->first_date == '0000-00-00') ? $ongoing_label : date_i18n(get_option('date_format'), strtotime($sheet->first_date));
+		    $end_date = ($sheet->last_date == '0000-00-00') ? $ongoing_label : date_i18n(get_option('date_format'), strtotime($sheet->last_date));
+		    $view_link = ($open_spots > 0) ? '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html( $view_signup_text ).'</a>' : '&#10004; '.esc_html( $sheet_filled_text );
+
+		    $row_data = array();
+		    $row_data['column-title'] = $title;
+		    if($this->show_date_start) {
+		    	$row_data['column-date_start'] = $start_date;
 		    }
-		    
-		    $return .= apply_filters( 'pta_sus_sheet_list_table_content_after_title', '', $sheet, $atts, $this->use_divs );
-		
+		    if($this->show_date_end) {
+			    $row_data['column-date_end'] = $end_date;
+		    }
+		    $row_data['column-open_spots'] = $open_spots_display;
+		    $row_data['column-view_link'] = $view_link;
+		    $row_data = apply_filters('pta_sus_sheet_display_row_data', $row_data, $sheet, $this->date);
+
 		    if($this->use_divs) {
-			    $return .= '<div class="column-start-date">'.(($sheet->first_date == '0000-00-00') ? esc_html( $ongoing_label ) : date_i18n(get_option('date_format'), strtotime($sheet->first_date))).'</div>
-                                    <div class="column-end-date">'.(($sheet->last_date == '0000-00-00') ? esc_html( $ongoing_label ) : date_i18n(get_option('date_format'), strtotime($sheet->last_date))).'</div>
-                                    <div class="column-open-spots">'.esc_html($open_spots_display).'</div>
-                                    <div class="column-view-link">'.(($open_spots > 0) ? '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html( $view_signup_text ).'</a>' : '&#10004; '.esc_html( $sheet_filled_text )).'</div>
-                                </div>
-                            ';
+			    ob_start();
+			    include(PTA_VOLUNTEER_SUS_DIR.'views/sheets-view-divs-row-html.php');
+			    $return .= ob_get_clean();
 		    } else {
-			    $return .= '<td class="column-date start">'.(($sheet->first_date == '0000-00-00') ? esc_html( $ongoing_label ) : date_i18n(get_option('date_format'), strtotime($sheet->first_date))).'</td>
-                                    <td class="column-date end">'.(($sheet->last_date == '0000-00-00') ? esc_html( $ongoing_label ) : date_i18n(get_option('date_format'), strtotime($sheet->last_date))).'</td>
-                                    <td class="column-open_spots">'.esc_html($open_spots_display).'</td>
-                                    <td class="column-view_link">'.(($open_spots > 0) ? '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html( $view_signup_text ).'</a>' : '&#10004; '.esc_html( $sheet_filled_text )).'</td>
-                                </tr>
-                            ';
+			    ob_start();
+			    include(PTA_VOLUNTEER_SUS_DIR.'views/sheets-view-table-row-html.php');
+			    $return .= ob_get_clean();
 		    }
 		    
 	    }
@@ -548,9 +543,6 @@ class PTA_SUS_Public {
 				    $task_dates = apply_filters( 'pta_sus_sheet_task_dates', $task_dates, $sheet->id );
 				    foreach ($task_dates as $tdate) {
 					    if( "0000-00-00" != $tdate && $tdate < current_time('Y-m-d')) continue; // Skip dates that have passed already
-					    if( "0000-00-00" != $tdate ) {
-						    $return .= '<h4 class="pta-sus date-header"><strong>'.mysql2date( get_option('date_format'), $tdate, $translate = true ).'</strong></h4>';
-					    }
 					    $return .= $this->display_task_list($sheet->id, $tdate, $sheet->no_signups);
 				    }
 			    }
@@ -686,6 +678,9 @@ class PTA_SUS_Public {
     }
 
     public function process_user_signups_shortcode($atts) {
+	    /**
+	     * @var string $show_time
+	     */
 	    extract( shortcode_atts( array(
 		    'show_time' => true,
 	    ), $atts, 'pta_user_signups' ) );
@@ -736,11 +731,25 @@ class PTA_SUS_Public {
             'show_time' => true,
             'show_phone' => false,
             'show_headers' => true,
+            'show_date_start' => true,
+            'show_date_end' => true,
             'order_by' => 'first_date',
             'order' => 'ASC',
             'list_title' => __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus'),
         ), $atts, 'pta_sign_up_sheet' ) );
-
+	    /**
+	     * Variables extracted from shortcode, with above default values
+	     * @var mixed $id
+	     * @var mixed $date
+	     * @var bool $show_time
+	     * @var bool $show_phone
+	     * @var bool $show_headers
+	     * @var string $order_by
+	     * @var string $order
+	     * @var string $list_title
+	     * @var bool $show_date_start
+	     * @var bool $show_date_end
+	     */
         // Allow plugins or themes to modify shortcode parameters
         $id = apply_filters( 'pta_sus_shortcode_id', $id );
         if('' == $id) {
@@ -771,6 +780,16 @@ class PTA_SUS_Public {
 		    $this->show_headers = false;
 	    } else {
 		    $this->show_headers = true;
+	    }
+	    if ( $show_date_start === 'no') {
+		    $this->show_date_start = false;
+	    } else {
+		    $this->show_date_start = true;
+	    }
+	    if ( $show_date_end === 'no') {
+		    $this->show_date_end = false;
+	    } else {
+		    $this->show_date_end = true;
 	    }
         
         if ($id === false && !empty($_GET['sheet_id']) && !$this->success && !$this->cleared) {
@@ -844,494 +863,260 @@ class PTA_SUS_Public {
         return $return;
     } // Display Sheet
 
-    public function display_task_list($sheet_id, $date, $no_signups=false) {
-        // Tasks
-        $return = '';
+	public function display_task_list($sheet_id, $date, $no_signups=false) {
+		// Tasks
 
-	    $show_all_slots = true;
-	    if(isset($this->main_options['show_remaining']) && true == $this->main_options['show_remaining']) {
-		    $show_all_slots = false;
-	    }
+		$tasks = apply_filters('pta_sus_public_sheet_get_tasks', $this->data->get_tasks($sheet_id, $date), $sheet_id, $date);
 
-	    $show_names = true;
-	    if($this->main_options['hide_volunteer_names']) {
-		    $show_names = false;
-	    }
+		if (!$tasks ) {
+			return '<p>'.apply_filters( 'pta_sus_public_output', __('No tasks were found for ', 'pta_volunteer_sus'), 'no_tasks_found_for_date' ) . mysql2date( get_option('date_format'), $date, $translate = true ).'</p>';
+		}
+		$return = apply_filters( 'pta_sus_before_task_list', '', $tasks );
 
-        if (!($tasks = apply_filters('pta_sus_public_sheet_get_tasks', $this->data->get_tasks($sheet_id, $date), $sheet_id, $date) ) ) {
-            $return .= '<p>'.apply_filters( 'pta_sus_public_output', __('No tasks were found for ', 'pta_volunteer_sus'), 'no_tasks_found_for_date' ) . mysql2date( get_option('date_format'), $date, $translate = true ).'</p>';
-        } else {
-            $show_details = false;
-            $show_qty = false;
-	        if(isset($this->main_options['hide_details_qty']) && true != $this->main_options['hide_details_qty']) {
-		        foreach ($tasks as $task) {
-			        if ( 'YES' == $task->need_details ) {
-				        $show_details = true;
-			        }
-			        if ( 'YES' == $task->enable_quantities && ( $show_names || $show_all_slots || $show_details ) ) {
-				        $show_qty = true;
-			        }
-		        }
-	        }
-	
-	        $one_row = false;
-	        if(!$show_all_slots && !$show_details && !$show_names && !$no_signups) {
-	        	$one_row = true;
-	        }
+		$show_all_slots = true;
+		if(isset($this->main_options['show_remaining']) && true == $this->main_options['show_remaining']) {
+			$show_all_slots = false;
+		}
+		$show_names = true;
+		if($this->main_options['hide_volunteer_names']) {
+			$show_names = false;
+		}
 
-            $return .= apply_filters( 'pta_sus_before_task_list', '', $tasks );
-            $return .= '<div class="pta-sus-sheets tasks">';
-            if($this->use_divs) {
-	            $return .= '<div class="pta-sus-tasks-table">
-                        <div class="pta-sus-tasks-row">
-                            <div class="column-task head">'.esc_html($this->task_item_header).'</div>';
-            } else {
-	            $return .= '<table class="pta-sus-tasks">
-						<thead>
-							<tr>
-								<th class="column-task">'.esc_html($this->task_item_header).'</th>';
-            }
-            
-	        $return .= apply_filters( 'pta_sus_task_list_header_after_name', '', $tasks, $this->use_divs );
-            
-            if ($this->show_time) {
-	            if($this->use_divs) {
-		            $return .= '<div class="column-start-time head">'.esc_html($this->start_time_header).'</div>
-                             <div class="column-end-time head">'.esc_html($this->end_time_header).'</div>';
-	            } else {
-		            $return .= '<th class="column-time">'.esc_html($this->start_time_header).'</th>
-                             <th class="column-time">'.esc_html($this->end_time_header).'</th>';
-	            }
-            }
-	        if(!$no_signups) {
-		        if($this->use_divs) {
-			        $return .= '<div class="column-available-spots head">'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</div>';
-		        } else {
-			        $return .= '<th class="column-available-spots">'.esc_html( apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' ) ).'</th>';
-		        }
-		        if($this->show_phone && !$one_row) {
-			        if($this->use_divs) {
-				        $return .= '<div class="column-phone head">'.esc_html( apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' ) ).'</div>';
-			        } else {
-				        $return .= '<th class="column-phone">'.esc_html( apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' ) ).'</th>';
-			        }
-		        }
-	        }
-	        
-            if(is_user_logged_in() && !$one_row) {
-	            if($this->use_divs) {
-		            $return .= '<div class="column-clear head"></div>';
-	            } else {
-		            $return .= '<th class="column-clear"></th>';
-	            }
-            }
-            if ($show_details) {
-	            if($this->use_divs) {
-		            $return .= '<div class="column-details head">'.esc_html($this->item_details_header).'</div>';
-	            } else {
-		            $return .= '<th class="column-details">'.esc_html($this->item_details_header).'</th>';
-	            }
-            }
-            if ($show_qty) {
-	            if($this->use_divs) {
-		            $return .= '<div class="column-quantity head">'.esc_html($this->item_qty_header).'</div>';
-	            } else {
-		            $return .= '<th class="column-quantity">'.esc_html($this->item_qty_header).'</th>';
-	            }
-            }
-            if($this->use_divs) {
-	            $return .= '</div>';
-            } else {
-	            $return .= '                
-                        </tr>
-                    </thead>
-                    <tbody>
-                    ';
-            }
-	        
-            for ($taskcounter = 0; $taskcounter < count($tasks); $taskcounter++) {
-                $task = $tasks[$taskcounter];
-                $task_dates = explode(',', $task->dates);
-                // Don't show tasks that don't include our date, if one was passed in
-                if ($date && !in_array($date, $task_dates)) continue;
+		$sheet = $this->data->get_sheet($sheet_id);
+		if ( current_user_can('manage_signup_sheets') || ( true == $sheet->clear &&  ( 0 == $sheet->clear_days || $date == "0000-00-00"
+		       || ( strtotime( $date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) ))
+		) ){
+			$show_clear = true;
+		} else {
+			$show_clear = false;
+		}
 
-                $task_args = array('sheet_id' => $sheet_id, 'task_id' => $task->id, 'date' => $date, 'signup_id' => false);
-                if (is_page($this->main_options['volunteer_page_id']) || false == $this->main_options['signup_redirect']) {
-                    $task_url = add_query_arg($task_args);
-                } else {
-                    $main_page_url = get_permalink( $this->main_options['volunteer_page_id'] );
-                    $task_url = add_query_arg($task_args, $main_page_url);
-                }
-                $task_url = apply_filters( 'pta_sus_task_signup_url', $task_url, $task, $sheet_id, $date );
-                
-                $i=1;
-                $signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups($task->id, $date), $task->id, $date);
+		$return .= '<div class="pta-sus-sheets tasks">';
 
-                // Set qty to one for no_signups sheets
-                $task_qty = $no_signups ? 1 : absint($task->qty);
+		foreach($tasks as $task) {
+			$task_dates = explode(',', $task->dates);
+			// Don't show tasks that don't include our date, if one was passed in
+			if ($date && !in_array($date, $task_dates)) continue;
 
-                $timechanged = false;
-                if ($taskcounter == count($tasks)-1) {
-                    // Last Element has always the time changed.
-                    $timechanged = true;
-                }
-                else if ($taskcounter < count($tasks)-1) {
-                    // Looking forward one task to identify if the date/time has changed.
-                    if ($task->time_start != $tasks[$taskcounter+1]->time_start || $task->time_end != $tasks[$taskcounter+1]->time_end) {
-	                    $timechanged = true;
-                    }
-                }
+			$columns = array();
 
-                $title_shown = false;
-                
-                // Allow extensions to determine if signup links should be shown
-                $allow_signups = apply_filters('pta_sus_allow_signups', true, $task, $sheet_id, $date);
+			$show_details = false;
+			$show_qty = false;
+			if(isset($this->main_options['hide_details_qty']) && true != $this->main_options['hide_details_qty']) {
+				if ( 'YES' == $task->need_details ) {
+					$show_details = true;
+				}
+				if ( 'YES' == $task->enable_quantities && ( $show_names || $show_all_slots || $show_details ) ) {
+					$show_qty = true;
+				}
+			}
 
-                // One simple row if everything should be consolidated (no item details or names and consolidate option is set)
-                if($one_row) {
-                	if($this->use_divs) {
-		                $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb pta-sus-tasks-timeb">';
-		                $return .= '<div class="column-title">'.esc_html($task->title).'</div>';
-	                } else {
-		                $return .= '<tr class="pta-sus-tasks-bb pta-sus-tasks-timeb consolidated">';
-		                $return .= '<td class="column-title">'.esc_html($task->title).'</td>';
-	                }
-	
-	                $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
-                	
-                    if ($this->show_time) {
-	                    if($this->use_divs) {
-		                    $return .= '
-                                <div class="column-start-time">'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</div>
-                                <div class="column-end-time">'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</div>';
-	                    } else {
-		                    $return .= '
-                        		<td class="column-time">'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</td>
-                                <td class="column-time">'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</td>';
-	                    }
-                    }
-                    $filled = 0;
-                    foreach($signups as $signup) {
-	                    $filled += $signup->item_qty;
-                    }
-                    $remaining = $task_qty - $filled;
+			$one_row = false;
+			if(!$show_all_slots && !$show_details && !$show_names && !$no_signups) {
+				$one_row = true;
+			}
 
-                    if($remaining > 0) {
-	                    $filled_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d Filled', 'pta_volunteer_sus'),(int)$filled ), 'task_number_spots_filled_message', (int)$filled );
-                    } else {
-	                    $filled_text = apply_filters('pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spots_full_message');
-                    }
-                    $remaining_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
-                    $separator = apply_filters('pta_sus_public_output', ', ', 'task_spots_filled_remaining_separator');
-	                if($this->use_divs) {
-		                $return .= '<div class="column-consolidated">'.esc_html($filled_text);
-	                } else {
-		                $return .= '<td class="column-consolidated">'.esc_html($filled_text);
-	                }
-                    if($remaining > 0 && $allow_signups) {
-                        if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
-		                    $return .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
-	                    } else {
-		                    $return .= ' - ' . esc_html($this->main_options['login_signup_message']);
-	                    }
-                    }
-	                if($this->use_divs) {
-		                $return .= '</div></div>';
-	                } else {
-		                $return .= '</td></tr>';
-	                }
-                } else {
-                    // show signup rows
-                    foreach ($signups AS $signup) {
-	                    $last_row = false;
-	                    if($show_qty ) {
-		                    if($i - 1 + $signup->item_qty == $task_qty) {
-			                    $last_row = true;
-		                    }
-	                    } elseif($i == $task_qty) {
-		                    $last_row = true;
-	                    }
-	                    if ($last_row) {
-		                    if ($timechanged == true) {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb pta-sus-tasks-timeb">';
-			                    } else {
-				                    $return .= '<tr class="pta-sus-tasks-bb pta-sus-tasks-timeb">';
-			                    }
-		                    } else {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb">';
-			                    } else {
-				                    $return .= '<tr class="pta-sus-tasks-row pta-sus-tasks-bb">';
-			                    }
-		                    }
-	                    } else {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="pta-sus-tasks-row">';
-		                    } else {
-			                    $return .= '<tr class="pta-sus-tasks-row">';
-		                    }
-	                    }
-	                    if (!$title_shown) {
-		                    $title_shown = true;
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-title">'.esc_html($task->title).'</div>';
-		                    } else {
-			                    $return .= '<td class="column-title">'.esc_html($task->title).'</td>';
-		                    }
-		
-		                    $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
-		                    
-		                    if ($this->show_time) {
-			                    if($this->use_divs) {
-				                    $return .= '
-                                	<div class="column-start-time">'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</div>
-                                    <div class="column-end-time">'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</div>';
-			                    } else {
-				                    $return .= '
-                        			<td class="column-time">'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</td>
-                                    <td class="column-time">'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</td>';
-			                    }
-		                    }
-	                    } else {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-title"></div>';
-		                    } else {
-			                    $return .= '<td class="column-title"></td>';
-		                    }
-		                    
-		                    $return .= apply_filters( 'pta_sus_task_list_content_after_name_blank', '', $task, $sheet_id, $this->use_divs );
-		                    if ($this->show_time) {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-start-time"></div><div class="column-end-time"></div>';
-			                    } else {
-				                    $return .= '<td class="column-start-time"></td><td class="column-end-time"></td>';
-			                    }
-		                    }
-	                    }
-	                    if($show_names) {
-	                    	if($this->show_full_name) {
-			                    $display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
-		                    } else {
-			                    $display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
-		                    }
-	                    } else {
-		                    $display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spot_filled_message' );
-	                    }
+			if(!$no_signups) {
+				$columns['column-available-spots'] = apply_filters( 'pta_sus_public_output', __('Available Spots', 'pta_volunteer_sus'), 'task_available_spots_header' );
 
-	                    // hook to allow others to modify how the signed up names are displayed
-	                    $display_signup = apply_filters( 'pta_sus_display_signup_name', $display_signup, $signup );
+				if($this->show_phone && !$one_row) {
+					$columns['column-phone'] = apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' );
+				}
 
-	                    $sheet = $this->data->get_sheet($sheet_id);
-	                    if ( true == $sheet->clear &&
-	                         ($signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets')) &&
-	                         ( 0 == $sheet->clear_days || $signup->date == "0000-00-00"
-	                           || ( strtotime( $signup->date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) ))
-	                    ) {
-		                    $clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
-		                    $clear_url = add_query_arg($clear_args);
-		                    $clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta_volunteer_sus'), 'clear_signup_link_text');
-	                    } else {
-		                    $clear_url = '';
-		                    $clear_text = '';
-	                    }
-	                    if($this->use_divs) {
-		                    $return .= '<div class="column-signup pta-sus-em">#'.$i.': '.$display_signup.'</div>';
-	                    } else {
-		                    $return .= '<td class="pta-sus-em">#'.$i.': '.$display_signup.'</td>';
-	                    }
-	                    if($this->show_phone) {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-phone">'.esc_html($signup->phone).'</div>';
-		                    } else {
-			                    $return .= '<td class="column-phone">'.esc_html($signup->phone).'</td>';
-		                    }
-	                    }
-	                    if(is_user_logged_in()) {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-clear pta-sus-em"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>';
-		                    } else {
-			                    $return .= '<td class="pta-sus-em"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>';
-		                    }
-	                    }
-	                    if ($show_details) {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-details pta-sus-em">'.esc_html($signup->item).'</div>';
-		                    } else {
-			                    $return .= '<td class="pta-sus-em">'.esc_html($signup->item).'</td>';
-		                    }
-	                    }
-	                    if ($show_qty) {
-		                    if($this->use_divs) {
-			                    $return .= '<div class="column-qty">'.("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "").'</div>';
-		                    } else {
-			                    $return .= '<td class="column-qty">'.("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "").'</td>';
-		                    }
-	                    }
-	                    if ('YES' === $task->enable_quantities) {
-		                    $i += $signup->item_qty;
-	                    } else {
-		                    $i++;
-	                    }
-	                    if($this->use_divs) {
-		                    $return .= '</div>';
-	                    } else {
-		                    $return .= '</tr>';
-	                    }
-                    }
+			}
+			if ($show_details && !$one_row) {
+				$columns['column-details'] = $this->item_details_header;
+			}
+			if ($show_qty && !$one_row) {
+				$columns['column-quantity'] = $this->item_qty_header;
+			}
 
-                    $remaining = $task_qty - ($i - 1);
+			if(is_user_logged_in() && !$one_row && $show_clear) {
+				$columns['column-clear'] = '';
+			}
 
-                    $start = $i;
+			$task_args = array('sheet_id' => $sheet_id, 'task_id' => $task->id, 'date' => $date, 'signup_id' => false);
+			if (is_page($this->main_options['volunteer_page_id']) || false == $this->main_options['signup_redirect']) {
+				$task_url = add_query_arg($task_args);
+			} else {
+				$main_page_url = get_permalink( $this->main_options['volunteer_page_id'] );
+				$task_url = add_query_arg($task_args, $main_page_url);
+			}
+			$task_url = apply_filters( 'pta_sus_task_signup_url', $task_url, $task, $sheet_id, $date );
 
-                    if(!$show_all_slots) {
-	                    $start = $remaining;
-	                    $task_qty = $remaining;
-                    }
+			$i=1;
+			$signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups($task->id, $date), $task->id, $date);
 
-                    if($remaining > 0) {
-	                    for ($i=$start; $i<=$task_qty; $i++) {
-		                    if ($i == $task_qty ) {
-			                    if ($timechanged == true) {
-				                    if($this->use_divs) {
-					                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb pta-sus-tasks-timeb">';
-				                    } else {
-					                    $return .= '<tr class="pta-sus-tasks-bb pta-sus-tasks-timeb">';
-				                    }
-			                    } else {
-				                    if($this->use_divs) {
-					                    $return .= '<div class="pta-sus-tasks-row pta-sus-tasks-bb">';
-				                    } else {
-					                    $return .= '<tr class="pta-sus-tasks-row pta-sus-tasks-bb">';
-				                    }
-			                    }
-		                    } else {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="pta-sus-tasks-row">';
-			                    } else {
-				                    $return .= '<tr class="pta-sus-tasks-row">';
-			                    }
-		                    }
-		                    if (!$title_shown) {
-			                    $title_shown = true;
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-task">'.esc_html($task->title).'</div>';
-			                    } else {
-				                    $return .= '<td>'.esc_html($task->title).'</td>';
-			                    }
-			                    
-			                    $return .= apply_filters( 'pta_sus_task_list_content_after_name', '', $task, $sheet_id, $this->use_divs );
-			                    if ($this->show_time) {
-				                    if($this->use_divs) {
-					                    $return .= '
-                                			<div class="column-start-time">'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</div>
-                                            <div class="column-end-time">'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</div>';
-				                    } else {
-					                    $return .= '
-                        					<td>'.(("" == $task->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_start)) ).'</td>
-                                            <td>'.(("" == $task->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($task->time_end)) ).'</td>';
-				                    }
-			                    }
-		                    } else {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-task"></div>';
-			                    } else {
-				                    $return .= '<td class="column-task"></td>';
-			                    }
-			                    
-			                    $return .= apply_filters( 'pta_sus_task_list_content_after_name_blank', '', $task, $sheet_id, $this->use_divs );
-			                    if ($this->show_time) {
-				                    if($this->use_divs) {
-					                    $return .= '
-                                      		<div class="column-start-time"></div>
-                                      		<div class="column-end-time"></div>';
-				                    } else {
-					                    $return .= '
-                              				<td class="column-start-time"></td>
-                              				<td class="column-end-time"></td>';
-				                    }
-			                    }
-		                    }
-		                    if(!$no_signups) {
-			                    if($show_all_slots) {
-				                    if($this->use_divs) {
-					                    $return .= '<div class="slots">';
-				                    } else {
-					                    $return .= '<td class="slots">';
-				                    }
-				                    $return .= '#'.$i.': ';
-			                    } else {
-				                    if($this->use_divs) {
-					                    $return .= '<div class="consolidated remaining">';
-				                    } else {
-					                    $return .= '<td class="consolidated remaining">';
-				                    }
-				                    $return .= apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
-			                    }
-			                    if($allow_signups) {
-				                    if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
-					                    $return .= '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
-				                    } else {
-					                    if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-						                    $return .= '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
-					                    } else {
-						                    $return .= esc_html($this->main_options['login_signup_message']);
-					                    }
-				                    }
-			                    }
-			                    if($this->use_divs) {
-				                    $return .= '</div>';
-			                    } else {
-				                    $return .= '</td>';
-			                    }
-			                    if($this->show_phone) {
-				                    if($this->use_divs) {
-					                    $return .= '<div class="column-phone"></div>';
-				                    } else {
-					                    $return .= '<td class="column-phone"></td>';
-				                    }
-			                    }
-		                    }
+			// Set qty to one for no_signups sheets
+			$task_qty = $no_signups ? 1 : absint($task->qty);
 
-		                    if(is_user_logged_in()) {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-clear"></div>';
-			                    } else {
-				                    $return .= '<td class="column-clear"></td>';
-			                    }
-		                    }
-		                    if($show_details) {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-details"></div>';
-			                    } else {
-				                    $return .= '<td class="column-details"></td>';
-			                    }
-		                    }
-		                    if($show_qty) {
-			                    if($this->use_divs) {
-				                    $return .= '<div class="column-qty"></div>';
-			                    } else {
-				                    $return .= '<td class="column-qty"></td>';
-			                    }
-		                    }
-		                    if($this->use_divs) {
-			                    $return .= '</div>';
-		                    } else {
-			                    $return .= '</tr>';
-		                    }
-	                    }
-                    }
-                }
-            }
-            if($this->use_divs) {
-	            $return .= '</div></div>';
-            } else {
-	            $return .= '</tbody></table></div>';
-            }
-            $return .= apply_filters( 'pta_sus_after_task_list', '', $tasks );
-        }
-        return $return;
-    } // Display task list
+			// Allow extensions to determine if signup links should be shown
+			$allow_signups = apply_filters('pta_sus_allow_signups', true, $task, $sheet_id, $date);
+			
+			// Allow extensions to add/modify column headers
+			$columns = apply_filters('pta_sus_task_column_headers', $columns, $task, $date, $one_row);
+
+			ob_start();
+			include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-header-html.php');
+			$return .= ob_get_clean();
+
+			if($this->use_divs) {
+				$return .= '<div class="pta-sus-tasks-table">';
+				ob_start();
+				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-divs-header-row-html.php');
+				$return .= ob_get_clean();
+			} else {
+				$return .= '<table class="pta-sus-tasks"><thead>';
+				ob_start();
+				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-table-header-row-html.php');
+				$return .= ob_get_clean();
+				$return .= '</thead><tbody>';
+			}
+
+			// One simple row if everything should be consolidated (no item details or names and consolidate option is set)
+			$column_data = array();
+			if($one_row) {
+				$row_data = array();
+				$filled = 0;
+				foreach($signups as $signup) {
+					$filled += $signup->item_qty;
+				}
+				$remaining = $task_qty - $filled;
+
+				if($remaining > 0) {
+					$filled_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d Filled', 'pta_volunteer_sus'),(int)$filled ), 'task_number_spots_filled_message', (int)$filled );
+				} else {
+					$filled_text = apply_filters('pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spots_full_message');
+				}
+				$remaining_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
+				$separator = apply_filters('pta_sus_public_output', ', ', 'task_spots_filled_remaining_separator');
+				$display_consolidated = $filled_text;
+				if($remaining > 0 && $allow_signups) {
+					if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
+						$display_consolidated .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
+					} else {
+						$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
+					}
+				}
+				$row_data['column-consolidated'] = $display_consolidated;
+				$column_data[] = apply_filters('pta_sus_task_consolidated_row_data', $row_data, $task, $date);
+			} else {
+				// show signup rows
+				foreach ($signups AS $signup) {
+					$row_data = array();
+
+					if($show_names) {
+						if($this->show_full_name) {
+							$display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
+						} else {
+							$display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
+						}
+					} else {
+						$display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spot_filled_message' );
+					}
+
+					// hook to allow others to modify how the signed up names are displayed
+					$display_signup = apply_filters( 'pta_sus_display_signup_name', $display_signup, $signup );
+
+					if ( $show_clear && ($signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets')) ) {
+						$clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
+						$clear_url = add_query_arg($clear_args);
+						$clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta_volunteer_sus'), 'clear_signup_link_text');
+					} else {
+						$clear_url = '';
+						$clear_text = '';
+					}
+
+					$row_data['column-available-spots'] = '#'.$i.': '.$display_signup;
+					if($this->show_phone) {
+						$row_data['column-phone'] = $signup->phone;
+					}
+
+					if ($show_details) {
+						$row_data['column-details'] = $signup->item;
+					}
+					if ($show_qty) {
+						$row_data['column-quantity'] = ("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "");
+					}
+
+					if(is_user_logged_in() && $show_clear) {
+						$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
+					}
+					if ('YES' === $task->enable_quantities) {
+						$i += $signup->item_qty;
+					} else {
+						$i++;
+					}
+					$column_data[] = apply_filters('pta_sus_task_signup_display_row_data', $row_data, $task, $signup, $date);
+				}
+
+				$remaining = $task_qty - ($i - 1);
+
+				$start = $i;
+
+				if(!$show_all_slots) {
+					$start = $remaining;
+					$task_qty = $remaining;
+				}
+
+				if($remaining > 0) {
+					for ($i=$start; $i<=$task_qty; $i++) {
+						$row_data=array();
+						if(!$no_signups) {
+							if($show_all_slots) {
+								$row_data['column-available-spots'] = '#'.$i.': ';
+
+							} else {
+								$row_data['column-available-spots'] = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
+							}
+							if($allow_signups) {
+								if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
+									$signup_message = '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
+								} else {
+									if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
+										$signup_message = '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
+									} else {
+										$signup_message = esc_html($this->main_options['login_signup_message']);
+									}
+								}
+								$row_data['column-available-spots'] .= $signup_message;
+							}
+							if($this->show_phone) {
+								$row_data['column-phone'] = '';
+							}
+						}
+
+						if(is_user_logged_in() && $show_clear) {
+							$row_data['column-clear'] = '';
+						}
+						if($show_details) {
+							$row_data['column-details'] = '';
+						}
+						if($show_qty) {
+							$row_data['column-quantity'] = '';
+						}
+						$column_data[] = apply_filters('pta_sus_task_remaining_display_row_data', $row_data, $task, $i, $date);
+					}
+				}
+			}
+
+			if($this->use_divs) {
+				ob_start();
+				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-divs-rows-html.php');
+				$return .= ob_get_clean();
+				$return .= '</div></div>'; // close wrapper and "table" divs
+			} else {
+				ob_start();
+				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-table-rows-html.php');
+				$return .= ob_get_clean();
+				$return .= '</body></table>'; // close body and table
+			}
+
+			$return .= apply_filters( 'pta_sus_after_task_list', '', $tasks );
+		}
+
+		return $return;
+	} // Display task list
 
 	public function display_signup_form($task_id, $date) {
 		if(true == $this->main_options['login_required_signup'] && !is_user_logged_in()) {

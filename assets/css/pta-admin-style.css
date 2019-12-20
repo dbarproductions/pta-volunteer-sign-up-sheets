@@ -19,6 +19,27 @@
 .pta_sus .tasks LI.ui-sortable-helper{
     cursor: move;
     }
-.pta_toggle {
+.pta_toggle, .pta_sus_task_description {
     display: none;
+}
+.pta-sus.task-info-header {
+    margin-top: 1em;
+    border-top: 1px solid;
+    padding-top: 1em;
+}
+.pta-sus.title-header {
+    display: inline-block;
+    font-size: large;
+    font-weight: bold;
+    margin-right: 1em;
+}
+.pta-sus.date-header {
+    display: inline-block;
+    font-weight: bold;
+}
+.pta-sus.description-wrapper > .pta_sus_task_description {
+    background-color: white;
+    margin: 0.5em;
+    padding: 0.5em;
+    border: 1px solid black;
 }

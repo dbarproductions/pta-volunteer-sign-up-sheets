@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 2.4.3
+Version: 3.0.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,40 +18,17 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '2.4.3');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.0.0');
+
+if (!defined('PTA_VOLUNTEER_SUS_DIR'))
+	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
 
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
 if (!class_exists('PTA_SUS_Data')) require_once 'classes/data.php';
 if (!class_exists('PTA_SUS_List_Table')) require_once 'classes/list-table.php';
 if (!class_exists('PTA_SUS_Widget')) require_once 'classes/widget.php';
-if (!class_exists('PTA_SUS_CSV_EXPORTER')) require_once 'classes/class-pta_csv_exporter.php';
 if (!class_exists('PTA_SUS_Emails')) require_once 'classes/class-pta_sus_emails.php';
-
-// To resolve fatal errors with PHP versions < 5.3 that don't have str_getcsv function
-if(!function_exists('str_getcsv')) {
-    function str_getcsv($input, $delimiter = ',', $enclosure = '"') {
-
-        if( ! preg_match("/[$enclosure]/", $input) ) {
-          return (array)preg_replace(array("/^\\s*/", "/\\s*$/"), '', explode($delimiter, $input));
-        }
-
-        $token = "##"; $token2 = "::";
-        //alternate tokens "\034\034", "\035\035", "%%";
-        $t1 = preg_replace(array("/\\\[$enclosure]/", "/$enclosure{2}/",
-             "/[$enclosure]\\s*[$delimiter]\\s*[$enclosure]\\s*/", "/\\s*[$enclosure]\\s*/"),
-             array($token2, $token2, $token, $token), trim(trim(trim($input), $enclosure)));
-
-        $a = explode($token, $t1);
-        foreach($a as $k=>$v) {
-            if ( preg_match("/^{$delimiter}/", $v) || preg_match("/{$delimiter}$/", $v) ) {
-                $a[$k] = trim($v, $delimiter); $a[$k] = preg_replace("/$delimiter/", "$token", $a[$k]); }
-        }
-        $a = explode($token, implode($token, $a));
-        return (array)preg_replace(array("/^\\s/", "/\\s$/", "/$token2/"), array('', '', $enclosure), $a);
-
-    }
-}
 
 if(!class_exists('PTA_Sign_Up_Sheet')):
 
@@ -60,29 +37,40 @@ class PTA_Sign_Up_Sheet {
     public $data;
     public $public = false;
     private $emails;
-    public $db_version = '2.2.1';
+    public $db_version = '3.0.0';
     public $main_options;
+    public $admin = null;
     
     public function __construct() {
         
         $this->emails = new PTA_SUS_Emails();
 	    $this->data = new PTA_SUS_Data();
 
-        add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook( __FILE__, array($this, 'deactivate'));
 
-        add_action('admin_menu', array($this, 'admin_menu'));
-        add_action('pta_sus_cron_job', array($this, 'cron_functions'));
-
-        add_action('plugins_loaded', array($this, 'init'));
-        add_action('init', array($this, 'public_init' ));
-
-        add_action( 'widgets_init', array($this, 'register_sus_widget') );
-
-        add_action( 'wpmu_new_blog', array($this, 'new_blog'), 10, 6); 
-
         $this->main_options = get_option( 'pta_volunteer_sus_main_options' );
+    }
+
+    public function init_hooks() {
+	    add_action('pta_sus_cron_job', array($this, 'cron_functions'));
+
+	    add_action('plugins_loaded', array($this, 'init'));
+	    add_action('init', array($this, 'public_init' ));
+
+	    add_action( 'init', array($this, 'block_assets' ));
+
+	    add_action( 'widgets_init', array($this, 'register_sus_widget') );
+
+	    add_action( 'wpmu_new_blog', array($this, 'new_blog'), 10, 6);
+
+	    if(is_admin()) {
+		    if (!class_exists('PTA_SUS_Admin')) {
+			    include_once(dirname(__FILE__).'/classes/class-pta_sus_admin.php');
+			    $this->admin = new PTA_SUS_Admin();
+				add_action('init', array($this->admin, 'init_admin_hooks'));
+		    }
+	    }
     }
 
 	/**
@@ -209,18 +197,6 @@ class PTA_Sign_Up_Sheet {
     public function register_sus_widget() {
         register_widget( 'PTA_SUS_Widget' );
     }
-        
-    /**
-    * Admin Menu
-    */
-    public function admin_menu() {
-        if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_signup_sheets' ) ) {
-            if (!class_exists('PTA_SUS_Admin')) {
-                include_once(dirname(__FILE__).'/classes/class-pta_sus_admin.php');
-                $pta_sus_admin = new PTA_SUS_Admin();
-            }
-        }
-    }
 
 
     public function cron_functions() {
@@ -245,12 +221,12 @@ class PTA_Sign_Up_Sheet {
     }
 
     public function public_init() {
-        if(!is_admin()) {
-            if (!class_exists('PTA_SUS_Public')) {
-                include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
-            }
-            $this->public = new PTA_SUS_Public();
-        }
+    	if(!is_admin()) {
+		    if (!class_exists('PTA_SUS_Public')) {
+			    include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
+		    }
+		    $this->public = new PTA_SUS_Public();
+	    }
     }
 
     public function init() {
@@ -491,6 +467,7 @@ Thank You!
             sheet_id INT NOT NULL,
             dates VARCHAR(8000) NOT NULL,
             title VARCHAR(200) NOT NULL,
+            description TEXT,
             time_start VARCHAR(50),
             time_end VARCHAR(50),
             qty INT NOT NULL DEFAULT 1,
@@ -575,11 +552,126 @@ Thank You!
 
         wp_clear_scheduled_hook('pta_sus_cron_job');
     }
+
+	/**
+	 * Enqueue Gutenberg block assets for both frontend + backend.
+	 *
+	 * Assets enqueued:
+	 * 1. blocks.style.build.css - Frontend + Backend.
+	 * 2. blocks.build.js - Backend.
+	 * 3. blocks.editor.build.css - Backend.
+	 *
+	 * @uses {wp-blocks} for block type registration & related functions.
+	 * @uses {wp-element} for WP Element abstraction — structure of blocks.
+	 * @uses {wp-i18n} to internationalize the block's text.
+	 * @uses {wp-editor} for WP editor styles.
+	 * @since 1.0.0
+	 */
+	public function block_assets() { // phpcs:ignore
+		if(!function_exists( 'register_block_type')) return;
+		// Register block styles for both frontend + backend.
+		wp_register_style(
+			'pta_volunteer_sus_block-style-css', // Handle.
+			plugins_url( 'blocks/blocks.style.build.css', __FILE__  ), // Block style CSS.
+			array( 'wp-editor' ), // Dependency to include the CSS after it.
+			null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.style.build.css' ) // Version: File modification time.
+		);
+
+		// Register block editor script for backend.
+		wp_register_script(
+			'pta_volunteer_sus_block-block-js', // Handle.
+			plugins_url( 'blocks/blocks.build.js', __FILE__  ), // Block.build.js: We register the block here. Built with Webpack.
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ), // Dependencies, defined above.
+			null, // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.build.js' ), // Version: filemtime — Gets file modification time.
+			true // Enqueue the script in the footer.
+		);
+
+		// Register block editor styles for backend.
+		wp_register_style(
+			'pta_volunteer_sus_block-block-editor-css', // Handle.
+			plugins_url( 'blocks/blocks.editor.build.css', __FILE__  ), // Block editor CSS.
+			array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
+			null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.editor.build.css' ) // Version: File modification time.
+		);
+
+		// WP Localized globals. Use dynamic PHP stuff in JavaScript via `ptaGlobal` object.
+		/*
+		wp_localize_script(
+			'pta_volunteer_sus_block-block-js',
+			'ptsGlobal', // Array containing dynamic data for a JS Global.
+			[
+				'pluginDirPath' => plugin_dir_path( __DIR__ ),
+				'pluginDirUrl'  => plugin_dir_url( __DIR__ ),
+				// Add more data here that you want to access from `cgbGlobal` object.
+			]
+		);
+		*/
+
+		/**
+		 * Register Gutenberg block on server-side.
+		 *
+		 * Register the block on server-side to ensure that the block
+		 * scripts and styles for both frontend and backend are
+		 * enqueued when the editor loads.
+		 *
+		 * @link https://wordpress.org/gutenberg/handbook/blocks/writing-your-first-block-type#enqueuing-block-scripts
+		 * @since 1.16.0
+		 */
+		register_block_type(
+			'pta-volunteer-sus-block/block-pta-volunteer-sus-block', array(
+				// Enqueue blocks.style.build.css on both frontend & backend.
+				'style'         => 'pta_volunteer_sus_block-style-css',
+				// Enqueue blocks.build.js in the editor only.
+				'editor_script' => 'pta_volunteer_sus_block-block-js',
+				// Enqueue blocks.editor.build.css in the editor only.
+				'editor_style'  => 'pta_volunteer_sus_block-block-editor-css',
+				'attributes' => [
+					'id' => [
+						'type' => 'text',
+						'default' => ''
+					],
+					'date' => [
+						'type' => 'text',
+						'default' => ''
+					],
+					'group' => [
+						'type' => 'text',
+						'default' => ''
+					],
+					'list_title' => [
+						'type' => 'text',
+						'default' => ''
+					],
+					'show_headers' => [
+						'type' => 'text',
+						'default' => 'yes'
+					],
+					'show_time' => [
+						'type' => 'text',
+						'default' => 'yes'
+					],
+					'show_phone' => [
+						'type' => 'text',
+						'default' => 'no'
+					],
+					'order_by' => [
+						'type' => 'text',
+						'default' => 'first_date'
+					],
+					'order' => [
+						'type' => 'text',
+						'default' => 'ASC'
+					]
+				]
+			)
+		);
+	}
 	
 }
 	
 global $pta_sus;
 $pta_sus = new PTA_Sign_Up_Sheet();
+$pta_sus->init_hooks();
 
 endif; // class exists
 

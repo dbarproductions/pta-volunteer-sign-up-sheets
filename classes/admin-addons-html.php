@@ -5,6 +5,7 @@
  * Date: 2/20/2016
  * Time: 5:01 PM
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 <div class="wrap pta_sus">
 	<h2><?php _e('Add Ons', 'pta_volunteer_sus'); ?></h2>
