@@ -123,12 +123,14 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 == Changelog ==
 **Version 3.0.0**
 
+*   THIS IS A MAJOR UPDATE - PLEASE TEST ON A STAGING SITE FIRST!
 *   Added an optional Task Description field for each task on a sheet
 *   When viewing a sheet, each task is now split to its own table, or table-styled div layout, and only columns applicable to that task are shown. For example, if there are no Item Details or Quantities for a task, those columns will no longer be shown.
 *   Task start and end times are now shown under the date in the "header" area of each task, and only if they are set for that task. They are no longer shown as columns in the signups list table. This gives more space per column on the screen for the shown columns, and allows more room for extensions that add additional columns to the signups list display.
 *   Added a PTA Block (under widgets group) to create sign up sheet shortcodes using the Gutenberg editor
 *   Added new show_date_start and show_date_end arguments to the shortcode to allow to remove one or both of those columns from the main sheet list
 *   Added the jQuery DataTables plugin for viewing signups in the Admin dashboard, and included functionality for export to CSV, Excel, PDF, or Print. Columns can be hidden/shown, rearranged, and data can be filtered and sorted however you like before you export or print. This now replaces the old "Export To CSV" button and function on the admin View Signups page.
+*   Added the ability for Admin to Add/Edit Signups on the admin View Signups page for a sheet.
 *   Cleanup and simplify some CSS for div output mode
 *   Moved the "Clear" column for individual sheets view to be after the Item Details and Item Quantity columns, so that it's always at the end of each row
 *   No longer show an empty clear column if not allowing clear for a sheet, or if within the minimum time allowed for clear.
@@ -138,6 +140,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 *   Some code re-organizing and rewriting
 *   Additional hooks to allow new extensions
 *   Rename "timepicker" class for admin task time selector to avoid conflicts with other time pickers using the same class name with different timepicker scripts
+*   Updated datepicker jquery plugin to latest version
 *   Korean translation added, courtesy of Jeehyo Chung and Julia Choi
 
 **Version 2.4.3**

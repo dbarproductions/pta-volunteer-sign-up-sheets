@@ -23,6 +23,9 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
 
+if (!defined('PTA_VOLUNTEER_SUS_URL'))
+	define('PTA_VOLUNTEER_SUS_URL', plugin_dir_url( __FILE__ ) );
+
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
 
 if (!class_exists('PTA_SUS_Data')) require_once 'classes/data.php';
@@ -64,6 +67,9 @@ class PTA_Sign_Up_Sheet {
 
 	    add_action( 'wpmu_new_blog', array($this, 'new_blog'), 10, 6);
 
+	    add_action('wp_enqueue_scripts', array($this,'register_scripts'), 1);
+	    add_action('admin_enqueue_scripts', array($this, 'register_scripts'), 1);
+
 	    if(is_admin()) {
 		    if (!class_exists('PTA_SUS_Admin')) {
 			    include_once(dirname(__FILE__).'/classes/class-pta_sus_admin.php');
@@ -71,6 +77,13 @@ class PTA_Sign_Up_Sheet {
 				add_action('init', array($this->admin, 'init_admin_hooks'));
 		    }
 	    }
+    }
+
+    public function register_scripts() {
+	    // register some scripts, so they can be used elsewhere
+	    wp_register_script( 'jquery-plugin', plugins_url( 'assets/js/jquery.plugin.min.js' , __FILE__ ), array( 'jquery' ) );
+	    wp_register_script( 'pta-jquery-datepick', plugins_url( 'assets/js/jquery.datepick.min.js' , __FILE__ ), array( 'jquery','jquery-plugin' ), '5.1.0' );
+	    wp_register_style( 'pta-jquery-datepick', plugins_url( 'assets/css/jquery.datepick.css', __FILE__ ) );
     }
 
 	/**
@@ -270,7 +283,6 @@ class PTA_Sign_Up_Sheet {
 	                'disable_css' => false,
 	                'show_full_name' => false,
 	                'suppress_duplicates' => true,
-	                'show_remaining_slots_csv_export' => true,
 	                'no_global_overlap' => false,
 	                'admin_only_settings' => false,
                     );

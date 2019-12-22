@@ -78,17 +78,22 @@ $num_cols = count($columns);
             $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
 			$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
 			$remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
+			$add_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;task_id='.$task->id.'&amp;date='.$tdate.'&amp;action=edit_signup';
+			$nonced_add_url = wp_nonce_url( $add_url, 'edit_signup', '_sus_nonce' );
+			for ($x=$i+1; $x<=$task->qty; $x++):
 			?>
 			<tr class="remaining">
 				<td><strong><?php echo esc_html($task_title); ?></strong></td>
                 <td><strong><?php echo esc_html($show_date); ?></strong></td>
                 <td><?php echo wp_kses_post($start); ?></td>
                 <td><?php echo wp_kses_post($end); ?></td>
-				<td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
-                <?php for ($j = 1; $j <= ($num_cols - 5); $j++): ?>
+				<td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
+                <?php for ($j = 1; $j <= ($num_cols - 6); $j++): ?>
                     <td></td>
                 <?php endfor; ?>
+                <td class="add-signup"><a href="<?php echo esc_url($nonced_add_url); ?>" title="<?php echo esc_attr(__('Add Signup','pta_volunteer_sus')); ?>"><span class="dashicons dashicons-plus"></span></a></td>
 			</tr>
+			<?php endfor; ?>
 			<?php endif; ?>
 		<?php endforeach; ?>
 	<?php endforeach; ?>

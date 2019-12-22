@@ -17,11 +17,9 @@ class PTA_SUS_Admin {
 	public $email_options;
 	public $table;
 	private $show_settings;
-	private $page_url;
 
 	public function __construct() {
-		global $plugin_page, $pta_sus_sheet_page_suffix;
-		$this->page_url = admin_url("admin.php?page=$plugin_page");
+		global $pta_sus_sheet_page_suffix;
 		$this->data = new PTA_SUS_Data();
 		$this->options_page = new PTA_SUS_Options();
 
@@ -33,6 +31,24 @@ class PTA_SUS_Admin {
 	public function init_admin_hooks() {
 		add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'add_sheet_admin_scripts') );
+		add_action( 'wp_ajax_pta_sus_get_user_data', array($this, 'get_user_data' ) );
+	}
+
+	public function get_user_data() {
+		check_ajax_referer( 'ajax-pta-nonce', 'security' );
+		$response = array();
+		if(isset($_POST['user_id']) && absint($_POST['user_id']) > 0) {
+			$user = get_user_by('id', absint( $_POST['user_id']));
+			if($user) {
+				$response = array(
+					'firstname' => esc_html($user->first_name),
+					'lastname' => esc_html($user->last_name),
+					'email' => esc_html($user->user_email),
+					'phone' => esc_html(get_user_meta($user->ID, 'billing_phone', true))
+				);
+			}
+		}
+		wp_send_json( $response);
 	}
 
 	public function admin_menu() {
@@ -67,16 +83,16 @@ class PTA_SUS_Admin {
 		if (strpos($hook, 'pta-sus-settings') !== false) {
 			wp_enqueue_style( 'pta-admin-style', plugins_url( '../assets/css/pta-admin-style.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-datatables-style', plugins_url( '../datatables/datatables.min.css', __FILE__ ) );
-			wp_enqueue_script( 'jquery-plugin', plugins_url( '../assets/js/jquery.plugin.min.js' , __FILE__ ), array( 'jquery' ) );
-			wp_enqueue_script( 'jquery-datepick', plugins_url( '../assets/js/jquery.datepick.js' , __FILE__ ), array( 'jquery' ), '5.0.0' );
-			wp_enqueue_script( 'jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
+			wp_enqueue_script( 'jquery-plugin' );
+			wp_enqueue_script( 'pta-jquery-datepick' );
+			wp_enqueue_script( 'pta-jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
 			wp_enqueue_script('pta-datatables', plugins_url( '../datatables/datatables.min.js' , __FILE__ ), array( 'jquery' ),'1.10.20',true);
 			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), array( 'jquery' ), '4.0.0', true );
 			wp_enqueue_script('jquery-ui-sortable');
-			wp_enqueue_style( 'pta-jquery.datepick', plugins_url( '../assets/css/jquery.datepick.css', __FILE__ ) );
+			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
-			$translation_array = array('default_text' => __('Item you are bringing', 'pta_volunteer_sus') );
+			$translation_array = array('default_text' => __('Item you are bringing', 'pta_volunteer_sus'),'ptaNonce' => wp_create_nonce( 'ajax-pta-nonce' ));
 			wp_localize_script('pta-sus-backend', 'PTA_Backend_js', $translation_array);
 		}
 	}
@@ -176,7 +192,10 @@ class PTA_SUS_Admin {
 			case 'actions':
 				$clear_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;signup_id='.$signup->id.'&amp;action=clear';
 				$nonced_clear_url = wp_nonce_url( $clear_url, 'clear', '_sus_nonce' );
-				$actions = '<span class="delete"><a href="'. esc_url($nonced_clear_url) . '">'.__('Clear Spot', 'pta_volunteer_sus').'</a></span>';
+				$edit_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;signup_id='.$signup->id.'&amp;action=edit_signup';
+				$nonced_edit_url = wp_nonce_url( $edit_url, 'edit_signup', '_sus_nonce' );
+				$actions = '<a href="'. esc_url($nonced_clear_url) . '" title="'.esc_attr(__('Clear Spot','pta_volunteer_sus')).'"><span class="dashicons dashicons-trash">&nbsp;</span></a>';
+				$actions .= '<a href="'. esc_url($nonced_edit_url) . '" title="'.esc_attr(__('Edit Signup','pta_volunteer_sus')).'"><span class="dashicons dashicons-edit">&nbsp;</span></a>';
 				$actions .= apply_filters('pta_sus_admin_signup_display_actions', '', $signup); // allow other extensions to add additional actions
 				echo $actions;
 				break;
@@ -184,6 +203,48 @@ class PTA_SUS_Admin {
 				do_action('pta_sus_admin_signup_column_data', $slug, $i, $sheet, $task, $signup);
 				break;
 		}
+	}
+
+	private function process_signup_form() {
+		if(!wp_verify_nonce( $_POST['pta_sus_admin_signup_nonce'], 'pta_sus_admin_signup')) {
+			echo '<div class="error"><p>'. __('Invalid Referrer', 'pta_volunteer_sus') .'</p></div>';
+			return false;
+		}
+		$fields = array(
+			'user_id',
+			'task_id',
+			'date',
+			'firstname',
+			'lastname',
+			'email',
+			'phone',
+			'item',
+			'item_qty'
+		);
+		$signup_id = isset($_POST['signup_id']) ? absint($_POST['signup_id']) : 0;
+		$edit = ($signup_id > 0);
+		$task_id = isset($_POST['task_id']) ? absint($_POST['task_id']) : 0;
+		$date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
+		$posted = array();
+		foreach ($fields as $key) {
+			// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
+			$posted['signup_'.$key] = stripslashes( wp_kses_post( $_POST[$key]));
+		}
+		if($edit) {
+			$result = $this->data->update_signup( $posted, $signup_id);
+		} else {
+			$result = $this->data->add_signup( $posted, $task_id);
+		}
+		if(false === $result) {
+			echo '<div class="error"><p>'. __('There was an error saving the signup.', 'pta_volunteer_sus') .'</p></div>';
+			return false;
+		}
+		if(!$edit) {
+			$signup_id = $result; // returns insert ID
+		}
+		echo '<div class="updated"><p>'.__('Signup Saved', 'pta_volunteer_sus').'</p></div>';
+		do_action('pta_sus_admin_saved_signup', $signup_id, $task_id, $date);
+		return true;
 	}
 
 	/**
@@ -213,6 +274,18 @@ class PTA_SUS_Admin {
 			}
 		}
 
+		// Add/Edit Signup form submitted
+		$success = false;
+		if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode']) {
+			$success = $this->process_signup_form();
+		}
+
+		// Edit Signup
+		if (isset($_GET['action']) && $_GET['action'] == 'edit_signup') {
+			include(PTA_VOLUNTEER_SUS_DIR.'views/admin-add-edit-signup-form.php');
+			return;
+		}
+
 		// Set Actions - but not if search or filter submitted (so don't toggle again, for example)
 		$filter = isset($_REQUEST['pta-filter-submit']) && (isset($_REQUEST['pta-visible-filter']) || isset($_REQUEST['pta-type-filter']));
 		$search = isset($_REQUEST['s']) && '' !== $_REQUEST['s'];
@@ -229,7 +302,7 @@ class PTA_SUS_Admin {
 			$edit = (!$trash && !$untrash && !$delete && !$copy && !$toggle_visibility && !$view_all && !empty($_GET['sheet_id']));
 		}
 
-		$view_all_url = add_query_arg(array('page' => 'pta-sus-settings_sheets','action' => 'view_all', 'sheet_id' => false), $this->page_url);
+		$view_all_url = add_query_arg(array('page' => 'pta-sus-settings_sheets','action' => 'view_all', 'sheet_id' => false));
 		$nonced_view_all_url = wp_nonce_url($view_all_url, 'view_all', '_sus_nonce');
 
 		echo '<div class="wrap pta_sus">';
@@ -771,7 +844,7 @@ class PTA_SUS_Admin {
 			echo '<div class="wrap pta_sus"><h2>'.(($add) ? __('ADD', 'pta_volunteer_sus') :  __('Edit', 'pta_volunteer_sus')).' '.__('Sign-up Sheet', 'pta_volunteer_sus').'</h2>';
 			$this->display_sheet_form($fields, $edit_sheet);
 			if($edit_sheet) {
-				$edit_tasks_url = add_query_arg(array("action"=>"edit_tasks", "sheet_id"=>$_GET['sheet_id']),$this->page_url);
+				$edit_tasks_url = add_query_arg(array("action"=>"edit_tasks", "sheet_id"=>$_GET['sheet_id']));
 				echo '<a href="'.esc_url($edit_tasks_url).'" class="button-secondary">'.__('Edit Tasks', 'pta_volunteer_sus').'</a>';
 			} else {
 				echo'<p><strong>'.__('Dates and Tasks are added on the next page', 'pta_volunteer_sus').'</strong></p>';
@@ -785,7 +858,7 @@ class PTA_SUS_Admin {
 		} elseif ($sheet_success && $edit_sheet) {
 			echo '<div class="wrap pta_sus"><h2>'.__('Edit Sheet', 'pta_volunteer_sus').'</h2>
 				<div class="updated"><strong>'.__('Sheet Updated!', 'pta_volunteer_sus').'</strong></div>';
-			$edit_tasks_url = add_query_arg(array("action"=>"edit_tasks", "sheet_id"=>$_GET['sheet_id']),$this->page_url);
+			$edit_tasks_url = add_query_arg(array("action"=>"edit_tasks", "sheet_id"=>$_GET['sheet_id']));
 			echo '<a href="'.esc_url($edit_tasks_url).'" class="button-secondary">'.__('Edit Tasks', 'pta_volunteer_sus').'</a>
 				</div>';
 		}

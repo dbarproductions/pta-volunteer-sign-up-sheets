@@ -7,7 +7,7 @@ $no_signups = absint($f['sheet_no_signups']);
 do_action( 'pta_sus_tasks_form_start', $f, $count );
 if ($count < 3) $count = 3;
 ?>
-<form name="add_tasks" id="pta-sus-modify-tasks" method="post" action="<?php echo esc_url($this->page_url); ?>">
+<form name="add_tasks" id="pta-sus-modify-tasks" method="post" action="">
 <?php if ( "Single" == $f['sheet_type'] ): ?>
 	<h2><?php echo __('Select the date for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
@@ -116,7 +116,7 @@ do_action( 'pta_sus_tasks_form_after_tasks', $f ); ?>
 $rows = $this->data->get_sheets(false, false, true);
 if (count($rows)>1) : ?>
 	<h2><?php _e('Move tasks ', 'pta_volunteer_sus'); ?></h2>
-	<form name="move_tasks" id="pta-sus-move-tasks" method="post" action="<?php echo $this->page_url; ?>">
+	<form name="move_tasks" id="pta-sus-move-tasks" method="post" action="">
 	<?php wp_nonce_field('pta_sus_move_tasks','pta_sus_move_tasks_nonce'); ?>
 	<input type="hidden" name="sheet_id" value="<?php echo (int)$f["sheet_id"]; ?>" />
 	<input type="hidden" name="tasks_mode" value="move_tasks" />

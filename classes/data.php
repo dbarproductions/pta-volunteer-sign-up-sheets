@@ -32,6 +32,7 @@ class PTA_SUS_Data
                     'position' => 'text',
                     'chair_name' => 'names',
                     'chair_email' => 'emails',
+                    'sus_group' => 'array',
                     'reminder1_days' => 'int',
                     'reminder2_days' => 'int',
                     'clear' => 'bool',
@@ -1057,9 +1058,9 @@ class PTA_SUS_Data
     /**
      * Update a task
      * 
-     * @param    int        task id
-     * @param    array     array of fields and values to update
-     * @param   bool
+     * @param    int    $id    task id
+     * @param    array  $fields   array of fields and values to update
+     * @param   bool $no_signups
      * @return    mixed    number of rows update or false if fails
      */
     public function update_task($fields, $id, $no_signups = false) {
@@ -1073,8 +1074,8 @@ class PTA_SUS_Data
     /**
      * Update a signup
      * 
-     * @param    int        signup id
-     * @param    array     array of fields and values to update
+     * @param    int   $id     signup id
+     * @param    array  $fields   array of fields and values to update
      * @return    mixed    number of rows update or false if fails
      */
     public function update_signup( $fields, $id ) {

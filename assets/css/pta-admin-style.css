@@ -43,3 +43,20 @@
     padding: 0.5em;
     border: 1px solid black;
 }
+
+.datepick-month-header select, .datepick-month-header input {
+    min-height: 0 !important;
+    -webkit-appearance: revert !important;
+    -moz-appearance: revert !important;
+}
+
+.pta-sus.admin.widefat th {
+    text-align: right;
+    width: 1px;
+    white-space: nowrap;
+    font-weight: bold;
+}
+.pta_loading {
+    margin-left: 1em;
+    display: inline-block;
+}

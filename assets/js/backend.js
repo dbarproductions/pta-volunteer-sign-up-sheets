@@ -7,19 +7,71 @@ jQuery(document).ready(function($) {
         axis: 'y'
     });
 
-	$('#multi999Picker').datepick({ 
-    multiSelect: 999, monthsToShow: 2, dateFormat: 'yyyy-mm-dd',
-    showTrigger: '#calImg'});
+	$('#multi999Picker').datepick({
+        pickerClass: 'pta',
+        multiSelect: 999, monthsToShow: 2, dateFormat: 'yyyy-mm-dd',
+        showTrigger: '#calImg'
+	});
 
-    $('.singlePicker').datepick({ 
-    monthsToShow: 1, dateFormat: 'yyyy-mm-dd',
-    showTrigger: '#calImg'});
+    $('.singlePicker').datepick({
+        pickerClass: 'pta',
+        monthsToShow: 1, dateFormat: 'yyyy-mm-dd',
+        showTrigger: '#calImg'
+    });
 
     $('.pta-timepicker').timepicker({
     showPeriod: true,
     showLeadingZero: true,
     defaultTime: '',
 	});
+
+    let $loading = $('#loadingDiv').hide();
+    $(document)
+        .ajaxStart(function () {
+            $loading.show();
+        })
+        .ajaxStop(function () {
+            $loading.hide();
+        });
+
+    $('#user_id').on('change', function(){
+        let userEmail = $('input[name=email]');
+        let firstName = $('input[name=firstname]');
+        let lastName = $('input[name=lastname]');
+        let userPhone = $('input[name=phone]');
+        let userID = $(this).val();
+        let data = {
+            'action': 'pta_sus_get_user_data',
+            'security': PTA_Backend_js.ptaNonce,
+            'user_id': userID
+        };
+
+        $.post(ajaxurl, data, function(response) {
+            //console.log(response);
+            if(response) {
+                if(response.firstname) {
+                    firstName.val(response.firstname);
+                } else {
+                    firstName.val('');
+                }
+                if(response.lastname) {
+                    lastName.val(response.lastname);
+                } else {
+                    lastName.val('');
+                }
+                if(response.phone) {
+                    userPhone.val(response.phone);
+                } else {
+                    userPhone.val('');
+                }
+                if(response.email) {
+                    userEmail.val(response.email);
+                } else {
+                    userEmail.val('');
+                }
+            }
+        });
+    });
 
     // Open details_text for checked values on page load
     $('input.details_checkbox', 'li').each(function() {
