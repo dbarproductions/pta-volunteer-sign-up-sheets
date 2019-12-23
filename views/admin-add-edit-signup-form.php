@@ -76,11 +76,13 @@ $posted = apply_filters('pta_sus_admin_signup_posted_values', $_POST, $task, $da
 $saved_values = array();
 if($edit) {
     foreach ($signup_fields as $key => $label) {
-        $saved_values[$key] = wp_kses_post(stripslashes($signup->$key));
+        if(in_array($key, array('user_id','firstname','lastname','email','phone','item','item_qty'))) {
+	        $saved_values[$key] = wp_kses_post(stripslashes($signup->$key));
+        }
     }
 }
 // Let other plugins modify or add to the saved values
-$saved_values = apply_filters( 'pta_sus_admin_saved_signup_values', $saved_values, $task, $date);
+$saved_values = apply_filters( 'pta_sus_admin_saved_signup_values', $saved_values, $signup_id, $task, $date);
 if(empty($saved_values)) {
 	// check for posted, in case of form error and need to edit/resubmit
 	foreach ($signup_fields as $key => $label) {
@@ -138,6 +140,7 @@ $loading_img = PTA_VOLUNTEER_SUS_URL.'assets/images/loading.gif';
 	            break;
             default:
                 do_action('pta_sus_admin_signup_custom_form_fields', $key, $saved_values, $task, $date);
+                break;
         }
     endforeach; ?>
     </table>
