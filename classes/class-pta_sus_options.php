@@ -27,7 +27,6 @@ class PTA_SUS_Options {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta_volunteer_sus' ) );
         }
         $docs_link = '<a href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta_volunteer_sus') . '</a>';
-	    $feedback_link = '<a href="https://stephensherrardplugins.com/support/topic/more-features-or-reworked-pro-version/" target="_blank">'.__('Development Feedback Wanted', 'pta_volunteer_sus') . '</a>';
 
         ?>
         <div class="wrap pta_sus">
@@ -66,12 +65,11 @@ class PTA_SUS_Options {
                 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
                     <input type="hidden" name="cmd" value="_s-xclick">
                     <input type="hidden" name="hosted_button_id" value="R4HF689YQ9DEE">
-                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                    <img alt="" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
                 </form>
             <?php endif; 
             if ('main_options' == $active_tab): ?>
-                <h3><?php echo $feedback_link; ?></h3>
                 <h3><?php echo $docs_link; ?></h3>
             <?php endif; 
             do_action('pta_sus_settings_after_submit_button', $active_tab);
@@ -822,7 +820,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['confirmation_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function reminder_email_template_textarea_input() {
@@ -830,7 +828,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['reminder_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 	
 	public function reminder2_email_template_textarea_input() {
@@ -838,7 +836,7 @@ class PTA_SUS_Options {
 		echo esc_textarea( $this->email_options['reminder2_email_template'] );
 		echo '</textarea>';
 		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta_volunteer_sus');
-		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
 	}
 
     public function clear_email_template_textarea_input() {
@@ -846,7 +844,7 @@ class PTA_SUS_Options {
         echo esc_textarea( $this->email_options['clear_email_template'] );
         echo '</textarea>';
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta_volunteer_sus');
-        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
 } // End Class

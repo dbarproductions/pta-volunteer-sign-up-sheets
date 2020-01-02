@@ -180,11 +180,11 @@ class PTA_SUS_Emails {
         $sheet_details = $this->convert_to_plain_text($sheet->details);
         
         // Replace any template tags with the appropriate variables
-	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{date}','{start_time}',
+	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{task_description}','{date}','{start_time}',
 		    '{end_time}','{item_details}','{item_qty}','{details_text}','{firstname}','{lastname}',
 		    '{contact_emails}','{contact_names}','{site_name}','{site_url}','{phone}', '{email}');
 
-	    $replace = array($sheet->title, $sheet_details, $task->title, $date, $start_time, $end_time, $item, $signup->item_qty,
+	    $replace = array($sheet->title, $sheet_details, $task->title, $task->description, $date, $start_time, $end_time, $item, $signup->item_qty,
 		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone, $signup->email );
 	    
 	    // Allow extension to modify/add to search and replace arrays

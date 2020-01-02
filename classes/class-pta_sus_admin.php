@@ -275,9 +275,8 @@ class PTA_SUS_Admin {
 		}
 
 		// Add/Edit Signup form submitted
-		$success = false;
 		if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode']) {
-			$success = $this->process_signup_form();
+			$this->process_signup_form();
 		}
 
 		// Edit Signup
@@ -1067,6 +1066,7 @@ class PTA_SUS_Admin {
 		wp_nonce_field('pta_sus_add_sheet','pta_sus_add_sheet_nonce');
 		echo '
 			<p class="submit">
+			<input type="hidden" name="sheet_id" value="'.absint($f['sheet_id']).'" />
 			<input type="hidden" name="sheet_mode" value="submitted" />
 			<input type="submit" name="Submit" class="button-primary" value="'.__("Save Sheet", "pta_volunteer_sus").'" /><br/><br/>
 			</p>

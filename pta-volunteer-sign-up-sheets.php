@@ -3,7 +3,7 @@
 Plugin Name: PTA Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer sign-up sheet manager
-Version: 3.0.0
+Version: 3.0.0RC1
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.0.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.0.0RC1');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -472,7 +472,9 @@ Thank You!
             duplicate_times BOOL NOT NULL DEFAULT FALSE,
             visible BOOL NOT NULL DEFAULT TRUE,
             trash BOOL NOT NULL DEFAULT FALSE,
-            UNIQUE KEY id (id)
+            PRIMARY KEY id (id),
+            KEY `first_date` (`first_date`),
+            KEY `last_date` (`last_date`)
         ) $charset_collate;";
         $sql .= "CREATE TABLE {$this->data->tables['task']['name']} (
             id INT NOT NULL AUTO_INCREMENT,
@@ -489,7 +491,8 @@ Thank You!
             allow_duplicates VARCHAR(3) NOT NULL DEFAULT 'NO',
             enable_quantities VARCHAR(3) NOT NULL DEFAULT 'NO',
             position INT NOT NULL,
-            UNIQUE KEY id (id)
+            PRIMARY KEY id (id),
+            KEY `sheet_id` (`sheet_id`)
         ) $charset_collate;";
         $sql .= "CREATE TABLE {$this->data->tables['signup']['name']} (
             id INT NOT NULL AUTO_INCREMENT,
@@ -504,7 +507,10 @@ Thank You!
             reminder1_sent BOOL NOT NULL DEFAULT FALSE,
             reminder2_sent BOOL NOT NULL DEFAULT FALSE,
             item_qty INT NOT NULL DEFAULT 1,
-            UNIQUE KEY id (id)
+            PRIMARY KEY id (id),
+            KEY `task_id` (`task_id`),
+            KEY `date` (`date`),
+            KEY `user_id` (`user_id`)
         ) $charset_collate;";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -606,19 +612,6 @@ Thank You!
 			null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.editor.build.css' ) // Version: File modification time.
 		);
 
-		// WP Localized globals. Use dynamic PHP stuff in JavaScript via `ptaGlobal` object.
-		/*
-		wp_localize_script(
-			'pta_volunteer_sus_block-block-js',
-			'ptsGlobal', // Array containing dynamic data for a JS Global.
-			[
-				'pluginDirPath' => plugin_dir_path( __DIR__ ),
-				'pluginDirUrl'  => plugin_dir_url( __DIR__ ),
-				// Add more data here that you want to access from `cgbGlobal` object.
-			]
-		);
-		*/
-
 		/**
 		 * Register Gutenberg block on server-side.
 		 *
@@ -663,6 +656,14 @@ Thank You!
 						'default' => 'yes'
 					],
 					'show_phone' => [
+						'type' => 'text',
+						'default' => 'no'
+					],
+					'show_date_start' => [
+						'type' => 'text',
+						'default' => 'no'
+					],
+					'show_date_end' => [
 						'type' => 'text',
 						'default' => 'no'
 					],

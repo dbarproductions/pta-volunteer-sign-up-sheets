@@ -124,7 +124,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 **Version 3.0.0**
 
 *   THIS IS A MAJOR UPDATE - PLEASE TEST ON A STAGING SITE FIRST!
-*   Added an optional Task Description field for each task on a sheet
+*   Added an optional Task Description field for each task on a sheet, and associated template tag to add task description to emails
 *   When viewing a sheet, each task is now split to its own table, or table-styled div layout, and only columns applicable to that task are shown. For example, if there are no Item Details or Quantities for a task, those columns will no longer be shown.
 *   Task start and end times are now shown under the date in the "header" area of each task, and only if they are set for that task. They are no longer shown as columns in the signups list table. This gives more space per column on the screen for the shown columns, and allows more room for extensions that add additional columns to the signups list display.
 *   Added a PTA Block (under widgets group) to create sign up sheet shortcodes using the Gutenberg editor
@@ -137,8 +137,8 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 *   Clear column will now ALWAYS be shown to admin and signup sheet manager users on public side for easy clearing of signups (if showing individual signups in a task list)
 *   Added search box to Admin All Sheets page to search for sheets on the sheet title.
 *   Added Visibility and Sheet Type filters to Admin All Sheet list page.
-*   Some code re-organizing and rewriting
-*   Additional hooks to allow new extensions
+*   Code re-organizing and rewriting
+*   Additional hooks to allow new extensions (such as the new Custom Fields extension)
 *   Rename "timepicker" class for admin task time selector to avoid conflicts with other time pickers using the same class name with different timepicker scripts
 *   Updated datepicker jquery plugin to latest version
 *   Korean translation added, courtesy of Jeehyo Chung and Julia Choi

@@ -726,13 +726,13 @@ class PTA_SUS_Public {
             }
         }
         extract( shortcode_atts( array(
-            'id' => false,
-            'date' => false,
-            'show_time' => true,
-            'show_phone' => false,
-            'show_headers' => true,
-            'show_date_start' => true,
-            'show_date_end' => true,
+            'id' => '',
+            'date' => '',
+            'show_time' => 'yes',
+            'show_phone' => 'no',
+            'show_headers' => 'yes',
+            'show_date_start' => 'yes',
+            'show_date_end' => 'yes',
             'order_by' => 'first_date',
             'order' => 'ASC',
             'list_title' => __('Current Volunteer Sign-up Sheets', 'pta_volunteer_sus'),
@@ -741,14 +741,14 @@ class PTA_SUS_Public {
 	     * Variables extracted from shortcode, with above default values
 	     * @var mixed $id
 	     * @var mixed $date
-	     * @var bool $show_time
-	     * @var bool $show_phone
-	     * @var bool $show_headers
+	     * @var string $show_time
+	     * @var string $show_phone
+	     * @var string $show_headers
 	     * @var string $order_by
 	     * @var string $order
 	     * @var string $list_title
-	     * @var bool $show_date_start
-	     * @var bool $show_date_end
+	     * @var string $show_date_start
+	     * @var string $show_date_end
 	     */
         // Allow plugins or themes to modify shortcode parameters
         $id = apply_filters( 'pta_sus_shortcode_id', $id );
@@ -1104,7 +1104,7 @@ class PTA_SUS_Public {
 				ob_start();
 				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-divs-rows-html.php');
 				$return .= ob_get_clean();
-				$return .= '</div></div>'; // close wrapper and "table" divs
+				$return .= '</div>'; // close "table" divs
 			} else {
 				ob_start();
 				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-table-rows-html.php');
@@ -1114,6 +1114,8 @@ class PTA_SUS_Public {
 
 			$return .= apply_filters( 'pta_sus_after_task_list', '', $tasks );
 		}
+
+		$return .= '</div>'; // close wrapper for both table and divs layouts
 
 		return $return;
 	} // Display task list

@@ -20,12 +20,6 @@ TABLE.pta-sus-tasks TH,
 TABLE.pta-sus-sheets TH {
     border-bottom: 1px solid #ccc;
     }
-TR.pta-sus-tasks-bb TD {
-    border-bottom: 1px solid #ccc;
-    }
-TR.pta-sus-tasks-timeb TD {
-    border-bottom: 2px solid #ccc;
-}
 TABLE.pta-sus-sheets TR.filled {
     background: #eee;
     }
@@ -80,7 +74,7 @@ div.pta-sus-sheets-row, div.pta-sus-tasks-row {
 div.pta-sus-tasks-row  > div, div.pta-sus-sheets-row > div {
     display: table-cell;
     padding:1em;
-    border:#f0f0f0 1px solid;
+    border: #f0f0f0 1px solid;
 }
 
 div.head {
