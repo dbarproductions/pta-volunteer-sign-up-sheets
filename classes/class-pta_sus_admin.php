@@ -944,6 +944,7 @@ class PTA_SUS_Admin {
 			}
 			$options[] = "<option value='{$type}' $selected >{$display}</option>";
 		}
+		$sheet_id = isset($f['sheet_id']) ? absint( $f['sheet_id']) : 0;
 		echo '
 			<form name="add_sheet" id="pta-sus-modify-sheet" method="post" action="">
 			<p>
@@ -1066,7 +1067,7 @@ class PTA_SUS_Admin {
 		wp_nonce_field('pta_sus_add_sheet','pta_sus_add_sheet_nonce');
 		echo '
 			<p class="submit">
-			<input type="hidden" name="sheet_id" value="'.absint($f['sheet_id']).'" />
+			<input type="hidden" name="sheet_id" value="'.esc_attr($sheet_id).'" />
 			<input type="hidden" name="sheet_mode" value="submitted" />
 			<input type="submit" name="Submit" class="button-primary" value="'.__("Save Sheet", "pta_volunteer_sus").'" /><br/><br/>
 			</p>

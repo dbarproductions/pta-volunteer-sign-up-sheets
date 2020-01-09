@@ -3,7 +3,7 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
 Requires at least: 3.3
-Tested up to: 5.3.1
+Tested up to: 5.3.2
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for volunteer activities, while protecting the privacy of the volunteers' personal information.
@@ -15,31 +15,32 @@ You may submit new features here:
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 **PLEASE READ THE DOCUMENTATION BEFORE POSTING SUPPORT REQUESTS**
-New features are being added on a fairly regular basis, and they all won't be described in this description.
 Read the documentation here:
 https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/
 
 This plugin allows you to easily create and manage volunteer sign up sheets for your school or organization. You can define four different types of events:  Single, Recurring, Multi-Day, or Ongoing events. Single events are for events that take place on just a single date. Recurring events are events that happen more than once (such as a weekly function), but have the same needs for each date. Multi-Day events are events that are spread across more than one day, but have different needs for each day. Ongoing events do not have any dates associated with them, but are for committees or helpers that are needed on an ongoing basis.
 
-For each of these types of events, you can create as many tasks or items as needed. For each of these tasks/items, you can specify how many items or people are needed, a start and end time, the date (for multi-day events), and whether or not item details are needed (for example, if you want the volunteer to enter the type of dish they are bringing for a luncheon). The order of tasks/items can easily be sorted by drag and drop.
+For each of these types of events, you can create as many tasks or items as needed. For each of these tasks/items, you can specify how many items or people are needed, a description, a start and end time, the date (for multi-day events), and whether or not item details are needed (for example, if you want the volunteer to enter the type of dish they are bringing for a luncheon), and optionally enable quantities. The order of tasks/items can easily be sorted by drag and drop.
 
 Sheets can also be specified as a "No Sign Up" event, which can be useful for general organization events and meetings, especially when used in conjunction with the Calendar Display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display
 
 Each sign-up sheet can be set to visible or hidden, so that you can create sign-up sheets ahead of time, but only make them visible to the public when you are ready for them to start signing up. There is also a test mode which will only show sign-up sheets on the public side to admin users or those who you give the "manage_signup_sheets" capability. Everyone else will see a message of your choosing while you are in test mode. When not in test mode, admins and users with the "manage_signup_sheets" capability can still view hidden sheets on the public side (for testing those sheets without putting the whole system into test mode).
 
-In the settings, you can choose to require that users be logged in to view and/or sign-up for any volunteer sign-up sheets, and pick the message they will see if they are not logged in. Even if you keep the sheets open to the public, no personal information is shown for any slots that have already been filled. Only a first name and last initial is shown for filled slots (version 2 adds an option to show the full last name), along with any item descriptions. Contact info is only shown on the admin side.  Version 1.3 adds an option to simply show "Filled" for filled spots.
+In the settings, you can choose to require that users be logged in to view and/or sign-up for any volunteer sign-up sheets, and pick the message they will see if they are not logged in. Even if you keep the sheets open to the public, you can choose which personal info to show, or simply show "Filled" for filled slots.
 
 There is also a hidden spambot field to prevent signup form submission from spambots.
 
-If a user is logged in when they sign up, the system will keep track of the user ID, and on the main volunteer sign-ups page, they will also see a list of items/tasks that they have signed up for, and it will give them a link to clear each sign up if they need to cancel or reschedule. If they are not logged in when they sign up, but they use the same email as a registered user, that sign-up will be linked to that user's account. In version 2.4 you can use the new shortcode [pta_user_signups] to also show the list of the current user's signups on any page (along with clear links, if allowed).
+If a user is logged in when they sign up, the system will keep track of the user ID, and on the main volunteer sign-ups page, they will also see a list of items/tasks that they have signed up for, and it will give them a link to clear each sign up if they need to cancel or reschedule. If they are not logged in when they sign up, but they use the same email as a registered user, that sign-up will be linked to that user's account. You can also use the shortcode [pta_user_signups] to show the list of the current user's signups on any page (along with clear links, if allowed).
 
 Admin users can use the "live search" option on the front end sign up form to search for volunteers in either the plugin's signups table, the WordPress users table, or both. If the admin then selects a volunteer, they can sign up that volunteer, and the signup will be assigned to that user's account (if your volunteers have user accounts).
 
-There is a shortcode for a main sign-up sheet page - [pta_sign_up_sheet] - that will show a list of all active (and non-hidden) sign-up sheets, showing the number of open volunteer slots with links to view each individual sheet. Individual sheets have links next to each open task/item for signing up.  When signing up, if the user is already logged in, their name and contact info (phone and email) will be pre-filled in the sign-up page form if that info exists in the user's meta data. You can also enter shortcode arguments to display a specific sign-up sheet on any page. Additionally, there are shortcode arguments for date, list title, and whether or not to show the start and end times.
+Admin users can also add, edit, or clear signups from the View Signups page in the admin dashboard.
+
+There is a shortcode for a main sign-up sheet page - [pta_sign_up_sheet] - that will show a list of all active (and non-hidden) sign-up sheets, showing the number of open volunteer slots with links to view each individual sheet. Individual sheets have links next to each open task/item for signing up.  When signing up, if the user is already logged in, their name and contact info (phone and email) will be pre-filled in the sign-up page form if that info exists in the user's meta data. You can also enter shortcode arguments to display a specific sign-up sheet on any page. Additionally, there are shortcode arguments for many other features (see documentation).
 
 There is a sidebar widget to show upcoming volunteer events and how many spots still need to be filled for each, linked to each individual sign-up sheet. You can choose whether or not to show Ongoing type events in the widget, and if they should be at the top or bottom of the list (since they don't have dates associated with them).
 
-Admin users can view sign-ups for each sheet, and clear any spots with a simple link. Each sheet can also be exported to a CSV format file for easy import into Excel or other spreadsheet programs.
+Admin users can view sign-ups for each sheet, and add, edit, or clear any spots with a simple link. Each sheet can also be exported to Excel, CSV, PDF or Print formats. Admin side signups are displayed using the jQuery DataTables plugin, which allows sorting, filtering, searching, and showing/hiding columns, so you can arrange the data anyway you want before exporting or printing.
 
 Committee/Event contact info can be entered for each sheet, or, if you are using the PTA Member Directory plugin, you can select one of the positions from the directory as the contact. When a user signs up, a confirmation email is sent to the user as well as a notification email to the contacts for that event.
 
@@ -47,32 +48,39 @@ Automatic Email reminders can be set for each sign-up sheet. You can specify the
 
 Simple to use custom email templates for sign-up confirmations and reminders.
 
+Admin can use an Email Volunteers form page to quickly send an email to all volunteers for a specific sheet, or to all volunteers.
+
+Much more! Read the documentation for all the current features.
+
 **Features:**
 
-*   Version 2.4 adds a new shortcode [pta_user_signups] that will allow you to show a list of the current logged in user's signups on any page (with clear links, if allowed). There are no arguments for this new shortcode.
-*   Version 2.4 also integrates with the GDPR privacy functions of WordPress 4.9.6. Exported personal data from WordPress will include any signups for the specified email or user ID associated with that email. If the user requests their data be deleted, that same user signup data will be deleted along with all other WordPress data for that user.
-*   Version 2 adds many new features, as well as an option to output lists as divs instead of tables (for easier custom styling and mobile responsive design). See the changelog or the documentation for all the changes.
-*   Version 2 also begins re-factoring of parts of the code to make it even easier to extend or modify functionality
-*   Version 1.12.3 now supports the calendar display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/
-*   New in version 1.10, you can now specify any type of sheet as a "No Signup Event". This allows you to create non-volunteer events for display only (no signup links or available spots will be shown). You can still create tasks/items with dates, start and end times for these sheets, which could be useful for showing the schedule/agenda for an event, but you won't be able to specify quantity or other normal task options. This is useful for a combination volunteer sign-up and event calendar type of list/display, especially when used with the Calendar Display extension.
-*   Also new in version 1.10, thanks to a code contributor, you can now move tasks from one sheet (they will be deleted from that sheet) to another sheet that you specify (they will be merged/added-to the selected sheet). Useful for merging two or more sheets into one for easier management.
-*   Version 1.9 allows admin to search user or sign-up tables for volunteers on the public sign-up form, so that they can easily sign up volunteers manually
-*	New features added in version 1.6 include the ability to allow duplicate signups on a per task basis, changing the label for the item details form field on a per task/item basis, as well as allowing volunteers to specify quanitites on a per task/item basis.
+*   [pta_user_signups] shortcode allows you to show a list of the current logged in user's signups on any page (with clear links, if allowed).
+*   Integrates with the GDPR privacy functions of WordPress 4.9.6. Exported personal data from WordPress will include any signups for the specified email or user ID associated with that email. If the user requests their data be deleted, that same user signup data will be deleted along with all other WordPress data for that user.
+*   Option to output lists as divs instead of tables (for easier custom styling and mobile responsive design).
+*   Extensive hooks and filters that make it easy to extend or modify functionality
+*   Supports the calendar display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/
+*   Create custom fields that can be used for sheets, tasks, or signup forms, with the Custom Fields extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/
+*   Specify any type of sheet as a "No Signup Event". This allows you to create non-volunteer events for display only (no signup links or available spots will be shown). You can still create tasks/items with dates, start and end times for these sheets, which could be useful for showing the schedule/agenda for an event, but you won't be able to specify quantity or other normal task options. This is useful for a combination volunteer sign-up and event calendar type of list/display, especially when used with the Calendar Display extension.
+*   You can now move tasks from one sheet (they will be deleted from that sheet) to another sheet that you specify (they will be merged/added-to the selected sheet). Useful for merging two or more sheets into one for easier management.
+*   Admin can live search user or sign-up tables for volunteers on the public sign-up form, to sign up volunteers from the public side.
+*   Admin can view, edit, add, and clear signups from the View Signups page in the Admin dashboard.
+*   Signups are shown on the Admin side using jQuery DataTables for easy sorting/filtering/searching, showing/hiding columns, and organizing your signup data for quick and easy export to Excel, CSV, PDF, or Print.
+*   You can optionally enter a description for each task (in addition to the main content area for the whole sheet) that will be shown above the task signup table for each task (when not empty)
+*	The ability to allow duplicate signups on a per task basis, changing the label for the item details form field on a per task/item basis, as well as allowing volunteers to specify quanitites on a per task/item basis.
 *   Easily create volunteer sign-up sheets with unlimited number of tasks/items for each
 *	Supports Single, Recurring, Ongoing or Multi-Day Events
 *  	All Sheets can be hidden from the public (visible only to logged in users)   
-*   No volunteer last names or contact info are shown to the public. Default public view shows only first name and last name for filled spots.  Version 1.3 introduces an option to simply show "Filled" for filled spots.
+*   No volunteer contact info is shown to the public (emails and phone are always hidden). Default public view shows only first name and last name for filled spots, but you can optionall show the full name, and there is also an option to simply show "Filled" for filled spots.
 *   Hidden spambot field helps prevent automatic spambot form submissions
 *	Up to 2 automatic reminder emails can be set up at individually specified intervals for each sheet (e.g., 7 days and 1 day before event)
 *   Shortcodes for all sheets, or use argument to show a specific sheet on a page
-*   Widget to show upcoming events that need volunteers in page sidebars (with version 1.5, can specify a group in the Widget)
-*   CSV Export for each sheet on admin side. Version 1.12.2 adds the ability to export ALL data at once (all sheets and signups)
+*   Widget to show upcoming events that need volunteers in page sidebars
 *   Individual sheets can be set to hidden until you are ready to have people sign up (useful for testing individual sheets)
 *   Test Mode for entire volunteer system, which displays a message of your choosing to the public while you test the system
 *   "manage_signup_sheets" capability so you can set up other users who can create and manage sign-up sheets without giving them full admin level access.
 *	Integration with the PTA Member Directory & Contact Form plugin to quickly specify contacts for each sign-up sheet, linked to the contact form with the proper recipient already selected. http://wordpress.org/plugins/pta-member-directory/
-*	Use the free PTA Shortcodes extension to easily generate shortcodes with all possible arguments ( available at https://wordpress.org/plugins/pta-shortcodes/ )
-*	Version 1.4 adds Wordpress Multisite compatibility
+*	Gutenberg Block Editor "PTA" block for creating shortcodes with all possible arguments, or use the free PTA Shortcodes extension ( available at https://wordpress.org/plugins/pta-shortcodes/ ) to easily generate shortcodes with all possible arguments in the Classic Editor
+*	Wordpress Multisite compatibility
 
 == Installation ==
 

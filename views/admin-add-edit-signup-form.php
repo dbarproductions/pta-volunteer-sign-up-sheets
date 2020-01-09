@@ -155,3 +155,6 @@ $loading_img = PTA_VOLUNTEER_SUS_URL.'assets/images/loading.gif';
     <?php wp_nonce_field('pta_sus_admin_signup','pta_sus_admin_signup_nonce', true, true); ?>
 </form>
 <?php
+/**
+ * EOF
+ */

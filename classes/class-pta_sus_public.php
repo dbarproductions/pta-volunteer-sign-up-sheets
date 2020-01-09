@@ -1193,15 +1193,15 @@ class PTA_SUS_Public {
 		    <form name="pta_sus_signup_form" id="pta_sus_signup_form" method="post" action="">
                 <input type="hidden" name="signup_user_id" value="'.$current_user->ID.'" />
 				<p>
-					<label for="signup_firstname">'.$firstname_label.'</label>
+					<label class="required" for="signup_firstname">'.$firstname_label.'</label>
 					<input type="text" id="signup_firstname" name="signup_firstname" value="'. esc_attr($current_user->user_firstname) .'" '.$readonly_first.' required />
 				</p>
 				<p>
-					<label for="signup_lastname">'.$lastname_label.'</label>
+					<label class="required" for="signup_lastname">'.$lastname_label.'</label>
 					<input type="text" id="signup_lastname" name="signup_lastname" value="'. esc_attr($current_user->user_lastname) .'" '.$readonly_last.' required />
 				</p>
 				<p>
-					<label for="signup_email">'.$email_label.'</label>
+					<label class="required" for="signup_email">'.$email_label.'</label>
 					<input type="text" id="signup_email" name="signup_email" value="'. esc_attr($current_user->user_email) .'" '.$readonly_email.' required />
 				</p>';
             if (!empty($readonly_email)) {
@@ -1209,7 +1209,7 @@ class PTA_SUS_Public {
             } else {
                 $form .= '
 				<p>
-					<label for="signup_validate_email">'.$validate_email_label.'</label>
+					<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
 					<input type="text" id="signup_validate_email" name="signup_validate_email" value="'. esc_attr($current_user->user_email) .'" required />
 				</p>';
             }
@@ -1220,7 +1220,7 @@ class PTA_SUS_Public {
                 $phone = apply_filters('pta_sus_user_phone', get_user_meta( $current_user->ID, 'billing_phone', true ), $current_user );
                 $form .= '
                 <p>
-                    <label for="signup_phone">'.$phone_label.'</label>
+                    <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
                     <input type="text" id="signup_phone" name="signup_phone" value="'. esc_attr($phone).'" '.esc_attr($phone_required).' />
                 </p>';
             }
@@ -1232,25 +1232,25 @@ class PTA_SUS_Public {
             $form .= '
 			<form name="pta_sus_signup_form" method="post" action="">
 				<p>
-					<label for="signup_firstname">'.$firstname_label.'</label>
+					<label class="required" for="signup_firstname">'.$firstname_label.'</label>
 					<input type="text" class="required" id="signup_firstname" name="signup_firstname" value="'.((isset($posted['signup_firstname'])) ? stripslashes(esc_attr($posted['signup_firstname'])) : '').'" required />
 				</p>
 				<p>
-					<label for="signup_lastname">'.$lastname_label.'</label>
+					<label class="required" for="signup_lastname">'.$lastname_label.'</label>
 					<input type="text" class="required" id="signup_lastname" name="signup_lastname" value="'.((isset($posted['signup_lastname'])) ? stripslashes(esc_attr($posted['signup_lastname'])) : '').'" required />
 				</p>
 				<p>
-					<label for="signup_email">'.$email_label.'</label>
+					<label class="required" for="signup_email">'.$email_label.'</label>
 					<input type="email" class="required email" id="signup_email" name="signup_email" value="'.((isset($posted['signup_email'])) ? esc_attr($posted['signup_email']) : '').'" required />
 				</p>
 				<p>
-					<label for="signup_validate_email">'.$validate_email_label.'</label>
+					<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
 					<input type="email" class="required email" id="signup_validate_email" name="signup_validate_email" value="'.((isset($posted['signup_validate_email'])) ? esc_attr($posted['signup_validate_email']) : '').'" required />
 				</p>';
             if( false == $this->main_options['no_phone'] ) {
                 $form .= '
                 <p>
-                    <label for="signup_phone">'.$phone_label.'</label>
+                    <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
                     <input type="tel" class="phone '.$phone_required.'" id="signup_phone" name="signup_phone" value="'.((isset($posted['signup_phone'])) ? esc_attr($posted['signup_phone']) : '').'" '.esc_attr($phone_required).' />
                 </p>';
             }
@@ -1265,7 +1265,7 @@ class PTA_SUS_Public {
         if ($task->need_details == "YES") {
             $form .= '
             <p>
-			    <label for="signup_item">'.esc_html($task->details_text).'</label>
+			    <label class="'.esc_attr($details_required).'" for="signup_item">'.esc_html($task->details_text).'</label>
 			    <input type="text" id="signup_item" name="signup_item" value="'.((isset($posted['signup_item'])) ? stripslashes(esc_attr($posted['signup_item'])) : '').'" '.esc_attr($details_required).' />
 		    </p>';
         }
@@ -1273,7 +1273,7 @@ class PTA_SUS_Public {
             $form .= '<p>';
             $available = $this->data->get_available_qty($task_id, $date, $task->qty);
             if ($available > 1) {
-                $form .= '<label for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
+                $form .= '<label class="required" for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
                 <input type="text" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" />';
             } elseif ( 1 == $available) {
                 $form .= '<strong>'.apply_filters( 'pta_sus_public_output', __('Only 1 remaining! Your quantity will be set to 1.', 'pta_volunteer_sus'), 'only_1_remaining' ).'</strong>';

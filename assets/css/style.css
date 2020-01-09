@@ -20,7 +20,7 @@ TABLE.pta-sus-tasks TH,
 TABLE.pta-sus-sheets TH {
     border-bottom: 1px solid #ccc;
     }
-TABLE.pta-sus-sheets TR.filled {
+TABLE.pta-sus-sheets TR.filled, TABLE.pta-sus-tasks TR.filled {
     background: #eee;
     }
 TABLE.pta-sus-sheets .column-open_spots {
@@ -56,6 +56,11 @@ TABLE.pta-sus-sheets .column-view_link {
 .pta-sus-em {
     font-style: italic;
 }
+
+div.signup-form .required:after {
+    content:" *";
+    color: red;
+}
 /* DIV LAYOUT STYLES */
 
 div.pta-sus-sheets-table, div.pta-sus-tasks-table {
@@ -69,6 +74,10 @@ div.pta-sus.task-info-header {
 
 div.pta-sus-sheets-row, div.pta-sus-tasks-row {
     display: table-row;
+}
+
+div.pta-sus-sheets-row.filled, div.pta-sus-tasks-row.filled {
+    background: #eee;
 }
 
 div.pta-sus-tasks-row  > div, div.pta-sus-sheets-row > div {
