@@ -42,7 +42,7 @@ jQuery(document).ready(function($) {
         let userID = $(this).val();
         let data = {
             'action': 'pta_sus_get_user_data',
-            'security': PTA_Backend_js.ptaNonce,
+            'security': PTASUS.ptaNonce,
             'user_id': userID
         };
 
@@ -98,7 +98,7 @@ jQuery(document).ready(function($) {
 	if ($('.tasks LI').is('*')) {
         var last_css_id = $(".tasks LI").last().attr('id');
         var row_key = last_css_id.substr(last_css_id.indexOf("-") + 1);
-        var default_text = PTA_Backend_js.default_text;
+        var default_text = PTASUS.default_text;
         $(".add-task-after").on('click', function() {
             $('.pta_sus_task_description').hide();
             row_key++;
@@ -199,7 +199,7 @@ jQuery(document).ready(function($) {
         buttons: [
             {
                 extend: 'excel',
-                text: 'Export to Excel',
+                text: PTASUS.excelExport,
                 title: sheetTitle,
                 message: sheetInfoText,
                 exportOptions: {
@@ -216,7 +216,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'csv',
-                text: 'Export to CSV',
+                text: PTASUS.csvExport,
                 title: sheetTitle,
                 message: sheetInfoText,
                 exportOptions: {
@@ -233,7 +233,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'pdf',
-                text: 'Save as PDF',
+                text: PTASUS.pdfSave,
                 title: sheetTitle,
                 message: sheetInfoText,
                 orientation: 'landscape',
@@ -251,7 +251,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'print',
-                text: 'Print',
+                text: PTASUS.toPrint,
                 title: sheetTitle,
                 message: sheetInfo,
                 exportOptions: {
@@ -269,11 +269,18 @@ jQuery(document).ready(function($) {
                     $(win.document.body).find('table').addClass('display').css('font-size', '11px');
                 }
             },
-            'colvis',
+            { extend: 'colvis', text: PTASUS.colvisText },
             {
-                text: 'Hide Remaining',
+                text: PTASUS.hideRemaining,
                 action: function ( e, dt, node, config ) {
                     ptaTable.rows('.remaining').remove().draw( false );
+                    this.disable();
+                }
+            },
+            {
+                text: PTASUS.disableGrouping,
+                action: function ( e, dt, node, config ) {
+                    ptaTable.rowGroup().disable().draw();
                     this.disable();
                 }
             }
@@ -296,7 +303,7 @@ jQuery(document).ready(function($) {
             } );
 
         // Get the search data for the first column and add to the select list
-        select.append( $('<option value="">Show All</option>') );
+        select.append( $('<option value="">'+ PTASUS.showAll +'</option>') );
         this
             .cache( 'search' )
             .sort()
@@ -326,7 +333,7 @@ jQuery(document).ready(function($) {
         buttons: [
             {
                 extend: 'excel',
-                text: 'Export to Excel',
+                text: PTASUS.excelExport,
                 title: sheetTitle,
                 message: sheetInfoText,
                 exportOptions: {
@@ -343,7 +350,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'csv',
-                text: 'Export to CSV',
+                text: PTASUS.csvExport,
                 title: sheetTitle,
                 message: sheetInfoText,
                 exportOptions: {
@@ -360,7 +367,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'pdf',
-                text: 'Save as PDF',
+                text: PTASUS.pdfSave,
                 title: sheetTitle,
                 message: sheetInfoText,
                 orientation: 'landscape',
@@ -378,7 +385,7 @@ jQuery(document).ready(function($) {
             },
             {
                 extend: 'print',
-                text: 'Print',
+                text: PTASUS.toPrint,
                 title: sheetTitle,
                 message: sheetInfo,
                 exportOptions: {
@@ -396,11 +403,18 @@ jQuery(document).ready(function($) {
                     $(win.document.body).find('table').addClass('display').css('font-size', '11px');
                 }
             },
-            'colvis',
+            { extend: 'colvis', text: PTASUS.colvisText },
             {
-                text: 'Hide Remaining',
+                text: PTASUS.hideRemaining,
                 action: function ( e, dt, node, config ) {
                     allTable.rows('.remaining').remove().draw( false );
+                    this.disable();
+                }
+            },
+            {
+                text: PTASUS.disableGrouping,
+                action: function ( e, dt, node, config ) {
+                    allTable.rowGroup().disable().draw();
                     this.disable();
                 }
             }

@@ -92,8 +92,19 @@ class PTA_SUS_Admin {
 			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
-			$translation_array = array('default_text' => __('Item you are bringing', 'pta_volunteer_sus'),'ptaNonce' => wp_create_nonce( 'ajax-pta-nonce' ));
-			wp_localize_script('pta-sus-backend', 'PTA_Backend_js', $translation_array);
+			$translation_array = array(
+				'default_text' => __('Item you are bringing', 'pta_volunteer_sus'),
+				'ptaNonce' => wp_create_nonce( 'ajax-pta-nonce' ),
+				'excelExport' => __('Export to Excel', 'pta_volunteer_sus'),
+				'csvExport' => __('Export to CSV', 'pta_volunteer_sus'),
+				'pdfSave' => __('Save as PDF', 'pta_volunteer_sus'),
+				'toPrint' => __('Print', 'pta_volunteer_sus'),
+				'hideRemaining' => __('Hide Remaining', 'pta_volunteer_sus'),
+				'disableGrouping' => __('Disable Grouping', 'pta_volunteer_sus'),
+				'colvisText' => __('Column Visibility', 'pta_volunteer_sus'),
+				'showAll' => __('Show All', 'pta_volunteer_sus'),
+			);
+			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
 		}
 	}
 
