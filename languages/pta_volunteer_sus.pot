@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
-"POT-Creation-Date: 2020-01-08 15:21-0800\n"
+"POT-Creation-Date: 2020-01-09 10:03-0800\n"
 "PO-Revision-Date: 2016-02-09 19:42-0800\n"
 "Last-Translator: Stephen Sherrard <stephen@dbar-productions.com>\n"
 "Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
@@ -30,14 +30,18 @@ msgid ""
 msgstr ""
 
 #: classes/admin-addons-html.php:16
+msgid "PTA Volunteer Sign Up Sheets Custom Fields"
+msgstr ""
+
+#: classes/admin-addons-html.php:22
 msgid "PTA Volunteer Sign Up Sheets Calendar Display"
 msgstr ""
 
-#: classes/admin-addons-html.php:23
+#: classes/admin-addons-html.php:29
 msgid "PTA Volunteer Sign-up Sheets Customizer"
 msgstr ""
 
-#: classes/admin-addons-html.php:30
+#: classes/admin-addons-html.php:36
 msgid "PTA Volunteer Sign Up Sheet Groups"
 msgstr ""
 
