@@ -44,59 +44,60 @@ $num_cols = count($columns);
     <?php foreach ($sheets as $sheet):
         $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
         $tasks=$this->data->get_tasks($sheet->id);
+        if(empty($all_task_dates)) continue;
         ?>
 	    <?php foreach ($all_task_dates as $tdate):
-	    // check if we want to show expired tasks and Skip any task whose date has already passed
-	    if ( !$this->main_options['show_expired_tasks']) {
-		    if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
-	    }
-	    if ("0000-00-00" == $tdate) {
-		    $show_date = '';
-	    } else {
-		    $show_date = mysql2date( get_option('date_format'), $tdate, $translate = true );
-	    }
-	    foreach ($tasks as $task):
-		    $task_dates = explode(',', $task->dates);
-		    if(!in_array($tdate, $task_dates)) continue;
-		    $i=0;
-		    $signups = $this->data->get_signups($task->id, $tdate);
-		    ?>
+            // check if we want to show expired tasks and Skip any task whose date has already passed
+            if ( !$this->main_options['show_expired_tasks']) {
+                if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
+            }
+            if ("0000-00-00" == $tdate) {
+                $show_date = '';
+            } else {
+                $show_date = mysql2date( get_option('date_format'), $tdate, $translate = true );
+            }
+            foreach ($tasks as $task):
+                $task_dates = explode(',', $task->dates);
+                if(!in_array($tdate, $task_dates)) continue;
+                $i=0;
+                $signups = $this->data->get_signups($task->id, $tdate);
+                ?>
 
-		    <?php foreach ($signups AS $signup): ?>
-            <tr>
-			    <?php foreach ($columns as $slug => $label): ?>
-                    <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup, $show_date); ?></td>
-			    <?php endforeach; ?>
-			    <?php
-			    if ('YES' === $task->enable_quantities) {
-				    $i += $signup->item_qty;
-			    } else {
-				    $i++;
-			    }
-			    ?>
-            </tr>
-	    <?php endforeach; ?>
+                <?php foreach ($signups AS $signup): ?>
+                    <tr>
+                        <?php foreach ($columns as $slug => $label): ?>
+                            <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup, $show_date); ?></td>
+                        <?php endforeach; ?>
+                        <?php
+                        if ('YES' === $task->enable_quantities) {
+                            $i += $signup->item_qty;
+                        } else {
+                            $i++;
+                        }
+                        ?>
+                    </tr>
+                <?php endforeach; ?>
 
-		    <?php if($i < $task->qty):
-		    $remaining = $task->qty - $i;
-		    $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
-		    $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
-		    $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
-		    $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
-		    ?>
-            <tr class="remaining">
-                <td><strong><?php echo esc_html($task_title); ?></strong></td>
-                <td><strong><?php echo esc_html($show_date); ?></strong></td>
-                <td><?php echo wp_kses_post($start); ?></td>
-                <td><?php echo wp_kses_post($end); ?></td>
-                <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
-			    <?php for ($j = 1; $j <= ($num_cols - 5); $j++): ?>
-                    <td></td>
-			    <?php endfor; ?>
-            </tr>
-	    <?php endif; ?>
-	    <?php endforeach; ?>
-    <?php endforeach; ?>
+                <?php if($i < $task->qty):
+                    $remaining = $task->qty - $i;
+                    $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
+                    $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
+                    $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
+                    $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
+                    ?>
+                    <tr class="remaining">
+                        <td><strong><?php echo esc_html($task_title); ?></strong></td>
+                        <td><strong><?php echo esc_html($show_date); ?></strong></td>
+                        <td><?php echo wp_kses_post($start); ?></td>
+                        <td><?php echo wp_kses_post($end); ?></td>
+                        <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
+                        <?php for ($j = 1; $j <= ($num_cols - 5); $j++): ?>
+                            <td></td>
+                        <?php endfor; ?>
+                    </tr>
+                <?php endif; ?>
+	        <?php endforeach; ?>
+        <?php endforeach; ?>
     <?php endforeach; ?>
 
 	</tbody>
