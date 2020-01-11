@@ -91,8 +91,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                 return (int)$this->data->get_sheet_signup_count($item['id']).' '.(($this->data->get_sheet_total_spots($item['id'], '') == $this->data->get_sheet_signup_count($item['id'])) ? '&#10004;' : '');
             default:
                 // Allow extensions to add column content
-                $return = apply_filters( 'pta_sus_process_other_columns', '', $item, $column_name );
-                return $return;
+                return apply_filters( 'pta_sus_process_other_columns', '', $item, $column_name );
         }
     }
     
@@ -333,7 +332,7 @@ class PTA_SUS_List_Table extends WP_List_Table
 	                continue;
                 }
             }
-	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring'))) {
+	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring','Ongoing'))) {
 		        if($_REQUEST['pta-type-filter'] !== $v->type) {
 			        continue;
 		        }
@@ -389,6 +388,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                     <option value="Single" <?php selected('Single',$type,true); ?>><?php _e('Show Only Single Events', 'pta_volunteer_sus'); ?></option>
                     <option value="Multi-Day" <?php selected('Multi-Day',$type,true); ?>><?php _e('Show Only Multi-Day Events', 'pta_volunteer_sus'); ?></option>
                     <option value="Recurring" <?php selected('Recurring',$type,true); ?>><?php _e('Show Only Recurring Events', 'pta_volunteer_sus'); ?></option>
+                    <option value="Ongoing" <?php selected('Ongoing',$type,true); ?>><?php _e('Show Only Ongoing Events', 'pta_volunteer_sus'); ?></option>
                 </select>
 			</div>
 			<?php

@@ -42,13 +42,19 @@ There is a sidebar widget to show upcoming volunteer events and how many spots s
 
 Admin users can view sign-ups for each sheet, and add, edit, or clear any spots with a simple link. Each sheet can also be exported to Excel, CSV, PDF or Print formats. Admin side signups are displayed using the jQuery DataTables plugin, which allows sorting, filtering, searching, and showing/hiding columns, so you can arrange the data anyway you want before exporting or printing.
 
-Committee/Event contact info can be entered for each sheet, or, if you are using the PTA Member Directory plugin, you can select one of the positions from the directory as the contact. When a user signs up, a confirmation email is sent to the user as well as a notification email to the contacts for that event.
+Committee/Event contact info can be entered for each sheet, or, if you are using the PTA Member Directory plugin, you can select one of the positions from the directory as the contact. When a user signs up, a confirmation email is sent to the user as well as a notification email to the contacts for that event (can be optionally disabled).
 
 Automatic Email reminders can be set for each sign-up sheet. You can specify the number of days before the event to send the reminder emails, and there can be two sets of reminders for each sheet (for example, first reminder can be sent 7 days before the event, and the second reminder can be sent the day before the event). You can set an hourly limit for reminder emails in case your hosting account limits the number of outgoing emails per hour.
 
 Simple to use custom email templates for sign-up confirmations and reminders.
 
 Admin can use an Email Volunteers form page to quickly send an email to all volunteers for a specific sheet, or to all volunteers.
+
+Sheets and tasks/signups can be shown via tables, or via table-style divs. CSS can be optionally disabled so that you can more easily style the displays the way you wish.
+
+Custom Fields can be added to sheets, tasks, or sign-up forms (for collecting additional info from volunteers) via the Custom Fields extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/
+
+Text displayed on the public side, such as columns headers, can be modified, along with additional layout options, with the Customizer extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/
 
 Much more! Read the documentation for all the current features.
 
@@ -60,6 +66,8 @@ Much more! Read the documentation for all the current features.
 *   Extensive hooks and filters that make it easy to extend or modify functionality
 *   Supports the calendar display extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/
 *   Create custom fields that can be used for sheets, tasks, or signup forms, with the Custom Fields extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/
+*   Customize public side text and layout options with the Customizer extension: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/
+*   Group, or categorize, sheets/events with the Groups extension, which can also import groups from the WP Groups and BuddyPress plugins: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/
 *   Specify any type of sheet as a "No Signup Event". This allows you to create non-volunteer events for display only (no signup links or available spots will be shown). You can still create tasks/items with dates, start and end times for these sheets, which could be useful for showing the schedule/agenda for an event, but you won't be able to specify quantity or other normal task options. This is useful for a combination volunteer sign-up and event calendar type of list/display, especially when used with the Calendar Display extension.
 *   You can now move tasks from one sheet (they will be deleted from that sheet) to another sheet that you specify (they will be merged/added-to the selected sheet). Useful for merging two or more sheets into one for easier management.
 *   Admin can live search user or sign-up tables for volunteers on the public sign-up form, to sign up volunteers from the public side.
@@ -131,7 +139,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 == Changelog ==
 **Version 3.0.0**
 
-*   THIS IS A MAJOR UPDATE - PLEASE TEST ON A STAGING SITE FIRST!
+*   THIS IS A MAJOR UPDATE - PLEASE TEST ON A STAGING SITE FIRST! ALSO REQUIRES UPDATING ANY EXTENSIONS YOU MAY OWN!
 *   Added an optional Task Description field for each task on a sheet, and associated template tag to add task description to emails
 *   When viewing a sheet, each task is now split to its own table, or table-styled div layout, and only columns applicable to that task are shown. For example, if there are no Item Details or Quantities for a task, those columns will no longer be shown.
 *   Task start and end times are now shown under the date in the "header" area of each task, and only if they are set for that task. They are no longer shown as columns in the signups list table. This gives more space per column on the screen for the shown columns, and allows more room for extensions that add additional columns to the signups list display.
