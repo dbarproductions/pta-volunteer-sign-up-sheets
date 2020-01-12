@@ -1,4 +1,4 @@
-=== SSP Volunteer Sign Up Sheets ===
+=== Volunteer Sign Up Sheets ===
 Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
