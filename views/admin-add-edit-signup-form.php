@@ -83,26 +83,38 @@ if($edit) {
 }
 // Let other plugins modify or add to the saved values
 $saved_values = apply_filters( 'pta_sus_admin_saved_signup_values', $saved_values, $signup_id, $task, $date);
-if(empty($saved_values)) {
-	// check for posted, in case of form error and need to edit/resubmit
-	foreach ($signup_fields as $key => $label) {
-		$saved_values[$key] = isset($posted[$key]) ? wp_kses_post($posted[$key]) : '';
-	}
+// make sure we have everything set in saved values array, even if it should be empty
+foreach ($signup_fields as $key => $label) {
+	// get posted if form was submitted, but there were errors
+	if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode'] && !empty($posted[$key])) {
+        $saved_values[$key] = wp_kses_post($posted[$key]);
+    } elseif (empty($saved_values[$key])) {
+        $saved_values[$key] = '';
+    }
 }
 $loading_img = PTA_VOLUNTEER_SUS_URL.'assets/images/loading.gif';
+$required_fields = $this->get_required_signup_fields($task_id);
 ?>
 <form name="pta_sus_admin_signup_form" id="pta_sus_admin_signup_form" method="post" action="">
     <table class="pta-sus admin widefat">
-    <?php foreach($signup_fields as $key => $label): ?>
+    <?php foreach($signup_fields as $key => $label):
+	    $required = in_array($key, $required_fields) ? 'required' : '';
+	    ?>
     <?php switch($key) {
             case 'firstname':
 		    case 'lastname':
-		    case 'email':
-		    case 'phone':
 		    case 'item': ?>
                 <tr>
                     <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
-                    <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" /></td>
+                    <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
+                </tr>
+            <?php
+		     break;
+		    case 'email':
+		    case 'phone': ?>
+                <tr>
+                    <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
+                    <td><input type="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
                 </tr>
             <?php
 		     break;

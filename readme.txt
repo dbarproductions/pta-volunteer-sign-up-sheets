@@ -1,4 +1,4 @@
-=== PTA Volunteer Sign Up Sheets ===
+=== SSP Volunteer Sign Up Sheets ===
 Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer,Sign Up, Events
@@ -140,6 +140,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 **Version 3.0.0**
 
 *   THIS IS A MAJOR UPDATE - PLEASE TEST ON A STAGING SITE FIRST! ALSO REQUIRES UPDATING ANY EXTENSIONS YOU MAY OWN!
+*   Plugin display name modified to remove the "PTA". Slugs/filemanes, shortcodes, html classes, and text domains, all remain unchanged.
 *   Added an optional Task Description field for each task on a sheet, and associated template tag to add task description to emails
 *   When viewing a sheet, each task is now split to its own table, or table-styled div layout, and only columns applicable to that task are shown. For example, if there are no Item Details or Quantities for a task, those columns will no longer be shown.
 *   Task start and end times are now shown under the date in the "header" area of each task, and only if they are set for that task. They are no longer shown as columns in the signups list table. This gives more space per column on the screen for the shown columns, and allows more room for extensions that add additional columns to the signups list display.

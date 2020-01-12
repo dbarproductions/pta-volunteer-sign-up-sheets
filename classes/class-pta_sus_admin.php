@@ -216,6 +216,22 @@ class PTA_SUS_Admin {
 		}
 	}
 
+	private function get_required_signup_fields($task_id) {
+		// bare minimum required fields
+		$required = array('firstname','lastname','email');
+		// check if phone is required
+		if(isset($this->main_options['phone_required']) && true == $this->main_options['phone_required']) {
+			$required[] = 'phone';
+		}
+		// get task so can check if details are required
+		$task = $this->data->get_task( $task_id );
+		if($task && 'YES' === $task->details_required) {
+			$required[] = 'item';
+		}
+		$required = apply_filters('pta_sus_admin_signup_required_fields', $required, $task_id);
+		return $required;
+	}
+
 	private function process_signup_form() {
 		if(!wp_verify_nonce( $_POST['pta_sus_admin_signup_nonce'], 'pta_sus_admin_signup')) {
 			echo '<div class="error"><p>'. __('Invalid Referrer', 'pta_volunteer_sus') .'</p></div>';
@@ -237,9 +253,27 @@ class PTA_SUS_Admin {
 		$task_id = isset($_POST['task_id']) ? absint($_POST['task_id']) : 0;
 		$date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
 		$posted = array();
+		// Make sure required fields are filled out
+		$required = $this->get_required_signup_fields( $task_id);
+		$error = false;
+		foreach($required as $field_key) {
+			if(empty($_POST[$field_key])) {
+				$error = true;
+				break;
+			}
+		}
+		if($error) {
+			echo '<div class="error"><p>'. __('Please fill out all required fields.', 'pta_volunteer_sus') .'</p></div>';
+			return false;
+		}
 		foreach ($fields as $key) {
 			// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
 			$posted['signup_'.$key] = stripslashes( wp_kses_post( $_POST[$key]));
+		}
+		// Validate email -- everything else is text, so no validating
+		if(!is_email($_POST['email'])) {
+			echo '<div class="error"><p>'. __('Invalid Email address.', 'pta_volunteer_sus') .'</p></div>';
+			return false;
 		}
 		if($edit) {
 			$result = $this->data->update_signup( $posted, $signup_id);
@@ -286,12 +320,13 @@ class PTA_SUS_Admin {
 		}
 
 		// Add/Edit Signup form submitted
+		$success = false;
 		if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode']) {
-			$this->process_signup_form();
+			$success = $this->process_signup_form();
 		}
 
 		// Edit Signup
-		if (isset($_GET['action']) && $_GET['action'] == 'edit_signup') {
+		if (isset($_GET['action']) && $_GET['action'] == 'edit_signup' && !$success) {
 			include(PTA_VOLUNTEER_SUS_DIR.'views/admin-add-edit-signup-form.php');
 			return;
 		}
