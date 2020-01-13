@@ -44,7 +44,7 @@ do_action( 'pta_sus_admin_before_signup_form', $task, $date );
 if ("0000-00-00" == $date) {
 	$show_date = false;
 } else {
-	$show_date = date_i18n(get_option('date_format'), strtotime($date));
+	$show_date = pta_datetime(get_option('date_format'), strtotime($date));
 }
 ?>
 <h3 class="pta-sus admin sign-up-header"><?php printf(__('TASK: %s', 'pta_volunteer_sus'), esc_html($task->title) ); ?></h3>
@@ -55,11 +55,11 @@ if ($show_date) {
 	?></div><?php
 }
 if (!empty($task->time_start)) { ?>
-<span class="pta-sus admin time_start"><?php printf(__('TIME START: %s', 'pta_volunteer_sus'), esc_html(date_i18n(get_option("time_format"), strtotime($task->time_start))) ); ?></span><br/>
+<span class="pta-sus admin time_start"><?php printf(__('TIME START: %s', 'pta_volunteer_sus'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_start))) ); ?></span><br/>
 <?php
 }
 if (!empty($task->time_end)) { ?>
-<span class="pta-sus admin time_end"><?php printf(__('TIME END: %s', 'pta_volunteer_sus'), esc_html(date_i18n(get_option("time_format"), strtotime($task->time_end))) ); ?></span><br/>
+<span class="pta-sus admin time_end"><?php printf(__('TIME END: %s', 'pta_volunteer_sus'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_end))) ); ?></span><br/>
 <?php
 }
 $signup_fields = apply_filters('pta_sus_admin_signup_fields', array(

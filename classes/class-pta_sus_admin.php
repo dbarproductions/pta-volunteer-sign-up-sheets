@@ -114,12 +114,12 @@ class PTA_SUS_Admin {
 		if ( $last = get_option( 'pta_sus_last_reminders' ) ) {
 			$messages .= '<hr/>';
 			$messages .= '<h4>' . __('Last reminders sent:', 'pta_volunteer_sus'). '</h4>';
-			$messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), date_i18n(get_option('date_format'), $last['time'])) . '<br/>';
-			$messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), date_i18n(get_option("time_format"), $last['time'])) . '<br/>';
+			$messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), pta_datetime(get_option('date_format'), $last['time'])) . '<br/>';
+			$messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), pta_datetime(get_option("time_format"), $last['time'])) . '<br/>';
 			$messages .= sprintf( _n( '1 reminder sent', '%d reminders sent', $last['num'], 'pta_volunteer_sus'), $last['num'] ) . '</p>';
 			$messages .= '<h4>' . __('Last reminder check:', 'pta_volunteer_sus'). '</h4>';
-			$messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), date_i18n(get_option('date_format'), $last['last'])) . '<br/>';
-			$messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), date_i18n(get_option("time_format"), $last['last'])) . '<br/>';
+			$messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), pta_datetime(get_option('date_format'), $last['last'])) . '<br/>';
+			$messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), pta_datetime(get_option("time_format"), $last['last'])) . '<br/>';
 			$messages .= '<hr/>';
 
 		}
@@ -172,11 +172,11 @@ class PTA_SUS_Admin {
 				echo '<strong>'.esc_html($date).'</strong>';
 				break;
 			case 'start':
-				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
+				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
 				echo wp_kses_post($start);
 				break;
 			case 'end':
-				$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
+				$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
 				echo wp_kses_post($end);
 				break;
 			case 'name':

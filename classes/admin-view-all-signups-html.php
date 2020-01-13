@@ -81,8 +81,8 @@ $num_cols = count($columns);
                 <?php if($i < $task->qty):
                     $remaining = $task->qty - $i;
                     $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
-                    $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_start)), $task );
-                    $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : date_i18n(get_option("time_format"), strtotime($task->time_end)), $task );
+                    $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
+                    $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
                     $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
                     ?>
                     <tr class="remaining">

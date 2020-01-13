@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 3.0.0
+Version: 3.1.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.0.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.1.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -794,4 +794,15 @@ function pta_sus_user_data_eraser( $email_address, $page = 1 ) {
 	);
 }
 
+if(!function_exists( 'pta_datetime')) {
+	function pta_datetime($format, $timestamp) {
+		$main_options = get_option( 'pta_volunteer_sus_main_options' );
+	    if(isset($main_options['disable_datei18n']) && true == $main_options['disable_datei18n']) {
+	        $datetime = date($format, $timestamp);
+	    } else {
+	        $datetime = date_i18n( $format, $timestamp);
+	    }
+	    return apply_filters('pta_sus_datetime', $datetime, $format, $timestamp);
+	}
+}
 /* EOF */

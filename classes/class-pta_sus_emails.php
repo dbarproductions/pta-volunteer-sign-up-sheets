@@ -165,8 +165,8 @@ class PTA_SUS_Emails {
 
         // Calculate some Variables for display
         $date = ($signup->date == '0000-00-00') ? __('N/A', 'pta_volunteer_sus') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
-        $start_time = ($task->time_start == "") ? __('N/A', 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_start));
-        $end_time = ($task->time_end == "") ? __('N/A', 'pta_volunteer_sus') : date_i18n(get_option("time_format"), strtotime($task->time_end));
+        $start_time = ($task->time_start == "") ? __('N/A', 'pta_volunteer_sus') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
+        $end_time = ($task->time_end == "") ? __('N/A', 'pta_volunteer_sus') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
         if (isset($signup->item) && $signup->item != " ") {
         	$item = $signup->item;
         } else {

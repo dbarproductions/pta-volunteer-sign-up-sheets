@@ -706,7 +706,7 @@ class PTA_SUS_Data
 			    $data = array();
 			    $value = esc_html($signup->title. ' - ' . $signup->task_title);
 			    if('0000-00-00' != $signup->signup_date) {
-			    	$value .= ' - '. date_i18n(get_option("date_format"), strtotime($signup->signup_date));
+			    	$value .= ' - '. pta_datetime(get_option("date_format"), strtotime($signup->signup_date));
 			    }
 			    if(!empty($signup->item)) {
 			    	$value .= ' - ' . esc_html($signup->item);

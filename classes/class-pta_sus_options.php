@@ -114,6 +114,7 @@ class PTA_SUS_Options {
         add_settings_field('enable_signup_search', __('Enable Sign-up form live search?', 'pta_volunteer_sus'), array($this, 'enable_signup_search_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_search_tables', __('Live Search Tables', 'pta_volunteer_sus'), array($this, 'signup_search_tables_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('admin_only_settings', __('Admin Only Settings Access?', 'pta_volunteer_sus'), array($this, 'admin_only_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('disable_datei18n', __('Disable Date/Time Translation?', 'pta_volunteer_sus'), array($this, 'disable_datei18n_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta_volunteer_sus'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
@@ -243,7 +244,8 @@ class PTA_SUS_Options {
             'show_remaining_slots_csv_export' => 'bool',
             'show_dates_csv_export' => 'bool',
             'no_global_overlap' => 'bool',
-		    'admin_only_settings' => 'bool'
+		    'admin_only_settings' => 'bool',
+            'disable_datei18n' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -813,6 +815,19 @@ class PTA_SUS_Options {
                value="1" <?php echo $checked; ?> />
 		<?php
 		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to only allow Admin to access the Settings and CRON Functions pages for this plugin.', 'pta_volunteer_sus' ) . '</em>';
+	}
+
+	public function disable_datei18n_settings_checkbox() {
+		if ( isset( $this->main_options['disable_datei18n'] ) && true === $this->main_options['disable_datei18n'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[disable_datei18n]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to disable the WordPress Date/Time Translation function, and to use the simple PHP Date format function instead (not translatable). This will fix issues with times shown due to other plugins that set a timezone offset after the changes in WordPress version 5.3', 'pta_volunteer_sus' ) . '</em>';
 	}
 
     public function confirmation_email_template_textarea_input() {

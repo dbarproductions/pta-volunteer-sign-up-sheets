@@ -375,8 +375,8 @@ class PTA_SUS_Public {
 		    $view_signup_text = apply_filters( 'pta_sus_view_signup_text_for_sheet', $view_signup_text, $sheet );
 
 		    $title = '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a>'.$is_hidden;
-		    $start_date = ($sheet->first_date == '0000-00-00') ? $ongoing_label : date_i18n(get_option('date_format'), strtotime($sheet->first_date));
-		    $end_date = ($sheet->last_date == '0000-00-00') ? $ongoing_label : date_i18n(get_option('date_format'), strtotime($sheet->last_date));
+		    $start_date = ($sheet->first_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->first_date));
+		    $end_date = ($sheet->last_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->last_date));
 		    $view_link = ($open_spots > 0) ? '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html( $view_signup_text ).'</a>' : '&#10004; '.esc_html( $sheet_filled_text );
 
 		    $row_data = array();
@@ -628,12 +628,12 @@ class PTA_SUS_Public {
 			    if($this->use_divs) {
 				    $return .= '<div class="pta-sus-sheets-row">
                             <div class="column-title">'.esc_html($signup->title).'</div>
-                            <div class="column-date">'.(($signup->signup_date == "0000-00-00") ? esc_html($this->na_text) : date_i18n(get_option("date_format"), strtotime($signup->signup_date))).'</div>
+                            <div class="column-date">'.(($signup->signup_date == "0000-00-00") ? esc_html($this->na_text) : pta_datetime(get_option("date_format"), strtotime($signup->signup_date))).'</div>
                             <div class="column-title" >'.esc_html($signup->task_title).'</div>';
 			    } else {
 				    $return .= '<tr>
                             <td>'.esc_html($signup->title).'</td>
-                            <td>'.(($signup->signup_date == "0000-00-00") ? esc_html($this->na_text) : date_i18n(get_option("date_format"), strtotime($signup->signup_date))).'</td>
+                            <td>'.(($signup->signup_date == "0000-00-00") ? esc_html($this->na_text) : pta_datetime(get_option("date_format"), strtotime($signup->signup_date))).'</td>
                             <td>'.esc_html($signup->task_title).'</td>';
 			    }
 			
@@ -642,12 +642,12 @@ class PTA_SUS_Public {
 			    if ($this->show_time) {
 				    if($this->use_divs) {
 					    $return .='
-                            <div class="column-start-time" style="text-align:right;">'.(("" == $signup->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($signup->time_start)) ).'</div>
-                            <div class="column-end-time" style="text-align:right;">'.(("" == $signup->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($signup->time_end)) ).'</div>';
+                            <div class="column-start-time" style="text-align:right;">'.(("" == $signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</div>
+                            <div class="column-end-time" style="text-align:right;">'.(("" == $signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</div>';
 				    } else {
 					    $return .='
-                            <td style="text-align:right;">'.(("" == $signup->time_start) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($signup->time_start)) ).'</td>
-                            <td style="text-align:right;">'.(("" == $signup->time_end) ? esc_html($this->na_text) : date_i18n(get_option("time_format"), strtotime($signup->time_end)) ).'</td>';
+                            <td style="text-align:right;">'.(("" == $signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</td>
+                            <td style="text-align:right;">'.(("" == $signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</td>';
 				    }
 				    
 			    }
@@ -1144,7 +1144,7 @@ class PTA_SUS_Public {
         if ("0000-00-00" == $date) {
             $show_date = false;
         } else {
-            $show_date = date_i18n(get_option('date_format'), strtotime($date));
+            $show_date = pta_datetime(get_option('date_format'), strtotime($date));
         }
         $phone_required = $this->phone_required ? 'required' : '';
 		$details_required = isset($task->details_required) && "YES" == $task->details_required ? 'required' : '';
@@ -1158,10 +1158,10 @@ class PTA_SUS_Public {
         }
         $form .= '</h4>';
         if ($this->show_time && !empty($task->time_start)) {
-            $form .= '<span class="time_start">'.esc_html($this->start_time_header) . ': '. date_i18n(get_option("time_format"), strtotime($task->time_start)) . '</span><br/>';
+            $form .= '<span class="time_start">'.esc_html($this->start_time_header) . ': '. pta_datetime(get_option("time_format"), strtotime($task->time_start)) . '</span><br/>';
         }
         if ($this->show_time && !empty($task->time_end)) {
-            $form .= '<span class="time_end">'.esc_html($this->end_time_header) . ': '. date_i18n(get_option("time_format"), strtotime($task->time_end)) . '</span><br/>';
+            $form .= '<span class="time_end">'.esc_html($this->end_time_header) . ': '. pta_datetime(get_option("time_format"), strtotime($task->time_end)) . '</span><br/>';
         }
         $firstname_label = apply_filters( 'pta_sus_public_output', __('First Name', 'pta_volunteer_sus'), 'firstname_label' );
         $lastname_label = apply_filters( 'pta_sus_public_output', __('Last Name', 'pta_volunteer_sus'), 'lastname_label' );
@@ -1313,18 +1313,18 @@ class PTA_SUS_Public {
     * Enqueue plugin css and js files
     */
     public function add_css_and_js_to_frontend() {
-    	
-    	if(!isset($this->main_options['disable_css']) || false == $this->main_options['disable_css']) {
-		    wp_register_style('pta-sus-style', plugins_url('../assets/css/style.css', __FILE__));
-		    wp_enqueue_style('pta-sus-style');
+
+	    if ( ! isset( $this->main_options['disable_css'] ) || false == $this->main_options['disable_css'] ) {
+		    wp_register_style( 'pta-sus-style', plugins_url( '../assets/css/style.css', __FILE__ ) );
+		    wp_enqueue_style( 'pta-sus-style' );
 	    }
-        
-        if ( $this->main_options['enable_signup_search'] && isset($_GET['task_id']) && current_user_can('manage_signup_sheets') ) {
-           wp_register_style('pta-sus-autocomplete', plugins_url('../assets/css/jquery.autocomplete.css', __FILE__));
-           wp_enqueue_style('pta-sus-autocomplete');
-           wp_enqueue_script('jquery-ui-autocomplete');
-           wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.js' , __FILE__ ));
-        }
+
+	    if ( $this->main_options['enable_signup_search'] && isset( $_GET['task_id'] ) && current_user_can( 'manage_signup_sheets' ) ) {
+		    wp_register_style( 'pta-sus-autocomplete', plugins_url( '../assets/css/jquery.autocomplete.css', __FILE__ ) );
+		    wp_enqueue_style( 'pta-sus-autocomplete' );
+		    wp_enqueue_script( 'jquery-ui-autocomplete' );
+		    wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.js', __FILE__ ) );
+	    }
     }
 
 } // End of class
