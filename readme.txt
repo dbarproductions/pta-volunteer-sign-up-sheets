@@ -138,6 +138,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 
 == Changelog ==
 **Version 3.1.0**
+
 *   Added an option to disable the WordPress date/time translation function, date_i18n, when formatting dates and times for output. WordPress modified the way they do things in 5.3, and if any other plugin or theme is using the date_default_timezone_set function (WordPress specifically states that function should NOT be used any more), it will throw off the display times. This option will correct for that by using the simple PHP date function to format date and time displays. However, this will NOT allow translation, and so dates/times will be shown in the language locale set on your server.
 *   Remove the no longer used CSV Exporter class file (export functions are now handled by DataTables)
 
