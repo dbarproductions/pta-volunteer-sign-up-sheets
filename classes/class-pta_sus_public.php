@@ -541,9 +541,14 @@ class PTA_SUS_Public {
 				    }
 				
 				    $task_dates = apply_filters( 'pta_sus_sheet_task_dates', $task_dates, $sheet->id );
-				    foreach ($task_dates as $tdate) {
-					    if( "0000-00-00" != $tdate && $tdate < current_time('Y-m-d')) continue; // Skip dates that have passed already
-					    $return .= $this->display_task_list($sheet->id, $tdate, $sheet->no_signups);
+				    $alt_view = apply_filters('pta_sus_display_alt_task_list', '', $sheet, $task_dates);
+				    if('' === $alt_view) {
+				    	foreach ($task_dates as $tdate) {
+						    if( "0000-00-00" != $tdate && $tdate < current_time('Y-m-d')) continue; // Skip dates that have passed already
+						    $return .= $this->display_task_list($sheet->id, $tdate, $sheet->no_signups);
+					    }
+				    } else {
+				    	$return .= $alt_view;
 				    }
 			    }
 			

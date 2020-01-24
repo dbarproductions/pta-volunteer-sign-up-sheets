@@ -82,11 +82,11 @@ class PTA_SUS_Admin {
 		// only add scripts on our settings pages
 		if (strpos($hook, 'pta-sus-settings') !== false) {
 			wp_enqueue_style( 'pta-admin-style', plugins_url( '../assets/css/pta-admin-style.css', __FILE__ ) );
-			wp_enqueue_style( 'pta-datatables-style', plugins_url( '../datatables/datatables.min.css', __FILE__ ) );
+			wp_enqueue_style( 'pta-datatables-style' );
 			wp_enqueue_script( 'jquery-plugin' );
 			wp_enqueue_script( 'pta-jquery-datepick' );
 			wp_enqueue_script( 'pta-jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
-			wp_enqueue_script('pta-datatables', plugins_url( '../datatables/datatables.min.js' , __FILE__ ), array( 'jquery' ),'1.10.20',true);
+			wp_enqueue_script('pta-datatables');
 			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), array( 'jquery' ), '4.0.0', true );
 			wp_enqueue_script('jquery-ui-sortable');
 			wp_enqueue_style( 'pta-jquery-datepick');
@@ -220,12 +220,12 @@ class PTA_SUS_Admin {
 		// bare minimum required fields
 		$required = array('firstname','lastname','email');
 		// check if phone is required
-		if(isset($this->main_options['phone_required']) && true == $this->main_options['phone_required']) {
+		if(isset($this->main_options['phone_required']) && true == $this->main_options['phone_required'] && true !== $this->main_options['no_phone']) {
 			$required[] = 'phone';
 		}
 		// get task so can check if details are required
 		$task = $this->data->get_task( $task_id );
-		if($task && 'YES' === $task->details_required) {
+		if($task && 'YES' === $task->details_required && 'YES' === $task->need_details) {
 			$required[] = 'item';
 		}
 		$required = apply_filters('pta_sus_admin_signup_required_fields', $required, $task_id);
@@ -267,8 +267,15 @@ class PTA_SUS_Admin {
 			return false;
 		}
 		foreach ($fields as $key) {
-			// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
-			$posted['signup_'.$key] = stripslashes( wp_kses_post( $_POST[$key]));
+			if('item_qty' === $key) {
+				$qty = isset($_POST['item_qty']) && absint($_POST['item_qty']) > 0 ? absint( $_POST['item_qty']) : 1;
+				$posted['signup_item_qty'] = $qty;
+			} else {
+				// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
+				if(isset($_POST[$key])) {
+					$posted['signup_'.$key] = stripslashes( wp_kses_post( $_POST[$key]));
+				}
+			}
 		}
 		// Validate email -- everything else is text, so no validating
 		if(!is_email($_POST['email'])) {

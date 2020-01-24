@@ -62,15 +62,22 @@ if (!empty($task->time_end)) { ?>
 <span class="pta-sus admin time_end"><?php printf(__('TIME END: %s', 'pta_volunteer_sus'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_end))) ); ?></span><br/>
 <?php
 }
-$signup_fields = apply_filters('pta_sus_admin_signup_fields', array(
+$signup_fields =array(
     'user_id' => __('User', 'pta_volunteer_sus'),
     'firstname' => __('First Name', 'pta_volunteer_sus'),
     'lastname' => __('Last Name', 'pta_volunteer_sus'),
-    'email' => __('E-mail', 'pta_volunteer_sus'),
-    'phone' => __('Phone', 'pta_volunteer_sus'),
-    'item' => $task->details_text,
-    'item_qty' => __('Item QTY: ', 'pta_volunteer_sus')
-), $task, $date);
+    'email' => __('E-mail', 'pta_volunteer_sus')
+);
+if(true !== $this->main_options['no_phone']) {
+	$signup_fields['phone'] = __('Phone', 'pta_volunteer_sus');
+}
+if('YES' === $task->need_details) {
+    $signup_fields['item'] = $task->details_text;
+}
+if('YES' === $task->enable_quantities) {
+	$signup_fields['item_qty'] = __('Item QTY: ', 'pta_volunteer_sus');
+}
+$signup_fields = apply_filters('pta_sus_admin_signup_fields', $signup_fields, $task, $date);
 // Give other plugins a chance to modify signup data
 $posted = apply_filters('pta_sus_admin_signup_posted_values', $_POST, $task, $date);
 $saved_values = array();

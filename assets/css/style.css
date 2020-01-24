@@ -61,6 +61,18 @@ div.signup-form .required:after {
     content:" *";
     color: red;
 }
+
+div.date-header {
+    font-size: larger;
+    font-weight: bolder;
+}
+div.title-header {
+    font-weight: bolder;
+}
+
+div.task-info-header {
+    
+}
 /* DIV LAYOUT STYLES */
 
 div.pta-sus-sheets-table, div.pta-sus-tasks-table {

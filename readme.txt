@@ -18,7 +18,7 @@ https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-
 Read the documentation here:
 https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/
 
-This plugin allows you to easily create and manage volunteer sign up sheets for your school or organization. You can define four different types of events:  Single, Recurring, Multi-Day, or Ongoing events. Single events are for events that take place on just a single date. Recurring events are events that happen more than once (such as a weekly function), but have the same needs for each date. Multi-Day events are events that are spread across more than one day, but have different needs for each day. Ongoing events do not have any dates associated with them, but are for committees or helpers that are needed on an ongoing basis.
+An alternative to things like Signup Genius for your events, that lets you keep volunteers on your own site. This plugin allows you to easily create and manage sign up sheets for your school, organization, business, or anything else that where need people to sign up. You can define four different types of events:  Single, Recurring, Multi-Day, or Ongoing events. Single events are for events that take place on just a single date. Recurring events are events that happen more than once (such as a weekly function), but have the same needs for each date. Multi-Day events are events that are spread across more than one day, but have different needs for each day. Ongoing events do not have any dates associated with them, but are for committees or helpers that are needed on an ongoing basis.
 
 For each of these types of events, you can create as many tasks or items as needed. For each of these tasks/items, you can specify how many items or people are needed, a description, a start and end time, the date (for multi-day events), and whether or not item details are needed (for example, if you want the volunteer to enter the type of dish they are bringing for a luncheon), and optionally enable quantities. The order of tasks/items can easily be sorted by drag and drop.
 
@@ -137,6 +137,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.1.1**
+
+*   Added small amount of default styling to task date and task title (above the tables) to make them stand out a bit more
+*   Re-arranged default order of the task info above the table to show the date first, similar to the old layout
+*   Added hooks to allow extensions to create alternate layouts for the tasks/signups list (Custom layouts can now be defined per sheet using the Customizer Extension)
+*   Modified the admin side add/edit signup form to only shows signup fields needed for the task, and also not showing the phone field if that is disabled in the main setting. This also fixed an issue with the Item Details field being set as required even if you didn't check the Details Needed box for the task (details required field is hidden and defaults to checked).
+
 **Version 3.1.0**
 
 *   Added an option to disable the WordPress date/time translation function, date_i18n, when formatting dates and times for output. WordPress modified the way they do things in 5.3, and if any other plugin or theme is using the date_default_timezone_set function (WordPress specifically states that function should NOT be used any more), it will throw off the display times. This option will correct for that by using the simple PHP date function to format date and time displays. However, this will NOT allow translation, and so dates/times will be shown in the language locale set on your server.

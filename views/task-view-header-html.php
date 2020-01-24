@@ -6,11 +6,11 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 <div class="pta-sus task-info-header">
-    <div class="pta-sus title-header"><?php echo esc_html($task->title); ?></div>
-	<?php do_action('pta_sus_task_header_info_after_task_title', $task); ?>
     <?php if(!empty($date) && '0000-00-00' != $date): ?>
     <div class="pta-sus date-header"><?php echo mysql2date( get_option('date_format'), $date, $translate = true ); ?></div>
     <?php endif; ?>
+    <div class="pta-sus title-header"><?php echo esc_html($task->title); ?></div>
+	<?php do_action('pta_sus_task_header_info_after_task_title', $task); ?>
     <?php if($this->show_time && '' !== $task->time_start): ?>
         <div class="pta-sus time-header start"><?php echo esc_html($this->start_time_header).': '. pta_datetime(get_option("time_format"), strtotime($task->time_start)); ?></div>
     <?php endif; ?>

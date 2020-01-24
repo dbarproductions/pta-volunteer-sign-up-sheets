@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 3.1.0
+Version: 3.1.1
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.1.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.1.1');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -81,6 +81,8 @@ class PTA_Sign_Up_Sheet {
 
     public function register_scripts() {
 	    // register some scripts, so they can be used elsewhere
+	    wp_register_style( 'pta-datatables-style', plugins_url( 'datatables/datatables.min.css', __FILE__ ) );
+	    wp_register_script('pta-datatables', plugins_url( 'datatables/datatables.min.js' , __FILE__ ), array( 'jquery' ),'1.10.20',true);
 	    wp_register_script( 'jquery-plugin', plugins_url( 'assets/js/jquery.plugin.min.js' , __FILE__ ), array( 'jquery' ) );
 	    wp_register_script( 'pta-jquery-datepick', plugins_url( 'assets/js/jquery.datepick.min.js' , __FILE__ ), array( 'jquery','jquery-plugin' ), '5.1.0' );
 	    wp_register_style( 'pta-jquery-datepick', plugins_url( 'assets/css/jquery.datepick.css', __FILE__ ) );
