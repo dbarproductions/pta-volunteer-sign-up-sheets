@@ -966,12 +966,14 @@ class PTA_SUS_Public {
 			$return .= ob_get_clean();
 
 			if($this->use_divs) {
-				$return .= '<div class="pta-sus-tasks-table">';
+				$additional_div_class = apply_filters('pta_sus_additional_task_table_class_divs', '');
+				$return .= '<div class="pta-sus-tasks-table '.esc_attr($additional_div_class).'">';
 				ob_start();
 				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-divs-header-row-html.php');
 				$return .= ob_get_clean();
 			} else {
-				$return .= '<table class="pta-sus-tasks"><thead>';
+				$additional_table_class = apply_filters('pta_sus_additional_task_table_class', '');
+				$return .= '<table class="pta-sus-tasks '.esc_attr($additional_table_class).'"><thead>';
 				ob_start();
 				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-table-header-row-html.php');
 				$return .= ob_get_clean();
@@ -1003,7 +1005,8 @@ class PTA_SUS_Public {
 						$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
 					}
 				}
-				$row_data['column-consolidated'] = $display_consolidated;
+				$row_data['column-available-spots'] = $display_consolidated;
+				$row_data['extra-class'] = 'consolidated';
 				$column_data[] = apply_filters('pta_sus_task_consolidated_row_data', $row_data, $task, $date);
 			} else {
 				// show signup rows
@@ -1016,8 +1019,10 @@ class PTA_SUS_Public {
 						} else {
 							$display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
 						}
+						$row_data['extra-class'] = 'signup';
 					} else {
 						$display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta_volunteer_sus'), 'task_spot_filled_message' );
+						$row_data['extra-class'] = 'filled';
 					}
 
 					// hook to allow others to modify how the signed up names are displayed
@@ -1065,42 +1070,46 @@ class PTA_SUS_Public {
 				}
 
 				if($remaining > 0) {
+					// set up all the common data first to speed things up
+					$row_data=array();
+					$signup_message = '';
+					if(!$no_signups) {
+						if($allow_signups) {
+							if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
+								$signup_message = '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
+							} else {
+								if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
+									$signup_message = '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
+								} else {
+									$signup_message = esc_html($this->main_options['login_signup_message']);
+								}
+							}
+						}
+						if($this->show_phone) {
+							$row_data['column-phone'] = '';
+						}
+					}
+					if(is_user_logged_in() && $show_clear) {
+						$row_data['column-clear'] = '';
+					}
+					if($show_details) {
+						$row_data['column-details'] = '';
+					}
+					if($show_qty) {
+						$row_data['column-quantity'] = '';
+					}
+					$row_data['extra-class'] = 'remaining';
+					$row_data = apply_filters('pta_sus_task_remaining_display_row_data', $row_data, $task, $date);
 					for ($i=$start; $i<=$task_qty; $i++) {
-						$row_data=array();
 						if(!$no_signups) {
 							if($show_all_slots) {
 								$row_data['column-available-spots'] = '#'.$i.': ';
-
 							} else {
 								$row_data['column-available-spots'] = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta_volunteer_sus'), (int)$remaining), 'task_number_remaining', (int)$remaining );
 							}
-							if($allow_signups) {
-								if(false == $this->main_options['login_required_signup'] || is_user_logged_in()) {
-									$signup_message = '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta_volunteer_sus'), 'task_sign_up_link_text' ) . '</a>';
-								} else {
-									if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-										$signup_message = '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
-									} else {
-										$signup_message = esc_html($this->main_options['login_signup_message']);
-									}
-								}
-								$row_data['column-available-spots'] .= $signup_message;
-							}
-							if($this->show_phone) {
-								$row_data['column-phone'] = '';
-							}
+							$row_data['column-available-spots'] .= $signup_message;
 						}
-
-						if(is_user_logged_in() && $show_clear) {
-							$row_data['column-clear'] = '';
-						}
-						if($show_details) {
-							$row_data['column-details'] = '';
-						}
-						if($show_qty) {
-							$row_data['column-quantity'] = '';
-						}
-						$column_data[] = apply_filters('pta_sus_task_remaining_display_row_data', $row_data, $task, $i, $date);
+						$column_data[] = $row_data;
 					}
 				}
 			}

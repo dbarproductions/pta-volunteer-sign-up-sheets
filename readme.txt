@@ -140,9 +140,11 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 **Version 3.1.1**
 
 *   Added small amount of default styling to task date and task title (above the tables) to make them stand out a bit more
+*   Added extra CSS classes to various row types (signup, remaining, consolidated) on the task/signup list tables displays to make it easier to style those rows differently
 *   Re-arranged default order of the task info above the table to show the date first, similar to the old layout
-*   Added hooks to allow extensions to create alternate layouts for the tasks/signups list (Custom layouts can now be defined per sheet using the Customizer Extension)
+*   Added hooks to allow extensions to create alternate layouts for the tasks/signups list (Custom table layouts can now be defined on a per sheet basis using the Customizer Extension)
 *   Modified the admin side add/edit signup form to only shows signup fields needed for the task, and also not showing the phone field if that is disabled in the main setting. This also fixed an issue with the Item Details field being set as required even if you didn't check the Details Needed box for the task (details required field is hidden and defaults to checked).
+*   Slightly modified and optimized the way rows and columns are output to be more efficient and easier for extensions to add/modify displayed columns
 
 **Version 3.1.0**
 
