@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
         var last_css_id = $(".tasks LI").last().attr('id');
         var row_key = last_css_id.substr(last_css_id.indexOf("-") + 1);
         var default_text = PTASUS.default_text;
-        $(".add-task-after").on('click', function() {
+        $(document).on('click',".add-task-after", function() {
             $('.pta_sus_task_description').hide();
             row_key++;
             // Clone the last row
@@ -136,7 +136,7 @@ jQuery(document).ready(function($) {
             // Insert the new task row
             $(this).parent("LI").after(new_row);
             // Reset timepicker for the new row
-            new_row.find(".timepicker").removeClass('hasTimepicker').timepicker({
+            new_row.find(".pta-timepicker").removeClass('hasTimepicker').timepicker({
             showPeriod: true,
             showLeadingZero: true,
             defaultTime: '',
@@ -160,7 +160,7 @@ jQuery(document).ready(function($) {
             });
             return false;
         });
-        $(".remove-task").live('click', function() {
+        $(document).on('click', ".remove-task", function() {
             if ($('.tasks LI').length == 1) {
                 $(this).prev().trigger('click');
             }
@@ -184,10 +184,10 @@ jQuery(document).ready(function($) {
     var ptaTable = $('#pta-sheet-signups').DataTable( {
         order: [],
         rowGroup: {
-            dataSrc: [ 0, 1 ]
+            dataSrc: [ 1, 2 ]
         },
         columnDefs: [ {
-            targets: [ 1, 0 ],
+            targets: [ 1, 2 ],
             visible: false
         } ],
         dom: '<B>lfrtip',
@@ -281,6 +281,7 @@ jQuery(document).ready(function($) {
                 text: PTASUS.disableGrouping,
                 action: function ( e, dt, node, config ) {
                     ptaTable.rowGroup().disable().draw();
+                    ptaTable.columns([1,2]).visible(1);
                     this.disable();
                 }
             }
@@ -318,10 +319,10 @@ jQuery(document).ready(function($) {
     var allTable = $('#pta-all-data').DataTable( {
         order: [],
         rowGroup: {
-            dataSrc: [ 0, 1, 2 ]
+            dataSrc: [ 1, 2, 3 ]
         },
         columnDefs: [ {
-            targets: [ 2, 1, 0 ],
+            targets: [ 3, 2, 1 ],
             visible: false
         } ],
         dom: '<B>lfrtip',
@@ -415,6 +416,7 @@ jQuery(document).ready(function($) {
                 text: PTASUS.disableGrouping,
                 action: function ( e, dt, node, config ) {
                     allTable.rowGroup().disable().draw();
+                    allTable.columns([1,2,3]).visible(1);
                     this.disable();
                 }
             }

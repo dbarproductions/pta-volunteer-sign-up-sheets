@@ -12,6 +12,7 @@ if(empty($sheets)) {
 }
 // Allow extensions to add columns
 $columns = apply_filters('pta_sus_admin_view_all_data_columns', array(
+    'slot'      => '#',
     'sheet'     => __('Sheet', 'pta_volunteer_sus'),
 	'task'      => __('Task/Item', 'pta_volunteer_sus'),
 	'date'      => __('Date', 'pta_volunteer_sus'),

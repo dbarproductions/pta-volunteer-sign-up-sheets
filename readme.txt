@@ -157,6 +157,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.0**
+
+*   Fixed an issue where time picker would not initialize on new task rows added on the admin edit tasks page
+*   Changed order of Date and Task Title in table groups on admin View Signups page to match the order of the public side display (date first, then task title)
+*   Added code to make grouped columns automatically visible when you disable grouping on the Admin View Signups or View/Export All Data pages
+*   Removed the slot # from the front of names on admin view signups & view all data pages to make it easier to sort & filter by names. Slot # is now its own column
+
 **Version 3.1.2**
 
 *   Added updated Danish translation.

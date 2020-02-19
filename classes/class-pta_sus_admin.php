@@ -159,6 +159,9 @@ class PTA_SUS_Admin {
 	
 	public function output_signup_column_data($slug, $i, $sheet, $task, $signup, $show_date) {
 		switch ($slug) {
+			case 'slot':
+				echo '#'.$i;
+				break;
 			case 'sheet':
 				$title = apply_filters('pta_sus_admin_signup_display_sheet_title', esc_html($sheet->title), $sheet);
 				echo '<strong>'.wp_kses_post($title).'</strong>';
@@ -182,7 +185,7 @@ class PTA_SUS_Admin {
 			case 'name':
 				$name = '<em>'.esc_html($signup->firstname).' '.esc_html($signup->lastname).'</em>';
 				$name = apply_filters('pta_sus_admin_signup_display_name', $name, $sheet, $signup );
-				echo '#'.$i.': '.wp_kses_post($name);
+				echo wp_kses_post($name);
 				break;
 			case 'email':
 				$email = apply_filters('pta_sus_admin_signup_display_email', $signup->email, $sheet, $signup);
@@ -253,11 +256,13 @@ class PTA_SUS_Admin {
 		$task_id = isset($_POST['task_id']) ? absint($_POST['task_id']) : 0;
 		$date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
 		$posted = array();
+		// let extensions modify the posted values
+		$form_data = apply_filters('pta_sus_admin_signup_posted_values', $_POST);
 		// Make sure required fields are filled out
 		$required = $this->get_required_signup_fields( $task_id);
 		$error = false;
 		foreach($required as $field_key) {
-			if(empty($_POST[$field_key])) {
+			if(empty($form_data[$field_key])) {
 				$error = true;
 				break;
 			}
@@ -268,17 +273,17 @@ class PTA_SUS_Admin {
 		}
 		foreach ($fields as $key) {
 			if('item_qty' === $key) {
-				$qty = isset($_POST['item_qty']) && absint($_POST['item_qty']) > 0 ? absint( $_POST['item_qty']) : 1;
+				$qty = isset($form_data['item_qty']) && absint($form_data['item_qty']) > 0 ? absint( $form_data['item_qty']) : 1;
 				$posted['signup_item_qty'] = $qty;
 			} else {
 				// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
-				if(isset($_POST[$key])) {
-					$posted['signup_'.$key] = stripslashes( wp_kses_post( $_POST[$key]));
+				if(isset($form_data[$key])) {
+					$posted['signup_'.$key] = stripslashes( wp_kses_post( $form_data[$key]));
 				}
 			}
 		}
 		// Validate email -- everything else is text, so no validating
-		if(!is_email($_POST['email'])) {
+		if(!is_email($form_data['email'])) {
 			echo '<div class="error"><p>'. __('Invalid Email address.', 'pta_volunteer_sus') .'</p></div>';
 			return false;
 		}
