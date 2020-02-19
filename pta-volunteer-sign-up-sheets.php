@@ -544,8 +544,9 @@ Thank You!
         // Wordpress only checks when someone visits the site, so
         // we'll keep this at hourly so that it hopefully runs at 
         // least once a day
-        wp_schedule_event( time(), 'hourly', 'pta_sus_cron_job');
-
+	    if ( ! wp_next_scheduled( 'pta_sus_cron_job' ) ) {
+	    	wp_schedule_event( time(), 'hourly', 'pta_sus_cron_job');
+	    }
     }
     
     /**
