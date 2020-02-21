@@ -259,6 +259,7 @@ class PTA_SUS_Admin {
 		// let extensions modify the posted values
 		$form_data = apply_filters('pta_sus_admin_signup_posted_values', $_POST);
 		// Make sure required fields are filled out
+		$send_mail = isset($form_data['send_email']) && 'yes' === $form_data['send_email'];
 		$required = $this->get_required_signup_fields( $task_id);
 		$error = false;
 		foreach($required as $field_key) {
@@ -298,6 +299,10 @@ class PTA_SUS_Admin {
 		}
 		if(!$edit) {
 			$signup_id = $result; // returns insert ID
+		}
+		if($send_mail) {
+			$emails = new PTA_SUS_Emails();
+			$emails->send_mail($signup_id, false, false);
 		}
 		echo '<div class="updated"><p>'.__('Signup Saved', 'pta_volunteer_sus').'</p></div>';
 		do_action('pta_sus_admin_saved_signup', $signup_id, $task_id, $date);

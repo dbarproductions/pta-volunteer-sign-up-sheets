@@ -184,10 +184,10 @@ jQuery(document).ready(function($) {
     var ptaTable = $('#pta-sheet-signups').DataTable( {
         order: [],
         rowGroup: {
-            dataSrc: [ 1, 2 ]
+            dataSrc: [ 0, 1 ]
         },
         columnDefs: [ {
-            targets: [ 1, 2 ],
+            targets: [ 0, 1 ],
             visible: false
         } ],
         dom: '<B>lfrtip',
@@ -281,7 +281,7 @@ jQuery(document).ready(function($) {
                 text: PTASUS.disableGrouping,
                 action: function ( e, dt, node, config ) {
                     ptaTable.rowGroup().disable().draw();
-                    ptaTable.columns([1,2]).visible(1);
+                    ptaTable.columns([0,1]).visible(1);
                     this.disable();
                 }
             }
@@ -319,10 +319,10 @@ jQuery(document).ready(function($) {
     var allTable = $('#pta-all-data').DataTable( {
         order: [],
         rowGroup: {
-            dataSrc: [ 1, 2, 3 ]
+            dataSrc: [ 0, 1, 2 ]
         },
         columnDefs: [ {
-            targets: [ 3, 2, 1 ],
+            targets: [ 0, 1, 2 ],
             visible: false
         } ],
         dom: '<B>lfrtip',
@@ -416,7 +416,7 @@ jQuery(document).ready(function($) {
                 text: PTASUS.disableGrouping,
                 action: function ( e, dt, node, config ) {
                     allTable.rowGroup().disable().draw();
-                    allTable.columns([1,2,3]).visible(1);
+                    allTable.columns([0, 1, 2]).visible(1);
                     this.disable();
                 }
             }

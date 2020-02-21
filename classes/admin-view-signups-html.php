@@ -12,11 +12,11 @@
 $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
 // Allow extensions to add columns
 $columns = apply_filters('pta_sus_admin_view_signups_columns', array(
-    'slot'      => '#',
-	'task'      => __('Task/Item', 'pta_volunteer_sus'),
 	'date'      => __('Date', 'pta_volunteer_sus'),
+	'task'      => __('Task/Item', 'pta_volunteer_sus'),
 	'start'     => __('Start Time', 'pta_volunteer_sus'),
 	'end'       => __('End Time', 'pta_volunteer_sus'),
+	'slot'      => '#',
 	'name'      => __('Name', 'pta_volunteer_sus'),
 	'email'     => __('E-mail', 'pta_volunteer_sus'),
 	'phone'     => __('Phone', 'pta_volunteer_sus'),
@@ -84,11 +84,11 @@ $num_cols = count($columns);
 			for ($x=$i+1; $x<=$task->qty; $x++):
 			?>
 			<tr class="remaining">
-                <td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
-				<td><strong><?php echo esc_html($task_title); ?></strong></td>
                 <td><strong><?php echo esc_html($show_date); ?></strong></td>
+				<td><strong><?php echo esc_html($task_title); ?></strong></td>
                 <td><?php echo wp_kses_post($start); ?></td>
                 <td><?php echo wp_kses_post($end); ?></td>
+                <td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
                 <?php for ($j = 1; $j <= ($num_cols - 6); $j++): ?>
                     <td></td>
                 <?php endfor; ?>

@@ -12,12 +12,12 @@ if(empty($sheets)) {
 }
 // Allow extensions to add columns
 $columns = apply_filters('pta_sus_admin_view_all_data_columns', array(
-    'slot'      => '#',
+    'date'      => __('Date', 'pta_volunteer_sus'),
     'sheet'     => __('Sheet', 'pta_volunteer_sus'),
 	'task'      => __('Task/Item', 'pta_volunteer_sus'),
-	'date'      => __('Date', 'pta_volunteer_sus'),
 	'start'     => __('Start Time', 'pta_volunteer_sus'),
 	'end'       => __('End Time', 'pta_volunteer_sus'),
+	'slot'      => '#',
 	'name'      => __('Name', 'pta_volunteer_sus'),
 	'email'     => __('E-mail', 'pta_volunteer_sus'),
 	'phone'     => __('Phone', 'pta_volunteer_sus'),
@@ -81,18 +81,21 @@ $num_cols = count($columns);
 
                 <?php if($i < $task->qty):
                     $remaining = $task->qty - $i;
+                    $sheet_title = apply_filters('pta_sus_admin_signup_display_sheet_title', esc_html($sheet->title), $sheet);
                     $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
                     $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
                     $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
                     $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
                     ?>
                     <tr class="remaining">
-                        <td><strong><?php echo esc_html($task_title); ?></strong></td>
                         <td><strong><?php echo esc_html($show_date); ?></strong></td>
+                        <td><strong><?php echo esc_html($sheet_title); ?></strong></td>
+                        <td><strong><?php echo esc_html($task_title); ?></strong></td>
                         <td><?php echo wp_kses_post($start); ?></td>
                         <td><?php echo wp_kses_post($end); ?></td>
+                        <td></td>
                         <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
-                        <?php for ($j = 1; $j <= ($num_cols - 5); $j++): ?>
+                        <?php for ($j = 1; $j <= ($num_cols - 7); $j++): ?>
                             <td></td>
                         <?php endfor; ?>
                     </tr>

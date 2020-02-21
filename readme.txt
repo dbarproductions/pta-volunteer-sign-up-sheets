@@ -163,6 +163,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 *   Changed order of Date and Task Title in table groups on admin View Signups page to match the order of the public side display (date first, then task title)
 *   Added code to make grouped columns automatically visible when you disable grouping on the Admin View Signups or View/Export All Data pages
 *   Removed the slot # from the front of names on admin view signups & view all data pages to make it easier to sort & filter by names. Slot # is now its own column
+*   Added a checkbox to the Admin side Add/Edit signup form to indicate if an email notice of the signup/edit should be sent to the user/volunter.
 
 **Version 3.1.2**
 

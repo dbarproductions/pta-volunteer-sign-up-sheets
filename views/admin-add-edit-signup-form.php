@@ -104,64 +104,68 @@ $required_fields = $this->get_required_signup_fields($task_id);
 ?>
 <form name="pta_sus_admin_signup_form" id="pta_sus_admin_signup_form" method="post" action="">
     <table class="pta-sus admin widefat">
-    <?php foreach($signup_fields as $key => $label):
-	    $required = in_array($key, $required_fields) ? 'required' : '';
-	    ?>
-    <?php switch($key) {
-            case 'firstname':
-		    case 'lastname':
-		    case 'item': ?>
-                <tr>
-                    <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
-                    <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
-                </tr>
-            <?php
-		     break;
-		    case 'email':
-		    case 'phone': ?>
-                <tr>
-                    <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
-                    <td><input type="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
-                </tr>
-            <?php
-		     break;
-            case 'user_id':
-                ?><tr><th><label for="user_id"><?php _e('Assign to WP User ', 'pta_volunteer_sus'); ?></label></th><td><?php
-	            $args = array(
-		            'show_option_none'        => __('None', 'pta_volunteer_sus'),
-		            'option_none_value'       => 0,
-		            'show'                    => 'display_name_with_login',
-		            'selected'                => $saved_values[$key],
-		            'name'                    => 'user_id',
-		            'class'                   => 'pta-user-select',
-		            'id'                      => 'user_id',
-		            'include_selected'        => true,
-	            );
-	            wp_dropdown_users($args);
-                ?><div id="loadingDiv" class="pta_loading"><img src="<?php echo esc_url($loading_img); ?>" alt="loading"></div></td></tr><?php
-	            break;
-            case 'item_qty':
-	            $available = $this->data->get_available_qty($task_id, $date, $task->qty);
-	            if($edit) {
-	                // add back in the signup qty so can edit up to max available
-                    $available += absint( $signup->item_qty);
-                }
-	            if ($task->enable_quantities == "YES") { ?>
-		            <tr>
-                        <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available) ); ?></label></th>
-                        <td><input type="number" id="item_qty" name="item_qty" value="<?php echo esc_attr($saved_values[$key]); ?>" min="1" max="<?php echo absint($available); ?>"/></td>
+        <?php foreach($signup_fields as $key => $label):
+            $required = in_array($key, $required_fields) ? 'required' : '';
+            ?>
+            <?php switch($key) {
+                case 'firstname':
+                case 'lastname':
+                case 'item': ?>
+                    <tr>
+                        <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
+                        <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
                     </tr>
-		            <?php
-	            } else { ?>
-		            <input type="hidden" name="item_qty" value="1" />
-                    <?php
-	            }
-	            break;
-            default:
-                do_action('pta_sus_admin_signup_custom_form_fields', $key, $saved_values, $task, $date);
-                break;
-        }
-    endforeach; ?>
+                <?php
+                 break;
+                case 'email':
+                case 'phone': ?>
+                    <tr>
+                        <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
+                        <td><input type="<?php echo esc_attr($key); ?>" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
+                    </tr>
+                <?php
+                 break;
+                case 'user_id':
+                    ?><tr><th><label for="user_id"><?php _e('Assign to WP User ', 'pta_volunteer_sus'); ?></label></th><td><?php
+                    $args = array(
+                        'show_option_none'        => __('None', 'pta_volunteer_sus'),
+                        'option_none_value'       => 0,
+                        'show'                    => 'display_name_with_login',
+                        'selected'                => $saved_values[$key],
+                        'name'                    => 'user_id',
+                        'class'                   => 'pta-user-select',
+                        'id'                      => 'user_id',
+                        'include_selected'        => true,
+                    );
+                    wp_dropdown_users($args);
+                    ?><div id="loadingDiv" class="pta_loading"><img src="<?php echo esc_url($loading_img); ?>" alt="loading"></div></td></tr><?php
+                    break;
+                case 'item_qty':
+                    $available = $this->data->get_available_qty($task_id, $date, $task->qty);
+                    if($edit) {
+                        // add back in the signup qty so can edit up to max available
+                        $available += absint( $signup->item_qty);
+                    }
+                    if ($task->enable_quantities == "YES") { ?>
+                        <tr>
+                            <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available) ); ?></label></th>
+                            <td><input type="number" id="item_qty" name="item_qty" value="<?php echo esc_attr($saved_values[$key]); ?>" min="1" max="<?php echo absint($available); ?>"/></td>
+                        </tr>
+                        <?php
+                    } else { ?>
+                        <input type="hidden" name="item_qty" value="1" />
+                        <?php
+                    }
+                    break;
+                default:
+                    do_action('pta_sus_admin_signup_custom_form_fields', $key, $saved_values, $task, $date);
+                    break;
+            }
+        endforeach; ?>
+        <tr>
+            <th><?php _e('Send email?', 'pta_volunteer_sus'); ?></th>
+            <td><input type="checkbox" value="yes" name="send_email" /><em><?php _e('Check if an email notification should be sent to the user/volunteer.', 'pta_volunteer_sus'); ?></em></td>
+        </tr>
     </table>
     <p class="submit">
 	    <input type="hidden" name="signup_id" value="<?php echo (int)($signup_id); ?>" />
