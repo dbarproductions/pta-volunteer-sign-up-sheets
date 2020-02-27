@@ -115,6 +115,7 @@ class PTA_SUS_Options {
 	    add_settings_field('signup_search_tables', __('Live Search Tables', 'pta_volunteer_sus'), array($this, 'signup_search_tables_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('admin_only_settings', __('Admin Only Settings Access?', 'pta_volunteer_sus'), array($this, 'admin_only_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_datei18n', __('Disable Date/Time Translation?', 'pta_volunteer_sus'), array($this, 'disable_datei18n_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('disable_grouping', __('Disable Grouping?', 'pta_volunteer_sus'), array($this, 'disable_grouping_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta_volunteer_sus'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
@@ -245,7 +246,8 @@ class PTA_SUS_Options {
             'show_dates_csv_export' => 'bool',
             'no_global_overlap' => 'bool',
 		    'admin_only_settings' => 'bool',
-            'disable_datei18n' => 'bool'
+            'disable_datei18n' => 'bool',
+            'disable_grouping' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -829,6 +831,19 @@ class PTA_SUS_Options {
 		<?php
 		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to disable the WordPress Date/Time Translation function, and to use the simple PHP Date format function instead (not translatable). This will fix issues with times shown due to other plugins that set a timezone offset after the changes in WordPress version 5.3', 'pta_volunteer_sus' ) . '</em>';
 	}
+
+	public function disable_grouping_settings_checkbox() {
+        if ( isset( $this->main_options['disable_grouping'] ) && true === $this->main_options['disable_grouping'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[disable_grouping]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to disable the row grouping feature of DataTables on the admin side View Signups and View All Data pages. Checking this will completely disable that feature and show all columns by default.', 'pta_volunteer_sus' ) . '</em>';
+    }
 
     public function confirmation_email_template_textarea_input() {
         echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";

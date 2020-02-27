@@ -103,6 +103,7 @@ class PTA_SUS_Admin {
 				'disableGrouping' => __('Disable Grouping', 'pta_volunteer_sus'),
 				'colvisText' => __('Column Visibility', 'pta_volunteer_sus'),
 				'showAll' => __('Show All', 'pta_volunteer_sus'),
+				'disableAdminGrouping' => isset($this->main_options['disable_grouping']) ? $this->main_options['disable_grouping'] : false,
 			);
 			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
 		}

@@ -181,15 +181,8 @@ jQuery(document).ready(function($) {
         sheetInfoText = sheetInfo.replace(regex, "\n").replace('&nbsp;', " ").replace('&nbsp;', " ");
     }
 
-    var ptaTable = $('#pta-sheet-signups').DataTable( {
+    var dtParams = {
         order: [],
-        rowGroup: {
-            dataSrc: [ 0, 1 ]
-        },
-        columnDefs: [ {
-            targets: [ 0, 1 ],
-            visible: false
-        } ],
         dom: '<B>lfrtip',
         colReorder: true,
         responsive: false,
@@ -277,16 +270,44 @@ jQuery(document).ready(function($) {
                     this.disable();
                 }
             },
-            {
-                text: PTASUS.disableGrouping,
-                action: function ( e, dt, node, config ) {
-                    ptaTable.rowGroup().disable().draw();
-                    ptaTable.columns([0,1]).visible(1);
-                    this.disable();
-                }
-            }
         ]
-    } );
+    };
+
+    var ptaTableParams = dtParams;
+    var allTableParams = dtParams;
+
+    if(!PTASUS.disableAdminGrouping) {
+        ptaTableParams.rowGroup = {
+            dataSrc: [ 0, 1 ],
+            startRender: function ( rows, group, level ) {
+                return group;
+            }
+        };
+        ptaTableParams.columnDefs = [{targets: [ 0, 1 ], visible: false}]
+        ptaTableParams.buttons.push({
+            text: PTASUS.disableGrouping,
+            action: function ( e, dt, node, config ) {
+                ptaTable.rowGroup().disable().draw();
+                this.disable();
+            }
+        });
+        allTableParams.rowGroup = {
+            dataSrc: [ 0, 1, 2 ],
+            startRender: function ( rows, group, level ) {
+                return group;
+            }
+        };
+        allTableParams.columnDefs = [{targets: [ 0, 1, 2 ], visible: false}]
+        allTableParams.buttons.push({
+            text: PTASUS.disableGrouping,
+            action: function ( e, dt, node, config ) {
+                allTable.rowGroup().disable().draw();
+                this.disable();
+            }
+        });
+    }
+
+    var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );
 
     ptaTable.columns( '.select-filter' ).every( function () {
         var that = this;
@@ -316,112 +337,7 @@ jQuery(document).ready(function($) {
             } );
     } );
 
-    var allTable = $('#pta-all-data').DataTable( {
-        order: [],
-        rowGroup: {
-            dataSrc: [ 0, 1, 2 ]
-        },
-        columnDefs: [ {
-            targets: [ 0, 1, 2 ],
-            visible: false
-        } ],
-        dom: '<B>lfrtip',
-        colReorder: true,
-        responsive: false,
-        stateSave: false,
-        pageLength: 100,
-        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, "All" ]],
-        buttons: [
-            {
-                extend: 'excel',
-                text: PTASUS.excelExport,
-                title: sheetTitle,
-                message: sheetInfoText,
-                exportOptions: {
-                    columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
-                }
-            },
-            {
-                extend: 'csv',
-                text: PTASUS.csvExport,
-                title: sheetTitle,
-                message: sheetInfoText,
-                exportOptions: {
-                    columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
-                }
-            },
-            {
-                extend: 'pdf',
-                text: PTASUS.pdfSave,
-                title: sheetTitle,
-                message: sheetInfoText,
-                orientation: 'landscape',
-                exportOptions: {
-                    columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
-                }
-            },
-            {
-                extend: 'print',
-                text: PTASUS.toPrint,
-                title: sheetTitle,
-                message: sheetInfo,
-                exportOptions: {
-                    columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
-                },
-                customize: function (win) {
-                    $(win.document.body).find('table').addClass('display').css('font-size', '11px');
-                }
-            },
-            { extend: 'colvis', text: PTASUS.colvisText },
-            {
-                text: PTASUS.hideRemaining,
-                action: function ( e, dt, node, config ) {
-                    allTable.rows('.remaining').remove().draw( false );
-                    this.disable();
-                }
-            },
-            {
-                text: PTASUS.disableGrouping,
-                action: function ( e, dt, node, config ) {
-                    allTable.rowGroup().disable().draw();
-                    allTable.columns([0, 1, 2]).visible(1);
-                    this.disable();
-                }
-            }
-        ]
-    } );
+    var allTable = $('#pta-all-data').DataTable( allTableParams );
 
     allTable.columns( '.select-filter' ).every( function () {
         var that = this;

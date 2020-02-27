@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 3.2.0RC2
+Version: 3.2.0RC3
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.2.0RC2');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.2.0RC3');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -255,39 +255,41 @@ class PTA_Sign_Up_Sheet {
         // If options haven't previously been setup, create the default options
         // MAIN OPTIONS
         $defaults = array(
-                    'enable_test_mode' => false,
-                    'test_mode_message' => 'The Volunteer Sign-Up System is currently undergoing maintenance. Please check back later.',
-                    'volunteer_page_id' => 0,
-                    'hide_volunteer_names' => false,
-                    'show_remaining' => false,
-                    'show_ongoing_in_widget' => true,
-                    'show_ongoing_last' => true,
-                    'no_phone' => false,
-                    'hide_contact_info' => false,
-                    'login_required' => false,
-                    'login_required_signup' => false,
-                    'login_required_message' => 'You must be logged in to a valid account to view and sign up for volunteer opportunities.',
-                    'login_signup_message' => 'Login to Signup',
-                    'readonly_signup' => false,
-                    'show_login_link' => false,
-                    'disable_signup_login_notice' => false,
-                    'enable_cron_notifications' => true,
-                    'detailed_reminder_admin_emails' => true,
-                    'show_expired_tasks' => false,
-                    'clear_expired_signups' => true,
-                    'hide_donation_button' => false,
-                    'reset_options' => false,
-                    'enable_signup_search' => false,
-                    'signup_search_tables' => 'signups',
-	                'signup_redirect' => true,
-	                'phone_required' => true,
-	                'use_divs' => false,
-	                'disable_css' => false,
-	                'show_full_name' => false,
-	                'suppress_duplicates' => true,
-	                'no_global_overlap' => false,
-	                'admin_only_settings' => false,
-                    );
+            'enable_test_mode' => false,
+            'test_mode_message' => 'The Volunteer Sign-Up System is currently undergoing maintenance. Please check back later.',
+            'volunteer_page_id' => 0,
+            'hide_volunteer_names' => false,
+            'show_remaining' => false,
+            'show_ongoing_in_widget' => true,
+            'show_ongoing_last' => true,
+            'no_phone' => false,
+            'hide_contact_info' => false,
+            'login_required' => false,
+            'login_required_signup' => false,
+            'login_required_message' => 'You must be logged in to a valid account to view and sign up for volunteer opportunities.',
+            'login_signup_message' => 'Login to Signup',
+            'readonly_signup' => false,
+            'show_login_link' => false,
+            'disable_signup_login_notice' => false,
+            'enable_cron_notifications' => true,
+            'detailed_reminder_admin_emails' => true,
+            'show_expired_tasks' => false,
+            'clear_expired_signups' => true,
+            'hide_donation_button' => false,
+            'reset_options' => false,
+            'enable_signup_search' => false,
+            'signup_search_tables' => 'signups',
+            'signup_redirect' => true,
+            'phone_required' => true,
+            'use_divs' => false,
+            'disable_css' => false,
+            'show_full_name' => false,
+            'suppress_duplicates' => true,
+            'no_global_overlap' => false,
+            'admin_only_settings' => false,
+            'disable_datei18n' => false,
+	        'disable_grouping' => false
+        );
         $options = get_option( 'pta_volunteer_sus_main_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
         foreach ($defaults as $key => $value) {
