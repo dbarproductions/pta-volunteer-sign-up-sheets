@@ -558,12 +558,19 @@ class PTA_SUS_Public {
 	    return $return;
     }
     
-    public function get_user_signups_list() {
+    public function get_user_signups_list($atts) {
     	$return = '';
 	    $current_user = wp_get_current_user();
 	    if ( !($current_user instanceof WP_User) )
 		    return '';
-	
+		/**
+	     * @var string $show_time
+	     */
+	    extract( shortcode_atts( array(
+		    'show_time' => 'yes'
+	    ), $atts, 'pta_user_signups' ) );
+	    $times = 'no' !== $show_time;
+	    $details = empty($this->main_options['hide_signups_details_qty']) || false == $this->main_options['hide_signups_details_qty'];
 	    $signups = apply_filters( 'pta_sus_user_signups', $this->data->get_user_signups($current_user->ID) );
 	    if ($signups) {
 		    $return .= apply_filters( 'pta_sus_before_user_signups_list_headers', '' );
@@ -590,7 +597,7 @@ class PTA_SUS_Public {
 		
 		    $return .= apply_filters( 'pta_sus_user_signups_list_headers_after_task', '', $this->use_divs );
 		    
-		    if ($this->show_time) {
+		    if ($times) {
 			    if($this->use_divs) {
 				    $return .='
                                 <div class="column-start-time head" style="text-align:right;">'.esc_html($this->start_time_header).'</div>
@@ -601,18 +608,24 @@ class PTA_SUS_Public {
                                 <th class="column-time end" style="text-align:right;">'.esc_html($this->end_time_header).'</th>';
 			    }
 		    }
-		    
+
+		    if($details) {
+		    	if($this->use_divs) {
+				    $return .= '
+	                                <div class="column-details head" style="text-align:center;">'.esc_html($this->item_details_header).'</div>
+	                                <div class="column-qty head" style="text-align:center;">'.esc_html($this->item_qty_header).'</div>';
+			    } else {
+				    $return .= '
+	                                <th class="column-details" style="text-align:center;">'.esc_html($this->item_details_header).'</th>
+	                                <th class="column-qty" style="text-align:center;">'.esc_html($this->item_qty_header).'</th>';
+			    }
+		    }
+
 		    if($this->use_divs) {
-			    $return .= '
-                                <div class="column-details head" style="text-align:center;">'.esc_html($this->item_details_header).'</div>
-                                <div class="column-qty head" style="text-align:center;">'.esc_html($this->item_qty_header).'</div>
-                                <div class="column-clear_link head">&nbsp;</div>
+			    $return .= '<div class="column-clear_link head">&nbsp;</div>
                             </div>';
 		    } else {
-			    $return .= '
-                                <th class="column-details" style="text-align:center;">'.esc_html($this->item_details_header).'</th>
-                                <th class="column-qty" style="text-align:center;">'.esc_html($this->item_qty_header).'</th>
-                                <th class="column-clear_link">&nbsp;</th>
+			    $return .= '<th class="column-clear_link">&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody>';
@@ -644,7 +657,7 @@ class PTA_SUS_Public {
 			
 			    $return .= apply_filters( 'pta_sus_user_signups_list_content_after_task', '', $signup, $this->use_divs );
 			    
-			    if ($this->show_time) {
+			    if ($times) {
 				    if($this->use_divs) {
 					    $return .='
                             <div class="column-start-time" style="text-align:right;">'.(("" == $signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</div>
@@ -656,19 +669,25 @@ class PTA_SUS_Public {
 				    }
 				    
 			    }
+			    if($details) {
+			    	if($this->use_divs) {
+					    $return .= '
+	                            <div class="column-item" style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</div>
+	                            <div class="column-qty" style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</div>';
+				    } else {
+					    $return .= '
+	                            <td style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</td>
+	                            <td style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</td>';
+				    }
+			    }
 			    if($this->use_divs) {
-				    $return .= '
-                            <div class="column-item" style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</div>
-                            <div class="column-qty" style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</div>
-                            <div class="column-clear" style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
+				    $return .= '<div class="column-clear" style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
                         </div>';
 			    } else {
-				    $return .= '
-                            <td style="text-align:center;">'.((" " !== $signup->item) ? esc_html($signup->item) : esc_html($this->na_text) ).'</td>
-                            <td style="text-align:center;">'.(("" !== $signup->item_qty) ? (int)$signup->item_qty : esc_html($this->na_text) ).'</td>
-                            <td style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
+				    $return .= '<td style="text-align:right;"><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
                         </tr>';
 			    }
+
 		    }
 		    
 		    if($this->use_divs) {
@@ -683,18 +702,8 @@ class PTA_SUS_Public {
     }
 
     public function process_user_signups_shortcode($atts) {
-	    /**
-	     * @var string $show_time
-	     */
-	    extract( shortcode_atts( array(
-		    'show_time' => true,
-	    ), $atts, 'pta_user_signups' ) );
-	    if ( $show_time === 'no') {
-		    $this->show_time = false;
-	    } else {
-		    $this->show_time = true;
-	    }
-    	$return = $this->get_user_signups_list();
+
+    	$return = $this->get_user_signups_list($atts);
     	if(empty($return)) {
     		$return = __('You do not have any current signups', 'pta_volunteer_sus');
 	    }
@@ -857,7 +866,7 @@ class PTA_SUS_Public {
                     $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta_volunteer_sus'), 'user_not_loggedin_signups_list_message' ).'</p>';
                 }
             } else {
-                $user_signups_list = $this->get_user_signups_list();
+                $user_signups_list = $this->get_user_signups_list($atts);
                 $return .= apply_filters('pta_sus_display_user_signups_table', $user_signups_list);
             }
 

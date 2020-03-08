@@ -94,6 +94,7 @@ class PTA_SUS_Options {
 	    add_settings_field('show_full_name', __('Show full name?', 'pta_volunteer_sus'), array($this, 'show_full_name_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_remaining', __('Consolidate remaining slots?', 'pta_volunteer_sus'), array($this, 'show_remaining_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('hide_details_qty', __('Hide Details and Quantities', 'pta_volunteer_sus'), array($this, 'hide_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('hide_signups_details_qty', __('Hide User Signups Details and Quantities', 'pta_volunteer_sus'), array($this, 'hide_signups_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_contact_info', __('Hide chair contact info from public?', 'pta_volunteer_sus'), array($this, 'hide_contact_info_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_in_widget', __('Show Ongoing events in Widget?', 'pta_volunteer_sus'), array($this, 'show_ongoing_in_widget_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_last', __('Show Ongoing events last?', 'pta_volunteer_sus'), array($this, 'show_ongoing_last_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -235,6 +236,7 @@ class PTA_SUS_Options {
             'hide_donation_button' => 'bool',
 		    'signup_search_tables' => 'text',
 		    'hide_details_qty' => 'bool',
+		    'hide_signups_details_qty' => 'bool',
 		    'signup_redirect' => 'bool',
             'phone_required' => 'bool',
             'details_required' => 'bool',
@@ -474,6 +476,18 @@ class PTA_SUS_Options {
 		?>
 		<input name="pta_volunteer_sus_main_options[hide_details_qty]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<em><?php _e('If checked the item details and quantity fields will be hidden from the task list on the sheet details page.', 'pta_volunteer_sus'); ?></em>
+		<?php
+	}
+
+	public function hide_signups_details_qty_checkbox() {
+		if(isset($this->main_options['hide_signups_details_qty']) && true === $this->main_options['hide_signups_details_qty']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+		<input name="pta_volunteer_sus_main_options[hide_signups_details_qty]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<em><?php _e('If checked the item details and quantity fields will be hidden from the list of User Signups, when a user is signed in.', 'pta_volunteer_sus'); ?></em>
 		<?php
 	}
 

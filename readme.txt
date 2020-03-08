@@ -164,6 +164,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 *   Added option to disable row grouping in the DataTables signups pages in admin. If disabled, all columns will show by default
 *   Removed the slot # from the front of names on admin view signups & view all data pages to make it easier to sort & filter by names. Slot # is now its own column
 *   Added a checkbox to the Admin side Add/Edit signup form to indicate if an email notice of the signup/edit should be sent to the user/volunter.
+*   Added an option to hide details and quantities from the list of a user's signups (below sheet table, or with separate shortcode)
 
 **Version 3.1.2**
 

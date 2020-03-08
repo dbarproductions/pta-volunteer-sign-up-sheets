@@ -260,6 +260,8 @@ class PTA_Sign_Up_Sheet {
             'volunteer_page_id' => 0,
             'hide_volunteer_names' => false,
             'show_remaining' => false,
+            'hide_details_qty' => false,
+            'hide_signups_details_qty' => false,
             'show_ongoing_in_widget' => true,
             'show_ongoing_last' => true,
             'no_phone' => false,
