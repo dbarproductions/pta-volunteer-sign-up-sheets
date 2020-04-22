@@ -2,6 +2,7 @@
 /**
  * @var array $f passed in array of tasks data
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $count = (isset($f['task_title'])) ? count($f['task_title']) : 3;
 $no_signups = absint($f['sheet_no_signups']);
 do_action( 'pta_sus_tasks_form_start', $f, $count );

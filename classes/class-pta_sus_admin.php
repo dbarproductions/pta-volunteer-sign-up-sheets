@@ -32,6 +32,11 @@ class PTA_SUS_Admin {
 		add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'add_sheet_admin_scripts') );
 		add_action( 'wp_ajax_pta_sus_get_user_data', array($this, 'get_user_data' ) );
+		add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
+	}
+
+	public function set_screen($status, $option, $value) {
+		return $value;
 	}
 
 	public function get_user_data() {
@@ -63,7 +68,7 @@ class PTA_SUS_Admin {
 		}
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'manage_signup_sheets' ) ) {
 			add_menu_page(__('Sign-up Sheets', 'pta_volunteer_sus'), __('Sign-up Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'), null, 93);
-			add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
+			$all_sheets = add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta_volunteer_sus'), __('All Sheets', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta_volunteer_sus'), __('Add New', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta_volunteer_sus'), __('Email Volunteers', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
 			if($this->show_settings) {
@@ -71,6 +76,22 @@ class PTA_SUS_Admin {
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta_volunteer_sus'), __('CRON Functions', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta_volunteer_sus'), __('Add Ons', 'pta_volunteer_sus'), 'manage_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
 			}
+			add_action( "load-$all_sheets", array( $this, 'screen_options' ) );
+		}
+	}
+
+	public function screen_options() {
+		// Only add on the main all sheets page - not on any view/edit pages
+		if(empty($_REQUEST['action'])) {
+			// List table needs to be setup before screen options added, so column check boxes will show
+			$this->table = new PTA_SUS_List_Table();
+			$option = 'per_page';
+			$args   = array(
+				'label'   => __('Sheets', 'pta_volunteer_sus'),
+				'default' => 20,
+				'option'  => 'sheets_per_page'
+			);
+			add_screen_option( $option, $args );
 		}
 	}
 
@@ -439,17 +460,14 @@ class PTA_SUS_Admin {
 		}
 
 		//View All
-		$show_trash = (isset($_REQUEST['sheet_status']) && $_REQUEST['sheet_status'] == 'trash') ? true : false;
-		$per_page = (isset($_REQUEST['per_page']) && $_REQUEST['per_page'] > 0) ? absint($_REQUEST['per_page']) : 20;
+		$show_trash = isset($_REQUEST['sheet_status']) && $_REQUEST['sheet_status'] == 'trash';
 		$show_all = !$show_trash;
 
 		// List Table functions need to be inside of form
 		echo'<form id="pta-sus-list-table-form" method="post">';
 
 		// Get and prepare data
-		$this->table = new PTA_SUS_List_Table();
 		$this->table->set_show_trash($show_trash);
-		$this->table->set_per_page($per_page);
 		$this->table->prepare_items();
 
 		// Moved this below above 2 lines so counts update properly when doing bulk actions (bulk actions called inside of prepare_items function)
@@ -1106,14 +1124,14 @@ class PTA_SUS_Admin {
 		echo '
 			<p>
 			<label for="sheet_chair_name">'.__('Chair Name(s):', 'pta_volunteer_sus').'</label>
-									      <input type="text" id="sheet_chair_name" name="sheet_chair_name" value="'.((isset($f['sheet_chair_name']) ? esc_attr($f['sheet_chair_name']) : '')).'" size="80">
-															<em>'.__('Separate multiple names with commas', 'pta_volunteer_sus').'</em>
-																				  </p>
-																				      <p>
-																					 <label for="sheet_chair_email">'.__('Chair Email(s):', 'pta_volunteer_sus').'</label>
-																												 <input type="text" id="sheet_chair_email" name="sheet_chair_email" value="'.((isset($f['sheet_chair_email']) ? esc_attr($f['sheet_chair_email']) : '')).'" size="80">
-																																		  <em>'.__('Separate multiple emails with commas', 'pta_volunteer_sus').'</em>
-																																							    </p>';
+	      	<input type="text" id="sheet_chair_name" name="sheet_chair_name" value="'.((isset($f['sheet_chair_name']) ? esc_attr($f['sheet_chair_name']) : '')).'" size="80">
+			<em>'.__('Separate multiple names with commas', 'pta_volunteer_sus').'</em>
+		  	</p>
+	      	<p>
+		 	<label for="sheet_chair_email">'.__('Chair Email(s):', 'pta_volunteer_sus').'</label>
+		 	<input type="text" id="sheet_chair_email" name="sheet_chair_email" value="'.((isset($f['sheet_chair_email']) ? esc_attr($f['sheet_chair_email']) : '')).'" size="80">
+		  	<em>'.__('Separate multiple emails with commas', 'pta_volunteer_sus').'</em>
+		    </p>';
 		// Allow other plugins to add fields to the form
 		do_action( 'pta_sus_sheet_form_after_contact_info', $f, $edit );
 		$content = isset($f['sheet_details']) ? wp_kses_post($f['sheet_details']) : '';

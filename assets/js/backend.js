@@ -358,7 +358,7 @@ jQuery(document).ready(function($) {
             {
                 text: PTASUS.hideRemaining,
                 action: function ( e, dt, node, config ) {
-                    ptaTable.rows('.remaining').remove().draw( false );
+                    allTable.rows('.remaining').remove().draw( false );
                     this.disable();
                 }
             },

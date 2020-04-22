@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.3.2
+Tested up to: 5.4.0
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.1**
+*   Changed default value of option to remove signups from database after event ends. Will only affect new installs where options have not been set yet. Now you must specifically check that option for signups to be automatically cleared after an event is over.
+*   Added Screen Option panel to the admin All Sheets list table page, allowing you to set the number of sheets to show per page as well as toggle column visibility.
+*   Fixed the "Hide Remaining" button on the All Signup Data dataTables page.
+
 **Version 3.2.0**
 
 *   Fixed an issue where time picker would not initialize on new task rows added on the admin edit tasks page

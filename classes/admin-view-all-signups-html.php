@@ -5,7 +5,7 @@
 	 * Date: 7/30/2017
 	 * Time: 4:01 PM
 	 */
-
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $sheets = $this->data->get_sheets($show_trash = false, $active_only = false, $show_hidden = true);
 if(empty($sheets)) {
 	echo '<div class="error"><p>'.__('No data to show.', 'pta_volunteer_sus').'</p></div>';

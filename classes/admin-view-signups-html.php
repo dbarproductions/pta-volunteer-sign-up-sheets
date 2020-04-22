@@ -7,7 +7,7 @@
      *
      * @var object $sheet
 	 */
-	
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 //$tasks = $this->data->get_tasks($sheet_id); // redundant - already got tasks
 $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
 // Allow extensions to add columns

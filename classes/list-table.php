@@ -16,13 +16,11 @@ class PTA_SUS_List_Table extends WP_List_Table
     private $data;
     private $rows = array();
     private $show_trash;
-    private $per_page=20;
     
     /**
     * construct
     * 
     * @param    bool    show trash?
-    * @return   PTA_SUS_List_Table
     */
     function __construct()
     {
@@ -82,7 +80,6 @@ class PTA_SUS_List_Table extends WP_List_Table
                 } else {
                     return __("N/A", 'pta_volunteer_sus');
                 }
-                return count($dates);
             case 'task_num':
                 return count($this->data->get_tasks($item['id']));
             case 'spot_num':
@@ -135,7 +132,6 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
     function column_visible($item) {
-        $page = $_GET['page'];
         if (true == $item['visible']) {
             $display = __("Yes", 'pta_volunteer_sus');
         } else {
@@ -207,14 +203,13 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function get_sortable_columns()
     {
-        $sortable_columns = apply_filters( 'pta_sus_list_table_sortable_columns', array(
+        return apply_filters( 'pta_sus_list_table_sortable_columns', array(
             'id'    => array('id',false),
             'visible'    => array('visible',false),
             'title' => array('title',false),
             'first_date'  => array('first_date',true),
             'last_date'  => array('last_date',false),
         ) );
-        return $sortable_columns;
     }
     
     /**
@@ -223,7 +218,6 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function get_bulk_actions()
     {
-        $actions = array();
 
         if ($this->show_trash) {
             $actions = array(
@@ -309,9 +303,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     function set_show_trash($show_trash) {
         $this->show_trash = $show_trash;
     }
-	function set_per_page($per_page=20) {
-		$this->per_page = $per_page;
-	}
+
     /**
     * Get data and prepare for use
     * 
@@ -340,12 +332,9 @@ class PTA_SUS_List_Table extends WP_List_Table
             $this->rows[$k] = (array)$v;
         }
 	    $this->rows = apply_filters( 'pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
-        $per_page = $this->per_page;
-        $columns = $this->get_columns();
-        $hidden = array();
-        $sortable = $this->get_sortable_columns();
-        
-        $this->_column_headers = array($columns, $hidden, $sortable);
+        $per_page     = $this->get_items_per_page( 'sheets_per_page', 20 );
+
+        $this->_column_headers = $this->get_column_info();
 
         // Sort Data
         function usort_reorder($a,$b)
