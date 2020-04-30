@@ -81,18 +81,21 @@ class PTA_SUS_Admin {
 	}
 
 	public function screen_options() {
-		// Only add on the main all sheets page - not on any view/edit pages
-		if(empty($_REQUEST['action'])) {
-			// List table needs to be setup before screen options added, so column check boxes will show
-			$this->table = new PTA_SUS_List_Table();
-			$option = 'per_page';
-			$args   = array(
-				'label'   => __('Sheets', 'pta_volunteer_sus'),
-				'default' => 20,
-				'option'  => 'sheets_per_page'
-			);
-			add_screen_option( $option, $args );
+		// Only add on the main all sheets pages (or after copy/trash actions) - not on any view/edit pages
+		if(isset($_REQUEST['action']) && in_array($_REQUEST['action'], array('edit_sheet', 'view_signup', 'edit_tasks'))) {
+			return;
 		}
+
+		// List table needs to be setup before screen options added, so column check boxes will show
+		$this->table = new PTA_SUS_List_Table();
+		$option = 'per_page';
+		$args   = array(
+			'label'   => __('Sheets', 'pta_volunteer_sus'),
+			'default' => 20,
+			'option'  => 'sheets_per_page'
+		);
+		add_screen_option( $option, $args );
+
 	}
 
 	public function pta_settings_permissions( $capability ) {
@@ -465,6 +468,10 @@ class PTA_SUS_Admin {
 
 		// List Table functions need to be inside of form
 		echo'<form id="pta-sus-list-table-form" method="post">';
+		// Make sure we have a list table - should have been set already
+		if(!is_object($this->table)) {
+			$this->table = new PTA_SUS_List_Table();
+		}
 
 		// Get and prepare data
 		$this->table->set_show_trash($show_trash);
