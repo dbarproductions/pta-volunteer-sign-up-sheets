@@ -1066,7 +1066,7 @@ class PTA_SUS_Data
     public function update_task($fields, $id, $no_signups = false) {
         $clean_fields = $this->clean_array($fields, 'task_');
         $clean_fields = array_intersect_key($clean_fields, $this->tables['task']['allowed_fields']);
-        if ($clean_fields['qty'] < 2 && !$no_signups) $clean_fields['qty'] = 1;
+        if (!$no_signups && $clean_fields['qty'] < 2 ) $clean_fields['qty'] = 1;
         // wpdb->update does all necessary sanitation before updating the database
         return $this->wpdb->update($this->tables['task']['name'], $clean_fields, array('id' => $id), null, array('%d'));
     }

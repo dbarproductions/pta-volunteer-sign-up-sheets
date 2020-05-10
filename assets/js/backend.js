@@ -73,6 +73,38 @@ jQuery(document).ready(function($) {
         });
     });
 
+    let userSearch = $('#firstname');
+    userSearch.autocomplete({
+        source: function(request, response){
+
+            $.ajax({
+                type: 'POST',
+                url: ajaxurl,
+                data: {
+                action: 'pta_sus_user_search',
+                keyword: userSearch.val(),
+                security: PTASUS.ptaNonce
+                },
+                success:function(data) {
+                    //console.log(data);
+                    response(data);
+                },
+                error: function(errorThrown){
+                    console.log(errorThrown);
+                }
+            })
+        },
+    });
+
+    userSearch.on( "autocompleteselect", function( event, ui ) {
+        console.log(ui.item);
+        let userID = ui.item.user_id;
+        $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
+        $('input[name=email]').val(ui.item.email);
+        $('input[name=lastname]').val(ui.item.lastname);
+        $('input[name=phone]').val(ui.item.phone);
+    });
+
     // Open details_text for checked values on page load
     $('input.details_checkbox', 'li').each(function() {
         if ($(this).is(':checked')) {
@@ -291,6 +323,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(44);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -308,6 +344,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(44);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -326,6 +366,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(44);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -343,6 +387,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(44);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -394,8 +442,8 @@ jQuery(document).ready(function($) {
                 this.disable();
             }
         });
-        console.log(ptaTableParams);
-        console.log(allTableParams);
+        //console.log(ptaTableParams);
+        //console.log(allTableParams);
     }
 
     var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );

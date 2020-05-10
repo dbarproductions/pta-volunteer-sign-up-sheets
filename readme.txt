@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.3**
+
+*   Add code to dataTables on admin side to allow proper sorting of data by date (when showing date column)
+*   Added an option to show all empty slots on their own row in the View/Export ALL Data admin page. Useful if you need to print sign up forms for multiple events at once, but will take that page much longer to load and much longer for dataTables to initialize the table.
+
 **Version 3.2.2**
 
 *   Fixed error introduced in last update with Admin sheets list table not getting initialized properly after certain actions from that page (copy, trash)

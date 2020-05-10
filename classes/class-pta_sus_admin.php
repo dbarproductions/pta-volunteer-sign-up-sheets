@@ -32,6 +32,7 @@ class PTA_SUS_Admin {
 		add_action('admin_menu', array($this, 'admin_menu'));
 		add_action('admin_enqueue_scripts', array($this, 'add_sheet_admin_scripts') );
 		add_action( 'wp_ajax_pta_sus_get_user_data', array($this, 'get_user_data' ) );
+		add_action( 'wp_ajax_pta_sus_user_search', array($this, 'user_search' ) );
 		add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
 	}
 
@@ -51,6 +52,50 @@ class PTA_SUS_Admin {
 					'email' => esc_html($user->user_email),
 					'phone' => esc_html(get_user_meta($user->ID, 'billing_phone', true))
 				);
+			}
+		}
+		wp_send_json( $response);
+	}
+
+	public function user_search() {
+		check_ajax_referer( 'ajax-pta-nonce', 'security' );
+		$response = array();
+		if(isset($_POST['keyword'])) {
+			$args = array (
+			    'search' => '*'.esc_attr( $_POST['keyword'] ).'*',
+			    'meta_query' => array(
+			        'relation' => 'OR',
+			        array(
+			            'key'     => 'first_name',
+			            'value'   => $_POST['keyword'],
+			            'compare' => 'LIKE'
+			        ),
+			        array(
+			            'key'     => 'last_name',
+			            'value'   => $_POST['keyword'],
+			            'compare' => 'LIKE'
+			        )
+			    ),
+				'fields' => 'ID'
+			);
+			$users = get_users($args);
+			if($users) {
+				$return = array();
+				foreach($users as $user_id) {
+					$user = get_user_by( 'ID', $user_id);
+					if($user) {
+						$return[] = array(
+							'user_id' => absint($user_id),
+							'firstname' => esc_html($user->first_name),
+							'lastname' => esc_html($user->last_name),
+							'email' => esc_html($user->user_email),
+							'phone' => esc_html(get_user_meta($user_id, 'billing_phone', true)),
+							'label' => esc_html($user->first_name) . ' ' . esc_html($user->last_name),
+							'value' => esc_html($user->first_name)
+						);
+					}
+				}
+				$response = $return;
 			}
 		}
 		wp_send_json( $response);
@@ -111,8 +156,9 @@ class PTA_SUS_Admin {
 			wp_enqueue_script( 'pta-jquery-datepick' );
 			wp_enqueue_script( 'pta-jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
 			wp_enqueue_script('pta-datatables');
-			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), array( 'jquery' ), '4.0.0', true );
 			wp_enqueue_script('jquery-ui-sortable');
+			wp_enqueue_script( 'jquery-ui-autocomplete');
+			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete'), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
 			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
@@ -197,7 +243,7 @@ class PTA_SUS_Admin {
 				break;
 			case 'date':
 				$date = apply_filters('pta_sus_admin_signup_display_task_date', esc_html($show_date), $task);
-				echo '<strong>'.esc_html($date).'</strong>';
+				echo '<span class="pta-sortdate">'.strtotime($show_date).'</span><strong>'.esc_html($date).'</strong>';
 				break;
 			case 'start':
 				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
@@ -592,12 +638,12 @@ class PTA_SUS_Admin {
 						'task_dates'         => (isset($_POST['task_dates'][$key])) ? $_POST['task_dates'][$key] : '',
 						'task_time_start'   => $_POST['task_time_start'][$key],
 						'task_time_end'     => $_POST['task_time_end'][$key],
-						'task_qty'          => $_POST['task_qty'][$key],
+						'task_qty'          => isset($_POST['task_qty'][$key]) ? $_POST['task_qty'][$key] : 1,
 						'task_need_details' => isset($_POST['task_need_details'][$key]) ? "YES" : "NO",
 						'task_details_required' => isset($_POST['task_details_required'][$key]) ? "YES" : "NO",
 						'task_allow_duplicates' => isset($_POST['task_allow_duplicates'][$key]) ? "YES" : "NO",
 						'task_enable_quantities' => isset($_POST['task_enable_quantities'][$key]) ? "YES" : "NO",
-						'task_details_text' => $_POST['task_details_text'][$key],
+						'task_details_text' => isset($_POST['task_details_text'][$key]) ? $_POST['task_details_text'][$key] : '',
 						'task_id'           => (isset($_POST['task_id'][$key]) && 0 != $_POST['task_id'][$key]) ? (int)$_POST['task_id'][$key] : -1,
 						), $key);
 			}
@@ -680,7 +726,7 @@ class PTA_SUS_Admin {
 						}
 						foreach ($check_dates as $key => $cdate) {
 							$signup_count = count($this->data->get_signups((int)$_POST['task_id'][$i], $cdate));
-							if ($signup_count > $_POST['task_qty'][$i]) {
+							if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
 								$task_err++;
 								$people = _n('person', 'people', $signup_count, 'pta_volunteer_sus');
 								if (!empty($task_err)) echo '<div class="error"><p><strong>';

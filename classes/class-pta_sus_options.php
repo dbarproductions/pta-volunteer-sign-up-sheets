@@ -117,6 +117,7 @@ class PTA_SUS_Options {
 	    add_settings_field('admin_only_settings', __('Admin Only Settings Access?', 'pta_volunteer_sus'), array($this, 'admin_only_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_datei18n', __('Disable Date/Time Translation?', 'pta_volunteer_sus'), array($this, 'disable_datei18n_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_grouping', __('Disable Grouping?', 'pta_volunteer_sus'), array($this, 'disable_grouping_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('show_all_slots_for_all_data', __('Show All Slots for All Data?', 'pta_volunteer_sus'), array($this, 'show_all_slots_for_all_data_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta_volunteer_sus'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
@@ -249,7 +250,8 @@ class PTA_SUS_Options {
             'no_global_overlap' => 'bool',
 		    'admin_only_settings' => 'bool',
             'disable_datei18n' => 'bool',
-            'disable_grouping' => 'bool'
+            'disable_grouping' => 'bool',
+            'show_all_slots_for_all_data' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -857,6 +859,19 @@ class PTA_SUS_Options {
                value="1" <?php echo $checked; ?> />
 		<?php
 		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to disable the row grouping feature of DataTables on the admin side View Signups and View All Data pages. Checking this will completely disable that feature and show all columns by default.', 'pta_volunteer_sus' ) . '</em>';
+    }
+
+    public function show_all_slots_for_all_data_checkbox() {
+        if ( isset( $this->main_options['show_all_slots_for_all_data'] ) && true === $this->main_options['show_all_slots_for_all_data'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[show_all_slots_for_all_data]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'Check this to show each empty slot in its own row on the admin View/Export ALL Data page. Useful in you want to print a manual signup form for multiple sheets at once. NOTE that this will greatly slow down the load time and dataTables initialization time of that page.', 'pta_volunteer_sus' ) . '</em>';
     }
 
     public function confirmation_email_template_textarea_input() {

@@ -113,7 +113,13 @@ $required_fields = $this->get_required_signup_fields($task_id);
                 case 'item': ?>
                     <tr>
                         <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
-                        <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> /></td>
+                        <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> />
+                        <?php
+                        if('firstname' === $key) {
+                            _e('Start typing in First Name field to live search by first or last name.', 'pta_volunteer_sus');
+                        }
+                        ?>
+                        </td>
                     </tr>
                 <?php
                  break;
@@ -138,7 +144,9 @@ $required_fields = $this->get_required_signup_fields($task_id);
                         'include_selected'        => true,
                     );
                     wp_dropdown_users($args);
-                    ?><div id="loadingDiv" class="pta_loading"><img src="<?php echo esc_url($loading_img); ?>" alt="loading"></div></td></tr><?php
+                    ?><div id="loadingDiv" class="pta_loading"><img src="<?php echo esc_url($loading_img); ?>" alt="loading"></div>
+                    <?php _e('Select by Display Name and Email', 'pta_volunteer_sus'); ?>
+                    </td></tr><?php
                     break;
                 case 'item_qty':
                     $available = $this->data->get_available_qty($task_id, $date, $task->qty);

@@ -534,7 +534,7 @@ class PTA_SUS_Public {
 					    $return .= wp_kses_post($sheet->details);
 				    }
 				    $open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));
-				    if ($open_spots > 0) {
+				    if ($open_spots > 0 && !$sheet->no_signups) {
 					    $return .= '<h3 class="pta-sus sign-up-header">'.apply_filters( 'pta_sus_public_output', __('Sign up below...', 'pta_volunteer_sus'), 'sign_up_below' ).'</h3>';
 				    } elseif (!$sheet->no_signups) {
 					    $return .= '<h3 class="pta-sus filled-header">'.apply_filters( 'pta_sus_public_output', __('All spots have been filled.', 'pta_volunteer_sus'), 'sheet_all_spots_filled' ).'</h3>';

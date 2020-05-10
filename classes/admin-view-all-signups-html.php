@@ -66,7 +66,13 @@ $num_cols = count($columns);
 
                 <?php foreach ($signups AS $signup): ?>
                     <tr>
-                        <?php foreach ($columns as $slug => $label): ?>
+                        <?php foreach ($columns as $slug => $label):
+                            $sortAttr = '';
+                            if('date' === $slug) {
+                                $sort_value = strtotime($tdate);
+                                $sortAttr = $sort_value;
+                            }
+                            ?>
                             <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup, $show_date); ?></td>
                         <?php endforeach; ?>
                         <?php
@@ -86,20 +92,41 @@ $num_cols = count($columns);
                     $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
                     $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
                     $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
-                    ?>
-                    <tr class="remaining">
-                        <td><strong><?php echo esc_html($show_date); ?></strong></td>
-                        <td><strong><?php echo esc_html($sheet_title); ?></strong></td>
-                        <td><strong><?php echo esc_html($task_title); ?></strong></td>
-                        <td><?php echo wp_kses_post($start); ?></td>
-                        <td><?php echo wp_kses_post($end); ?></td>
-                        <td></td>
-                        <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
-                        <?php for ($j = 1; $j <= ($num_cols - 7); $j++): ?>
+                    $show_all_slots = isset($this->main_options['show_all_slots_for_all_data']) && true == $this->main_options['show_all_slots_for_all_data'];
+                    if($show_all_slots) {
+                        for ($x=$i+1; $x<=$task->qty; $x++) {
+                            ?>
+                            <tr class="remaining">
+                                <td><strong><?php echo esc_html($show_date); ?></strong></td>
+                                <td><strong><?php echo esc_html($sheet_title); ?></strong></td>
+                                <td><strong><?php echo esc_html($task_title); ?></strong></td>
+                                <td><?php echo wp_kses_post($start); ?></td>
+                                <td><?php echo wp_kses_post($end); ?></td>
+                                <td></td>
+                                <td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
+                                <?php for ($j = 1; $j <= ($num_cols - 7); $j++): ?>
+                                    <td></td>
+                                <?php endfor; ?>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        ?>
+                        <tr class="remaining">
+                            <td><strong><?php echo esc_html($show_date); ?></strong></td>
+                            <td><strong><?php echo esc_html($sheet_title); ?></strong></td>
+                            <td><strong><?php echo esc_html($task_title); ?></strong></td>
+                            <td><?php echo wp_kses_post($start); ?></td>
+                            <td><?php echo wp_kses_post($end); ?></td>
                             <td></td>
-                        <?php endfor; ?>
-                    </tr>
-                <?php endif; ?>
+                            <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
+                            <?php for ($j = 1; $j <= ($num_cols - 7); $j++): ?>
+                                <td></td>
+                            <?php endfor; ?>
+                        </tr>
+                        <?php
+                    }
+                endif; ?>
 	        <?php endforeach; ?>
         <?php endforeach; ?>
     <?php endforeach; ?>

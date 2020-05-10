@@ -70,3 +70,7 @@
 span.pta-center {
     display: block;
 }
+
+span.pta-sortdate {
+    display: none;
+}
