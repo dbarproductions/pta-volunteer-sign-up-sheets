@@ -83,17 +83,23 @@ $num_cols = count($columns);
 			$nonced_add_url = wp_nonce_url( $add_url, 'edit_signup', '_sus_nonce' );
 			for ($x=$i+1; $x<=$task->qty; $x++):
 			?>
-			<tr class="remaining">
-                <td><strong><?php echo esc_html($show_date); ?></strong></td>
-				<td><strong><?php echo esc_html($task_title); ?></strong></td>
-                <td><?php echo wp_kses_post($start); ?></td>
-                <td><?php echo wp_kses_post($end); ?></td>
-                <td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
-                <?php for ($j = 1; $j <= ($num_cols - 6); $j++): ?>
-                    <td></td>
-                <?php endfor; ?>
-                <td class="add-signup"><a href="<?php echo esc_url($nonced_add_url); ?>" title="<?php echo esc_attr(__('Add Signup','pta_volunteer_sus')); ?>"><span class="dashicons dashicons-plus"></span></a></td>
-			</tr>
+            <tr class="remaining">
+                <?php foreach ($columns as $slug => $label):
+                    if('slot' === $slug) {
+                        ?>
+                        <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
+                        <?php
+                    } elseif ('actions' === $slug) {
+                        ?>
+                        <td class="add-signup"><a href="<?php echo esc_url($nonced_add_url); ?>" title="<?php echo esc_attr(__('Add Signup','pta_volunteer_sus')); ?>"><span class="dashicons dashicons-plus"></span></a></td>
+                        <?php
+                    } else {
+                        ?>
+                        <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $show_date); ?></td>
+                        <?php
+                    }
+                endforeach; ?>
+            </tr>
 			<?php endfor; ?>
 			<?php endif; ?>
 		<?php endforeach; ?>

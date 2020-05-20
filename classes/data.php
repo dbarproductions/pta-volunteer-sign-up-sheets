@@ -323,7 +323,7 @@ class PTA_SUS_Data
      * Get single task
      * 
      * @param     int      task id
-     * @return    object    single task object
+     * @return    mixed    single task object
      */
     public function get_task($id)
     {

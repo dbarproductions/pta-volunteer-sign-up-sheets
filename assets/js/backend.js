@@ -231,6 +231,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(45);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -248,6 +252,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(45);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -266,6 +274,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(45);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -283,6 +295,10 @@ jQuery(document).ready(function($) {
                     columns: ':visible',
                     format: {
                         body: function ( data, column, row ) {
+                            // remove hidden timestamp for date sorting
+                            if(data.match(/<span class="pta-sortdate">/)) {
+                                data = data.substring(45);
+                            }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
                             content.find('a').replaceWith(function() { return this.childNodes; });
@@ -325,7 +341,7 @@ jQuery(document).ready(function($) {
                         body: function ( data, column, row ) {
                             // remove hidden timestamp for date sorting
                             if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(44);
+                                data = data.substring(45);
                             }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
@@ -346,7 +362,7 @@ jQuery(document).ready(function($) {
                         body: function ( data, column, row ) {
                             // remove hidden timestamp for date sorting
                             if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(44);
+                                data = data.substring(45);
                             }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
@@ -368,7 +384,7 @@ jQuery(document).ready(function($) {
                         body: function ( data, column, row ) {
                             // remove hidden timestamp for date sorting
                             if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(44);
+                                data = data.substring(45);
                             }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
@@ -389,7 +405,7 @@ jQuery(document).ready(function($) {
                         body: function ( data, column, row ) {
                             // remove hidden timestamp for date sorting
                             if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(44);
+                                data = data.substring(45);
                             }
                             var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
                             var content = $('<div>' + a + '</div>');
@@ -457,10 +473,10 @@ jQuery(document).ready(function($) {
                 this.footer()
             )
             .on( 'change', function () {
-                var seachVal = $.fn.dataTable.util.escapeRegex(
+                var searchVal = $.fn.dataTable.util.escapeRegex(
                     $(this).val()
                 );
-                that.search( seachVal ? '^'+seachVal+'$' : '', true, false ).draw();
+                that.search( searchVal ? '^'+searchVal+'$' : '', true, false ).draw();
             } );
 
         // Get the search data for the first column and add to the select list
@@ -471,7 +487,12 @@ jQuery(document).ready(function($) {
             .unique()
             .each( function ( d ) {
                 if('' !== d) {
-                    select.append( $('<option value="'+d+'">'+d+'</option>') );
+                    let showVal = d;
+                    // remove hidden timestamp for date sorting
+                    if(d.match(/\|/)) {
+                        showVal = d.substring(11);
+                    }
+                    select.append( $('<option value="'+d+'">'+showVal+'</option>') );
                 }
             } );
     } );
@@ -501,7 +522,12 @@ jQuery(document).ready(function($) {
             .unique()
             .each( function ( d ) {
                 if('' !== d) {
-                    select.append( $('<option value="'+d+'">'+d+'</option>') );
+                    let showVal = d;
+                    // remove hidden timestamp for date sorting
+                    if(d.match(/\|/)) {
+                        showVal = d.substring(11);
+                    }
+                    select.append( $('<option value="'+d+'">'+showVal+'</option>') );
                 }
             } );
     } );
