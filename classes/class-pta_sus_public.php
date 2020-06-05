@@ -1195,13 +1195,23 @@ class PTA_SUS_Public {
         $form .= apply_filters( 'pta_sus_signup_form_before_form_fields', '<br/>', $task, $date );
 		// Give other plugins a chance to modify signup data
 		$posted = apply_filters('pta_sus_signup_posted_values', $_POST);
-        if ( is_user_logged_in() ) {
+		$values = array(
+			'signup_user_id' => isset($posted['signup_user_id']) ? absint($posted['signup_user_id']) : '',
+			'signup_firstname' => isset($posted['signup_firstname']) ? sanitize_text_field($posted['signup_firstname']) : '',
+			'signup_lastname' => isset($posted['signup_lastname']) ? sanitize_text_field($posted['signup_lastname']) : '',
+			'signup_email' => isset($posted['signup_email']) ? sanitize_email($posted['signup_email']) : '',
+			'signup_validate_email' => isset($posted['signup_validate_email']) ? sanitize_email($posted['signup_validate_email']) : '',
+			'signup_phone' => isset($posted['signup_phone']) ? sanitize_text_field($posted['signup_phone']) : ''
+		);
+		$readonly_first="";
+        $readonly_last="";
+        $readonly_email="";
+        // Prefill user data if they are signed in and not admin or signup sheet manager - don't change if posted (form error)
+        if ( is_user_logged_in() && empty($posted) ) {
             $current_user = wp_get_current_user();
-            if ( !($current_user instanceof WP_User) )
-               return;           
-            $readonly_first="";
-            $readonly_last="";
-            $readonly_email="";
+            if ( !($current_user instanceof WP_User) ) {
+            	wp_die('Not a valid user');
+            }
             if ( isset($this->main_options['login_required_signup']) && true === $this->main_options['login_required_signup']
                  && isset($this->main_options['readonly_signup']) && true === $this->main_options['readonly_signup']
                  && !current_user_can('manage_signup_sheets') ) {
@@ -1211,72 +1221,49 @@ class PTA_SUS_Public {
                   $readonly_last="readonly='readonly'";
                $readonly_email="readonly='readonly'";
 	        }
-            // Prefill user data if they are signed in
+            // Only populate values if regular user or if admin/manager and not using live search
+	        if(!(current_user_can( 'manage_signup_sheets') && true === $this->main_options['enable_signup_search'])) {
+	        	$values['signup_user_id'] = $current_user->ID;
+	            $values['signup_firstname'] = $current_user->user_firstname;
+	            $values['signup_lastname'] = $current_user->user_lastname;
+	            $values['signup_email'] = $current_user->user_email;
+	            $values['signup_validate_email'] = $current_user->user_email;
+	            if (!$this->main_options['no_phone'] ) {
+	                $phone = apply_filters('pta_sus_user_phone', get_user_meta( $current_user->ID, 'billing_phone', true ), $current_user );
+	                $values['signup_phone'] = $phone;
+	            }
+				$values = apply_filters('pta_sus_prefilled_user_signup_values', $values);
+	        }
+        }
+        // Default User Fields
+        if (false == $this->main_options['disable_signup_login_notice']) {
+            $form .= '<p>'.apply_filters( 'pta_sus_public_output', __('If you have an account, it is strongly recommended that you <strong>login before you sign up</strong> so that you can view and edit all your signups.', 'pta_volunteer_sus'), 'signup_login_notice' ).'</p>';
+        }
+        $form .= '
+		<form name="pta_sus_signup_form" method="post" action="">
+			<input type="hidden" name="signup_user_id" value="'.$values['signup_user_id'].'" />
+			<p>
+				<label class="required" for="signup_firstname">'.$firstname_label.'</label>
+				<input type="text" class="required" id="signup_firstname" name="signup_firstname" value="'.((isset($values['signup_firstname'])) ? stripslashes(esc_attr($values['signup_firstname'])) : '').'" '.$readonly_first.' required />
+			</p>
+			<p>
+				<label class="required" for="signup_lastname">'.$lastname_label.'</label>
+				<input type="text" class="required" id="signup_lastname" name="signup_lastname" value="'.((isset($values['signup_lastname'])) ? stripslashes(esc_attr($values['signup_lastname'])) : '').'" '.$readonly_last.' required />
+			</p>
+			<p>
+				<label class="required" for="signup_email">'.$email_label.'</label>
+				<input type="email" class="required email" id="signup_email" name="signup_email" value="'.((isset($values['signup_email'])) ? esc_attr($values['signup_email']) : '').'" '.$readonly_email.' required />
+			</p>
+			<p>
+				<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
+				<input type="email" class="required email" id="signup_validate_email" name="signup_validate_email" value="'.((isset($values['signup_validate_email'])) ? esc_attr($values['signup_validate_email']) : '').'" '.$readonly_email.' required />
+			</p>';
+        if( false == $this->main_options['no_phone'] ) {
             $form .= '
-		    <form name="pta_sus_signup_form" id="pta_sus_signup_form" method="post" action="">
-                <input type="hidden" name="signup_user_id" value="'.$current_user->ID.'" />
-				<p>
-					<label class="required" for="signup_firstname">'.$firstname_label.'</label>
-					<input type="text" id="signup_firstname" name="signup_firstname" value="'. esc_attr($current_user->user_firstname) .'" '.$readonly_first.' required />
-				</p>
-				<p>
-					<label class="required" for="signup_lastname">'.$lastname_label.'</label>
-					<input type="text" id="signup_lastname" name="signup_lastname" value="'. esc_attr($current_user->user_lastname) .'" '.$readonly_last.' required />
-				</p>
-				<p>
-					<label class="required" for="signup_email">'.$email_label.'</label>
-					<input type="text" id="signup_email" name="signup_email" value="'. esc_attr($current_user->user_email) .'" '.$readonly_email.' required />
-				</p>';
-            if (!empty($readonly_email)) {
-                $form .= '<input type="hidden" id="signup_validate_email" name="signup_validate_email" value="'. esc_attr($current_user->user_email) .'" />';
-            } else {
-                $form .= '
-				<p>
-					<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
-					<input type="text" id="signup_validate_email" name="signup_validate_email" value="'. esc_attr($current_user->user_email) .'" required />
-				</p>';
-            }
-
-            if (!$this->main_options['no_phone'] ) {
-                // Using Woocommerce to handle site registrations stores a "billing_phone" user meta field
-                // since we set single to "true", this will return an empty string if the field doesn't exist
-                $phone = apply_filters('pta_sus_user_phone', get_user_meta( $current_user->ID, 'billing_phone', true ), $current_user );
-                $form .= '
-                <p>
-                    <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
-                    <input type="text" id="signup_phone" name="signup_phone" value="'. esc_attr($phone).'" '.esc_attr($phone_required).' />
-                </p>';
-            }
-        } else { 
-        	// If not signed in, get the user data
-            if (false == $this->main_options['disable_signup_login_notice']) {
-                $form .= '<p>'.apply_filters( 'pta_sus_public_output', __('If you have an account, it is strongly recommended that you <strong>login before you sign up</strong> so that you can view and edit all your signups.', 'pta_volunteer_sus'), 'signup_login_notice' ).'</p>';
-            }
-            $form .= '
-			<form name="pta_sus_signup_form" method="post" action="">
-				<p>
-					<label class="required" for="signup_firstname">'.$firstname_label.'</label>
-					<input type="text" class="required" id="signup_firstname" name="signup_firstname" value="'.((isset($posted['signup_firstname'])) ? stripslashes(esc_attr($posted['signup_firstname'])) : '').'" required />
-				</p>
-				<p>
-					<label class="required" for="signup_lastname">'.$lastname_label.'</label>
-					<input type="text" class="required" id="signup_lastname" name="signup_lastname" value="'.((isset($posted['signup_lastname'])) ? stripslashes(esc_attr($posted['signup_lastname'])) : '').'" required />
-				</p>
-				<p>
-					<label class="required" for="signup_email">'.$email_label.'</label>
-					<input type="email" class="required email" id="signup_email" name="signup_email" value="'.((isset($posted['signup_email'])) ? esc_attr($posted['signup_email']) : '').'" required />
-				</p>
-				<p>
-					<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
-					<input type="email" class="required email" id="signup_validate_email" name="signup_validate_email" value="'.((isset($posted['signup_validate_email'])) ? esc_attr($posted['signup_validate_email']) : '').'" required />
-				</p>';
-            if( false == $this->main_options['no_phone'] ) {
-                $form .= '
-                <p>
-                    <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
-                    <input type="tel" class="phone '.$phone_required.'" id="signup_phone" name="signup_phone" value="'.((isset($posted['signup_phone'])) ? esc_attr($posted['signup_phone']) : '').'" '.esc_attr($phone_required).' />
-                </p>';
-            }
+            <p>
+                <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
+                <input type="tel" class="phone '.$phone_required.'" id="signup_phone" name="signup_phone" value="'.((isset($values['signup_phone'])) ? esc_attr($values['signup_phone']) : '').'" '.esc_attr($phone_required).' />
+            </p>';
         }
 
         $form .= apply_filters( 'pta_sus_signup_form_before_details_field', '', $task, $date );
