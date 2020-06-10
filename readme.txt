@@ -157,6 +157,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.5**
+
+*   Reworked the live search javascript and Ajax functions on both public and admin side to allow filtering/adding user data by extensions
+
 **Version 3.2.4**
 
 *   Disable auto-populate signup sheet fields for admins and signup sheet managers when live search is enabled, so signup fields don't start out filled with the admin's or signup sheet manager's info

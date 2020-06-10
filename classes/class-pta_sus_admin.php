@@ -52,6 +52,7 @@ class PTA_SUS_Admin {
 					'email' => esc_html($user->user_email),
 					'phone' => esc_html(get_user_meta($user->ID, 'billing_phone', true))
 				);
+				$response = apply_filters('pta_sus_admin_ajax_get_user_data', $response, $user);
 			}
 		}
 		wp_send_json( $response);
@@ -84,7 +85,7 @@ class PTA_SUS_Admin {
 				foreach($users as $user_id) {
 					$user = get_user_by( 'ID', $user_id);
 					if($user) {
-						$return[] = array(
+						$user_data = array(
 							'user_id' => absint($user_id),
 							'firstname' => esc_html($user->first_name),
 							'lastname' => esc_html($user->last_name),
@@ -93,6 +94,7 @@ class PTA_SUS_Admin {
 							'label' => esc_html($user->first_name) . ' ' . esc_html($user->last_name),
 							'value' => esc_html($user->first_name)
 						);
+						$return[] = apply_filters('pta_sus_admin_ajax_user_search_data', $user_data, $user);
 					}
 				}
 				$response = $return;

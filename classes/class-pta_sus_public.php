@@ -66,7 +66,7 @@ class PTA_SUS_Public {
         
         add_action('wp_enqueue_scripts', array($this, 'add_css_and_js_to_frontend'));
 
-        add_action('wp_loaded', array($this, 'ajax_actions'));
+        //add_action('wp_loaded', array($this, 'ajax_actions'));
         add_action('wp_loaded', array($this, 'process_signup_form'));
         add_action('wp_loaded', array($this, 'set_up_filters'));
         
@@ -78,52 +78,6 @@ class PTA_SUS_Public {
 
         
     } // Construct
-
-    public function ajax_actions() {
-		if (isset($_GET['pta_pub_action']) && $_GET['pta_pub_action']=='autocomplete_volunteer' && current_user_can('manage_signup_sheets')) {
-
-			$return=array();
-			if (!$this->main_options['enable_signup_search'] || !isset($_GET["q"])) {
-			  echo json_encode($return);
-			  return;
-			}
-
-			$tables = $this->main_options['signup_search_tables'];
-
-			$user_ids = array();
-
-			if('signups' === $tables || 'both' === $tables) {
-				$results = $this->data->get_signups2($_GET["q"]);
-				foreach($results as $item) {
-					$record = array();
-					$record['user_id'] = $user_ids[]  = absint($item->user_id);
-					$record['lastname']  = esc_html($item->lastname);
-					$record['firstname'] = esc_html($item->firstname);
-					$record['email']     = esc_html($item->email);
-					$record['phone']     = esc_html($item->phone);
-					$return[]  = $record;
-				}
-			}
-
-			if('users' === $tables || 'both' === $tables) {
-				$users = $this->data->get_users($_GET["q"]);
-				foreach($users as $user) {
-					if(!in_array($user->ID, $user_ids)) {
-						$record = array();
-						$record['user_id'] = absint($user->ID);
-						$record['lastname']  = esc_html(get_user_meta($user->ID, 'last_name', true));
-						$record['firstname'] = esc_html(get_user_meta($user->ID, 'first_name', true));
-						$record['email']     = esc_html($user->user_email);
-						$record['phone']     = esc_html(get_user_meta($user->ID, 'billing_phone', true));
-						$return[]  = $record;
-					}
-				}
-			}
-
-			echo json_encode($return);
-			exit;
-		}
-    }
 
     public function set_up_filters() {
         // Set up some public output strings used by multiple functions
@@ -1334,6 +1288,10 @@ class PTA_SUS_Public {
 		    wp_enqueue_style( 'pta-sus-autocomplete' );
 		    wp_enqueue_script( 'jquery-ui-autocomplete' );
 		    wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.js', __FILE__ ) );
+		    wp_localize_script( 'pta-sus-frontend', 'ptaSUS', array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'ptanonce' => wp_create_nonce( 'ajax-pta-nonce' )
+			) );
 	    }
     }
 
