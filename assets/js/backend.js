@@ -35,10 +35,6 @@ jQuery(document).ready(function($) {
         });
 
     $('#user_id').on('change', function(){
-        let userEmail = $('input[name=email]');
-        let firstName = $('input[name=firstname]');
-        let lastName = $('input[name=lastname]');
-        let userPhone = $('input[name=phone]');
         let userID = $(this).val();
         let data = {
             'action': 'pta_sus_get_user_data',
@@ -49,26 +45,12 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, data, function(response) {
             //console.log(response);
             if(response) {
-                if(response.firstname) {
-                    firstName.val(response.firstname);
-                } else {
-                    firstName.val('');
-                }
-                if(response.lastname) {
-                    lastName.val(response.lastname);
-                } else {
-                    lastName.val('');
-                }
-                if(response.phone) {
-                    userPhone.val(response.phone);
-                } else {
-                    userPhone.val('');
-                }
-                if(response.email) {
-                    userEmail.val(response.email);
-                } else {
-                    userEmail.val('');
-                }
+                $.each(response, function(key,value) {
+                    let input = jQuery('input[name='+key+']');
+                    if(input.length) {
+                        input.val(value);
+                    }
+                });
             }
         });
     });
@@ -97,12 +79,23 @@ jQuery(document).ready(function($) {
     });
 
     userSearch.on( "autocompleteselect", function( event, ui ) {
-        console.log(ui.item);
+        //console.log(ui.item);
         let userID = ui.item.user_id;
         $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
+        $.each(ui.item, function(key,value){
+            if('label' !== key && 'value' !== key && 'user_id' !== key) {
+                let input = jQuery('input[name='+key+']');
+                if(input.length) {
+                    input.val(value);
+                }
+            }
+        });
+        /*
         $('input[name=email]').val(ui.item.email);
         $('input[name=lastname]').val(ui.item.lastname);
         $('input[name=phone]').val(ui.item.phone);
+
+         */
     });
 
     // Open details_text for checked values on page load

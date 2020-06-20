@@ -320,7 +320,8 @@ class PTA_SUS_Options {
             'name'          => 'pta_volunteer_sus_main_options[volunteer_page_id]',
             'selected'      => $this->main_options['volunteer_page_id'],
             'show_option_none'  => __('None', 'pta_volunteer_sus'),
-            'option_none_value' => 0
+            'option_none_value' => 0,
+            'post_status' => array('publish','private')
             );
         wp_dropdown_pages( $args );
         echo '<em> ' . __('The page where you put the shortcode</em> [pta_sign_up_sheet] <em>to generate the main sign-ups page. If you are using the widget, this MUST be set to a page with the main shortcode on it, or your widget links will NOT work!', 'pta_volunteer_sus') . '</em>';
@@ -331,7 +332,8 @@ class PTA_SUS_Options {
             'name'          => 'pta_volunteer_sus_integration_options[directory_page_id]',
             'selected'      => $this->integration_options['directory_page_id'],
             'show_option_none'  => __('None', 'pta_volunteer_sus'),
-            'option_none_value' => 0
+            'option_none_value' => 0,
+            'post_status' => array('publish','private')
             );
         wp_dropdown_pages( $args );
         echo '<em> ' . __('The member directory page where you put the shortcode [pta_member_directory]', 'pta_volunteer_sus') . '</em>';
@@ -342,7 +344,8 @@ class PTA_SUS_Options {
             'name'          => 'pta_volunteer_sus_integration_options[contact_page_id]',
             'selected'      => $this->integration_options['contact_page_id'],
             'show_option_none'  => __('None', 'pta_volunteer_sus'),
-            'option_none_value' => 0
+            'option_none_value' => 0,
+            'post_status' => array('publish','private')
             );
         wp_dropdown_pages( $args );
         echo '<em> ' . __('The member directory contact form page where you put the shortcode [pta_member_contact] if you are using the separate contact form.', 'pta_volunteer_sus') . '</em>';

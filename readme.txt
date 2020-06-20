@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.4.1
+Tested up to: 5.4.2
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -157,6 +157,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.6**
+
+*   Modified the dropdown page select boxes in the settings to allow selection of private pages, instead of just published pages.
+
 **Version 3.2.5**
 
 *   Reworked the live search javascript and Ajax functions on both public and admin side to allow filtering/adding user data by extensions
