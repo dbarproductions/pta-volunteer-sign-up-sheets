@@ -1161,7 +1161,7 @@ class PTA_SUS_Public {
         $readonly_last="";
         $readonly_email="";
         // Prefill user data if they are signed in and not admin or signup sheet manager - don't change if posted (form error)
-        if ( is_user_logged_in() && empty($posted) ) {
+        if ( is_user_logged_in() && !isset($_POST['pta_sus_form_mode']) ) {
             $current_user = wp_get_current_user();
             if ( !($current_user instanceof WP_User) ) {
             	wp_die('Not a valid user');
@@ -1190,7 +1190,7 @@ class PTA_SUS_Public {
 	        }
         }
         // Default User Fields
-        if (false == $this->main_options['disable_signup_login_notice']) {
+        if (!is_user_logged_in() && false == $this->main_options['disable_signup_login_notice']) {
             $form .= '<p>'.apply_filters( 'pta_sus_public_output', __('If you have an account, it is strongly recommended that you <strong>login before you sign up</strong> so that you can view and edit all your signups.', 'pta_volunteer_sus'), 'signup_login_notice' ).'</p>';
         }
         $form .= '

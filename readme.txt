@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.7**
+
+*   Fixed bug introduced in a recent release where the messaging recommended to login would be shown even when the user was logged in (is the message was not disabled in settings)
+*   Fixed issue that caused the Calendar extension pop-up signup form to not have user values pre-filled in some cases (and also showed the login recommendation message)
+
 **Version 3.2.6**
 
 *   Modified the dropdown page select boxes in the settings to allow selection of private pages, instead of just published pages.
