@@ -78,7 +78,6 @@ $num_cols = count($columns);
             $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
             $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
 			$end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
-			$remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
 			$add_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;task_id='.$task->id.'&amp;date='.$tdate.'&amp;action=edit_signup';
 			$nonced_add_url = wp_nonce_url( $add_url, 'edit_signup', '_sus_nonce' );
 			for ($x=$i+1; $x<=$task->qty; $x++):
@@ -87,7 +86,7 @@ $num_cols = count($columns);
                 <?php foreach ($columns as $slug => $label):
                     if('slot' === $slug) {
                         ?>
-                        <td class="remaining" ><strong><?php echo esc_html($remaining_text); ?></strong></td>
+                        <td class="remaining" ><strong><?php echo '#'.$x; ?></strong></td>
                         <?php
                     } elseif ('actions' === $slug) {
                         ?>
