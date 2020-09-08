@@ -140,8 +140,8 @@ class PTA_SUS_Public {
 
             //Error Handling
             if (
-                empty($posted['signup_firstname'])
-                || empty($posted['signup_lastname'])
+                empty(sanitize_text_field($posted['signup_firstname']))
+                || empty(sanitize_text_field($posted['signup_lastname']))
                 || empty($posted['signup_email'])
                 || empty($posted['signup_validate_email'])
                 || (false == $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)

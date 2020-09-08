@@ -1487,7 +1487,9 @@ class PTA_SUS_Data
     private function initials_arr($nwords) {
         $new_name="";
         foreach($nwords as $nword){
-            $new_name .= $nword[0].'.';
+        	if(!empty($nword[0])) {
+        		$new_name .= $nword[0].'.';
+	        }
         }
         return $new_name;
     }

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.4.2
+Tested up to: 5.5.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.2.9**
+
+*   Fixed code that tries to get initials from the last name and created a PHP Notice if a volunteer enters only spaces for last name
+*   No longer allow people to enter only spaces for first or last name fields on the signup form (will show a required fields error when they submit the form)
+
 **Version 3.2.8**
 
 *   Fixed slot number display for admin single sheet view signups page
