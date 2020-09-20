@@ -1,6 +1,7 @@
 <?php
 /**
  * @var array $column_data
+ * @var array $columns
  * @var bool $show_names
  */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly

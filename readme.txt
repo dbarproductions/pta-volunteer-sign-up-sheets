@@ -157,6 +157,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.3.0**
+
+*   Added shortcode argument show_email to allow showing the signup email in list of signups. Default value is "no" (do NOT show email by default).
+*   Added Show Email setting to block editor to automatically insert the show_email argument in shortcodes it generates
+*   Ensure row data for all default fields are always populated so they can potentially be shown by custom templates in the Customizer extension, even if those fields are hidden by a shortcode attribute
+
+
 **Version 3.2.9**
 
 *   Fixed code that tries to get initials from the last name and created a PHP Notice if a volunteer enters only spaces for last name

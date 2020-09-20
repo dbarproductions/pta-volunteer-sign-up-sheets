@@ -79,7 +79,6 @@ jQuery(document).ready(function($) {
     });
 
     userSearch.on( "autocompleteselect", function( event, ui ) {
-        //console.log(ui.item);
         let userID = ui.item.user_id;
         $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
         $.each(ui.item, function(key,value){
@@ -90,12 +89,6 @@ jQuery(document).ready(function($) {
                 }
             }
         });
-        /*
-        $('input[name=email]').val(ui.item.email);
-        $('input[name=lastname]').val(ui.item.lastname);
-        $('input[name=phone]').val(ui.item.phone);
-
-         */
     });
 
     // Open details_text for checked values on page load

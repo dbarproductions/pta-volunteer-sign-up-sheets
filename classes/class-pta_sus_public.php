@@ -44,6 +44,7 @@ class PTA_SUS_Public {
 	private $phone_required;
 	private $show_full_name = false;
 	private $show_phone = false;
+	private $show_email = false;
 	private $shortcode_id = false;
 	private $show_headers = true;
 	private $show_date_start = true;
@@ -698,6 +699,7 @@ class PTA_SUS_Public {
             'date' => '',
             'show_time' => 'yes',
             'show_phone' => 'no',
+            'show_email' => 'no',
             'show_headers' => 'yes',
             'show_date_start' => 'yes',
             'show_date_end' => 'yes',
@@ -711,6 +713,7 @@ class PTA_SUS_Public {
 	     * @var mixed $date
 	     * @var string $show_time
 	     * @var string $show_phone
+	     * @var string $show_email
 	     * @var string $show_headers
 	     * @var string $order_by
 	     * @var string $order
@@ -743,6 +746,11 @@ class PTA_SUS_Public {
 		    $this->show_phone = true;
 	    } else {
 		    $this->show_phone = false;
+	    }
+	    if ( $show_email === 'yes') {
+		    $this->show_email = true;
+	    } else {
+		    $this->show_email = false;
 	    }
 	    if ( $show_headers === 'no') {
 		    $this->show_headers = false;
@@ -891,6 +899,10 @@ class PTA_SUS_Public {
 					$columns['column-phone'] = apply_filters( 'pta_sus_public_output', __('Phone', 'pta_volunteer_sus'), 'task_phone_header' );
 				}
 
+				if($this->show_email && !$one_row) {
+					$columns['column-email'] = apply_filters( 'pta_sus_public_output', __('Email', 'pta_volunteer_sus'), 'task_email_header' );
+				}
+
 			}
 			if ($show_details && !$one_row) {
 				$columns['column-details'] = $this->item_details_header;
@@ -991,7 +1003,7 @@ class PTA_SUS_Public {
 					// hook to allow others to modify how the signed up names are displayed
 					$display_signup = apply_filters( 'pta_sus_display_signup_name', $display_signup, $signup );
 
-					if ( $show_clear && ($signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets')) ) {
+					if ( $signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets') ) {
 						$clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
 						$clear_url = add_query_arg($clear_args);
 						$clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta_volunteer_sus'), 'clear_signup_link_text');
@@ -1001,20 +1013,17 @@ class PTA_SUS_Public {
 					}
 
 					$row_data['column-available-spots'] = '#'.$i.': '.$display_signup;
-					if($this->show_phone) {
-						$row_data['column-phone'] = $signup->phone;
-					}
-
-					if ($show_details) {
-						$row_data['column-details'] = $signup->item;
-					}
-					if ($show_qty) {
-						$row_data['column-quantity'] = ("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "");
-					}
-
-					if(is_user_logged_in() && $show_clear) {
+					// always populate data so it's there for Custom Templates in Customizer
+					$row_data['column-phone'] = $signup->phone;
+					$row_data['column-email'] = $signup->email;
+					$row_data['column-details'] = $signup->item;
+					$row_data['column-quantity'] = ("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "");
+					if(is_user_logged_in()) {
 						$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
+					} else {
+						$row_data['column-clear'] = '';
 					}
+
 					if ('YES' === $task->enable_quantities) {
 						$i += $signup->item_qty;
 					} else {
@@ -1048,19 +1057,15 @@ class PTA_SUS_Public {
 								}
 							}
 						}
-						if($this->show_phone) {
-							$row_data['column-phone'] = '';
-						}
+
+						$row_data['column-phone'] = '';
+						$row_data['column-email'] = '';
+
 					}
-					if(is_user_logged_in() && $show_clear) {
-						$row_data['column-clear'] = '';
-					}
-					if($show_details) {
-						$row_data['column-details'] = '';
-					}
-					if($show_qty) {
-						$row_data['column-quantity'] = '';
-					}
+					$row_data['column-clear'] = '';
+					$row_data['column-details'] = '';
+					$row_data['column-quantity'] = '';
+
 					$row_data['extra-class'] = 'remaining';
 					$row_data = apply_filters('pta_sus_task_remaining_display_row_data', $row_data, $task, $date);
 					for ($i=$start; $i<=$task_qty; $i++) {
