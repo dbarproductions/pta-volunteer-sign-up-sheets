@@ -157,7 +157,7 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
-**Version 3.3.1**
+**Version 3.4.0**
 
 *   Add setting to disable the user's signup list that shows below the main signup sheet list. Now that there is a separate shortcode to show the user's signup list, you can disable it below the sheet list and place that shortcode anywhere else you wish. Also handy if you are trying to use multiple shortcodes on one page so you don't see the user's signup list more than once.
 *   Added action 'pta_sus_reminder_sent' after email reminder sent
