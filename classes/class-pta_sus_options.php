@@ -76,7 +76,6 @@ class PTA_SUS_Options {
             ?>
         </div>        
         <?php
-        return;
     }
 
     public function register_options() {
@@ -90,6 +89,7 @@ class PTA_SUS_Options {
 	    add_settings_field('suppress_duplicates', __('Suppress Duplicate Output?', 'pta_volunteer_sus'), array($this, 'suppress_duplicates_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('use_divs', __('Use divs?', 'pta_volunteer_sus'), array($this, 'use_divs_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_css', __('Disable plugin CSS?', 'pta_volunteer_sus'), array($this, 'disable_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('disable_user_signups', __('Disable User Signups List?', 'pta_volunteer_sus'), array($this, 'disable_user_signups_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_volunteer_names', __('Hide volunteer names from public?', 'pta_volunteer_sus'), array($this, 'hide_volunteer_names_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('show_full_name', __('Show full name?', 'pta_volunteer_sus'), array($this, 'show_full_name_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_remaining', __('Consolidate remaining slots?', 'pta_volunteer_sus'), array($this, 'show_remaining_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -243,6 +243,7 @@ class PTA_SUS_Options {
             'details_required' => 'bool',
             'use_divs' => 'bool',
             'disable_css' => 'bool',
+            'disable_user_signups' => 'bool',
             'show_full_name' => 'bool',
             'suppress_duplicates' => 'bool',
             'show_remaining_slots_csv_export' => 'bool',
@@ -546,6 +547,19 @@ class PTA_SUS_Options {
                value="1" <?php echo $checked; ?> />
 		<?php
 		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( 'When checked, the plugin will NOT queue up its own CSS style sheet.', 'pta_volunteer_sus' ) . '</em>';
+	}
+
+	public function disable_user_signups_checkbox() {
+		if ( isset( $this->main_options['disable_user_signups'] ) && true === $this->main_options['disable_user_signups'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[disable_user_signups]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta_volunteer_sus' ) . ' <em> ' . __( "When checked, the list that shows the loggged in user's signups will NOT be shown below the list of signup sheets. You can then use the separate shortcode for the user signups list to display that list anywhere you wish.", 'pta_volunteer_sus' ) . '</em>';
 	}
 
     public function hide_contact_info_checkbox() {

@@ -316,7 +316,7 @@ class PTA_SUS_Emails {
                 if(!is_email( $event->email)) continue; // skip any invalid emails
 
                 // Check if we have reached our hourly limit or not
-                if ($limit) {
+                if ($limit && !empty($last_batch)) {
                 	if ( $limit <= ($last_batch['num'] + $reminder_count) ) {
                 		// limit reached, so break out of foreach loop
                 		break;
@@ -338,12 +338,13 @@ class PTA_SUS_Emails {
                     if ( 2 === $event->reminder_num ) {
                         $update['signup_reminder2_sent'] = TRUE;
                     }
-                    $updated = $this->data->update_signup($update, $event->signup_id);
-
+                    $this->data->update_signup($update, $event->signup_id);
+                    // allow other plugins to do something after reminder sent
+					do_action('pta_sus_reminder_sent', $event, $this );
                 }
             }
 
-            if($limit) {
+            if($limit && !empty($last_batch)) {
             	// increment our last batch num by number of reminders sent
             	$last_batch['num'] += $reminder_count;
             	update_option( 'pta_sus_reminders_last_batch', $last_batch );

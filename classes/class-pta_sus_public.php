@@ -214,9 +214,13 @@ class PTA_SUS_Public {
 		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta_volunteer_sus'), 'signup_duplicate_time_error_message' ).'</p>';
 	            }
             }
+
+            // Allow other plugins to validate and add error messages
+	        $this->err = apply_filters('pta_sus_signup_form_error_count' , $this->err, $posted, $task, $sheet);
+            $this->errors = apply_filters('pta_sus_signup_form_error_messages' , $this->errors, $posted, $task, $sheet);
             
             // Add Signup
-            if (!$this->err) {
+            if (absint($this->err) < 1) {
             	$signup_task_id = $posted['signup_task_id'];
             	
                 do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
@@ -474,7 +478,7 @@ class PTA_SUS_Public {
 					    $errors = $this->errors;
 					    $this->errors_displayed = true;
 				    }
-				    return $errors . $this->display_signup_form($_GET['task_id'], $_GET['date']);
+				    return wp_kses_post($errors) . $this->display_signup_form($_GET['task_id'], $_GET['date']);
 			    }
 		    }
 		
@@ -679,8 +683,7 @@ class PTA_SUS_Public {
             if (current_user_can( 'manage_options' ) || current_user_can( 'manage_signup_sheets' )) {
                 $return .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Volunteer Sign-Up Sheets are in TEST MODE', 'pta_volunteer_sus'), 'admin_test_mode_message' ).'</p>';
             } elseif (is_page( $this->main_options['volunteer_page_id'] )) {
-                $message = esc_html($this->main_options['test_mode_message']);
-                return $message;
+                return esc_html($this->main_options['test_mode_message']);
             } else {
                 return '';
             }
@@ -823,14 +826,16 @@ class PTA_SUS_Public {
             
             // If current user has signed up for anything, list their signups and allow them to edit/clear them
             // If they aren't logged in, prompt them to login to see their signup info
-            if ( !is_user_logged_in() ) {
-                if (!$this->main_options['disable_signup_login_notice']) {
-                    $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta_volunteer_sus'), 'user_not_loggedin_signups_list_message' ).'</p>';
-                }
-            } else {
-                $user_signups_list = $this->get_user_signups_list($atts);
-                $return .= apply_filters('pta_sus_display_user_signups_table', $user_signups_list);
-            }
+	        if(!isset($this->main_options['disable_user_signups']) || false == $this->main_options['disable_user_signups']) {
+	        	if ( !is_user_logged_in() ) {
+	                if (!$this->main_options['disable_signup_login_notice']) {
+	                    $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta_volunteer_sus'), 'user_not_loggedin_signups_list_message' ).'</p>';
+	                }
+	            } else {
+	                $user_signups_list = $this->get_user_signups_list($atts);
+	                $return .= apply_filters('pta_sus_display_user_signups_table', $user_signups_list);
+	            }
+	        }
 
         } else {
             $return .= $this->get_single_sheet($id);
