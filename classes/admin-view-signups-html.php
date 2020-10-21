@@ -6,9 +6,10 @@
 	 * Time: 4:01 PM
      *
      * @var object $sheet
+     * @var array $tasks
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-//$tasks = $this->data->get_tasks($sheet_id); // redundant - already got tasks
+
 $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
 // Allow extensions to add columns
 $columns = apply_filters('pta_sus_admin_view_signups_columns', array(

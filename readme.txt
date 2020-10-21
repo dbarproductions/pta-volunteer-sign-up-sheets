@@ -157,6 +157,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.5.0**
+
+*   Added new "Skip Signups Check" option in the main settings. If you enable this, then the validation function that checks the quantity entered for tasks, on the admin Add/Edit Tasks page, against the number of current signups for that task, will be skipped. It will also skip the check for task signups when you delete a task. This will allow you to change the quantity for a task to less than the number of current signups for that task, and will also allow you to delete a task that already has signups. It will NOT delete any existing signups, HOWEVER if you delete the task, you will no longer be able to view signups for that task. This is useful if you have a Recurring sheet with old signups you want to keep, but where you want to reduce the quantity for a task for future occurrences. But, it will work with any type of sheet.
+
 **Version 3.4.0**
 
 *   Add setting to disable the user's signup list that shows below the main signup sheet list. Now that there is a separate shortcode to show the user's signup list, you can disable it below the sheet list and place that shortcode anywhere else you wish. Also handy if you are trying to use multiple shortcodes on one page so you don't see the user's signup list more than once.

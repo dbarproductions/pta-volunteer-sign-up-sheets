@@ -110,6 +110,7 @@ class PTA_SUS_Options {
 	    add_settings_field('no_global_overlap', __('Prevent Global Overlapping Signups?', 'pta_volunteer_sus'), array($this, 'no_global_overlap_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_cron_notifications', __('Enable CRON Notifications?', 'pta_volunteer_sus'), array($this, 'enable_cron_notifications_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('detailed_reminder_admin_emails', __('Detailed Reminder Notifications?', 'pta_volunteer_sus'), array($this, 'detailed_reminder_admin_emails_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+        add_settings_field('skip_signups_check', __('Skip Signups Check?', 'pta_volunteer_sus'), array($this, 'skip_signups_check_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_expired_tasks', __('Show Expired Tasks?', 'pta_volunteer_sus'), array($this, 'show_expired_tasks_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('clear_expired_signups', __('Automatically clear expired signups?', 'pta_volunteer_sus'), array($this, 'clear_expired_signups_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_signup_search', __('Enable Sign-up form live search?', 'pta_volunteer_sus'), array($this, 'enable_signup_search_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -252,7 +253,8 @@ class PTA_SUS_Options {
 		    'admin_only_settings' => 'bool',
             'disable_datei18n' => 'bool',
             'disable_grouping' => 'bool',
-            'show_all_slots_for_all_data' => 'bool'
+            'show_all_slots_for_all_data' => 'bool',
+            'skip_signups_check' => 'bool'
     		);
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -704,6 +706,18 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_main_options[detailed_reminder_admin_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
         <?php
         echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Admin reminder emails notification will include the message body of all reminders sent, useful for troubleshooting.', 'pta_volunteer_sus').'</em>';
+    }
+
+    public function skip_signups_check_checkbox() {
+        if(isset($this->main_options['skip_signups_check']) && true === $this->main_options['skip_signups_check']) {
+            $checked = 'checked="checked"';
+        } else {
+            $checked = '';
+        }
+        ?>
+        <input name="pta_volunteer_sus_main_options[skip_signups_check]" type="checkbox" value="1" <?php echo $checked; ?> />
+        <?php
+        echo __('YES.', 'pta_volunteer_sus') . ' <em> '. __('Skip the check that compares current task signup count against the task quantity entered on the Admin edit tasks page. This will allow you to change the quantity for a task to a number lower than the number already signed up (useful if you want to save old signups for a recurring task, but change the quantity for future occurrences). NOTE: This will also skip the check for existing signups when you remove a task from a sheet! If you remove the task, you will no longer be able to view any signups for that tasks (even though they are still in the signups table).', 'pta_volunteer_sus').'</em>';
     }
 
     public function show_expired_tasks_checkbox() {

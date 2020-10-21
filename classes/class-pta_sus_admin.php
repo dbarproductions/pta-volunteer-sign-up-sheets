@@ -714,7 +714,8 @@ class PTA_SUS_Admin {
 			}
 			
 			if( 0 === $task_err ) {
-				
+				$skip_signups_check = isset($this->main_options['skip_signups_check']) && true == $this->main_options['skip_signups_check'];
+
 				// Queue for removal: tasks where the fields were emptied out
 				for ($i = 0; $i < $count; $i++) {
 					if (empty($_POST['task_title'][$i])) {
@@ -724,21 +725,24 @@ class PTA_SUS_Admin {
 						continue;
 					} else {
 						$tasks_to_update[] = (int)$_POST['task_id'][$i];
-						if("Single" == $_POST['sheet_type'] || "Recurring" == $_POST['sheet_type'] || "Ongoing" == $_POST['sheet_type']) {
-							$check_dates = $dates;
-						} else {
-							$check_dates = $this->data->get_sanitized_dates($_POST['task_dates'][$i]);
-						}
-						foreach ($check_dates as $key => $cdate) {
-							$signup_count = count($this->data->get_signups((int)$_POST['task_id'][$i], $cdate));
-							if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
-								$task_err++;
-								$people = _n('person', 'people', $signup_count, 'pta_volunteer_sus');
-								if (!empty($task_err)) echo '<div class="error"><p><strong>';
-								printf(__('The number of spots for task "%1$s" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task.', 'pta_volunteer_sus'), esc_attr($_POST['task_title'][$i]), (int)$signup_count, $people);
-								echo '</strong></p></div>';
+
+						if(!$skip_signups_check) {
+							if("Single" == $_POST['sheet_type'] || "Recurring" == $_POST['sheet_type'] || "Ongoing" == $_POST['sheet_type']) {
+								$check_dates = $dates;
+							} else {
+								$check_dates = $this->data->get_sanitized_dates($_POST['task_dates'][$i]);
 							}
-						}                        
+							foreach ($check_dates as $key => $cdate) {
+								$signup_count = count($this->data->get_signups((int)$_POST['task_id'][$i], $cdate));
+								if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
+									$task_err++;
+									$people = _n('person', 'people', $signup_count, 'pta_volunteer_sus');
+									if (!empty($task_err)) echo '<div class="error"><p><strong>';
+									printf(__('The number of spots for task "%1$s" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task.', 'pta_volunteer_sus'), esc_attr($_POST['task_title'][$i]), (int)$signup_count, $people);
+									echo '</strong></p></div>';
+								}
+							}
+						}
 					}
 				}
 
@@ -753,15 +757,17 @@ class PTA_SUS_Admin {
 					}
 				}
 
-				foreach ($tasks_to_delete as $task_id) {
-					$signup_count = count($this->data->get_signups($task_id));
-					if ($signup_count > 0) {
-						$task_err++;
-						$task = $this->data->get_task($task_id);
-						if (!empty($task_err)) echo '<div class="error"><p><strong>';
-						$people = _n('person', 'people', $signup_count, 'pta_volunteer_sus');
-						printf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta_volunteer_sus'), esc_html($task->title), (int)$signup_count, $people);
-						echo '</strong></p></div>';
+				if(!$skip_signups_check) {
+					foreach ($tasks_to_delete as $task_id) {
+						$signup_count = count($this->data->get_signups($task_id));
+						if ($signup_count > 0) {
+							$task_err++;
+							$task = $this->data->get_task($task_id);
+							if (!empty($task_err)) echo '<div class="error"><p><strong>';
+							$people = _n('person', 'people', $signup_count, 'pta_volunteer_sus');
+							printf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta_volunteer_sus'), esc_html($task->title), (int)$signup_count, $people);
+							echo '</strong></p></div>';
+						}
 					}
 				}
 
