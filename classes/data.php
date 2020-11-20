@@ -146,36 +146,37 @@ class PTA_SUS_Data
 	    }
 	    return $return_array;
     }
-     
-    /**
-     * Get single sheet
-     * 
-     * @return    sheet object
-     */
+
+	/**
+	 * Get single sheet
+	 *
+	 * @param $id INT
+	 *
+	 * @return    mixed
+	 */
     public function get_sheet($id)
     {
-        $results = $this->wpdb->get_results($this->wpdb->prepare("SELECT * FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id));
-	    if(!empty($results) && isset($results[0])) {
-		    $result = $this->stripslashes_full($results[0]);
-		    return $result;
+        $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id));
+	    if(!empty($row) ) {
+		    return $this->stripslashes_full($row);
 	    } else {
 		    return false;
 	    }
     }
-    
-    /**
-    * Get number of sheets
-    */
+
+	/**
+	 * Get number of sheets
+	 *
+	 * @param bool $trash
+	 *
+	 * @return false
+	 */
     public function get_sheet_count($trash=false)
     { 
-        $results = $this->wpdb->get_results($this->wpdb->prepare("
-            SELECT COUNT(*) AS count 
-            FROM ".$this->tables['sheet']['name']." 
-            WHERE trash = %d
-            ", $trash));
-	    if(!empty($results) && isset($results[0])) {
-		    $result = $this->stripslashes_full($results[0]);
-		    return $result->count;
+        $count = $this->wpdb->get_var($this->wpdb->prepare("
+            SELECT COUNT(*) FROM ".$this->tables['sheet']['name']." WHERE trash = %d", $trash));
+	    if(!empty($count) ) {
+		    return $count;
 	    } else {
 		    return false;
 	    }
@@ -183,43 +184,53 @@ class PTA_SUS_Data
     
     /**
      * Return # of entries that have matching title and date
-     * @param  [type] $title [description]
-     * @return [type]        [description]
+     * @param  string $title sheet title
+     * @return mixed        # of matching sheets, or false if none
      */
     public function check_duplicate_sheet($title) {
-        $results = $this->wpdb->get_results($this->wpdb->prepare("
-            SELECT COUNT(*) AS count 
-            FROM ".$this->tables['sheet']['name']." 
-            WHERE title = %s AND trash = 0
-        ", $title));
-	    if(!empty($results) && isset($results[0])) {
-		    $result = $this->stripslashes_full($results[0]);
-		    return $result->count;
+        $count = $this->wpdb->get_var($this->wpdb->prepare("
+            SELECT COUNT(*) FROM ".$this->tables['sheet']['name']." WHERE title = %s AND trash = 0", $title));
+	    if(!empty($count)) {
+		    return $count;
 	    } else {
 		    return false;
 	    }
     }
 
-    /**
-     * Return # of signups that have matching task_id, and signup names
-     */
+	/**
+	 * Return # of signups that have matching task_id, and signup names
+	 *
+	 * @param $task_id INT
+	 * @param $signup_date string
+	 * @param $firstname string
+	 * @param $lastname string
+	 *
+	 * @return mixed
+	 */
     public function check_duplicate_signup($task_id, $signup_date, $firstname, $lastname) {
-        $results = $this->wpdb->get_results($this->wpdb->prepare("
-            SELECT COUNT(*) AS count 
-            FROM ".$this->tables['signup']['name']." 
+        $count = $this->wpdb->get_var($this->wpdb->prepare("
+            SELECT COUNT(*) FROM ".$this->tables['signup']['name']." 
             WHERE task_id = %d AND date = %s AND firstname = %s AND lastname = %s
         ", $task_id, $signup_date, $firstname, $lastname));
-	    if(!empty($results) && isset($results[0])) {
-		    $result = $this->stripslashes_full($results[0]);
-		    return $result->count;
+	    if(!empty($count)) {
+		    return $count;
 	    } else {
 		    return false;
 	    }
     }
 
-    /**
-     * Return # of signups that have matching sheet_id, start date/time and signup names
-     */
+	/**
+	 * Check if there is a signup with overlapping time for same volunteer info
+	 *
+	 * @param $sheet object
+	 * @param $task object
+	 * @param $signup_date string
+	 * @param $firstname string
+	 * @param $lastname string
+	 * @param bool $check_all
+	 *
+	 * @return bool true if duplicate time
+	 */
     public function check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname, $check_all = false) {
 
 	    if( '' === $task->time_start || '' === $task->time_end ) {
@@ -272,16 +283,17 @@ class PTA_SUS_Data
         $SQL = "UPDATE ".$this->tables['sheet']['name']." 
                 SET visible = IF(visible, 0, 1) 
                 WHERE id = %d";
-        $results = $this->wpdb->query($this->wpdb->prepare($SQL, $id));
-        return $results;
+        return $this->wpdb->query($this->wpdb->prepare($SQL, $id));
     }
 
-    /**
-     * Get tasks by sheet
-     * 
-     * @param     int        id of sheet
-     * @return    mixed    array of tasks
-     */
+	/**
+	 * Get tasks by sheet
+	 *
+	 * @param int        id of sheet
+	 * @param string $date
+	 *
+	 * @return    mixed    array of tasks
+	 */
     public function get_tasks($sheet_id, $date = '') {
         $SQL = "SELECT * FROM ".$this->tables['task']['name']." WHERE sheet_id = %d ";
         if ('' != $date ) {
@@ -329,19 +341,20 @@ class PTA_SUS_Data
     {
         $results = $this->wpdb->get_results($this->wpdb->prepare("SELECT * FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
 	    if(!empty($results) && isset($results[0])) {
-		    $result = $this->stripslashes_full($results[0]);
-		    return $result;
+		    return $this->stripslashes_full($results[0]);
 	    } else {
 		    return false;
 	    }
     }
 
-    /**
-     * Move tasks
-     * 
-     * @param     int      sheet id
-     * @param     int      new sheet id
-     */
+	/**
+	 * Move tasks
+	 *
+	 * @param int      sheet id
+	 * @param int      new sheet id
+	 *
+	 * @return bool|int
+	 */
     public function move_tasks($sheet_id,$new_sheet_id)
     {
         $SQL = "UPDATE ".$this->tables['task']['name']." SET sheet_id = %d WHERE sheet_id = %d";
@@ -352,7 +365,7 @@ class PTA_SUS_Data
      * Get signups by task & date
      * 
      * @param    int        id of task
-     * @return    mixed    array of siginups
+     * @return    mixed    array of signups
      */
     public function get_signups($task_id, $date='')
     {
@@ -405,8 +418,7 @@ class PTA_SUS_Data
 		    'count_total'  => false,
 		    'fields'       => array('ID', 'user_email'),
 	    );
-	    $users = get_users($args);
-	    return $users;
+	    return get_users($args);
     }
 
     public function get_volunteer_emails($sheet_id = 0) {
@@ -430,15 +442,16 @@ class PTA_SUS_Data
     public function get_signup($id)
     {
         $results = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['signup']['name']." WHERE id = %d" , $id));
-        $results = $this->stripslashes_full($results);
+        if(!empty($results)) {
+        	$results = $this->stripslashes_full($results);
+        }
         return $results;
     }
 	
 	/**
-	 * Get all the signups for a given user id
-	 * Return info on what they signed up for
-	 * @param  int $user_id wordpress uer id
-	 * @return Object Array    Returns an array of objects with the user's signup info
+	 * Get detailed signup info for a specific signup ID
+	 * @param  int $signup_id
+	 * @return Mixed Object/false    Returns an object with the detailed signup info
 	 */
 	public function get_detailed_signup($signup_id) {
 		$signup_table = $this->tables['signup']['name'];
@@ -471,8 +484,7 @@ class PTA_SUS_Data
         ", $signup_id);
 		$results = $this->wpdb->get_results($safe_sql);
 		if(!empty($results) && isset($results[0])) {
-			$result = $this->stripslashes_full($results[0]);
-			return $result;
+			return $this->stripslashes_full($results[0]);
 		} else {
 			return false;
 		}
@@ -529,7 +541,7 @@ class PTA_SUS_Data
     /**
      * Get all unique dates for tasks for the given sheet id
      * @param  integer $id Sheet ID
-     * @return array   array of all unique dates for a sheet
+     * @return mixed   array of all unique dates for a sheet
      */
     public function get_all_task_dates($id) {
         if ($tasks = $this->get_tasks($id)) {
@@ -565,18 +577,19 @@ class PTA_SUS_Data
     }
 
 
-    /**
-    * Get number of signups on a specific sheet
-    * Optionally for a specific date
-    * Don't count any signups for past dates
-    * UPDATED in version 1.6 to take into account signup quanitites
-    * 
-    * @param    int    sheet id
-    */
+	/**
+	 * Get number of signups on a specific sheet
+	 * Optionally for a specific date
+	 * Don't count any signups for past dates
+	 * UPDATED in version 1.6 to take into account signup quanitites
+	 *
+	 * @param int    sheet id
+	 *
+	 * @return int
+	 */
     public function get_sheet_signup_count($id, $date='') {
         $signup_table = $this->tables['signup']['name'];
         $task_table = $this->tables['task']['name'];
-        $sheet_table = $this->tables['sheet']['name'];
         $SQL = "
             SELECT 
             $signup_table.item_qty AS item_qty
@@ -875,6 +888,45 @@ class PTA_SUS_Data
 		$results = $this->stripslashes_full($results);
 		return $results;
 	}
+
+	public function get_all_signups_by_email($email, $date = false ) {
+		$signup_table = $this->tables['signup']['name'];
+		$task_table = $this->tables['task']['name'];
+		$sheet_table = $this->tables['sheet']['name'];
+		$sql = "SELECT 
+			$signup_table.id AS id,
+            $signup_table.task_id AS task_id,
+            $signup_table.user_id AS user_id,
+            $signup_table.date AS signup_date,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+       		$sheet_table.id AS sheet_id,
+            $sheet_table.title AS title,
+            $sheet_table.clear AS clear,
+            $sheet_table.clear_days AS clear_days,
+            $task_table.dates AS task_dates
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
+            WHERE $signup_table.email = %s 
+            AND $sheet_table.trash = 0";
+		if($date) {
+			$sql .= "  AND $signup_table.date = %s";
+		}
+		$sql .= " ORDER BY signup_date, time_start";
+		if($date) {
+			$safe_sql = $this->wpdb->prepare($sql, $email, $date);
+		} else {
+			$safe_sql = $this->wpdb->prepare($sql, $email);
+		}
+
+		$results = $this->wpdb->get_results($safe_sql);
+		$results = $this->stripslashes_full($results);
+		return $results;
+	}
 	
 	/**
 	 * Get all the signups for all users
@@ -1002,15 +1054,17 @@ class PTA_SUS_Data
             if (!isset($user)) {
                 $user = get_user_by( 'id', $clean_fields['user_id'] );
             }
-            if ( !isset($user->first_name) || empty($user->first_name) ) {
-                update_user_meta( $user->ID, 'first_name', $clean_fields['firstname'] );
-            }
-            if ( !isset($user->last_name) || empty($user->last_name) ) {
-                update_user_meta( $user->ID, 'last_name', $clean_fields['lastname'] );
-            }
-            $phone = get_user_meta( $user->ID, 'billing_phone', true );
-            if (empty($phone) && isset($clean_fields['phone']) ) {
-                update_user_meta( $user->ID, 'billing_phone', $clean_fields['phone'] );
+            if($user) {
+            	if ( !isset($user->first_name) || empty($user->first_name) ) {
+                    update_user_meta( $user->ID, 'first_name', $clean_fields['firstname'] );
+	            }
+	            if ( !isset($user->last_name) || empty($user->last_name) ) {
+	                update_user_meta( $user->ID, 'last_name', $clean_fields['lastname'] );
+	            }
+	            $phone = get_user_meta( $user->ID, 'billing_phone', true );
+	            if (empty($phone) && isset($clean_fields['phone']) ) {
+	                update_user_meta( $user->ID, 'billing_phone', $clean_fields['phone'] );
+	            }
             }
         }
         
@@ -1084,51 +1138,65 @@ class PTA_SUS_Data
         // wpdb->update does all necessary sanitation before updating the database
         return $this->wpdb->update($this->tables['signup']['name'], $clean_fields, array('id' => $id), null, array('%d'));
     }
-    
-    /**
-    * Delete a sheet and all associated tasks and signups
-    * 
-    * @param    int     sheet id
-    */
+
+	/**
+	 * Delete a sheet and all associated tasks and signups
+	 *
+	 * @param int     sheet id
+	 *
+	 * @return bool
+	 */
     public function delete_sheet($id) {
         $tasks = $this->get_tasks($id);
+        $where_format = array('%d');
         foreach ($tasks AS $task) {
             // Delete Signups
-            if ($this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['signup']['name']." WHERE task_id = %d" , $task->id)) === false) {
-                return false;
-            }
+	        $where = array('task_id' => $task->id);
+	        if(false === $this->wpdb->delete($this->tables['signup']['name'], $where, $where_format)) {
+	        	return false;
+	        }
         }
         // Delete Tasks
-        if ($this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['task']['name']." WHERE sheet_id = %d" , $id)) === false) {
+	    $where = array('sheet_id' => $id);
+        if(false === $this->wpdb->delete($this->tables['task']['name'], $where, $where_format)) {
             return false;
         }
         // Delete Sheet
-        if ($this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id)) === false) {
+	    $where = array('id' => $id);
+        if(false === $this->wpdb->delete($this->tables['sheet']['name'], $where, $where_format)) {
             return false;
         }
         return true;
     }
-    
-    /**
-    * Delete a task
-    * 
-    * @param    int     task id
-    */
+
+	/**
+	 * Delete a task
+	 *
+	 * @param int     task id
+	 *
+	 * @return bool|int
+	 */
     public function delete_task($id) {
-        return $this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
+    	$where = array('id' => $id);
+    	$where_format = array('%d');
+        return $this->wpdb->delete($this->tables['task']['name'],$where,$where_format);
     }
     
     /**
     * Delete a signup
     * 
     * @param    int     signup id
+     *
+     * @return mixed
     */
     public function delete_signup($id) {
-        return $this->wpdb->query($this->wpdb->prepare("DELETE FROM ".$this->tables['signup']['name']." WHERE id = %d" , $id));
+    	$where = array('id' => $id);
+    	$where_format = array('%d');
+        return $this->wpdb->delete($this->tables['signup']['name'],$where,$where_format);
     }
 	
 	/**
-	 * @param array $exlude array of ids to NOT delete
+	 * @param array $exclude array of ids to NOT delete
 	 *
 	 * @return false|int
 	 */
@@ -1147,8 +1215,8 @@ class PTA_SUS_Data
     /**
     * Copy a sheet and all tasks to a new sheet for editing
     * 
-    * @param    int     sheet id
-    * @param date $date The new date
+    * @param    int  $id   sheet id
+     * @return mixed
     */
     public function copy_sheet($id) {
         $new_fields = array();
@@ -1191,14 +1259,15 @@ class PTA_SUS_Data
         return $new_sheet_id;
     }
 
-    
-    /**
-    * Remove prefix from keys of an array and return records that were cleaned
-    * 
-    * @param    array   input array
-    * @param    string  the prefix
-    * @return   array   records that were cleaned
-    */
+
+	/**
+	 * Remove prefix from keys of an array and return records that were cleaned
+	 *
+	 * @param array   input array
+	 * @param mixed $prefix
+	 *
+	 * @return   mixed   records that were cleaned
+	 */
     public function clean_array($input=array(), $prefix=false) {
         if (!is_array($input)) return false;
         $clean_fields = array();

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.5.1
+Tested up to: 5.5.3
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -157,6 +157,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.5.1**
+
+*   Minor code change when adding signup to make sure there is a valid WP user for a passed in user ID before trying to access the user object. In case of custom extensions passing in a user ID that is not a valid WP User ID.
+*   Minor changes to email class. No longer explicitly set headers for plain text mode (already default for wp_mail, and possibly avoid conflicts with SMTP mailer plugins). Wrap reply to emails inside triangle brackets for better compatibility with PHP Mailer
+*   Minor code cleanup and optimizing of data class
+
 **Version 3.5.0**
 
 *   Added new "Skip Signups Check" option in the main settings. If you enable this, then the validation function that checks the quantity entered for tasks, on the admin Add/Edit Tasks page, against the number of current signups for that task, will be skipped. It will also skip the check for task signups when you delete a task. This will allow you to change the quantity for a task to less than the number of current signups for that task, and will also allow you to delete a task that already has signups. It will NOT delete any existing signups, HOWEVER if you delete the task, you will no longer be able to view signups for that task. This is useful if you have a Recurring sheet with old signups you want to keep, but where you want to reduce the quantity for a task for future occurrences. But, it will work with any type of sheet.

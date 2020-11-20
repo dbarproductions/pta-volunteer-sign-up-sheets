@@ -124,6 +124,7 @@ class PTA_SUS_Emails {
 	    
 	    // Chair names
 	    $names = false;
+        $chair_names = '';
 	    if (isset($sheet->position) && '' != $sheet->position) {
 		    $names = $this->get_member_directory_names($sheet->position);
 		    if($names) {
@@ -147,13 +148,13 @@ class PTA_SUS_Emails {
         $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
         if(is_array($replyto)) {
         	foreach ($replyto as $reply) {
-        		$headers[] = "Reply-To: " . $reply;
+        		$headers[] = "Reply-To: ". " <" . $reply . ">";
 	        }
         } else {
-	        $headers[]  = "Reply-To: " . $replyto;
+	        $headers[]  = "Reply-To: " . " <" . $replyto . ">";
         }
-        $headers[]  = "Content-Type: text/plain; charset=utf-8";
-        $headers[]  = "Content-Transfer-Encoding: 8bit";
+        //$headers[]  = "Content-Type: text/plain; charset=utf-8";
+        //$headers[]  = "Content-Transfer-Encoding: 8bit";
         if ( !$reminder && !$this->email_options['individual_emails'] ) {
             if (!empty($cc_emails)) {
                 // CC to all chairs for signups/clears, but not reminders
@@ -208,13 +209,11 @@ class PTA_SUS_Emails {
         		// Send out first email to the original TO address, set errors to result (bool)
 				$sent = wp_mail($to, $subject, $message, $headers);
 		        // loop through all chair_emails and send individually
-		        if(!empty($cc_emails)) {
-			        foreach ($cc_emails as $to) {
-			        	if(is_email($to)) {
-					        $result = wp_mail($to, $subject, $message, $headers);
-					        if(false === $result) {
-						        $sent = false;
-					        }
+		        foreach ($cc_emails as $to) {
+		            if(is_email($to)) {
+				        $result = wp_mail($to, $subject, $message, $headers);
+				        if(false === $result) {
+					        $sent = false;
 				        }
 			        }
 		        }
