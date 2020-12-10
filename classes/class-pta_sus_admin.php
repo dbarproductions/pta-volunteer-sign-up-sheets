@@ -1293,7 +1293,7 @@ class PTA_SUS_Admin {
 
 				$sent_to = array();
 				if($individually) {
-					$emails[] = $user_email;
+					$emails[] = $from_email;
 					$sent = true;
 					foreach ($emails as $email) {
 						// make sure it's a valid email before sending
@@ -1307,7 +1307,7 @@ class PTA_SUS_Admin {
 						}
 					}
 				} else {
-					$sent_to[] = $user_email;
+					$sent_to[] = $from_email;
 					// put all volunteer emails in BCC fields
 					foreach ($emails as $cc) {
 						if(is_email($cc)) {
@@ -1316,7 +1316,7 @@ class PTA_SUS_Admin {
 						}
 					}
 					// send to the sender, with BCC to all volunteers
-					$sent = wp_mail($user_email, $subject, $message, $headers);
+					$sent = wp_mail($from_email, $subject, $message, $headers);
 				}
 
 				if($sent) {

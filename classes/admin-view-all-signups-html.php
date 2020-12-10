@@ -7,6 +7,7 @@
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $sheets = $this->data->get_sheets($show_trash = false, $active_only = false, $show_hidden = true);
+$sheets = apply_filters('pta_sus_admin_view_all_data_sheets', $sheets);
 if(empty($sheets)) {
 	echo '<div class="error"><p>'.__('No data to show.', 'pta_volunteer_sus').'</p></div>';
 }
