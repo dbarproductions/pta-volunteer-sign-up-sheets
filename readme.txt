@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.5.2**
+
+*   Fixed typo in the function to send emails to volunteers (from Admin) that prevented the email from being copies to the sender (the FROM address) as well.
+*   Added filter hook for the admin View All Data page to allow other plugins to filter/modify the sheets shown
+
 **Version 3.5.1**
 
 *   Minor code change when adding signup to make sure there is a valid WP user for a passed in user ID before trying to access the user object. In case of custom extensions passing in a user ID that is not a valid WP User ID.
