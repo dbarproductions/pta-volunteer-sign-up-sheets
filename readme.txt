@@ -157,6 +157,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.5.3**
+
+*   Added validation check to make sure task date is not empty for Multi-Day tasks on Admin side Add/Edit tasks page.
+*   Updated dataTables scripts to latest versions
+
 **Version 3.5.2**
 
 *   Fixed typo in the function to send emails to volunteers (from Admin) that prevented the email from being copies to the sender (the FROM address) as well.

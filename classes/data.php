@@ -1526,7 +1526,7 @@ class PTA_SUS_Data
         $date = str_replace(' ', '-', $date);
         $date = str_replace('/', '-', $date);
         $date = str_replace('--', '-', $date);
-        if ( '' == $date ) return false;
+        if ( empty($date) ) return false;
         preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $xadBits);
         if (count($xadBits) < 3) return false;
         return checkdate($xadBits[2], $xadBits[3], $xadBits[1]);

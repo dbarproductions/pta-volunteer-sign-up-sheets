@@ -637,20 +637,20 @@ class PTA_SUS_Admin {
 			$posted_tasks = array();
 			foreach ($keys_to_process as $index => $key) {
 				$posted_tasks[] = apply_filters('pta_sus_posted_task_values', array(
-						'task_sheet_id'     => $_POST['sheet_id'],
-						'task_title'        => $_POST['task_title'][$key],
-						'task_description'        => $_POST['task_description'][$key],
-						'task_dates'         => (isset($_POST['task_dates'][$key])) ? $_POST['task_dates'][$key] : '',
-						'task_time_start'   => $_POST['task_time_start'][$key],
-						'task_time_end'     => $_POST['task_time_end'][$key],
-						'task_qty'          => isset($_POST['task_qty'][$key]) ? $_POST['task_qty'][$key] : 1,
-						'task_need_details' => isset($_POST['task_need_details'][$key]) ? "YES" : "NO",
-						'task_details_required' => isset($_POST['task_details_required'][$key]) ? "YES" : "NO",
-						'task_allow_duplicates' => isset($_POST['task_allow_duplicates'][$key]) ? "YES" : "NO",
-						'task_enable_quantities' => isset($_POST['task_enable_quantities'][$key]) ? "YES" : "NO",
-						'task_details_text' => isset($_POST['task_details_text'][$key]) ? $_POST['task_details_text'][$key] : '',
-						'task_id'           => (isset($_POST['task_id'][$key]) && 0 != $_POST['task_id'][$key]) ? (int)$_POST['task_id'][$key] : -1,
-						), $key);
+					'task_sheet_id'     => $_POST['sheet_id'],
+					'task_title'        => $_POST['task_title'][$key],
+					'task_description'        => $_POST['task_description'][$key],
+					'task_dates'         => (isset($_POST['task_dates'][$key])) ? $_POST['task_dates'][$key] : '',
+					'task_time_start'   => $_POST['task_time_start'][$key],
+					'task_time_end'     => $_POST['task_time_end'][$key],
+					'task_qty'          => isset($_POST['task_qty'][$key]) ? $_POST['task_qty'][$key] : 1,
+					'task_need_details' => isset($_POST['task_need_details'][$key]) ? "YES" : "NO",
+					'task_details_required' => isset($_POST['task_details_required'][$key]) ? "YES" : "NO",
+					'task_allow_duplicates' => isset($_POST['task_allow_duplicates'][$key]) ? "YES" : "NO",
+					'task_enable_quantities' => isset($_POST['task_enable_quantities'][$key]) ? "YES" : "NO",
+					'task_details_text' => isset($_POST['task_details_text'][$key]) ? $_POST['task_details_text'][$key] : '',
+					'task_id'           => (isset($_POST['task_id'][$key]) && 0 != $_POST['task_id'][$key]) ? (int)$_POST['task_id'][$key] : -1,
+				), $key);
 			}
 
 			foreach ($posted_tasks as $task) {
@@ -660,6 +660,11 @@ class PTA_SUS_Admin {
 					$task_err++;
 					echo '<div class="error"><p><strong>'.$results['message'].'</strong></p></div>';
 				} elseif ("Multi-Day" == $_POST['sheet_type'] && -1 != $task['task_id']) {
+					// Make sure a date was entered
+					if(empty($task['task_dates'])) {
+						$task_err++;
+						echo '<div class="error"><p><strong>'.__('Task date is a required field', 'pta_volunteer_sus').'</strong></p></div>';
+					}
 					// If the date changed, check for signups on the old date
 					$old_task = $this->data->get_task($task['task_id']);
 					if ($old_task->dates !== $task['task_dates']) {
