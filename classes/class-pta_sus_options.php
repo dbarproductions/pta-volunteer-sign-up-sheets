@@ -137,6 +137,8 @@ class PTA_SUS_Options {
 	    add_settings_field('reminder2_email_subject', __('Reminder 2 email subject:', 'pta_volunteer_sus'), array($this, 'reminder2_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('reminder2_email_template', __('Reminder 2 email template:', 'pta_volunteer_sus'), array($this, 'reminder2_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('reminder_email_limit', __('Max Reminders per Hour:', 'pta_volunteer_sus'), array($this, 'reminder_email_limit_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+        add_settings_field('reschedule_email_subject', __('Reschedule email subject:', 'pta_volunteer_sus'), array($this, 'reschedule_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+        add_settings_field('reschedule_email_template', __('Reschedule email template:', 'pta_volunteer_sus'), array($this, 'reschedule_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('individual_emails', __('Separate CC/BCC to individual TO emails?', 'pta_volunteer_sus'), array($this, 'individual_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('admin_clear_emails', __('Send emails when clear from admin?', 'pta_volunteer_sus'), array($this, 'admin_clear_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('no_chair_emails', __('Disable chair emails?', 'pta_volunteer_sus'), array($this, 'no_chair_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -274,6 +276,8 @@ class PTA_SUS_Options {
 		    'reminder2_email_subject' => 'text',
 		    'reminder2_email_template' => 'textarea',
             'reminder_email_limit' => 'integer',
+            'reschedule_email_subject' => 'text',
+            'reschedule_email_template' => 'textarea',
 		    'individual_emails' => 'bool',
             'admin_clear_emails' => 'bool',
 		    'no_chair_emails' => 'bool',
@@ -420,6 +424,11 @@ class PTA_SUS_Options {
 		echo '<input id="reminder2_email_subject" name="pta_volunteer_sus_email_options[reminder2_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reminder2_email_subject"]).'" />';
 		echo '<em> '. __('Subject line for signup reminder #2 email messages. LEAVE BLANK to use same subject template (above) for both reminders. Template tags can be used.', 'pta_volunteer_sus') . '</em>';
 	}
+
+    public function reschedule_email_subject_text_input() {
+        echo '<input id="reschedule_email_subject" name="pta_volunteer_sus_email_options[reschedule_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reschedule_email_subject"]).'" />';
+        echo '<em> '. __('Subject line for reschedule email messages. Template tags can be used.', 'pta_volunteer_sus') . '</em>';
+    }
 
     public function reminder_email_limit_text_input() {
         echo "<input id='reminder_email_limit' name='pta_volunteer_sus_email_options[reminder_email_limit]' size='5' type='text' value='{$this->email_options['reminder_email_limit']}' />";
@@ -928,6 +937,15 @@ class PTA_SUS_Options {
 		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta_volunteer_sus');
 		echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
 	}
+
+    public function reschedule_email_template_textarea_input() {
+        echo "<textarea id='reschedule_email_template' name='pta_volunteer_sus_email_options[reschedule_email_template]' cols='55' rows='15' >";
+        echo esc_textarea( $this->email_options['reschedule_email_template'] );
+        echo '</textarea>';
+        echo '<br />' . __('Reschedule email sent to volunteers. Template tags will show the new dates and times.', 'pta_volunteer_sus');
+        echo '<br />' . __('Reschedule emails will be sent hourly via the same CRON job and limits set for reminder emails.', 'pta_volunteer_sus');
+        echo '<br />' . __('Available Template Tags: ', 'pta_volunteer_sus') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+    }
 
     public function clear_email_template_textarea_input() {
         echo "<textarea id='clear_email_template' name='pta_volunteer_sus_email_options[clear_email_template]' cols='55' rows='15' >";

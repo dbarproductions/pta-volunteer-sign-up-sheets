@@ -12,14 +12,14 @@ if ($count < 3) $count = 3;
 <?php if ( "Single" == $f['sheet_type'] ): ?>
 	<h2><?php echo __('Select the date for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
-		<label for="single_date"><strong>Date:</strong></label>
+		<label for="single_date"><strong><?php _e('Date:', 'pta_volunteer_sus'); ?></strong></label>
 		<input type="text" class="singlePicker" id="single_date" name="single_date" value="<?php echo ((isset($f['single_date']) ? esc_attr($f['single_date']) : '')); ?>" size="12" />
 		<em><?php _e('Select a date for the event.  All tasks will then be assigned to this date.', 'pta_volunteer_sus'); ?></em>
 	</p>
 <?php elseif ( "Recurring" == $f['sheet_type']): ?>
 	<h2><?php echo __('Select ALL the dates for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
-		<label for="recurring_dates"><strong>Dates:</strong></label>
+		<label for="recurring_dates"><strong><?php _e('Dates:', 'pta_volunteer_sus'); ?></strong></label>
 		<input type="text" id="multi999Picker" name="recurring_dates" value="<?php echo ((isset($f['recurring_dates']) ? esc_attr($f['recurring_dates']) : '')); ?>" size="40" />
 		<em><?php _e('Select all the dates for the event. Copies of the tasks will be created for each date.', 'pta_volunteer_sus'); ?></em>
 	</p>

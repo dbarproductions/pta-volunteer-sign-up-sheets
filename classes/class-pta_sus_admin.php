@@ -183,6 +183,7 @@ class PTA_SUS_Admin {
 
 	public function admin_reminders_page() {
 		$messages = '';
+        $rescheduled_messages = '';
 		$cleared_message = '';
 		if ( $last = get_option( 'pta_sus_last_reminders' ) ) {
 			$messages .= '<hr/>';
@@ -196,6 +197,18 @@ class PTA_SUS_Admin {
 			$messages .= '<hr/>';
 
 		}
+        if ( $last = get_option( 'pta_sus_last_reschedule_emails' ) ) {
+            $rescheduled_messages .= '<hr/>';
+            $rescheduled_messages .= '<h4>' . __('Last Rescheduled Emails sent:', 'pta_volunteer_sus'). '</h4>';
+            $rescheduled_messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), pta_datetime(get_option('date_format'), $last['time'])) . '<br/>';
+            $rescheduled_messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), pta_datetime(get_option("time_format"), $last['time'])) . '<br/>';
+            $rescheduled_messages .= sprintf( _n( '1 email sent', '%d emails sent', $last['num'], 'pta_volunteer_sus'), $last['num'] ) . '</p>';
+            $rescheduled_messages .= '<h4>' . __('Last Rescheduled Emails check:', 'pta_volunteer_sus'). '</h4>';
+            $rescheduled_messages .= '<p>' . sprintf(__('Date: %s', 'pta_volunteer_sus'), pta_datetime(get_option('date_format'), $last['last'])) . '<br/>';
+            $rescheduled_messages .= sprintf(__('Time: %s', 'pta_volunteer_sus'), pta_datetime(get_option("time_format"), $last['last'])) . '<br/>';
+            $rescheduled_messages .= '<hr/>';
+
+        }
 		if (isset($_GET['action']) && 'reminders' == $_GET['action']) {
 			check_admin_referer( 'pta-sus-reminders', '_sus_nonce');
 			if(!class_exists('PTA_SUS_Emails')) {
@@ -206,6 +219,16 @@ class PTA_SUS_Admin {
 			$results = sprintf( _n( '1 reminder sent', '%d reminders sent', $num, 'pta_volunteer_sus'), $num );
 			$messages .= '<div class="updated">'.$results.'</div>';
 		}
+        if (isset($_GET['action']) && 'reschedule' == $_GET['action']) {
+            check_admin_referer( 'pta-sus-reschedule', '_sus_nonce');
+            if(!class_exists('PTA_SUS_Emails')) {
+                include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
+            }
+            $emails = new PTA_SUS_Emails();
+            $num = $emails->send_reschedule_emails();
+            $results = sprintf( _n( '1 email sent', '%d emails sent', $num, 'pta_volunteer_sus'), $num );
+            $rescheduled_messages .= '<div class="updated">'.$results.'</div>';
+        }
 		if (isset($_GET['action']) && 'clear_signups' == $_GET['action'] ) {
 			check_admin_referer( 'pta-sus-clear-signups', '_sus_nonce');
 			$num = $this->data->delete_expired_signups();
@@ -214,6 +237,8 @@ class PTA_SUS_Admin {
 		}
 		$reminders_link = add_query_arg(array('action' => 'reminders'));
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
+        $reschedule_link = add_query_arg(array('action' => 'reschedule'));
+        $nonced_reschedule_link = wp_nonce_url( $reschedule_link, 'pta-sus-reschedule', '_sus_nonce');
 		$clear_signups_link = add_query_arg(array('action' => 'clear_signups'));
 		$nonced_clear_signups_link = wp_nonce_url( $clear_signups_link, 'pta-sus-clear-signups', '_sus_nonce');
 		echo '<div class="wrap pta_sus">';
@@ -223,6 +248,11 @@ class PTA_SUS_Admin {
 		echo $messages;
 		echo '<p><a href="'.esc_url($nonced_reminders_link).'" class="button-primary">'.__('Send Reminders', 'pta_volunteer_sus').'</a></p>';
 		echo '<hr/>';
+        echo '<h3>'.__('Rescheduled Event Emails', 'pta_volunteer_sus').'</h3>';
+        echo '<p>'.__("The system automatically checks if it needs to send rescheduled event emails hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the rescheduled event emails function with the button below.", "pta_volunteer_sus") . '</p>';
+        echo $rescheduled_messages;
+        echo '<p><a href="'.esc_url($nonced_reschedule_link).'" class="button-primary">'.__('Send Rescheduled Event Emails', 'pta_volunteer_sus').'</a></p>';
+        echo '<hr/>';
 		echo '<h3>'.__('Clear Expired Signups', 'pta_volunteer_sus').'</h3>';
 		echo '<p>'.__("If you have disabled the automatic clearing of expired signups, you can use this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT BE UNDONE!", "pta_volunteer_sus") . '</p>';
 		echo '<p><a href="'.esc_url($nonced_clear_signups_link).'" class="button-secondary">'.__('Clear Expired Signups', 'pta_volunteer_sus').'</a></p>';
@@ -385,6 +415,197 @@ class PTA_SUS_Admin {
 		return true;
 	}
 
+	private function queue_reschedule_emails($tasks) {
+	    if(empty($tasks)) {
+	        return;
+        }
+        $reschedule_queue = get_option('pta_sus_rescheduled_signup_ids', array());
+        foreach ($tasks AS $task) {
+            $id = absint($task->id);
+            $signups = $this->data->get_signups($id);
+            if(empty($signups)) continue;
+            foreach($signups as $signup) {
+                $signup_id = absint($signup->id);
+                $reschedule_queue[] = $signup_id;
+            }
+        }
+        update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
+    }
+
+    private function process_reschedule_form() {
+        if(!wp_verify_nonce( $_POST['pta_sus_admin_reschedule_nonce'], 'pta_sus_admin_reschedule')) {
+            echo '<div class="error"><p>'. __('Invalid Referrer', 'pta_volunteer_sus') .'</p></div>';
+            return false;
+        }
+
+        $sheet_id = isset($_POST['sheet_id']) ? absint($_POST['sheet_id']) : 0;
+        if($sheet_id < 1) {
+            echo '<div class="error"><p>'. __('Invalid Sheet ID', 'pta_volunteer_sus') .'</p></div>';
+            return false;
+        }
+        $sheet = $this->data->get_sheet($sheet_id);
+        if(!$sheet) {
+            echo '<div class="error"><p>'. __('Invalid Sheet ID', 'pta_volunteer_sus') .'</p></div>';
+            return false;
+        }
+        $tasks = $this->data->get_tasks($sheet_id);
+        if(empty($tasks)) {
+            echo '<div class="error"><p>'. __('No Tasks found for that Sheet ID', 'pta_volunteer_sus') .'</p></div>';
+            return false;
+        }
+        $new_date = '';
+        $interval = $copies = 0;
+        $new_dates = $new_start_times = $new_end_times = array();
+        $method = isset($_POST['method']) && in_array($_POST['method'], array('copy', 'multi-copy','reschedule')) ? $_POST['method'] : false;
+        if(!$method) {
+            echo '<div class="error"><p>'. __('Please select a method', 'pta_volunteer_sus') .'</p></div>';
+            return false;
+        }
+        if('Single' === $sheet->type && 'multi-copy' !== $method) {
+            if(empty($_POST['new_date'])) {
+                echo '<div class="error"><p>'. __('You Must Select a Date', 'pta_volunteer_sus') .'</p></div>';
+                return false;
+            }
+            $new_date = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_date'])));
+        } elseif ('Multi-Day' === $sheet->type && 'multi-copy' !== $method) {
+            foreach($tasks as $task) {
+                $id = absint($task->id);
+                if(empty($_POST['new_dates'][$id])) {
+                    echo '<div class="error"><p>'. __('Task Dates are Required!', 'pta_volunteer_sus') .'</p></div>';
+                    return false;
+                }
+                $new_dates[$id] = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_dates'][$id])));
+            }
+        }
+        if('multi-copy' === $method) {
+            if(empty($_POST['interval']) || empty($_POST['copies'])) {
+                echo '<div class="error"><p>'. __('Offset Interval and Number of Copies are required', 'pta_volunteer_sus') .'</p></div>';
+                return false;
+            }
+            if(intval($_POST['interval']) < 1) {
+                echo '<div class="error"><p>'. __('Offset Interval must be greater than 0', 'pta_volunteer_sus') .'</p></div>';
+                return false;
+            }
+            if(intval($_POST['copies']) < 1) {
+                echo '<div class="error"><p>'. __('Number of Copies must be greater than 0', 'pta_volunteer_sus') .'</p></div>';
+                return false;
+            }
+            $interval = absint($_POST['interval']);
+            $copies = absint($_POST['copies']);
+        }
+        // times & single date
+        foreach($tasks as $task) {
+            $id = absint($task->id);
+            $new_start_times[$id] = !empty($_POST['new_task_start_time'][$id]) ? pta_datetime('h:i A', strtotime($_POST['new_task_start_time'][$id])) : $task->time_start;
+            $new_end_times[$id] = !empty($_POST['new_task_end_time'][$id]) ? pta_datetime('h:i A', strtotime($_POST['new_task_end_time'][$id])) : $task->time_end;
+            if('Single' === $sheet->type) {
+                $new_dates[$id] = $new_date; // add single date to each task for Single sheets
+            }
+        }
+
+        $clear_signups = isset($_POST['clear_signups']) && 'yes' === $_POST['clear_signups'];
+        $send_emails = isset($_POST['send_emails']) && 'yes' === $_POST['send_emails'];
+
+        if('reschedule' === $method) {
+            // Tasks
+            foreach($tasks as $task) {
+                $id = absint($task->id);
+                $date = $new_dates[$id];
+                $fields = array('task_dates' => $date, 'task_time_start' => $new_start_times[$id], 'task_time_end' => $new_end_times[$id]);
+                $this->data->update_task($fields, $id);
+            }
+            // Sheet
+            if('Single' === $sheet->type) {
+                $first_date = $last_date = $new_date;
+            } else {
+                $first_date = min($new_dates);
+                $last_date = max($new_dates);
+            }
+            $fields = array('sheet_first_date' => $first_date, 'sheet_last_date' => $last_date);
+            $this->data->update_sheet($fields,absint($sheet_id));
+
+            // Signups
+            if(!$clear_signups) {
+                // update dates for signups - reset reminder flags
+                foreach ($tasks AS $task) {
+                    $id = absint($task->id);
+                    if('Single' === $sheet->type) {
+                        $date = $new_date;
+                    } else {
+                        $date = $new_dates[$id];
+                    }
+                    $signups = $this->data->get_signups($id);
+                    if(empty($signups)) continue;
+                    foreach($signups as $signup) {
+                        $fields = array('signup_date' => $date, 'signup_reminder1_sent' => false, 'signup_reminder2_sent' => false);
+                        $this->data->update_signup($fields, absint($signup->id));
+                    }
+                }
+            }
+
+            /**
+             * Send emails here before signups are cleared!
+             */
+            if($send_emails) {
+                $this->queue_reschedule_emails($tasks);
+            }
+
+            // Maybe clear Signups
+            if($clear_signups) {
+                // allow extensions to clear data first before signups are deleted
+                do_action('pta_sus_clear_all_signups_for_sheet', $sheet_id);
+                foreach ($tasks AS $task) {
+                    $id = absint($task->id);
+                    $this->data->clear_all_signups_for_task($id);
+                }
+            }
+        }
+
+        $copy_signups = !$clear_signups;
+        if('copy' === $method) {
+            $new_sheet_id = $this->data->copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
+            /**
+             * Maybe Send emails for new sheet
+             */
+            if(false !== $new_sheet_id && $send_emails && $copy_signups) {
+                $new_tasks = $this->data->get_tasks($new_sheet_id);
+                if(!empty($new_tasks)) {
+                    $this->queue_reschedule_emails($new_tasks);
+                }
+            }
+        }
+
+        if('multi-copy' === $method) {
+            $new_dates = array();
+            $offset = $interval * 86400; // timestamp value of interval in days
+            for($i = 1; $i <= $copies; $i++) {
+                // loop through tasks and set new dates
+                foreach($tasks as $task) {
+                    $id = absint($task->id);
+                    if(1 == $i) {
+                        $task_date = strtotime($task->dates);
+                        $new_dates[$id] = date('Y-m-d',$task_date + $offset);
+                    } else {
+                        $new_date =  date('Y-m-d',strtotime($new_dates[$id]) + $offset);
+                        $new_dates[$id] = $new_date;
+                    }
+                }
+                $new_sheet_id = $this->data->copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
+                /**
+                 * Maybe Send emails for new sheet
+                 */
+                if(false !== $new_sheet_id && $send_emails && $copy_signups) {
+                    $new_tasks = $this->data->get_tasks($new_sheet_id);
+                    if(!empty($new_tasks)) {
+                        $this->queue_reschedule_emails($new_tasks);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
 	/**
 	 * Admin Page: Sheets
 	 */
@@ -418,8 +639,12 @@ class PTA_SUS_Admin {
 			$success = $this->process_signup_form();
 		}
 
+        if(isset($_POST['pta_admin_reschedule_form_mode']) && 'submitted' === $_POST['pta_admin_reschedule_form_mode']) {
+            $success = $this->process_reschedule_form();
+        }
+
 		// Edit Signup
-		if (isset($_GET['action']) && $_GET['action'] == 'edit_signup' && !$success) {
+		if (isset($_GET['action']) && 'edit_signup' == $_GET['action'] && !$success) {
 			include(PTA_VOLUNTEER_SUS_DIR.'views/admin-add-edit-signup-form.php');
 			return;
 		}
@@ -428,12 +653,13 @@ class PTA_SUS_Admin {
 		$filter = isset($_REQUEST['pta-filter-submit']) && (isset($_REQUEST['pta-visible-filter']) || isset($_REQUEST['pta-type-filter']));
 		$search = isset($_REQUEST['s']) && '' !== $_REQUEST['s'];
 		if($filter || $search) {
-			$trash = $untrash = $delete = $copy = $toggle_visibility = $view_signups = $view_all = $edit = false;
+			$trash = $untrash = $delete = $copy = $toggle_visibility = $view_signups = $view_all = $edit = $reschedule = false;
 		} else {
 			$trash = (!empty($_GET['action']) && $_GET['action'] == 'trash');
 			$untrash = (!empty($_GET['action']) && $_GET['action'] == 'untrash');
 			$delete = (!empty($_GET['action']) && $_GET['action'] == 'delete');
 			$copy = (!empty($_GET['action']) && $_GET['action'] == 'copy');
+            $reschedule = (!empty($_GET['action']) && $_GET['action'] == 'reschedule');
 			$view_signups = (!empty($_GET['action']) && $_GET['action'] == 'view_signups');
 			$toggle_visibility = (!empty($_GET['action']) && $_GET['action'] == 'toggle_visibility');
 			$view_all = (!empty($_GET['action']) && $_GET['action'] == 'view_all');
@@ -444,7 +670,7 @@ class PTA_SUS_Admin {
 		$nonced_view_all_url = wp_nonce_url($view_all_url, 'view_all', '_sus_nonce');
 
 		echo '<div class="wrap pta_sus">';
-		if(!$view_all) {
+		if(!$view_all && !$reschedule) {
 			echo ($edit || $view_signups) ? '<h2>'.__('Sheet Details', 'pta_volunteer_sus').'</h2>' : '<h2>'.__('Sign-up Sheets ', 'pta_volunteer_sus').'
 			<a href="?page='.$this->admin_settings_slug.'_modify_sheet" class="add-new-h2">'.__('Add New', 'pta_volunteer_sus').'</a>
 			<a href="'.esc_url($nonced_view_all_url).'" class="button-primary">'.__('View/Export ALL Data', 'pta_volunteer_sus').'</a>
@@ -479,15 +705,32 @@ class PTA_SUS_Admin {
 				echo '<div class="error"><p>'.__('Error copying sheet.', 'pta_volunteer_sus').'</p></div>';
 			} else {
 				echo '<div class="updated"><p>'.__('Sheet has been copied to new sheet ID #', 'pta_volunteer_sus').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta_volunteer_sus').'</a>).</p></div>';
-				do_action('pta_sus_sheet_copied', $sheet_id, $new_id);
 			}
 		} elseif ($toggle_visibility) {
 			if ($toggled = $this->data->toggle_visibility($sheet_id) === false) {
 				echo '<div class="error"><p>'.__('Error toggling sheet visibility.', 'pta_volunteer_sus').'</p></div>';
 			}
 		} elseif ($view_all) {
-			echo '<h2><span id="sheet_title">'.__('All Signup Data', 'pta_volunteer_sus').'</span></h2>';
-			include('admin-view-all-signups-html.php');
+            echo '<h2><span id="sheet_title">'.__('All Signup Data', 'pta_volunteer_sus').'</span></h2>';
+            include('admin-view-all-signups-html.php');
+            return;
+        } elseif ($reschedule) {
+            if (!($sheet = $this->data->get_sheet($sheet_id))) {
+                echo '<p class="error">'.__('No sign-up sheet found.', 'pta_volunteer_sus').'</p>';
+                echo '</div>';
+                return;
+            }
+            $tasks = $this->data->get_tasks($sheet_id);
+            if (empty($tasks)) {
+                echo '<p>'.__('No tasks were found.', 'pta_volunteer_sus').'</p>';
+                echo '</div>';
+                return;
+            }
+
+            echo '<h2><span id="sheet_title">'.sprintf(__('Reschedule/Copy Sheet: %s', 'pta_volunteer_sus'), esc_html($sheet->title)).'</span></h2>';
+            include('admin-reschedule-html.php');
+
+            echo '</div>';
 			return;
 		} elseif ($edit || $view_signups) {
 			// View Single Sheet

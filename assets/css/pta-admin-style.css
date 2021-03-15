@@ -74,3 +74,8 @@ span.pta-center {
 span.pta-sortdate {
     display: none;
 }
+
+.pta-reschedule-table th {
+    padding-right: 0.5em;
+    font-weight: bold;
+}

@@ -105,11 +105,17 @@ class PTA_SUS_List_Table extends WP_List_Table
         if ($this->show_trash) {
             $actions = array('untrash' => __('Restore', 'pta_volunteer_sus' ), 'delete' => __('Delete', 'pta_volunteer_sus'));
         } else {
-            $actions = array('view_signup' => __('View Sign-ups', 'pta_volunteer_sus'),
-                             'edit_sheet' => __('Edit Sheet', 'pta_volunteer_sus'),
-                             'edit_tasks' => __('Edit Tasks', 'pta_volunteer_sus'), 
-                             'copy' => __('Copy', 'pta_volunteer_sus'),
-                             'trash' => __('Trash', 'pta_volunteer_sus'));
+            $actions = array(
+                'view_signup' => __('View Sign-ups', 'pta_volunteer_sus'),
+                'edit_sheet' => __('Edit Sheet', 'pta_volunteer_sus'),
+                'edit_tasks' => __('Edit Tasks', 'pta_volunteer_sus'),
+                'copy' => __('Copy', 'pta_volunteer_sus'),
+                'reschedule' => __('Reschedule/Copy', 'pta_volunteer_sus'),
+                'trash' => __('Trash', 'pta_volunteer_sus'),
+            );
+        }
+        if('Ongoing' === $item['type'] || 'Recurring' === $item['type']) {
+            unset($actions['reschedule']); // can't reschedule Ongoing or Recurring type sheets
         }
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {

@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 3.5.3
+Version: 3.6.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.5.3');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.6.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -220,6 +220,7 @@ class PTA_Sign_Up_Sheet {
 
         // Run our reminders email check
         $this->emails->send_reminders();
+        $this->emails->send_reschedule_emails();
 
         // If automatic clearing of expired signups is enabled, run the check
         if($this->main_options['clear_expired_signups']) {
@@ -344,6 +345,26 @@ Thank You!
 {site_name}
 {site_url}
 ";
+$reschedule_template =
+"Dear {firstname} {lastname},
+
+An event you volunteered for has been rescheduled. New details are as follow:
+
+Event: {sheet_title} 
+Task/Item: {task_title}
+Date: {date}
+Start Time: {start_time}
+End Time: {end_time}
+{details_text}: {item_details}
+Item Quantity: {item_qty}
+
+If you have any questions, please contact:
+{contact_emails}
+
+Thank You!
+{site_name}
+{site_url}
+";
 $clear_template = 
 "Dear {firstname} {lastname},
 
@@ -379,6 +400,8 @@ Thank You!
                     'reminder2_email_subject' => '',
                     'reminder2_email_template' => '',
                     'reminder_email_limit' => "",
+                    'reschedule_email_subject' => 'Event Rescheduled',
+                    'reschedule_email_template' => $reschedule_template,
 	                'individual_emails' => false,
                     'admin_clear_emails' => false,
                     'no_chair_emails' => false,

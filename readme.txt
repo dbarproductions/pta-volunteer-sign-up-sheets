@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.6.0
+Tested up to: 5.7.0
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -23,6 +23,7 @@ Read the documentation here:
 
 **Features:**
 
+*   Version 3.6 adds the ability to Reschedule a sheet to new date and times, copy a sheet with new dates and times, or create multiple copies of a sheet at specified day intervals. These new functions allow optionally copying the signups, and have a new email template to notify those signups of the new dates and times.
 *   [pta_user_signups] shortcode allows you to show a list of the current logged in user's signups on any page (with clear links, if allowed).
 *   Integrates with the GDPR privacy functions of WordPress 4.9.6. Exported personal data from WordPress will include any signups for the specified email or user ID associated with that email. If the user requests their data be deleted, that same user signup data will be deleted along with all other WordPress data for that user.
 *   Option to output lists as divs instead of tables (for easier custom styling and mobile responsive design).
@@ -157,6 +158,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.6.0**
+
+*   New Feature: Reschedule/Copy, and Multi-Copy of Sheets. Reschedule allows you to change dates and times of sheet and tasks. Copy (different than the simple copy) allows you to copy the sheet, tasks, and signups (optional) to new dates and times, without deleting the original sheet. Multi-Copy allows you to specify an interval in days (such as 7 days for a weekly event), and the number of copies you wish to make, and then it will make that many copies of the sheet with new dates at the specified interval, also copying tasks and optionally copying the signups as well.
+*   New Reschedule Email Subject and Message template settings that will be used for the new Reschedule/Copy functions when you check the checkbox to send emails when using those functions. Since this could lead to a large number of emails for sheets with lots of tasks and signups, the signup IDs are saved in the database and the emails are sent out hourly during the same CRON job that sends out reminders. If you have a limit set for the max # of reminders to send out each hour, that limit is also used for Reschedule emails as well.
+*   Tested with WordPress 5.7.0
+
 **Version 3.5.3**
 
 *   Added validation check to make sure task date is not empty for Multi-Day tasks on Admin side Add/Edit tasks page.

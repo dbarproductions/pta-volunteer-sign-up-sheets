@@ -22,7 +22,7 @@ jQuery(document).ready(function($) {
     $('.pta-timepicker').timepicker({
     showPeriod: true,
     showLeadingZero: true,
-    defaultTime: '',
+    defaultTime: ''
 	});
 
     let $loading = $('#loadingDiv').hide();
@@ -46,7 +46,7 @@ jQuery(document).ready(function($) {
             //console.log(response);
             if(response) {
                 $.each(response, function(key,value) {
-                    let input = jQuery('input[name='+key+']');
+                    let input = $('input[name='+key+']');
                     if(input.length) {
                         input.val(value);
                     }
@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
                 error: function(errorThrown){
                     console.log(errorThrown);
                 }
-            })
+            });
         },
     });
 
@@ -83,7 +83,7 @@ jQuery(document).ready(function($) {
         $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
         $.each(ui.item, function(key,value){
             if('label' !== key && 'value' !== key && 'user_id' !== key) {
-                let input = jQuery('input[name='+key+']');
+                let input = $('input[name='+key+']');
                 if(input.length) {
                     input.val(value);
                 }
@@ -517,5 +517,21 @@ jQuery(document).ready(function($) {
                 }
             } );
     } );
+
+    let methodSelect = $('#pta-reschedule-sheet-form [name="method"]');
+    methodSelect.on('change', function (e){
+        let value = $(this).val();
+        if('multi-copy' === value) {
+            $('.pta-hide-if-multi').hide();
+            $('.pta-show-if-multi').show();
+            $('.singlePicker').prop('required',false);
+            $('.pta-multi-input').prop('required',true);
+        } else {
+            $('.pta-hide-if-multi').show();
+            $('.pta-show-if-multi').hide();
+            $('.singlePicker').prop('required',true);
+            $('.pta-multi-input').prop('required',false);
+        }
+    }).trigger('change');
 
 });

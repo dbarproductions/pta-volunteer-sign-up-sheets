@@ -1120,7 +1120,9 @@ class PTA_SUS_Data
     public function update_task($fields, $id, $no_signups = false) {
         $clean_fields = $this->clean_array($fields, 'task_');
         $clean_fields = array_intersect_key($clean_fields, $this->tables['task']['allowed_fields']);
-        if (!$no_signups && $clean_fields['qty'] < 2 ) $clean_fields['qty'] = 1;
+        if (!$no_signups && isset($clean_fields['qty']) && $clean_fields['qty'] < 2 ) {
+            $clean_fields['qty'] = 1;
+        }
         // wpdb->update does all necessary sanitation before updating the database
         return $this->wpdb->update($this->tables['task']['name'], $clean_fields, array('id' => $id), null, array('%d'));
     }
@@ -1167,6 +1169,12 @@ class PTA_SUS_Data
             return false;
         }
         return true;
+    }
+
+    public function clear_all_signups_for_task($task_id) {
+        $where = array('task_id' => $task_id);
+        $where_format = array('%d');
+        return $this->wpdb->delete($this->tables['signup']['name'], $where, $where_format);
     }
 
 	/**
@@ -1231,7 +1239,9 @@ class PTA_SUS_Data
             }
             
         }
-        if ($this->add_sheet($new_fields) === false) return false;
+        if ( false === $this->add_sheet($new_fields) ) {
+            return false;
+        }
         
         $new_sheet_id = $this->wpdb->insert_id;
         
@@ -1244,9 +1254,12 @@ class PTA_SUS_Data
             foreach ($this->tables['task']['allowed_fields'] AS $field=>$nothing) {
                 $new_fields['task_'.$field] = $task[$field];
             }
-            if ($this->add_task($new_fields, $new_sheet_id) === false) return false;
+            if (false === $this->add_task($new_fields, $new_sheet_id) ) {
+                return false;
+            }
             $new_task_id = $this->wpdb->insert_id;
             $old_task_id = $task['id'];
+            do_action('pta_sus_task_copied', $old_task_id, $new_task_id);
             $new_tasks[$old_task_id] = $new_task_id;
         }
         
@@ -1255,7 +1268,113 @@ class PTA_SUS_Data
         	// store array of copied tasks to temporary option for possible use in other extensions
 	        update_option('pta_sus_copied_tasks', $data);
         }
+
+        do_action('pta_sus_sheet_copied', $id, $new_sheet_id);
         
+        return $new_sheet_id;
+    }
+
+    /**
+     * Copy a sheet and all tasks to a new sheet with new dates, optionally copy signups
+     *
+     * @param    int  $id   sheet id
+     * @param   array $task_dates key must be task ID, value is SQL format date
+     * @param   array $start_times key must be task ID, value is start time
+     * @param   array $end_times key must be task ID, value is end time
+     *
+     * @return mixed
+     */
+    public function copy_sheet_to_new_dates($id, $task_dates, $start_times, $end_times, $copy_signups = false) {
+        $new_fields = array();
+
+        $first_date = min($task_dates);
+        $last_date = max($task_dates);
+        $sheet = $this->get_sheet($id);
+        if(!$sheet) return false;
+        $sheet = (array)$sheet;
+        foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
+            if('first_date' == $field) {
+                $new_fields['sheet_first_date'] = $first_date;
+            } elseif('last_date' == $field) {
+                $new_fields['sheet_last_date'] = $last_date;
+            } else {
+                $new_fields['sheet_'.$field] = $sheet[$field];
+            }
+        }
+        if ( false === $this->add_sheet($new_fields) ) {
+            return false;
+        }
+
+        $new_sheet_id = $this->wpdb->insert_id;
+
+        $new_tasks = array();
+
+        $tasks = $this->get_tasks($id);
+        if(empty($tasks)) return false;
+        foreach ($tasks AS $task) {
+            $new_fields = array();
+            $task = (array)$task;
+            $task_id = absint($task['id']);
+            foreach ($this->tables['task']['allowed_fields'] AS $field=>$nothing) {
+                if('dates' === $field) {
+                    $new_fields['task_dates'] = $task_dates[$task_id];
+                } elseif('time_start' === $field) {
+                    $new_fields['task_time_start'] = $start_times[$task_id];
+                } elseif('time_end' === $field) {
+                    $new_fields['task_time_end'] = $end_times[$task_id];
+                } elseif('sheet_id' === $field) {
+                    continue; // passed in separately to add_task method
+                } else {
+                    $new_fields['task_'.$field] = $task[$field];
+                }
+            }
+            if (false === $this->add_task($new_fields, $new_sheet_id) ) {
+                return false;
+            }
+            $new_task_id = $this->wpdb->insert_id;
+            $old_task_id = $task['id'];
+            $new_tasks[$old_task_id] = $new_task_id;
+
+            do_action('pta_sus_task_copied', $old_task_id, $new_task_id);
+
+            // Maybe copy signups
+            if($copy_signups) {
+                $signups = $this->get_signups($old_task_id);
+                if(!empty($signups)) {
+                    $date = $task_dates[$old_task_id];
+                    foreach($signups as $signup) {
+                        $signup = (array)$signup;
+                        $new_fields = array();
+                        foreach ($this->tables['signup']['allowed_fields'] AS $field=>$nothing) {
+                            if('date' === $field) {
+                                $new_fields['signup_date'] = $date;
+                            } elseif('task_id' === $field) {
+                                continue; // this is passed in separate parameter to add signup function
+                            } elseif('item_qty' === $field) {
+                                $qty = isset($signup['item_qty']) && absint($signup['item_qty']) > 0 ? absint( $signup['item_qty']) : 1;
+                                $new_fields['signup_item_qty'] = $qty;
+                            } elseif('reminder1_sent' === $field || 'reminder2_sent' === $field) {
+                                $new_fields['signup_'.$field] = false; // reset reminders for copied sheet
+                            } else {
+                                $new_fields['signup_'.$field] = $signup[$field];
+                            }
+                        }
+                        if(false === $this->add_signup($new_fields, $new_task_id)) {
+                            return false;
+                        }
+                        $new_signup_id = $this->wpdb->insert_id;
+                        do_action('pta_sus_signup_copied', $signup['id'], $new_signup_id);
+                    }
+                }
+            }
+        }
+
+        if(!empty($new_tasks)) {
+            $data = array('sheet_id' => $id, 'tasks' => $new_tasks);
+            // store array of copied tasks to temporary option for possible use in other extensions
+            update_option('pta_sus_copied_tasks', $data);
+        }
+        do_action('pta_sus_sheet_copied', $id, $new_sheet_id);
         return $new_sheet_id;
     }
 

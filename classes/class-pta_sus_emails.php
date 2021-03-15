@@ -51,7 +51,7 @@ class PTA_SUS_Emails {
     *           bool signup or reminder email
     * @return   bool
     */
-    public function send_mail($signup_id, $reminder=false, $clear=false) {
+    public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false) {
     	// are emails disabled? Don't send any emails if disabled
 	    if(isset($this->email_options['disable_emails']) && true == $this->email_options['disable_emails']) {
 	    	return true;
@@ -84,6 +84,9 @@ class PTA_SUS_Emails {
         } elseif ($clear) {
             $subject = $this->email_options['clear_email_subject'];
             $message = $this->email_options['clear_email_template'];
+        } elseif ($reschedule) {
+            $subject = $this->email_options['reschedule_email_subject'];
+            $message = $this->email_options['reschedule_email_template'];
         } else {
             $subject = $this->email_options['confirmation_email_subject'];
             $message = $this->email_options['confirmation_email_template'];
@@ -376,6 +379,77 @@ class PTA_SUS_Emails {
         update_option( 'pta_sus_last_reminders', $sent );   
         return $reminder_count;
     } // Send Reminders
+
+    public function send_reschedule_emails() {
+        $limit = false;
+        $now = current_time( 'timestamp' );
+        $reschedule_queue = get_option('pta_sus_rescheduled_signup_ids', array());
+        if(empty($reschedule_queue)) return false;
+        // This function is used to check if we need to send out reminder emails or not
+        if(isset($this->email_options['reminder_email_limit']) && '' != $this->email_options['reminder_email_limit'] && 0 < $this->email_options['reminder_email_limit']) {
+            $limit = (int)$this->email_options['reminder_email_limit'];
+            if ( $last_batch = get_option( 'pta_sus_reschedule_emails_last_batch' ) ) {
+                if( ( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] ) ) {
+                    // past our limit and less than an hour, so return
+                    return false;
+                } elseif ( $now - $last_batch['time'] >= 60 * 60 ) {
+                    // more than an hour has passed, reset last batch
+                    $last_batch['num'] = 0;
+                    $last_batch['time'] = $now;
+                }
+            } else {
+                // Option doesn't exist yet, set default
+                $last_batch = array();
+                $last_batch['num'] = 0;
+                $last_batch['time'] = $now;
+            }
+        }
+
+        $reschedule_count = 0;
+
+        if (!empty($reschedule_queue)) {
+            // Next, go through the each reschedule event and prepare/send an email
+
+            foreach ($reschedule_queue as $index => $signup_id) {
+
+                // Check if we have reached our hourly limit or not
+                if ($limit && !empty($last_batch)) {
+                    if ( $limit <= ($last_batch['num'] + $reschedule_count) ) {
+                        // limit reached, so break out of foreach loop
+                        break;
+                    }
+                }
+
+                if (true == $this->send_mail($signup_id, false, false, true )) {
+                    // Keep track of # of emails sent
+                    $reschedule_count++;
+                    unset($reschedule_queue[$index]); // remove it from queue
+                }
+            }
+
+            if($limit && !empty($last_batch)) {
+                // increment our last batch num by number of reminders sent
+                $last_batch['num'] += $reschedule_count;
+                update_option( 'pta_sus_reschedule_emails_last_batch', $last_batch );
+            }
+
+            // update queue
+            update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
+
+        }
+
+        // Set another option to save the last time any reminders were sent
+        if (!$sent = get_option('pta_sus_last_reschedule_emails')) {
+            $sent = array('time' => 0, 'num' => 0, 'last' => 0);
+        }
+        $sent['last'] = $now;
+        if ( 0 < $reschedule_count ) {
+            $sent['time'] = $now;
+            $sent['num'] = $reschedule_count;
+        }
+        update_option( 'pta_sus_last_reschedule_emails', $sent );
+        return $reschedule_count;
+    } // Send Reschedule Emails
 
 } // End of class
 /* EOF */
