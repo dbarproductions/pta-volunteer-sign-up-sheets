@@ -62,9 +62,9 @@ class PTA_SUS_Emails {
         $task = $this->data->get_task($signup->task_id);
         $sheet = $this->data->get_sheet($task->sheet_id);
 
-        do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear );
+        do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear, $reschedule );
         
-        $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear);
+        $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule);
         if (empty($from)) $from = get_bloginfo('admin_email');
 
         $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
@@ -93,8 +93,8 @@ class PTA_SUS_Emails {
         }
         
         // Allow extensions to modify subject and template
-	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear));
-	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear));
+	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule));
+	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule));
 
         // Get Chair emails
 	    if (isset($sheet->position) && '' != $sheet->position) {
@@ -115,7 +115,7 @@ class PTA_SUS_Emails {
 	    $global_cc = isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email']) ? $this->email_options['cc_email'] : '';
 	    
 	    // other plugins can modify CC address, or set it blank to disable
-	    $cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear);
+	    $cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear, $reschedule);
 	    	
         if(!empty($cc) && is_email($cc)) {
 		    if(empty($cc_emails)) {
@@ -140,9 +140,9 @@ class PTA_SUS_Emails {
 	    }
 	
 	    if(isset($this->email_options['replyto_chairs']) && true == $this->email_options['replyto_chairs'] && !empty($chair_emails)) {
-	        $replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear);
+	        $replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule);
 	    } else {
-		    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear);
+		    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule );
 	    }
 	    
 	    if (empty($replyto)) $replyto = get_bloginfo('admin_email');
@@ -156,8 +156,7 @@ class PTA_SUS_Emails {
         } else {
 	        $headers[]  = "Reply-To: " . " <" . $replyto . ">";
         }
-        //$headers[]  = "Content-Type: text/plain; charset=utf-8";
-        //$headers[]  = "Content-Transfer-Encoding: 8bit";
+
         if ( !$reminder && !$this->email_options['individual_emails'] ) {
             if (!empty($cc_emails)) {
                 // CC to all chairs for signups/clears, but not reminders
@@ -192,8 +191,8 @@ class PTA_SUS_Emails {
 		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone, $signup->email );
 	    
 	    // Allow extension to modify/add to search and replace arrays
-	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear);
-	    $replace = apply_filters('pta_sus_email_replace', $replace, $signup, $reminder, $clear);
+	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear, $reschedule);
+	    $replace = apply_filters('pta_sus_email_replace', $replace, $signup, $reminder, $clear, $reschedule);
 
 	    $message = str_replace($search, $replace, $message);
 	    $subject = str_replace($search, $replace, $subject);
@@ -205,7 +204,7 @@ class PTA_SUS_Emails {
         do_action( 'pta_sus_before_send_email', $to, $subject, $message, $headers );
 
         // Allow other plugins to determine if we should send this email -- return false to not send
-        $send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear );
+        $send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear, $reschedule );
 
         if($send_email && !empty($subject) && !empty($message)) {
         	if($this->email_options['individual_emails'] && !empty($cc_emails) && !$reminder) {

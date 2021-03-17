@@ -143,6 +143,11 @@ Yes, check out the Custom Fields extension here:
 Yes, version 3 of the Customizer Extension adds a ton of new layout options! Check out the Customizer extension here:
 <https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/>
 
+**Can I create additional custom email templates so that different sheets can have different emails?**
+
+Yes, version 3.2 of the Customizer Extension adds the ability to define custom email templates for any type of email (confirmation, reminder, reschedule, clear) and assign them on a per sheet basis:
+<https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/>
+
 **Can signup sheets be assigned to and displayed by groups or categories?**
 
 YES. The groups extension plugin now supports BuddyPress Groups as well as the Groups plugin found at WordPress.org. You can import groups from either of those plugins and can also restrict access and visibility to only members of the corresponding groups assigned to a sheet.  You can now also assign multiple groups to a sheet, and display multiple groups on a page (either in one list, or separate lists by group). This is a paid extension that can be found at: <https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/>
@@ -158,6 +163,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.6.1**
+
+*   Minor updates to filter hooks in email class to pass reschedule email variable to extensions. Needed for the Customizer extension to be able to send custom reschedule emails for different sheets.
+
 **Version 3.6.0**
 
 *   New Feature: Reschedule/Copy, and Multi-Copy of Sheets. Reschedule allows you to change dates and times of sheet and tasks. Copy (different than the simple copy) allows you to copy the sheet, tasks, and signups (optional) to new dates and times, without deleting the original sheet. Multi-Copy allows you to specify an interval in days (such as 7 days for a weekly event), and the number of copies you wish to make, and then it will make that many copies of the sheet with new dates at the specified interval, also copying tasks and optionally copying the signups as well.
