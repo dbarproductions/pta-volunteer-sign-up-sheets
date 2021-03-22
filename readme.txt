@@ -96,7 +96,7 @@ Much more! Read the documentation for all the current features.
 
 **Available Extensions:**
 
-*   [Volunteer Sign Up Sheets Customizer](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/) - Edit all public facing text displays. Customize the styling of sheet/task list tables. Create custom Layout Templates that can be assigned on a per sheet basis, to display only the columns you want in the order that you want them, and much more!
+*   [Volunteer Sign Up Sheets Customizer](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/) - Edit all public facing text displays. Customize the styling of sheet/task list tables. Create custom Layout Templates that can be assigned on a per sheet basis, to display only the columns you want in the order that you want them. Create custom emails for any email type that can be assigned on a per sheet basis, and much more!
 *   [Volunteer Sign Up Sheets Custom Fields](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/) - Create custom fields that can be used to display additional info for sheets and/or tasks, and can also be used to collect (and optionally display) additional information from users when they sign up for a task/item.
 *   [Volunteer Sign Up Sheets Calendar Display](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/) - Display your events and signups in one or more custom calendars, with a variety of display options.
 *   [Volunteer Sign Up Sheets Groups](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/) - Organize your sign up sheets by Groups, or Categories. Can also import groups from BuddyPress and the WordPress Groups extension.
@@ -163,6 +163,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.6.2**
+
+*   Minor update to add new filter hook for single sheet display to allow extensions to add content to the sheet title/header area.
+
 **Version 3.6.1**
 
 *   Minor updates to filter hooks in email class to pass reschedule email variable to extensions. Needed for the Customizer extension to be able to send custom reschedule emails for different sheets.

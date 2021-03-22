@@ -481,6 +481,8 @@ class PTA_SUS_Public {
 				    return wp_kses_post($errors) . $this->display_signup_form($_GET['task_id'], $_GET['date']);
 			    }
 		    }
+
+		    $return .= apply_filters( 'pta_sus_single_sheet_display_before_details', '', $sheet );
 		
 		    // Sheet Details
 		    if (!$this->submitted || $this->success || $this->err) {
