@@ -163,6 +163,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.6.3**
+
+*   Fix for reschedule processing function for Multi-Day events where you would get a "Task Dates are Required!" message even with all dates filled in.
+
 **Version 3.6.2**
 
 *   Minor update to add new filter hook for single sheet display to allow extensions to add content to the sheet title/header area.

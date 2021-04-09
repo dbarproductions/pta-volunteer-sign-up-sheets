@@ -470,11 +470,11 @@ class PTA_SUS_Admin {
         } elseif ('Multi-Day' === $sheet->type && 'multi-copy' !== $method) {
             foreach($tasks as $task) {
                 $id = absint($task->id);
-                if(empty($_POST['new_dates'][$id])) {
+                if(empty($_POST['new_task_date'][$id])) {
                     echo '<div class="error"><p>'. __('Task Dates are Required!', 'pta_volunteer_sus') .'</p></div>';
                     return false;
                 }
-                $new_dates[$id] = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_dates'][$id])));
+                $new_dates[$id] = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_task_date'][$id])));
             }
         }
         if('multi-copy' === $method) {
