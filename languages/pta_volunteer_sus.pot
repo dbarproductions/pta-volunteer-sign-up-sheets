@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
-"POT-Creation-Date: 2021-03-13 16:14-0800\n"
+"POT-Creation-Date: 2021-06-23 14:09-0700\n"
 "PO-Revision-Date: 2016-02-09 19:42-0800\n"
 "Last-Translator: Stephen Sherrard <stephen@dbar-productions.com>\n"
 "Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
@@ -313,14 +313,14 @@ msgid "Name"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:23
-#: classes/admin-view-signups-html.php:22 classes/class-pta_sus_public.php:1155
+#: classes/admin-view-signups-html.php:22 classes/class-pta_sus_public.php:1157
 #: views/admin-add-edit-signup-form.php:69
 msgid "E-mail"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:24
-#: classes/admin-view-signups-html.php:23 classes/class-pta_sus_public.php:904
-#: classes/class-pta_sus_public.php:1157
+#: classes/admin-view-signups-html.php:23 classes/class-pta_sus_public.php:906
+#: classes/class-pta_sus_public.php:1159
 #: views/admin-add-edit-signup-form.php:72
 msgid "Phone"
 msgstr ""
@@ -619,8 +619,8 @@ msgstr ""
 msgid "Sheet has been copied to new sheet ID #"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:1233
-#: classes/class-pta_sus_admin.php:1237 classes/class-pta_sus_admin.php:1247
+#: classes/class-pta_sus_admin.php:707 classes/class-pta_sus_admin.php:1236
+#: classes/class-pta_sus_admin.php:1240 classes/class-pta_sus_admin.php:1250
 msgid "Edit"
 msgstr ""
 
@@ -661,77 +661,81 @@ msgstr ""
 msgid "Trash "
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:820
+#: classes/class-pta_sus_admin.php:819
+msgid "You must select a sheet to move the tasks to!"
+msgstr ""
+
+#: classes/class-pta_sus_admin.php:823
 msgid "Tasks Successfully Moved!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:821
+#: classes/class-pta_sus_admin.php:824
 msgid ""
 "For changes to show, and for new task dates to be updated, please adjust "
 "tasks as needed and hit save."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:856
+#: classes/class-pta_sus_admin.php:859
 msgid "You must enter a date!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:859
+#: classes/class-pta_sus_admin.php:862
 msgid "Invalid date!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:866
+#: classes/class-pta_sus_admin.php:869
 msgid "You must enter at least two dates for a Recurring event!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:871
+#: classes/class-pta_sus_admin.php:874
 msgid "Invalid dates!  Enter at least 2 valid dates."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:909
+#: classes/class-pta_sus_admin.php:912
 msgid "Task date is a required field"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:919 classes/class-pta_sus_admin.php:987
-#: classes/class-pta_sus_admin.php:1015
+#: classes/class-pta_sus_admin.php:922 classes/class-pta_sus_admin.php:990
+#: classes/class-pta_sus_admin.php:1018
 msgid "person"
 msgid_plural "people"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/class-pta_sus_admin.php:920
+#: classes/class-pta_sus_admin.php:923
 #, php-format
 msgid ""
 "The task \"%1$s\" cannot be changed to a new date because it has %2$d %3$s "
 "signed up.  Please clear all spots first before changing this task date."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:956
+#: classes/class-pta_sus_admin.php:959
 msgid "a date"
 msgid_plural "dates"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/class-pta_sus_admin.php:957
+#: classes/class-pta_sus_admin.php:960
 msgid "that date"
 msgid_plural "those dates"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/class-pta_sus_admin.php:956
+#: classes/class-pta_sus_admin.php:959
 msgid "You are trying to remove "
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:958
+#: classes/class-pta_sus_admin.php:961
 msgid "this date"
 msgid_plural "these dates"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/class-pta_sus_admin.php:958
+#: classes/class-pta_sus_admin.php:961
 msgid "Please check "
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:989
+#: classes/class-pta_sus_admin.php:992
 #, php-format
 msgid ""
 "The number of spots for task \"%1$s\" cannot be set below %2$d because it "
@@ -739,303 +743,303 @@ msgid ""
 "updating this task."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:999
+#: classes/class-pta_sus_admin.php:1002
 msgid "You must enter at least one task!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1016
+#: classes/class-pta_sus_admin.php:1019
 #, php-format
 msgid ""
 "The task \"%1$s\" cannot be removed because it has %2$d %3$s signed up.  "
 "Please clear all spots first before removing this task."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1073
+#: classes/class-pta_sus_admin.php:1076
 msgid "task."
 msgid_plural "tasks."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/class-pta_sus_admin.php:1073
+#: classes/class-pta_sus_admin.php:1076
 #, php-format
 msgid "Error saving %d "
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1098 classes/class-pta_sus_admin.php:1195
+#: classes/class-pta_sus_admin.php:1101 classes/class-pta_sus_admin.php:1198
 msgid "Error updating sheet."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1110
+#: classes/class-pta_sus_admin.php:1113
 msgid "Error removing a task."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1130
+#: classes/class-pta_sus_admin.php:1133
 msgid ""
 "Please select a Position OR manually enter Chair contact info. NOT Both!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1133
+#: classes/class-pta_sus_admin.php:1136
 msgid "Please enter Chair Name(s) AND Email(s)!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1136
+#: classes/class-pta_sus_admin.php:1139
 msgid "Please either select a position or type in the chair contact info!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1139
+#: classes/class-pta_sus_admin.php:1142
 msgid "Please enter Chair Name(s) and Email(s)!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1177
+#: classes/class-pta_sus_admin.php:1180
 msgid "A Sheet with the same name already exists!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1185
+#: classes/class-pta_sus_admin.php:1188
 msgid "Error adding sheet."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1233 classes/class-pta_sus_admin.php:1237
-#: classes/class-pta_sus_admin.php:1247
+#: classes/class-pta_sus_admin.php:1236 classes/class-pta_sus_admin.php:1240
+#: classes/class-pta_sus_admin.php:1250
 msgid "ADD"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1233 classes/class-pta_sus_admin.php:1247
+#: classes/class-pta_sus_admin.php:1236 classes/class-pta_sus_admin.php:1250
 msgid "Tasks"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1237
+#: classes/class-pta_sus_admin.php:1240
 msgid "Sign-up Sheet"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1241 classes/class-pta_sus_admin.php:1255
+#: classes/class-pta_sus_admin.php:1244 classes/class-pta_sus_admin.php:1258
 #: classes/list-table.php:111
 msgid "Edit Tasks"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1243
+#: classes/class-pta_sus_admin.php:1246
 msgid "Dates and Tasks are added on the next page"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1248
+#: classes/class-pta_sus_admin.php:1251
 msgid "Tasks Successfully Updated!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1252 classes/list-table.php:110
+#: classes/class-pta_sus_admin.php:1255 classes/list-table.php:110
 msgid "Edit Sheet"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1253
+#: classes/class-pta_sus_admin.php:1256
 msgid "Sheet Updated!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1298 classes/list-table.php:157
+#: classes/class-pta_sus_admin.php:1301 classes/list-table.php:157
 msgid "Single"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1299 classes/list-table.php:158
+#: classes/class-pta_sus_admin.php:1302 classes/list-table.php:158
 msgid "Recurring"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1300 classes/list-table.php:159
+#: classes/class-pta_sus_admin.php:1303 classes/list-table.php:159
 msgid "Multi-Day"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1301 classes/class-pta_sus_public.php:325
+#: classes/class-pta_sus_admin.php:1304 classes/class-pta_sus_public.php:325
 #: classes/list-table.php:160
 msgid "Ongoing"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1333
+#: classes/class-pta_sus_admin.php:1336
 msgid "Select Event Type"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1345 classes/widget.php:143
+#: classes/class-pta_sus_admin.php:1348 classes/widget.php:143
 msgid "Title:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1347
+#: classes/class-pta_sus_admin.php:1350
 msgid "Title of event, program or function"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1352 classes/class-pta_sus_admin.php:1356
+#: classes/class-pta_sus_admin.php:1355 classes/class-pta_sus_admin.php:1359
 msgid "Event Type:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1367
+#: classes/class-pta_sus_admin.php:1370
 msgid "No Signup Event?"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1369
+#: classes/class-pta_sus_admin.php:1372
 msgid ""
 "Check this for an event where no sign-ups are needed (display only). You can "
 "still enter tasks, which could be used to show a schedule, but you can not "
 "enter quantities and there will be no signup links."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1374
+#: classes/class-pta_sus_admin.php:1377
 msgid "1st Reminder # of days:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1376
+#: classes/class-pta_sus_admin.php:1379
 msgid ""
 "# of days before the event date to send the first reminder. Leave blank (or "
 "0) for no automatic reminders"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1379
+#: classes/class-pta_sus_admin.php:1382
 msgid "2nd Reminder # of days:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1381
+#: classes/class-pta_sus_admin.php:1384
 msgid ""
 "# of days before the event date to send the second reminder. Leave blank (or "
 "0) for no second reminder"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1386
+#: classes/class-pta_sus_admin.php:1389
 msgid "Show Clear links for signups?"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1388
+#: classes/class-pta_sus_admin.php:1391
 msgid ""
 "<strong>Uncheck</strong> if you want to <strong>HIDE</strong> the clear link "
 "in the user's signup list. Administrators and Sign-Up Sheet Managers can "
 "still clear volunteers from signups in the admin dashboard."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1391
+#: classes/class-pta_sus_admin.php:1394
 msgid "# of days to allow clear:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1393
+#: classes/class-pta_sus_admin.php:1396
 msgid ""
 "If the above option is checked, enter the MINIMUM # of days before the "
 "signup event/item date during which volunteers can clear their signups. "
 "Leave blank (or 0) to allow them to clear themselves at any time."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1398
+#: classes/class-pta_sus_admin.php:1401
 msgid "Visible to Public?"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1400
+#: classes/class-pta_sus_admin.php:1403
 msgid ""
 "<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet "
 "from the public. Administrators and Sign-Up Sheet Managers can still see "
 "hidden sheets."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1405
+#: classes/class-pta_sus_admin.php:1408
 msgid "Allow Duplicate Signup Times?"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1407
+#: classes/class-pta_sus_admin.php:1410
 msgid ""
 "Check this to allow a volunteer to signup for more than one task (in this "
 "sheet) with overlapping time ranges."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1414
+#: classes/class-pta_sus_admin.php:1417
 msgid "Contact Info:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1420
+#: classes/class-pta_sus_admin.php:1423
 msgid "Select Position"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1428
+#: classes/class-pta_sus_admin.php:1431
 msgid "Select a program, committee, or position, to use the contact form:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1429
+#: classes/class-pta_sus_admin.php:1432
 msgid "Position:"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1433
+#: classes/class-pta_sus_admin.php:1436
 msgid ""
 "<strong><em>OR</em></strong>, manually enter chair names and contact emails "
 "below."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1438
+#: classes/class-pta_sus_admin.php:1441
 msgid "Chair Name(s):"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1440
+#: classes/class-pta_sus_admin.php:1443
 msgid "Separate multiple names with commas"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1443
+#: classes/class-pta_sus_admin.php:1446
 msgid "Chair Email(s):"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1445
+#: classes/class-pta_sus_admin.php:1448
 msgid "Separate multiple emails with commas"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1455
+#: classes/class-pta_sus_admin.php:1458
 msgid "Program/Event Details (optional):"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1466
+#: classes/class-pta_sus_admin.php:1469
 msgid "Save Sheet"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1500
+#: classes/class-pta_sus_admin.php:1503
 msgid "Invalid sheet selection"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1506
+#: classes/class-pta_sus_admin.php:1509
 msgid "Please enter a From Name"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1512
+#: classes/class-pta_sus_admin.php:1515
 msgid "Please enter a valid reply to email, or leave blank for none."
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1518
+#: classes/class-pta_sus_admin.php:1521
 msgid "Please enter a subject"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1524
+#: classes/class-pta_sus_admin.php:1527
 msgid "Please enter a message"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1532
+#: classes/class-pta_sus_admin.php:1535
 msgid "No signups found for that sheet"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1573
+#: classes/class-pta_sus_admin.php:1576
 #, php-format
 msgid "%s Emails Sent!"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1574
+#: classes/class-pta_sus_admin.php:1577
 #, php-format
 msgid "Emails sent to: %s"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1576
+#: classes/class-pta_sus_admin.php:1579
 msgid ""
 "The WordPress Mail function reported a problem sending one or more emails."
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:171 classes/class-pta_sus_emails.php:172
-#: classes/class-pta_sus_emails.php:173 classes/class-pta_sus_emails.php:177
-#: classes/class-pta_sus_emails.php:182 classes/class-pta_sus_public.php:90
+#: classes/class-pta_sus_emails.php:170 classes/class-pta_sus_emails.php:171
+#: classes/class-pta_sus_emails.php:172 classes/class-pta_sus_emails.php:176
+#: classes/class-pta_sus_emails.php:181 classes/class-pta_sus_public.php:90
 #: classes/list-table.php:66 classes/list-table.php:81
 msgid "N/A"
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:358
+#: classes/class-pta_sus_emails.php:357
 msgid "Volunteer Signup Reminders sent"
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:359 pta-volunteer-sign-up-sheets.php:232
+#: classes/class-pta_sus_emails.php:358 pta-volunteer-sign-up-sheets.php:232
 msgid "Volunteer signup sheet CRON job has been completed."
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:360
+#: classes/class-pta_sus_emails.php:359
 #, php-format
 msgid "%d reminder emails were sent."
 msgstr ""
@@ -1896,8 +1900,8 @@ msgstr ""
 msgid "View &amp; sign-up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:327 classes/class-pta_sus_public.php:976
-#: classes/class-pta_sus_public.php:1004
+#: classes/class-pta_sus_public.php:327 classes/class-pta_sus_public.php:978
+#: classes/class-pta_sus_public.php:1006
 msgid "Filled"
 msgstr ""
 
@@ -1909,8 +1913,8 @@ msgstr ""
 msgid "Sign-up sheet not found."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:392 classes/class-pta_sus_public.php:787
-#: classes/class-pta_sus_public.php:1129
+#: classes/class-pta_sus_public.php:392 classes/class-pta_sus_public.php:789
+#: classes/class-pta_sus_public.php:1131
 msgid "You don't have permission to view this page."
 msgstr ""
 
@@ -1930,128 +1934,128 @@ msgstr ""
 msgid "This sheet is currently hidden from the public."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:492
+#: classes/class-pta_sus_public.php:494
 msgid "DETAILS:"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:497
+#: classes/class-pta_sus_public.php:499
 msgid "Sign up below..."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:499
+#: classes/class-pta_sus_public.php:501
 msgid "All spots have been filled."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:536
+#: classes/class-pta_sus_public.php:538
 msgid "You have signed up for the following"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:537
+#: classes/class-pta_sus_public.php:539
 msgid "Click on Clear to remove yourself from a signup."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:599 classes/class-pta_sus_public.php:1014
+#: classes/class-pta_sus_public.php:601 classes/class-pta_sus_public.php:1016
 msgid "Clear"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:667
+#: classes/class-pta_sus_public.php:669
 msgid "You do not have any current signups"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:684
+#: classes/class-pta_sus_public.php:686
 msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:695 classes/class-pta_sus_public.php:1114
+#: classes/class-pta_sus_public.php:697 classes/class-pta_sus_public.php:1116
 msgid "Login"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:711 classes/class-pta_sus_public.php:738
+#: classes/class-pta_sus_public.php:713 classes/class-pta_sus_public.php:740
 msgid "Current Volunteer Sign-up Sheets"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:821
+#: classes/class-pta_sus_public.php:823
 msgid "No sheets currently available at this time."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:832
+#: classes/class-pta_sus_public.php:834
 msgid "Please login to view and edit your volunteer sign ups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:853
+#: classes/class-pta_sus_public.php:855
 msgid "No tasks were found for "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:901
+#: classes/class-pta_sus_public.php:903
 msgid "Available Spots"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:908
+#: classes/class-pta_sus_public.php:910
 msgid "Email"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:974
+#: classes/class-pta_sus_public.php:976
 #, php-format
 msgid "%d Filled"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:978 classes/class-pta_sus_public.php:1081
+#: classes/class-pta_sus_public.php:980 classes/class-pta_sus_public.php:1083
 #, php-format
 msgid "%d remaining: &nbsp;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:983 classes/class-pta_sus_public.php:1056
+#: classes/class-pta_sus_public.php:985 classes/class-pta_sus_public.php:1058
 msgid "Sign up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1141
+#: classes/class-pta_sus_public.php:1143
 msgid "Sign Up"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1142
+#: classes/class-pta_sus_public.php:1144
 msgid "You are signing up for... "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1144
+#: classes/class-pta_sus_public.php:1146
 #, php-format
 msgid "on %s"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1153
+#: classes/class-pta_sus_public.php:1155
 #: views/admin-add-edit-signup-form.php:67
 msgid "First Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1154
+#: classes/class-pta_sus_public.php:1156
 #: views/admin-add-edit-signup-form.php:68
 msgid "Last Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1156
+#: classes/class-pta_sus_public.php:1158
 msgid "Confirm E-mail"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1204
+#: classes/class-pta_sus_public.php:1206
 msgid ""
 "If you have an account, it is strongly recommended that you <strong>login "
 "before you sign up</strong> so that you can view and edit all your signups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1250
+#: classes/class-pta_sus_public.php:1252
 #: views/admin-add-edit-signup-form.php:159
 #, php-format
 msgid "Item QTY (1 - %d): "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1253
+#: classes/class-pta_sus_public.php:1255
 msgid "Only 1 remaining! Your quantity will be set to 1."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1275
+#: classes/class-pta_sus_public.php:1277
 msgid "Sign me up!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1276
+#: classes/class-pta_sus_public.php:1278
 msgid "&laquo; go back to the Sign-Up Sheet"
 msgstr ""
 
@@ -2517,7 +2521,11 @@ msgstr ""
 msgid "Move all tasks of this sheet to sheet"
 msgstr ""
 
-#: views/admin-task-form-html.php:131
+#: views/admin-task-form-html.php:126
+msgid "Please Select a Sheet"
+msgstr ""
+
+#: views/admin-task-form-html.php:132
 msgid "Move"
 msgstr ""
 

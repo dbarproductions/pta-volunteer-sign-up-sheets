@@ -533,5 +533,5 @@ jQuery(document).ready(function($) {
             $('.pta-multi-input').prop('required',false);
         }
     }).trigger('change');
-
+    
 });

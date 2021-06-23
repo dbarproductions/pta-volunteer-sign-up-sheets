@@ -152,7 +152,7 @@ class PTA_SUS_Admin {
 	public function add_sheet_admin_scripts($hook) {
 		// only add scripts on our settings pages
 		if (strpos($hook, 'pta-sus-settings') !== false) {
-			wp_enqueue_style( 'pta-admin-style', plugins_url( '../assets/css/pta-admin-style.css', __FILE__ ) );
+			wp_enqueue_style( 'pta-admin-style', plugins_url( '../assets/css/pta-admin-style.min.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-datatables-style' );
 			wp_enqueue_script( 'jquery-plugin' );
 			wp_enqueue_script( 'pta-jquery-datepick' );
@@ -160,7 +160,7 @@ class PTA_SUS_Admin {
 			wp_enqueue_script('pta-datatables');
 			wp_enqueue_script('jquery-ui-sortable');
 			wp_enqueue_script( 'jquery-ui-autocomplete');
-			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete'), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
+			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.min.js' , __FILE__ ), array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete'), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
 			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
@@ -815,13 +815,16 @@ class PTA_SUS_Admin {
 			check_admin_referer( 'pta_sus_move_tasks', 'pta_sus_move_tasks_nonce' );
 			$sheet_id = intval($_POST['sheet_id']);
 			$new_sheet_id = intval($_POST['new_sheet_id']);
-			$move_results = $this->data->move_tasks($sheet_id,$new_sheet_id);
-			if($move_results > 0) {
-				echo '<div class="updated"><strong>'.__('Tasks Successfully Moved!', 'pta_volunteer_sus').'</strong></div>';
-				echo '<div class="error"><p><strong>'.__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta_volunteer_sus').'</strong></p></div>';
-				$moved = true;
+			if($new_sheet_id < 1)  {
+				echo '<div class="error"><p><strong>'.__('You must select a sheet to move the tasks to!', 'pta_volunteer_sus').'</strong></p></div>';
+			} else {
+				$move_results = $this->data->move_tasks($sheet_id,$new_sheet_id);
+				if($move_results > 0) {
+					echo '<div class="updated"><strong>'.__('Tasks Successfully Moved!', 'pta_volunteer_sus').'</strong></div>';
+					echo '<div class="error"><p><strong>'.__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta_volunteer_sus').'</strong></p></div>';
+					$moved = true;
+				}
 			}
-
 
 		} elseif ($tasks_submitted) {
 			// Tasks

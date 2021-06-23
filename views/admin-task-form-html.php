@@ -122,7 +122,8 @@ if (count($rows)>1) : ?>
 	<input type="hidden" name="sheet_id" value="<?php echo (int)$f["sheet_id"]; ?>" />
 	<input type="hidden" name="tasks_mode" value="move_tasks" />
 	<label for="new_sheet_id"><?php _e('Move all tasks of this sheet to sheet', 'pta_volunteer_sus'); ?></label>
-	<select id="new_sheet_id" name="new_sheet_id">
+	<select id="new_sheet_id" name="new_sheet_id" required>
+        <option value=""><?php _e("Please Select a Sheet", "pta_volunteer_sus"); ?></option>
 	<?php foreach ($rows as $row) :
 		if ($row->id == $f["sheet_id"]) continue; ?>
 		<option value=<?php echo esc_attr($row->id); ?>><?php echo esc_html($row->title); ?></option>

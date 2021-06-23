@@ -1291,7 +1291,7 @@ class PTA_SUS_Public {
     public function add_css_and_js_to_frontend() {
 
 	    if ( ! isset( $this->main_options['disable_css'] ) || false == $this->main_options['disable_css'] ) {
-		    wp_register_style( 'pta-sus-style', plugins_url( '../assets/css/style.css', __FILE__ ) );
+		    wp_register_style( 'pta-sus-style', plugins_url( '../assets/css/style.min.css', __FILE__ ) );
 		    wp_enqueue_style( 'pta-sus-style' );
 	    }
 
@@ -1299,7 +1299,7 @@ class PTA_SUS_Public {
 		    wp_register_style( 'pta-sus-autocomplete', plugins_url( '../assets/css/jquery.autocomplete.css', __FILE__ ) );
 		    wp_enqueue_style( 'pta-sus-autocomplete' );
 		    wp_enqueue_script( 'jquery-ui-autocomplete' );
-		    wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.js', __FILE__ ) );
+		    wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.min.js', __FILE__ ) );
 		    wp_localize_script( 'pta-sus-frontend', 'ptaSUS', array(
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'ptanonce' => wp_create_nonce( 'ajax-pta-nonce' )

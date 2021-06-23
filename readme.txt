@@ -1,10 +1,10 @@
 === Volunteer Sign Up Sheets ===
 Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
-Tags: Volunteer, Sign Up, Signup, Signups, Events
+Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.7.0
+Tested up to: 5.7.2
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -19,7 +19,7 @@ You may submit new features here:
 Read the documentation here:
 <https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/>
 
-**An alternative to sites like Signup Genius for your events, this plugin lets you keep your signup sheets on your own site. Easily create and manage sign up sheets for your school, organization, business, or anything else that where need people to sign up.**
+**An alternative to sites like Signup Genius for your events, this plugin lets you keep your signup sheets on your own site. Easily create and manage sign up sheets for your school, organization, business, or anything else where need people to sign up.**
 
 **Features:**
 
@@ -163,6 +163,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.7.0**
+
+*   Minimize admin and public js and css files
+*   Add default empty selection to the move tasks select box, on the admin Edit Tasks page, and make it a required field, so that the move tasks button is not accidentally submitted instead of the save button
+
 **Version 3.6.3**
 
 *   Fix for reschedule processing function for Multi-Day events where you would get a "Task Dates are Required!" message even with all dates filled in.
