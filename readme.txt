@@ -163,6 +163,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 3.7.1**
+
+*   Remove any commas in first or last name part of the TO email address for any sent emails, as WordPress would treat the text as a comma separated list of emails and cause delivery issues
+*   Tested with WordPress 5.8.2
+
 **Version 3.7.0**
 
 *   Minimize admin and public js and css files

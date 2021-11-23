@@ -68,6 +68,7 @@ class PTA_SUS_Emails {
         if (empty($from)) $from = get_bloginfo('admin_email');
 
         $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
+		$to = str_replace( ',', '', $to);
     
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
