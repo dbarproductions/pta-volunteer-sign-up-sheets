@@ -3,11 +3,11 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 3.7.1
+Version: 4.0.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
-Text Domain: pta_volunteer_sus
+Text Domain: pta-volunteer-sign-up-sheets
 Domain Path: /languages
 */
 
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '3.7.1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.0.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -228,9 +228,9 @@ class PTA_Sign_Up_Sheet {
             $results = $this->data->delete_expired_signups();
             if($results && $this->main_options['enable_cron_notifications']) {
                 $to = get_bloginfo( 'admin_email' );
-                $subject = __("Volunteer Signup Housekeeping Completed!", 'pta_volunteer_sus');
-                $message = __("Volunteer signup sheet CRON job has been completed.", 'pta_volunteer_sus')."\n\n" . 
-                sprintf(__("%d expired signups were deleted.", 'pta_volunteer_sus'), (int)$results) . "\n\n";
+                $subject = __("Volunteer Signup Housekeeping Completed!", 'pta-volunteer-sign-up-sheets');
+                $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
+                sprintf(__("%d expired signups were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
                 wp_mail($to, $subject, $message);            
             }
         }
@@ -246,7 +246,7 @@ class PTA_Sign_Up_Sheet {
     }
 
     public function init() {
-        load_plugin_textdomain( 'pta_volunteer_sus', false, dirname(plugin_basename( __FILE__ )) . '/languages/' );
+        load_plugin_textdomain( 'pta-volunteer-sign-up-sheets', false, dirname(plugin_basename( __FILE__ )) . '/languages/' );
         // Check our database version and run the activate function if needed
         $current = get_option( "pta_sus_db_version" );
         if ($current < $this->db_version) {
@@ -387,27 +387,29 @@ Thank You!
 {site_name}
 {site_url}
 ";
-        $defaults = array(
-                    'cc_email' => '',
-                    'from_email' => get_bloginfo( $show='admin_email' ),
-                    'replyto_email' => get_bloginfo( $show='admin_email' ),
-                    'confirmation_email_subject' => 'Thank you for volunteering!',
-                    'confirmation_email_template' => $confirm_template,
-                    'clear_email_subject' => 'Volunteer spot cleared!',
-                    'clear_email_template' => $clear_template,
-                    'reminder_email_subject' => 'Volunteer Reminder',
-                    'reminder_email_template' => $remind_template,
-                    'reminder2_email_subject' => '',
-                    'reminder2_email_template' => '',
-                    'reminder_email_limit' => "",
-                    'reschedule_email_subject' => 'Event Rescheduled',
-                    'reschedule_email_template' => $reschedule_template,
-	                'individual_emails' => false,
-                    'admin_clear_emails' => false,
-                    'no_chair_emails' => false,
-                    'disable_emails' => false,
-                    'replyto_chairs' => false,
-                    );
+	    $defaults = array(
+		    'cc_email'                    => '',
+		    'from_email'                  => get_bloginfo( $show = 'admin_email' ),
+		    'replyto_email'               => get_bloginfo( $show = 'admin_email' ),
+		    'confirmation_email_subject'  => 'Thank you for volunteering!',
+		    'confirmation_email_template' => $confirm_template,
+		    'clear_email_subject'         => 'Volunteer spot cleared!',
+		    'clear_email_template'        => $clear_template,
+		    'reminder_email_subject'      => 'Volunteer Reminder',
+		    'reminder_email_template'     => $remind_template,
+		    'reminder2_email_subject'     => '',
+		    'reminder2_email_template'    => '',
+		    'reminder_email_limit'        => "",
+		    'reschedule_email_subject'    => 'Event Rescheduled',
+		    'reschedule_email_template'   => $reschedule_template,
+		    'individual_emails'           => false,
+		    'admin_clear_emails'          => false,
+		    'no_chair_emails'             => false,
+		    'no_confirmation_emails'      => false,
+		    'no_reminder_emails'          => false,
+		    'disable_emails'              => false,
+		    'replyto_chairs'              => false,
+	    );
         $options = get_option( 'pta_volunteer_sus_email_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
         foreach ($defaults as $key => $value) {
@@ -728,11 +730,11 @@ endif; // class exists
 $pta_vol_sus_plugin_file = 'pta-volunteer-sign-up-sheets/pta-volunteer-sign-up-sheets.php';
 add_filter( "plugin_action_links_{$pta_vol_sus_plugin_file}", 'pta_vol_sus_plugin_action_links', 10, 2 );
 function pta_vol_sus_plugin_action_links( $links, $file ) {
-    $extensions_link = '<a href="https://stephensherrardplugins.com">' . __( 'Extensions', 'pta_volunteer_sus' ) . '</a>';
+    $extensions_link = '<a href="https://stephensherrardplugins.com">' . __( 'Extensions', 'pta-volunteer-sign-up-sheets' ) . '</a>';
     array_unshift( $links, $extensions_link );
-    $docs_link = '<a href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/">' . __( 'Docs', 'pta_volunteer_sus' ) . '</a>';
+    $docs_link = '<a href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/">' . __( 'Docs', 'pta-volunteer-sign-up-sheets' ) . '</a>';
     array_unshift( $links, $docs_link );
-    $settings_link = '<a href="' . admin_url( 'admin.php?page=pta-sus-settings_settings' ) . '">' . __( 'Settings', 'pta_volunteer_sus' ) . '</a>';
+    $settings_link = '<a href="' . admin_url( 'admin.php?page=pta-sus-settings_settings' ) . '">' . __( 'Settings', 'pta-volunteer-sign-up-sheets' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
@@ -748,7 +750,7 @@ function pta_vol_sus_plugin_action_links( $links, $file ) {
  */
 function pta_sus_register_exporters( $exporters ) {
 	$exporters[] = array(
-		'exporter_friendly_name' => __( 'Volunteer Sign Up Data', 'pta_volunteer_sus' ),
+		'exporter_friendly_name' => __( 'Volunteer Sign Up Data', 'pta-volunteer-sign-up-sheets' ),
 		'callback'               => 'pta_sus_user_data_exporter',
 	);
 	return $exporters;
@@ -786,7 +788,7 @@ function pta_sus_user_data_exporter($email_address, $page = 1) {
  */
 function pta_sus_plugin_register_erasers( $erasers = array() ) {
 	$erasers[] = array(
-		'eraser_friendly_name' => __( 'Volunteer Sign Up Data', 'pta_volunteer_sus' ),
+		'eraser_friendly_name' => __( 'Volunteer Sign Up Data', 'pta-volunteer-sign-up-sheets' ),
 		'callback'               => 'pta_sus_user_data_eraser',
 	);
 	return $erasers;

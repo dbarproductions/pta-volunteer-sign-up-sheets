@@ -20,7 +20,8 @@ class PTA_SUS_AJAX {
 
 		// pta_sus_EVENT => nopriv
 		$ajax_events = array(
-			'live_search'         => true,
+			'live_search'           => true,
+			'get_tasks_for_sheet'   => false,
 		);
 
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -82,8 +83,72 @@ class PTA_SUS_AJAX {
 			exit;
 		}
     }
-	
 
+	public static function get_tasks_for_sheet() {
+		check_ajax_referer( 'ajax-pta-nonce', 'security' );
+		$response = array('success' => false, 'message' => __('There was a problem getting tasks for the selected event','pta-volunteer-sign-up-sheets'), 'tasks' => array(), 'dates' => array(), 'admin' => false);
+		$sheet_id = isset($_POST['sheet_id']) ? absint($_POST['sheet_id']) : 0;
+		$old_task_id = isset($_POST['old_task_id']) ? absint($_POST['old_task_id']) : 0;
+		$old_signup_id = isset($_POST['old_signup_id']) ? absint($_POST['old_signup_id']) : 0;
+		$qty = isset($_POST['qty']) ? absint( $_POST['qty']) : 1;
+		global $pta_sus;
+		$sheet = $pta_sus->get_sheet($sheet_id);
+		if($sheet) {
+
+			$sheet_tasks = $pta_sus->get_tasks($sheet_id);
+			$available_task_ids = array();
+
+
+			if(!empty($sheet_tasks)) {
+				$tasks = array();
+				foreach ($sheet_tasks as $sheet_task) {
+					if($old_task_id == $sheet_task->id) {
+						// if task IDs are the same, don't use if not recurring type sheet (can't move to same task unless it has more than 1 date)
+		                $sheet = $pta_sus->get_sheet($sheet_task->sheet_id);
+		                if($sheet && 'Recurring' !== $sheet->type) {
+		                    continue; // skip so can't select same task
+		                }
+					}
+					$display = $sheet_task->title;
+					$time = $location = '';
+					// Maybe add a start time, if is set
+					if(!empty($sheet_task->time_start)) {
+						$time = sprintf(__(' - starting at: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime( get_option('time_format'), strtotime($sheet_task->time_start)));
+					}
+
+					$task_dates = $pta_sus->data->get_sanitized_dates($sheet_task->dates);
+					$check_date = false;
+					if($old_task_id == $sheet_task->id && count($task_dates) > 1) {
+						$old_signup = $pta_sus->get_signup($old_signup_id);
+						if($old_signup) {
+							$check_date = $old_signup->date;
+						}
+					}
+
+		            foreach ($task_dates as $date) {
+		            	if($check_date && $date == $check_date) {
+		            		// can't move to same date
+		            		continue;
+			            }
+						// Check available qty
+			            $available = $pta_sus->data->get_available_qty($sheet_task->id, $date, $sheet_task->qty);
+						if(!$available || $qty > $available) {
+							continue; // not enough left
+						}
+	                    if('0000-00-00' === $date) {
+		                    $date_display = __(' - Ongoing','pta-volunteer-sign-up-sheets');
+			            } else {
+	                        $date_display = sprintf(__('on %s','pta-volunteer-sign-up-sheets') ,pta_datetime(get_option('date_format'), strtotime($date)));
+		                }
+	                    $key = $sheet_task->id . '|'.$date;
+	                    $tasks[$key] = $display . ' '.$date_display . $time . $location;
+		            }
+				}
+				$response = array('success' => true, 'message' => '', 'tasks' => $tasks);
+			}
+		}
+		wp_send_json( $response);
+	}
 
 }
 

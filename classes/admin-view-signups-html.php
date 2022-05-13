@@ -12,19 +12,20 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
 // Allow extensions to add columns
-$columns = apply_filters('pta_sus_admin_view_signups_columns', array(
-	'date'      => __('Date', 'pta_volunteer_sus'),
-	'task'      => __('Task/Item', 'pta_volunteer_sus'),
-	'start'     => __('Start Time', 'pta_volunteer_sus'),
-	'end'       => __('End Time', 'pta_volunteer_sus'),
-	'slot'      => '#',
-	'name'      => __('Name', 'pta_volunteer_sus'),
-	'email'     => __('E-mail', 'pta_volunteer_sus'),
-	'phone'     => __('Phone', 'pta_volunteer_sus'),
-	'details'   => __('Item Details', 'pta_volunteer_sus'),
-	'qty'       => __('Item Qty', 'pta_volunteer_sus'),
-	'actions'   => __('Actions', 'pta_volunteer_sus')
-), $sheet);
+$columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
+	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
+	'task'        => __( 'Task/Item', 'pta-volunteer-sign-up-sheets' ),
+	'description' => __( 'Task Description', 'pta-volunteer-sign-up-sheets' ),
+	'start'       => __( 'Start Time', 'pta-volunteer-sign-up-sheets' ),
+	'end'         => __( 'End Time', 'pta-volunteer-sign-up-sheets' ),
+	'slot'        => '#',
+	'name'        => __( 'Name', 'pta-volunteer-sign-up-sheets' ),
+	'email'       => __( 'E-mail', 'pta-volunteer-sign-up-sheets' ),
+	'phone'       => __( 'Phone', 'pta-volunteer-sign-up-sheets' ),
+	'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
+	'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
+	'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' )
+), $sheet );
 $num_cols = count($columns);
 
 ?>
@@ -91,7 +92,7 @@ $num_cols = count($columns);
                         <?php
                     } elseif ('actions' === $slug) {
                         ?>
-                        <td class="add-signup"><a href="<?php echo esc_url($nonced_add_url); ?>" title="<?php echo esc_attr(__('Add Signup','pta_volunteer_sus')); ?>"><span class="dashicons dashicons-plus"></span></a></td>
+                        <td class="add-signup"><a href="<?php echo esc_url($nonced_add_url); ?>" title="<?php echo esc_attr(__('Add Signup','pta-volunteer-sign-up-sheets')); ?>"><span class="dashicons dashicons-plus"></span></a></td>
                         <?php
                     } else {
                         ?>

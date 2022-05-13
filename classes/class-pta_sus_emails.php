@@ -53,7 +53,15 @@ class PTA_SUS_Emails {
     */
     public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false) {
     	// are emails disabled? Don't send any emails if disabled
-	    if(isset($this->email_options['disable_emails']) && true == $this->email_options['disable_emails']) {
+	    if( isset($this->email_options['disable_emails']) && $this->email_options['disable_emails'] ) {
+	    	return true;
+	    }
+		// Maybe don't send confirmation emails
+		if( isset($this->email_options['no_confirmation_emails']) && $this->email_options['no_confirmation_emails'] && !($reminder || $clear || $reschedule)) {
+	    	return true;
+	    }
+		// Maybe don't send reminder emails
+		if( isset($this->email_options['no_reminder_emails']) && $this->email_options['no_reminder_emails'] && $reminder) {
 	    	return true;
 	    }
 	    
@@ -168,18 +176,18 @@ class PTA_SUS_Emails {
         }
 
         // Calculate some Variables for display
-        $date = ($signup->date == '0000-00-00') ? __('N/A', 'pta_volunteer_sus') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
-        $start_time = ($task->time_start == "") ? __('N/A', 'pta_volunteer_sus') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
-        $end_time = ($task->time_end == "") ? __('N/A', 'pta_volunteer_sus') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
+        $date = ($signup->date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
+        $start_time = ($task->time_start == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
+        $end_time = ($task->time_end == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
         if (isset($signup->item) && $signup->item != " ") {
         	$item = $signup->item;
         } else {
-        	$item = __('N/A', 'pta_volunteer_sus');
+        	$item = __('N/A', 'pta-volunteer-sign-up-sheets');
         }
         if (!empty($chair_emails)) {
         	$contact_emails = implode("\r\n", $chair_emails);
         } else {
-        	$contact_emails = __('N/A', 'pta_volunteer_sus');
+        	$contact_emails = __('N/A', 'pta-volunteer-sign-up-sheets');
         }
         $sheet_details = $this->convert_to_plain_text($sheet->details);
         
@@ -355,9 +363,9 @@ class PTA_SUS_Emails {
             if ( 0 < $reminder_count && $this->main_options['enable_cron_notifications'] ) {
                 // Send site admin an email with number of reminders sent
                 $to = get_bloginfo( 'admin_email' );
-                $subject = __("Volunteer Signup Reminders sent", 'pta_volunteer_sus');
-                $message = __("Volunteer signup sheet CRON job has been completed.", 'pta_volunteer_sus')."\r\n\r\n";
-                $message .= sprintf( __("%d reminder emails were sent.", 'pta_volunteer_sus'), $reminder_count ) ."\r\n\r\n"; 
+                $subject = __("Volunteer Signup Reminders sent", 'pta-volunteer-sign-up-sheets');
+                $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\r\n\r\n";
+                $message .= sprintf( __("%d reminder emails were sent.", 'pta-volunteer-sign-up-sheets'), $reminder_count ) ."\r\n\r\n";
                 // If enabled, add details of all reminders sent to the admin notification email
                 if ($this->main_options['detailed_reminder_admin_emails']) {
                     $message .= "Messages Sent:\r\n\r\n";

@@ -9,23 +9,24 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $sheets = $this->data->get_sheets($show_trash = false, $active_only = false, $show_hidden = true);
 $sheets = apply_filters('pta_sus_admin_view_all_data_sheets', $sheets);
 if(empty($sheets)) {
-	echo '<div class="error"><p>'.__('No data to show.', 'pta_volunteer_sus').'</p></div>';
+	echo '<div class="error"><p>'.__('No data to show.', 'pta-volunteer-sign-up-sheets').'</p></div>';
 }
 // Allow extensions to add columns
-$columns = apply_filters('pta_sus_admin_view_all_data_columns', array(
-    'date'      => __('Date', 'pta_volunteer_sus'),
-    'sheet'     => __('Sheet', 'pta_volunteer_sus'),
-	'task'      => __('Task/Item', 'pta_volunteer_sus'),
-	'start'     => __('Start Time', 'pta_volunteer_sus'),
-	'end'       => __('End Time', 'pta_volunteer_sus'),
-	'slot'      => '#',
-	'name'      => __('Name', 'pta_volunteer_sus'),
-	'email'     => __('E-mail', 'pta_volunteer_sus'),
-	'phone'     => __('Phone', 'pta_volunteer_sus'),
-	'details'   => __('Item Details', 'pta_volunteer_sus'),
-	'qty'       => __('Item Qty', 'pta_volunteer_sus'),
-	'actions'   => __('Actions', 'pta_volunteer_sus')
-));
+$columns = apply_filters( 'pta_sus_admin_view_all_data_columns', array(
+	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
+	'sheet'       => __( 'Sheet', 'pta-volunteer-sign-up-sheets' ),
+	'task'        => __( 'Task/Item', 'pta-volunteer-sign-up-sheets' ),
+	'description' => __( 'Task Description', 'pta-volunteer-sign-up-sheets' ),
+	'start'       => __( 'Start Time', 'pta-volunteer-sign-up-sheets' ),
+	'end'         => __( 'End Time', 'pta-volunteer-sign-up-sheets' ),
+	'slot'        => '#',
+	'name'        => __( 'Name', 'pta-volunteer-sign-up-sheets' ),
+	'email'       => __( 'E-mail', 'pta-volunteer-sign-up-sheets' ),
+	'phone'       => __( 'Phone', 'pta-volunteer-sign-up-sheets' ),
+	'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
+	'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
+	'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' )
+) );
 $num_cols = count($columns);
 
 ?>
@@ -86,7 +87,7 @@ $num_cols = count($columns);
                     $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
                     $start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
                     $end = apply_filters( 'pta_sus_admin_signup_display_end', ("" == $task->time_end) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_end)), $task );
-                    $remaining_text = sprintf(__('%d remaining', 'pta_volunteer_sus'), (int)$remaining);
+                    $remaining_text = sprintf(__('%d remaining', 'pta-volunteer-sign-up-sheets'), (int)$remaining);
                     $show_all_slots = isset($this->main_options['show_all_slots_for_all_data']) && true == $this->main_options['show_all_slots_for_all_data'];
                     if($show_all_slots) {
                         for ($x=$i+1; $x<=$task->qty; $x++) { ?>

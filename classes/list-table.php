@@ -63,7 +63,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                 return $item[$column_name];
             case 'first_date':
             case 'last_date':
-                return ($item[$column_name] == '0000-00-00') ? __("N/A", 'pta_volunteer_sus') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
+                return ($item[$column_name] == '0000-00-00') ? __("N/A", 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
             case 'num_dates':
                 $dates = $this->data->get_all_task_dates($item['id']);
                 if(!$dates) {
@@ -78,7 +78,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                 if ($count > 0) {
                     return $count;
                 } else {
-                    return __("N/A", 'pta_volunteer_sus');
+                    return __("N/A", 'pta-volunteer-sign-up-sheets');
                 }
             case 'task_num':
                 return count($this->data->get_tasks($item['id']));
@@ -103,15 +103,15 @@ class PTA_SUS_List_Table extends WP_List_Table
     {
         // Set actions
         if ($this->show_trash) {
-            $actions = array('untrash' => __('Restore', 'pta_volunteer_sus' ), 'delete' => __('Delete', 'pta_volunteer_sus'));
+            $actions = array('untrash' => __('Restore', 'pta-volunteer-sign-up-sheets' ), 'delete' => __('Delete', 'pta-volunteer-sign-up-sheets'));
         } else {
             $actions = array(
-                'view_signup' => __('View Sign-ups', 'pta_volunteer_sus'),
-                'edit_sheet' => __('Edit Sheet', 'pta_volunteer_sus'),
-                'edit_tasks' => __('Edit Tasks', 'pta_volunteer_sus'),
-                'copy' => __('Copy', 'pta_volunteer_sus'),
-                'reschedule' => __('Reschedule/Copy', 'pta_volunteer_sus'),
-                'trash' => __('Trash', 'pta_volunteer_sus'),
+                'view_signup' => __('View Sign-ups', 'pta-volunteer-sign-up-sheets'),
+                'edit_sheet' => __('Edit Sheet', 'pta-volunteer-sign-up-sheets'),
+                'edit_tasks' => __('Edit Tasks', 'pta-volunteer-sign-up-sheets'),
+                'copy' => __('Copy', 'pta-volunteer-sign-up-sheets'),
+                'reschedule' => __('Reschedule/Copy', 'pta-volunteer-sign-up-sheets'),
+                'trash' => __('Trash', 'pta-volunteer-sign-up-sheets'),
             );
         }
         if('Ongoing' === $item['type'] || 'Recurring' === $item['type']) {
@@ -139,7 +139,7 @@ class PTA_SUS_List_Table extends WP_List_Table
 
     function column_visible($item) {
         if (true == $item['visible']) {
-            $display = __("Yes", 'pta_volunteer_sus');
+            $display = __("Yes", 'pta-volunteer-sign-up-sheets');
         } else {
             $display = '<strong><span style="color:red;">'.__("NO", "pta_volunteer_sus").'</span></strong>';
         }
@@ -154,10 +154,10 @@ class PTA_SUS_List_Table extends WP_List_Table
     function column_type($item) {
         $sheet_types = apply_filters( 'pta_sus_sheet_form_sheet_types', 
         array(
-            'Single' => __('Single', 'pta_volunteer_sus'), 
-            'Recurring' => __('Recurring', 'pta_volunteer_sus'), 
-            'Multi-Day' => __('Multi-Day', 'pta_volunteer_sus'), 
-            'Ongoing' => __('Ongoing', 'pta_volunteer_sus')
+            'Single' => __('Single', 'pta-volunteer-sign-up-sheets'),
+            'Recurring' => __('Recurring', 'pta-volunteer-sign-up-sheets'),
+            'Multi-Day' => __('Multi-Day', 'pta-volunteer-sign-up-sheets'),
+            'Ongoing' => __('Ongoing', 'pta-volunteer-sign-up-sheets')
             ));
         $type = $item['type'];
         return esc_html($sheet_types[$type]);
@@ -182,16 +182,16 @@ class PTA_SUS_List_Table extends WP_List_Table
     function get_columns()
     {
         $columns = apply_filters( 'pta_sus_list_table_columns', array(
-            'id'                => __('ID#', 'pta_volunteer_sus'),
-            'title'             => __('Title', 'pta_volunteer_sus'),
-            'visible'           => __('Visible', 'pta_volunteer_sus'),
-            'type'              => __('Event Type', 'pta_volunteer_sus'),
-            'first_date'        => __('First Date', 'pta_volunteer_sus'),
-            'last_date'         => __('Last Date', 'pta_volunteer_sus'),
-            'num_dates'         => __('# Dates', 'pta_volunteer_sus'),
-            'task_num'          => __('# Tasks', 'pta_volunteer_sus'),
-            'spot_num'          => __('Total Spots', 'pta_volunteer_sus'),
-            'filled_spot_num'   => __('Filled Spots', 'pta_volunteer_sus'),
+            'id'                => __('ID#', 'pta-volunteer-sign-up-sheets'),
+            'title'             => __('Title', 'pta-volunteer-sign-up-sheets'),
+            'visible'           => __('Visible', 'pta-volunteer-sign-up-sheets'),
+            'type'              => __('Event Type', 'pta-volunteer-sign-up-sheets'),
+            'first_date'        => __('First Date', 'pta-volunteer-sign-up-sheets'),
+            'last_date'         => __('Last Date', 'pta-volunteer-sign-up-sheets'),
+            'num_dates'         => __('# Dates', 'pta-volunteer-sign-up-sheets'),
+            'task_num'          => __('# Tasks', 'pta-volunteer-sign-up-sheets'),
+            'spot_num'          => __('Total Spots', 'pta-volunteer-sign-up-sheets'),
+            'filled_spot_num'   => __('Filled Spots', 'pta-volunteer-sign-up-sheets'),
         ) );
         
         // Add checkbox if bulk actions is available
@@ -227,13 +227,13 @@ class PTA_SUS_List_Table extends WP_List_Table
 
         if ($this->show_trash) {
             $actions = array(
-                'bulk_delete' => __('Delete', 'pta_volunteer_sus'),
-                'bulk_restore' => __('Restore', 'pta_volunteer_sus')
+                'bulk_delete' => __('Delete', 'pta-volunteer-sign-up-sheets'),
+                'bulk_restore' => __('Restore', 'pta-volunteer-sign-up-sheets')
             );
         } else {
             $actions = array(
-                'bulk_trash' => __('Move to Trash', 'pta_volunteer_sus'),
-                'bulk_toggle_visibility' => __('Toggle Visibility', 'pta_volunteer_sus')
+                'bulk_trash' => __('Move to Trash', 'pta-volunteer-sign-up-sheets'),
+                'bulk_toggle_visibility' => __('Toggle Visibility', 'pta-volunteer-sign-up-sheets')
             );
         }
         
@@ -266,10 +266,10 @@ class PTA_SUS_List_Table extends WP_List_Table
                 if ($trashed) {
                     $count++;
                 } else {
-                    echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta_volunteer_sus'), $id).'</p></div>';
+                    echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
             }
-            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been moved to the trash.", 'pta_volunteer_sus'), $count).'</p></div>';
+            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been moved to the trash.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
         } elseif ('bulk_delete' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
@@ -277,10 +277,10 @@ class PTA_SUS_List_Table extends WP_List_Table
                 if ($deleted) {
                     $count++;
                 } else {
-                    echo '<div class="error"><p>'.sprintf(__("Error deleting sheet# %d.", 'pta_volunteer_sus'), $id).'</p></div>';
+                    echo '<div class="error"><p>'.sprintf(__("Error deleting sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
             }
-            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been deleted.", 'pta_volunteer_sus'), $count).'</p></div>';
+            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been deleted.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
         } elseif('bulk_restore' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
@@ -288,10 +288,10 @@ class PTA_SUS_List_Table extends WP_List_Table
                 if ($restored) {
                     $count++;
                 } else {
-                    echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta_volunteer_sus'), $id).'</p></div>';
+                    echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
             }
-            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been restored.", 'pta_volunteer_sus'), $count).'</p></div>';
+            echo '<div class="updated"><p>'.sprintf(__("%d sheets have been restored.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
         } elseif('bulk_toggle_visibility' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
@@ -299,10 +299,10 @@ class PTA_SUS_List_Table extends WP_List_Table
                 if ($toggled) {
                     $count++;
                 } else {
-                    echo '<div class="error"><p>'.sprintf(__("Error toggling visibility for sheet# %d.", 'pta_volunteer_sus'), $id).'</p></div>';
+                    echo '<div class="error"><p>'.sprintf(__("Error toggling visibility for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
             }
-            echo '<div class="updated"><p>'.sprintf(__("Visibility toggled for %d sheets.", 'pta_volunteer_sus'), $count).'</p></div>';
+            echo '<div class="updated"><p>'.sprintf(__("Visibility toggled for %d sheets.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
         }
     }
     
@@ -374,21 +374,21 @@ class PTA_SUS_List_Table extends WP_List_Table
 			?>
 			<div class="alignleft actions bulkactions">
                 <select name="pta-visible-filter" class="pta-filter">
-                    <option value=""><?php _e('Show All', 'pta_volunteer_sus'); ?></option>
-                    <option value="visible" <?php selected('visible',$visible,true); ?>><?php _e('Show Only Visible', 'pta_volunteer_sus'); ?></option>
-                    <option value="hidden" <?php selected('hidden',$visible,true); ?>><?php _e('Show Only Hidden', 'pta_volunteer_sus'); ?></option>
+                    <option value=""><?php _e('Show All', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="visible" <?php selected('visible',$visible,true); ?>><?php _e('Show Only Visible', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="hidden" <?php selected('hidden',$visible,true); ?>><?php _e('Show Only Hidden', 'pta-volunteer-sign-up-sheets'); ?></option>
                 </select>
                 <select name="pta-type-filter" class="pta-filter">
-                    <option value=""><?php _e('Show All Event Types', 'pta_volunteer_sus'); ?></option>
-                    <option value="Single" <?php selected('Single',$type,true); ?>><?php _e('Show Only Single Events', 'pta_volunteer_sus'); ?></option>
-                    <option value="Multi-Day" <?php selected('Multi-Day',$type,true); ?>><?php _e('Show Only Multi-Day Events', 'pta_volunteer_sus'); ?></option>
-                    <option value="Recurring" <?php selected('Recurring',$type,true); ?>><?php _e('Show Only Recurring Events', 'pta_volunteer_sus'); ?></option>
-                    <option value="Ongoing" <?php selected('Ongoing',$type,true); ?>><?php _e('Show Only Ongoing Events', 'pta_volunteer_sus'); ?></option>
+                    <option value=""><?php _e('Show All Event Types', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="Single" <?php selected('Single',$type,true); ?>><?php _e('Show Only Single Events', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="Multi-Day" <?php selected('Multi-Day',$type,true); ?>><?php _e('Show Only Multi-Day Events', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="Recurring" <?php selected('Recurring',$type,true); ?>><?php _e('Show Only Recurring Events', 'pta-volunteer-sign-up-sheets'); ?></option>
+                    <option value="Ongoing" <?php selected('Ongoing',$type,true); ?>><?php _e('Show Only Ongoing Events', 'pta-volunteer-sign-up-sheets'); ?></option>
                 </select>
 			</div>
 			<?php
             do_action('pta_sus_sheets_list_table_after_filters');
-			submit_button( __('Filter Sheets','pta_volunteer_sus'), '', 'pta-filter-submit', false, array( 'id' => 'filter-submit' ) );
+			submit_button( __('Filter Sheets','pta-volunteer-sign-up-sheets'), '', 'pta-filter-submit', false, array( 'id' => 'filter-submit' ) );
 		}
 	}
     

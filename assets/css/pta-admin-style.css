@@ -75,3 +75,9 @@ span.pta-sortdate {
     padding-right: 0.5em;
     font-weight: bold;
 }
+span.pta-message-close {
+    float: right;
+    padding: 5px;
+    font-size: larger;
+    font-weight: bold;
+}

@@ -10,54 +10,54 @@ if ($count < 3) $count = 3;
 ?>
 <form name="add_tasks" id="pta-sus-modify-tasks" method="post" action="">
 <?php if ( "Single" == $f['sheet_type'] ): ?>
-	<h2><?php echo __('Select the date for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
+	<h2><?php echo __('Select the date for ', 'pta-volunteer-sign-up-sheets'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
-		<label for="single_date"><strong><?php _e('Date:', 'pta_volunteer_sus'); ?></strong></label>
+		<label for="single_date"><strong><?php _e('Date:', 'pta-volunteer-sign-up-sheets'); ?></strong></label>
 		<input type="text" class="singlePicker" id="single_date" name="single_date" value="<?php echo ((isset($f['single_date']) ? esc_attr($f['single_date']) : '')); ?>" size="12" />
-		<em><?php _e('Select a date for the event.  All tasks will then be assigned to this date.', 'pta_volunteer_sus'); ?></em>
+		<em><?php _e('Select a date for the event.  All tasks will then be assigned to this date.', 'pta-volunteer-sign-up-sheets'); ?></em>
 	</p>
 <?php elseif ( "Recurring" == $f['sheet_type']): ?>
-	<h2><?php echo __('Select ALL the dates for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
+	<h2><?php echo __('Select ALL the dates for ', 'pta-volunteer-sign-up-sheets'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
-		<label for="recurring_dates"><strong><?php _e('Dates:', 'pta_volunteer_sus'); ?></strong></label>
+		<label for="recurring_dates"><strong><?php _e('Dates:', 'pta-volunteer-sign-up-sheets'); ?></strong></label>
 		<input type="text" id="multi999Picker" name="recurring_dates" value="<?php echo ((isset($f['recurring_dates']) ? esc_attr($f['recurring_dates']) : '')); ?>" size="40" />
-		<em><?php _e('Select all the dates for the event. Copies of the tasks will be created for each date.', 'pta_volunteer_sus'); ?></em>
+		<em><?php _e('Select all the dates for the event. Copies of the tasks will be created for each date.', 'pta-volunteer-sign-up-sheets'); ?></em>
 	</p>
 <?php endif; ?>
 
-<h2><?php echo __('Tasks for ', 'pta_volunteer_sus'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
-<h3><?php _e('Tasks/Items', 'pta_volunteer_sus'); ?></h3>
+<h2><?php echo __('Tasks for ', 'pta-volunteer-sign-up-sheets'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
+<h3><?php _e('Tasks/Items', 'pta-volunteer-sign-up-sheets'); ?></h3>
 <p><em><?php _e('Enter tasks or items below. Drag and drop to change sort order. Times are optional. If you need details for an item or task (such as what dish they are bringing for a lunch) check the Details Needed box.<br/>
-		Click on (+) to add additional tasks, or (-) to remove a task.  At least one task/item must be entered.  If # needed is left blank, the value will be set to 1.', 'pta_volunteer_sus'); ?></em></p>
+		Click on (+) to add additional tasks, or (-) to remove a task.  At least one task/item must be entered.  If # needed is left blank, the value will be set to 1.', 'pta-volunteer-sign-up-sheets'); ?></em></p>
 <ul class="tasks">
 <?php for ($i = 0; $i < $count; $i++) :
 	do_action( 'pta_sus_tasks_form_task_loop_start', $f, $i ); ?>
 	<li id="task-<?php echo $i; ?>">
-	<?php _e('Task/Item:', 'pta_volunteer_sus'); ?> <input type="text" name="task_title[<?php echo $i; ?>]" id="task_title[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')); ?>" size="40" />&nbsp;&nbsp;
+	<?php _e('Task/Item:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" name="task_title[<?php echo $i; ?>]" id="task_title[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')); ?>" size="40" />&nbsp;&nbsp;
 	<?php if ( "Multi-Day" == $f['sheet_type'] ) : ?>
-		<?php _e('Date:','pta_volunteer_sus'); ?> <input type="text" class="singlePicker" name="task_dates[<?php echo $i; ?>]" id="singlePicker[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')); ?>" size="10" />&nbsp;&nbsp;
+		<?php _e('Date:','pta-volunteer-sign-up-sheets'); ?> <input type="text" class="singlePicker" name="task_dates[<?php echo $i; ?>]" id="singlePicker[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')); ?>" size="10" />&nbsp;&nbsp;
 	<?php endif; ?>
 	<?php if (!$no_signups) : ?>
-		<?php _e('# Needed:','pta_volunteer_sus'); ?> <input type="text" name="task_qty[<?php echo $i; ?>]" id="task_qty[<?php echo $i; ?>]" value="<?php echo((isset($f['task_qty'][$i]) ? (int)$f['task_qty'][$i] : '')); ?>" size="3" />
+		<?php _e('# Needed:','pta-volunteer-sign-up-sheets'); ?> <input type="text" name="task_qty[<?php echo $i; ?>]" id="task_qty[<?php echo $i; ?>]" value="<?php echo((isset($f['task_qty'][$i]) ? (int)$f['task_qty'][$i] : '')); ?>" size="3" />
 	<?php endif; ?>
-	&nbsp;&nbsp;<?php _e('Start Time:', 'pta_volunteer_sus'); ?> <input type="text" class="pta-timepicker" id="timepicker_start[<?php echo $i; ?>]" name="task_time_start[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_start'][$i]) ? esc_attr($f['task_time_start'][$i]) : '')); ?>" size="10" />
-	&nbsp;&nbsp;<?php _e('End Time:', 'pta_volunteer_sus'); ?> <input type="text" class="pta-timepicker" id="timepicker_end[<?php echo $i; ?>]" name="task_time_end[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_end'][$i]) ? esc_attr($f['task_time_end'][$i]) : '')); ?>" size="10" />
+	&nbsp;&nbsp;<?php _e('Start Time:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" class="pta-timepicker" id="timepicker_start[<?php echo $i; ?>]" name="task_time_start[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_start'][$i]) ? esc_attr($f['task_time_start'][$i]) : '')); ?>" size="10" />
+	&nbsp;&nbsp;<?php _e('End Time:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" class="pta-timepicker" id="timepicker_end[<?php echo $i; ?>]" name="task_time_end[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_end'][$i]) ? esc_attr($f['task_time_end'][$i]) : '')); ?>" size="10" />
 
 	<?php do_action('pta_sus_task_form_task_loop_after_times', $f, $i); ?>
 
-	<a href="#" class="task_description_trigger"  id="description_trigger_<?php echo $i; ?>"><?php _e('Add/Edit Task Description', 'pta_volunteer_sus'); ?></a>
+	<a href="#" class="task_description_trigger"  id="description_trigger_<?php echo $i; ?>"><?php _e('Add/Edit Task Description', 'pta-volunteer-sign-up-sheets'); ?></a>
     <div class="pta_sus_task_description" id="task_description_<?php echo $i; ?>">
 	    <?php
 	    $content = isset($f['task_description'][$i]) ? wp_kses_post($f['task_description'][$i]) : '';
 	    ?>
         <p>
-            <label for="task_description[<?php echo $i; ?>]"><?php _e('Optional Task Description (HTML allowed):', 'pta_volunteer_sus'); ?></label><br/>
+            <label for="task_description[<?php echo $i; ?>]"><?php _e('Optional Task Description (HTML allowed):', 'pta-volunteer-sign-up-sheets'); ?></label><br/>
 	        <textarea name="task_description[<?php echo $i; ?>]" id="task_description[<?php echo $i; ?>]" rows="4" cols="150"><?php echo $content; ?></textarea>
         </p>
     </div>
 
 	<?php if(!$no_signups) : ?>
-		<br/><?php _e('Allow Duplicates? ', 'pta_volunteer_sus');
+		<br/><?php _e('Allow Duplicates? ', 'pta-volunteer-sign-up-sheets');
 		if (!isset($f['task_allow_duplicates'][$i])) {
 			$f['task_allow_duplicates'][$i] = "NO";
 		} ?>
@@ -66,7 +66,7 @@ if ($count < 3) $count = 3;
 			echo 'checked="checked" ';
 		} ?>
 		/>
-		&nbsp;&nbsp;<?php _e('Enable Quantities? ', 'pta_volunteer_sus');
+		&nbsp;&nbsp;<?php _e('Enable Quantities? ', 'pta-volunteer-sign-up-sheets');
 		if (!isset($f['task_enable_quantities'][$i])) {
 			$f['task_enable_quantities'][$i] = "NO";
 		} ?>
@@ -75,7 +75,7 @@ if ($count < 3) $count = 3;
 			echo 'checked="checked" ';
 		} ?>
 		/>
-		&nbsp;&nbsp;<?php _e('Details Needed? ', 'pta_volunteer_sus');
+		&nbsp;&nbsp;<?php _e('Details Needed? ', 'pta-volunteer-sign-up-sheets');
 		if (!isset($f['task_need_details'][$i])) {
 			$f['task_need_details'][$i] = "NO";
 		} ?>
@@ -84,13 +84,13 @@ if ($count < 3) $count = 3;
 			echo 'checked="checked" ';
 		} ?>
 		/>
-		<span class="pta_toggle">&nbsp;&nbsp;<?php _e('Details Required? ', 'pta_volunteer_sus'); ?>
+		<span class="pta_toggle">&nbsp;&nbsp;<?php _e('Details Required? ', 'pta-volunteer-sign-up-sheets'); ?>
 		<input type="checkbox" class="details_required" name="task_details_required[<?php echo $i; ?>]" id="task_details_required[<?php echo $i; ?>]" value="YES"
 		<?php if (isset($f['task_details_required'][$i]) &&  $f['task_details_required'][$i] === "YES") {
 			echo 'checked="checked" ';
 		} ?>
 		/></span>
-		<span class="pta_toggle"><br /><?php _e('Details text:','pta_volunteer_sus'); ?> <input type="text" class="details_text" name="task_details_text[<?php echo $i; ?>]" id="task_details_text[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_details_text'][$i]) ? esc_attr($f['task_details_text'][$i]) : __("Item you are bringing", "pta_volunteer_sus" ) )); ?>" size="25" /></span>
+		<span class="pta_toggle"><br /><?php _e('Details text:','pta-volunteer-sign-up-sheets'); ?> <input type="text" class="details_text" name="task_details_text[<?php echo $i; ?>]" id="task_details_text[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_details_text'][$i]) ? esc_attr($f['task_details_text'][$i]) : __("Item you are bringing", "pta_volunteer_sus" ) )); ?>" size="25" /></span>
 	<?php endif;
 	do_action('pta_sus_task_form_task_loop_before_li_close', $f, $i); // use this to insert extra task fields ?>
 	&nbsp;&nbsp;<input type="hidden" name="task_id[<?php echo $i; ?>]" id="task_id[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_id'][$i]) ? (int)$f['task_id'][$i] : '')); ?>" />
@@ -116,12 +116,12 @@ do_action( 'pta_sus_tasks_form_after_tasks', $f ); ?>
 // tasks move
 $rows = $this->data->get_sheets(false, false, true);
 if (count($rows)>1) : ?>
-	<h2><?php _e('Move tasks ', 'pta_volunteer_sus'); ?></h2>
+	<h2><?php _e('Move tasks ', 'pta-volunteer-sign-up-sheets'); ?></h2>
 	<form name="move_tasks" id="pta-sus-move-tasks" method="post" action="">
 	<?php wp_nonce_field('pta_sus_move_tasks','pta_sus_move_tasks_nonce'); ?>
 	<input type="hidden" name="sheet_id" value="<?php echo (int)$f["sheet_id"]; ?>" />
 	<input type="hidden" name="tasks_mode" value="move_tasks" />
-	<label for="new_sheet_id"><?php _e('Move all tasks of this sheet to sheet', 'pta_volunteer_sus'); ?></label>
+	<label for="new_sheet_id"><?php _e('Move all tasks of this sheet to sheet', 'pta-volunteer-sign-up-sheets'); ?></label>
 	<select id="new_sheet_id" name="new_sheet_id" required>
         <option value=""><?php _e("Please Select a Sheet", "pta_volunteer_sus"); ?></option>
 	<?php foreach ($rows as $row) :

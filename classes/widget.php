@@ -16,7 +16,7 @@ class PTA_SUS_Widget extends WP_Widget
 		parent::__construct(
 	 		'pta_sus_widget', // Base ID
 			'PTA Volunteer Sign-up Sheet List', // Name
-			array( 'description' => __( 'PTA Volunteer Sign-up Sheet list Widget.', 'pta_volunteer_sus' ), ) // Args
+			array( 'description' => __( 'PTA Volunteer Sign-up Sheet list Widget.', 'pta-volunteer-sign-up-sheets' ), ) // Args
 		);
 		$this->data = new PTA_SUS_Data();
 		$this->main_options = get_option('pta_volunteer_sus_main_options');
@@ -43,7 +43,7 @@ class PTA_SUS_Widget extends WP_Widget
         // Allow admin or volunteer managers to view hidden sign up sheets
         if (current_user_can( 'manage_options' ) || current_user_can( 'manage_signup_sheets' )) {
             $show_hidden = true;
-            $hidden = '<br/><span style="color:red;"><strong>(--'.__('Hidden!', 'pta_volunteer_sus').'--)</strong></span>';
+            $hidden = '<br/><span style="color:red;"><strong>(--'.__('Hidden!', 'pta-volunteer-sign-up-sheets').'--)</strong></span>';
         }
         
         $sort_by = isset($instance['sort_by']) && in_array($instance['sort_by'], array('first_date', 'last_date', 'title', 'id')) ? $instance['sort_by'] : 'first_date';
@@ -117,7 +117,7 @@ class PTA_SUS_Widget extends WP_Widget
         		echo esc_html($first_date). ' - '.esc_html($last_date);
         	}
 			if(!$sheet->no_signups) {
-				echo ' &ndash; <em>'.(int)$open_spots.' '.__('Open Spots', 'pta_volunteer_sus').'</em></li>';
+				echo ' &ndash; <em>'.(int)$open_spots.' '.__('Open Spots', 'pta-volunteer-sign-up-sheets').'</em></li>';
 			}
 
 		}
@@ -136,43 +136,43 @@ class PTA_SUS_Widget extends WP_Widget
 	 */
 	public function form( $instance ) {
 		/* Set up default widget settings. */
-		$defaults = array( 'title' => __('Current Volunteer Opportunities', 'pta_volunteer_sus'), 'num_items' => 10, 'permalink' => 'volunteer-sign-ups', 'show_what' => 'both', 'sort_by' => 'first_date', 'order' => 'ASC', 'list_class' => '');
+		$defaults = array( 'title' => __('Current Volunteer Opportunities', 'pta-volunteer-sign-up-sheets'), 'num_items' => 10, 'permalink' => 'volunteer-sign-ups', 'show_what' => 'both', 'sort_by' => 'first_date', 'order' => 'ASC', 'list_class' => '');
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		?>
 		<p>
-		<label for="<?php echo $this->get_field_name( 'title' ); ?>"><?php _e( 'Title:', 'pta_volunteer_sus' ); ?></label> 
+		<label for="<?php echo $this->get_field_name( 'title' ); ?>"><?php _e( 'Title:', 'pta-volunteer-sign-up-sheets' ); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 		</p>
 		<p>
-		<label for="<?php echo $this->get_field_name( 'num_items' ); ?>"><?php _e( '# of items to show (-1 for all):', 'pta_volunteer_sus' ); ?></label> 
+		<label for="<?php echo $this->get_field_name( 'num_items' ); ?>"><?php _e( '# of items to show (-1 for all):', 'pta-volunteer-sign-up-sheets' ); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'num_items' ); ?>" name="<?php echo $this->get_field_name( 'num_items' ); ?>" type="text" value="<?php echo esc_attr( $instance['num_items'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_name( 'show_what' ); ?>"><?php _e( 'What to show?', 'pta_volunteer_sus' ); ?></label>
+			<label for="<?php echo $this->get_field_name( 'show_what' ); ?>"><?php _e( 'What to show?', 'pta-volunteer-sign-up-sheets' ); ?></label>
 			<select class="widefat" id="<?php echo $this->get_field_id( 'show_what' ); ?>" name="<?php echo $this->get_field_name( 'show_what' ); ?>">
-				<option value="both" <?php selected($instance['show_what'], 'both' ); ?>><?php _e( 'Both', 'pta_volunteer_sus' ); ?></option>
-				<option value="signups" <?php selected($instance['show_what'], 'signups' ); ?>><?php _e( 'Volunteer Events (with sign-ups)', 'pta_volunteer_sus' ); ?></option>
-				<option value="events" <?php selected($instance['show_what'], 'events' ); ?>><?php _e( 'No Sign-Up Events (display events only)', 'pta_volunteer_sus' ); ?></option>
+				<option value="both" <?php selected($instance['show_what'], 'both' ); ?>><?php _e( 'Both', 'pta-volunteer-sign-up-sheets' ); ?></option>
+				<option value="signups" <?php selected($instance['show_what'], 'signups' ); ?>><?php _e( 'Volunteer Events (with sign-ups)', 'pta-volunteer-sign-up-sheets' ); ?></option>
+				<option value="events" <?php selected($instance['show_what'], 'events' ); ?>><?php _e( 'No Sign-Up Events (display events only)', 'pta-volunteer-sign-up-sheets' ); ?></option>
 			</select>
 		</p>
         <p>
-            <label for="<?php echo $this->get_field_name( 'sort_by' ); ?>"><?php _e( 'Sort By:', 'pta_volunteer_sus' ); ?></label>
+            <label for="<?php echo $this->get_field_name( 'sort_by' ); ?>"><?php _e( 'Sort By:', 'pta-volunteer-sign-up-sheets' ); ?></label>
             <select class="widefat" id="<?php echo $this->get_field_id( 'sort_by' ); ?>" name="<?php echo $this->get_field_name( 'sort_by' ); ?>">
-                <option value="first_date" <?php selected($instance['sort_by'], 'first_date' ); ?>><?php _e( 'First Date', 'pta_volunteer_sus' ); ?></option>
-                <option value="last_date" <?php selected($instance['sort_by'], 'last_date' ); ?>><?php _e( 'Last Date', 'pta_volunteer_sus' ); ?></option>
-                <option value="title" <?php selected($instance['sort_by'], 'title' ); ?>><?php _e( 'Title', 'pta_volunteer_sus' ); ?></option>
-                <option value="id" <?php selected($instance['sort_by'], 'id' ); ?>><?php _e( 'Sheet ID', 'pta_volunteer_sus' ); ?></option>
+                <option value="first_date" <?php selected($instance['sort_by'], 'first_date' ); ?>><?php _e( 'First Date', 'pta-volunteer-sign-up-sheets' ); ?></option>
+                <option value="last_date" <?php selected($instance['sort_by'], 'last_date' ); ?>><?php _e( 'Last Date', 'pta-volunteer-sign-up-sheets' ); ?></option>
+                <option value="title" <?php selected($instance['sort_by'], 'title' ); ?>><?php _e( 'Title', 'pta-volunteer-sign-up-sheets' ); ?></option>
+                <option value="id" <?php selected($instance['sort_by'], 'id' ); ?>><?php _e( 'Sheet ID', 'pta-volunteer-sign-up-sheets' ); ?></option>
             </select>
         </p>
         <p>
-            <label for="<?php echo $this->get_field_name( 'order' ); ?>"><?php _e( 'Sort Order:', 'pta_volunteer_sus' ); ?></label>
+            <label for="<?php echo $this->get_field_name( 'order' ); ?>"><?php _e( 'Sort Order:', 'pta-volunteer-sign-up-sheets' ); ?></label>
             <select class="widefat" id="<?php echo $this->get_field_id( 'order' ); ?>" name="<?php echo $this->get_field_name( 'order' ); ?>">
-                <option value="ASC" <?php selected($instance['order'], 'ASC' ); ?>><?php _e( 'Ascending', 'pta_volunteer_sus' ); ?></option>
-                <option value="DESC" <?php selected($instance['order'], 'DESC' ); ?>><?php _e( 'Descending', 'pta_volunteer_sus' ); ?></option>
+                <option value="ASC" <?php selected($instance['order'], 'ASC' ); ?>><?php _e( 'Ascending', 'pta-volunteer-sign-up-sheets' ); ?></option>
+                <option value="DESC" <?php selected($instance['order'], 'DESC' ); ?>><?php _e( 'Descending', 'pta-volunteer-sign-up-sheets' ); ?></option>
             </select>
         </p>
 		<p>
-		<label for="<?php echo $this->get_field_name( 'list_class' ); ?>"><?php _e( 'CSS Class for ul list of signups', 'pta_volunteer_sus' ); ?></label> 
+		<label for="<?php echo $this->get_field_name( 'list_class' ); ?>"><?php _e( 'CSS Class for ul list of signups', 'pta-volunteer-sign-up-sheets' ); ?></label>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'list_class' ); ?>" name="<?php echo $this->get_field_name( 'list_class' ); ?>" type="text" value="<?php echo esc_attr( $instance['list_class'] ); ?>" />
 		</p>
 		<?php 

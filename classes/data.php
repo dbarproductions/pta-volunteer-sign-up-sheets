@@ -673,7 +673,7 @@ class PTA_SUS_Data
 	    // If you define your own group, the first exporter to
 	    // include a label will be used as the group label in the
 	    // final exported report
-	    $group_label = __( 'User Volunteer Signup Data', 'pta_volunteer_sus' );
+	    $group_label = __( 'User Volunteer Signup Data', 'pta-volunteer-sign-up-sheets' );
 
 	    $signup_table = $this->tables['signup']['name'];
 	    $task_table = $this->tables['task']['name'];
@@ -725,19 +725,19 @@ class PTA_SUS_Data
 			    	$value .= ' - ' . esc_html($signup->item);
 			    }
 			    $data[] = array(
-			    	'name' => __('Signup Item', 'pta_volunteer_sus' ),
+			    	'name' => __('Signup Item', 'pta-volunteer-sign-up-sheets' ),
 				    'value' => $value
 			    );
 			    $data[] = array(
-				    'name' => __('Signup Name', 'pta_volunteer_sus' ),
+				    'name' => __('Signup Name', 'pta-volunteer-sign-up-sheets' ),
 				    'value' => esc_html($signup->firstname . ' ' .$signup->lastname)
 			    );
 			    $data[] = array(
-				    'name' => __('Signup Email', 'pta_volunteer_sus' ),
+				    'name' => __('Signup Email', 'pta-volunteer-sign-up-sheets' ),
 				    'value' => esc_html($signup->email)
 			    );
 			    $data[] = array(
-				    'name' => __('Signup Phone', 'pta_volunteer_sus' ),
+				    'name' => __('Signup Phone', 'pta-volunteer-sign-up-sheets' ),
 				    'value' => esc_html($signup->phone)
 			    );
 			    // Add this group of items to the exporters data array.
@@ -980,9 +980,9 @@ class PTA_SUS_Data
         foreach ($names as $name) {
             if ($i > 1) {
                 if ($i < $count) {
-                    $html_names .= _x(', ', 'contact name separating character', 'pta_volunteer_sus' );
+                    $html_names .= _x(', ', 'contact name separating character', 'pta-volunteer-sign-up-sheets' );
                 } else {
-                    $html_names .= _x(' and ', 'separator before last contact name', 'pta_volunteer_sus' );
+                    $html_names .= _x(' and ', 'separator before last contact name', 'pta-volunteer-sign-up-sheets' );
                 }                
             }
             $html_names .= $name;
@@ -1430,7 +1430,7 @@ class PTA_SUS_Data
         foreach ( $this->tables[$post_type]['required_fields'] as $required_field => $label ) {
             if( empty($clean_fields[$required_field]) ) {
                 $results['errors']++;
-                $results['message'] .= sprintf( __('%s is a required field.', 'pta_volunteer_sus'), $label ) . '<br/>';
+                $results['message'] .= sprintf( __('%s is a required field.', 'pta-volunteer-sign-up-sheets'), $label ) . '<br/>';
             }
         }
 
@@ -1441,7 +1441,7 @@ class PTA_SUS_Data
                     case 'names':
                         if (!$this->check_allowed_text($clean_fields[$field])) {
                             $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid characters in %s field.', 'pta_volunteer_sus'), $field ) .'<br/>';
+                            $results['message'] .= sprintf( __('Invalid characters in %s field.', 'pta-volunteer-sign-up-sheets'), $field ) .'<br/>';
                         }
                         break;
 
@@ -1461,7 +1461,7 @@ class PTA_SUS_Data
                         foreach ($emails as $email) {
                             if (!is_email( $email )) {
                                 $results['errors']++;
-                                $results['message'] .= __('Invalid email.', 'pta_volunteer_sus') . '<br/>';
+                                $results['message'] .= __('Invalid email.', 'pta-volunteer-sign-up-sheets') . '<br/>';
                             }
                         }
                         break;
@@ -1469,7 +1469,7 @@ class PTA_SUS_Data
                     case 'date':
                         if (!$this->check_date( $clean_fields[$field] )) {
                             $results['errors']++;
-                            $results['message'] .= __('Invalid date.', 'pta_volunteer_sus') .'<br/>';
+                            $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
                         }
                         break;
 
@@ -1483,7 +1483,7 @@ class PTA_SUS_Data
                         foreach ($dates as $date) {
                             if (!$this->check_date( $date )) {
                                 $results['errors']++;
-                                $results['message'] .= __('Invalid date.', 'pta_volunteer_sus') .'<br/>';
+                                $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
                             }
                         }
                         break;
@@ -1492,21 +1492,21 @@ class PTA_SUS_Data
                         // Validate input is only numbers
                         if (!$this->check_numbers($clean_fields[$field])) {
                             $results['errors']++;
-                            $results['message'] .= sprintf(__('Numbers only for %s please!', 'pta_volunteer_sus'), $field ) . '<br/>';
+                            $results['message'] .= sprintf(__('Numbers only for %s please!', 'pta-volunteer-sign-up-sheets'), $field ) . '<br/>';
                         }
                         break;
 
                     case 'yesno':
                         if ("YES" != $clean_fields[$field] && "NO" != $clean_fields[$field]) {
                             $results['errors']++;
-                            $results['message'] .= sprintf( __('YES or NO only for %s please!', 'pta_volunteer_sus'), $field ) . '<br/>';
+                            $results['message'] .= sprintf( __('YES or NO only for %s please!', 'pta-volunteer-sign-up-sheets'), $field ) . '<br/>';
                         }
                         break;
 
                     case 'bool':
                         if ("1" != $clean_fields[$field] && "0" != $clean_fields[$field]) {
                             $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid Value for %s', 'pta_volunteer_sus'), $field ) .'<br/>';
+                            $results['message'] .= sprintf( __('Invalid Value for %s', 'pta-volunteer-sign-up-sheets'), $field ) .'<br/>';
                         }
                         break;
 
@@ -1514,7 +1514,7 @@ class PTA_SUS_Data
                         $pattern = '/^(?:0[1-9]|1[0-2]):[0-5][0-9] (am|pm|AM|PM)$/';
                         if(!preg_match($pattern, $clean_fields[$field])){
                             $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid time format for %s', 'pta_volunteer_sus'), $field) .'<br/>';
+                            $results['message'] .= sprintf( __('Invalid time format for %s', 'pta-volunteer-sign-up-sheets'), $field) .'<br/>';
                         }
                         break;
                         

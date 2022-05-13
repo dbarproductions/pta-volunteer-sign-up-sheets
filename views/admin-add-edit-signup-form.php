@@ -7,7 +7,7 @@ $view_url = sprintf('?page=%s&action=view_signup&sheet_id=%s', $_REQUEST['page']
 $nonced_view_url = wp_nonce_url( $view_url, 'view_signup', '_sus_nonce' );
 if($success) {
 	?>
-<div class="pta-sus admin return-link"><a class="button-primary" href="<?php echo esc_url($nonced_view_url); ?>"><?php _e('RETURN TO SIGNUPS LIST', 'pta_volunteer_sus'); ?></a></div>
+<div class="pta-sus admin return-link"><a class="button-primary" href="<?php echo esc_url($nonced_view_url); ?>"><?php _e('RETURN TO SIGNUPS LIST', 'pta-volunteer-sign-up-sheets'); ?></a></div>
 	<?php
 }
 $signup_id = isset($_REQUEST['signup_id']) ? absint($_REQUEST['signup_id']) : 0;
@@ -15,12 +15,12 @@ $edit = false;
 if($signup_id > 0) {
 	$signup=$this->data->get_signup($signup_id);
 	if(empty($signup)) {
-		echo '<div class="error"><p>'.__('Invalid Signup', 'pta_volunteer_sus').'</p></div>';
+		echo '<div class="error"><p>'.__('Invalid Signup', 'pta-volunteer-sign-up-sheets').'</p></div>';
 		return;
 	}
 	$edit = true;
 }
-$add_edit_header = $edit ? __('EDIT SIGNUP', 'pta_volunteer_sus') :  __('ADD NEW SIGNUP', 'pta_volunteer_sus');
+$add_edit_header = $edit ? __('EDIT SIGNUP', 'pta-volunteer-sign-up-sheets') :  __('ADD NEW SIGNUP', 'pta-volunteer-sign-up-sheets');
 ?>
 <h2 class="pta-sus admin"><?php echo $add_edit_header; ?></h2>
 <?php
@@ -35,7 +35,7 @@ if($edit) {
 	$date = isset($_REQUEST['date']) ? sanitize_text_field($_REQUEST['date']) : 0;
 }
 if(0 === $task_id || 0 === $date) {
-	echo '<div class="error"><p>'.__('Invalid Data', 'pta_volunteer_sus').'</p></div>';
+	echo '<div class="error"><p>'.__('Invalid Data', 'pta-volunteer-sign-up-sheets').'</p></div>';
 	return;
 }
 $task = apply_filters( 'pta_sus_admin_signup_get_task', $this->data->get_task($task_id), $task_id);
@@ -47,35 +47,35 @@ if ("0000-00-00" == $date) {
 	$show_date = pta_datetime(get_option('date_format'), strtotime($date));
 }
 ?>
-<h3 class="pta-sus admin sign-up-header"><?php printf(__('TASK: %s', 'pta_volunteer_sus'), esc_html($task->title) ); ?></h3>
+<h3 class="pta-sus admin sign-up-header"><?php printf(__('TASK: %s', 'pta-volunteer-sign-up-sheets'), esc_html($task->title) ); ?></h3>
 <?php
 if ($show_date) {
     ?><div class="pta-sus admin signup_date"><?php
-	printf(__('DATE: %s', 'pta_volunteer_sus'), $show_date);
+	printf(__('DATE: %s', 'pta-volunteer-sign-up-sheets'), $show_date);
 	?></div><?php
 }
 if (!empty($task->time_start)) { ?>
-<span class="pta-sus admin time_start"><?php printf(__('TIME START: %s', 'pta_volunteer_sus'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_start))) ); ?></span><br/>
+<span class="pta-sus admin time_start"><?php printf(__('TIME START: %s', 'pta-volunteer-sign-up-sheets'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_start))) ); ?></span><br/>
 <?php
 }
 if (!empty($task->time_end)) { ?>
-<span class="pta-sus admin time_end"><?php printf(__('TIME END: %s', 'pta_volunteer_sus'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_end))) ); ?></span><br/>
+<span class="pta-sus admin time_end"><?php printf(__('TIME END: %s', 'pta-volunteer-sign-up-sheets'), esc_html(pta_datetime(get_option("time_format"), strtotime($task->time_end))) ); ?></span><br/>
 <?php
 }
 $signup_fields =array(
-    'user_id' => __('User', 'pta_volunteer_sus'),
-    'firstname' => __('First Name', 'pta_volunteer_sus'),
-    'lastname' => __('Last Name', 'pta_volunteer_sus'),
-    'email' => __('E-mail', 'pta_volunteer_sus')
+    'user_id' => __('User', 'pta-volunteer-sign-up-sheets'),
+    'firstname' => __('First Name', 'pta-volunteer-sign-up-sheets'),
+    'lastname' => __('Last Name', 'pta-volunteer-sign-up-sheets'),
+    'email' => __('E-mail', 'pta-volunteer-sign-up-sheets')
 );
 if(true !== $this->main_options['no_phone']) {
-	$signup_fields['phone'] = __('Phone', 'pta_volunteer_sus');
+	$signup_fields['phone'] = __('Phone', 'pta-volunteer-sign-up-sheets');
 }
 if('YES' === $task->need_details) {
     $signup_fields['item'] = $task->details_text;
 }
 if('YES' === $task->enable_quantities) {
-	$signup_fields['item_qty'] = __('Item QTY: ', 'pta_volunteer_sus');
+	$signup_fields['item_qty'] = __('Item QTY: ', 'pta-volunteer-sign-up-sheets');
 }
 $signup_fields = apply_filters('pta_sus_admin_signup_fields', $signup_fields, $task, $date);
 // Give other plugins a chance to modify signup data
@@ -116,7 +116,7 @@ $required_fields = $this->get_required_signup_fields($task_id);
                         <td><input type="text" id="<?php echo esc_attr($key); ?>" name="<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($saved_values[$key]); ?>" <?php echo $required; ?> />
                         <?php
                         if('firstname' === $key) {
-                            _e('Start typing in First Name field to live search by first or last name.', 'pta_volunteer_sus');
+                            _e('Start typing in First Name field to live search by first or last name.', 'pta-volunteer-sign-up-sheets');
                         }
                         ?>
                         </td>
@@ -132,9 +132,9 @@ $required_fields = $this->get_required_signup_fields($task_id);
                 <?php
                  break;
                 case 'user_id':
-                    ?><tr><th><label for="user_id"><?php _e('Assign to WP User ', 'pta_volunteer_sus'); ?></label></th><td><?php
+                    ?><tr><th><label for="user_id"><?php _e('Assign to WP User ', 'pta-volunteer-sign-up-sheets'); ?></label></th><td><?php
                     $args = array(
-                        'show_option_none'        => __('None', 'pta_volunteer_sus'),
+                        'show_option_none'        => __('None', 'pta-volunteer-sign-up-sheets'),
                         'option_none_value'       => 0,
                         'show'                    => 'display_name_with_login',
                         'selected'                => $saved_values[$key],
@@ -145,7 +145,7 @@ $required_fields = $this->get_required_signup_fields($task_id);
                     );
                     wp_dropdown_users($args);
                     ?><div id="loadingDiv" class="pta_loading"><img src="<?php echo esc_url($loading_img); ?>" alt="loading"></div>
-                    <?php _e('Select by Display Name and Email', 'pta_volunteer_sus'); ?>
+                    <?php _e('Select by Display Name and Email', 'pta-volunteer-sign-up-sheets'); ?>
                     </td></tr><?php
                     break;
                 case 'item_qty':
@@ -156,7 +156,7 @@ $required_fields = $this->get_required_signup_fields($task_id);
                     }
                     if ($task->enable_quantities == "YES") { ?>
                         <tr>
-                            <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta_volunteer_sus'), (int)$available) ); ?></label></th>
+                            <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available) ); ?></label></th>
                             <td><input type="number" id="item_qty" name="item_qty" value="<?php echo esc_attr($saved_values[$key]); ?>" min="1" max="<?php echo absint($available); ?>"/></td>
                         </tr>
                         <?php
@@ -171,8 +171,8 @@ $required_fields = $this->get_required_signup_fields($task_id);
             }
         endforeach; ?>
         <tr>
-            <th><?php _e('Send email?', 'pta_volunteer_sus'); ?></th>
-            <td><input type="checkbox" value="yes" name="send_email" /><em><?php _e('Check if an email notification should be sent to the user/volunteer.', 'pta_volunteer_sus'); ?></em></td>
+            <th><?php _e('Send email?', 'pta-volunteer-sign-up-sheets'); ?></th>
+            <td><input type="checkbox" value="yes" name="send_email" /><em><?php _e('Check if an email notification should be sent to the user/volunteer.', 'pta-volunteer-sign-up-sheets'); ?></em></td>
         </tr>
     </table>
     <p class="submit">
@@ -180,8 +180,8 @@ $required_fields = $this->get_required_signup_fields($task_id);
         <input type="hidden" name="date" value="<?php echo esc_attr($date); ?>" />
         <input type="hidden" name="task_id" value="<?php echo esc_attr($task_id); ?>" />
         <input type="hidden" name="pta_admin_signup_form_mode" value="submitted" />
-        <input type="submit" name="Submit" class="button-primary" value="<?php _e('SAVE', 'pta_volunteer_sus'); ?>" />
-        <span class="pta-sus admin return-link"><a class="button-secondary" href="<?php echo esc_url($nonced_view_url); ?>"><?php _e('CANCEL AND RETURN TO SIGNUPS LIST', 'pta_volunteer_sus'); ?></a></span>
+        <input type="submit" name="Submit" class="button-primary" value="<?php _e('SAVE', 'pta-volunteer-sign-up-sheets'); ?>" />
+        <span class="pta-sus admin return-link"><a class="button-secondary" href="<?php echo esc_url($nonced_view_url); ?>"><?php _e('CANCEL AND RETURN TO SIGNUPS LIST', 'pta-volunteer-sign-up-sheets'); ?></a></span>
     </p>
     <?php wp_nonce_field('pta_sus_admin_signup','pta_sus_admin_signup_nonce', true, true); ?>
 </form>

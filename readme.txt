@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.7.2
+Tested up to: 5.9.3
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -163,6 +163,16 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.0.0**
+
+*   NEW FEATURE: Admin can now Move a Signup to a different Sheet, Task, and/or Date. You can do this from the Admin side View Signups page. A new icon has been added after the Edit icon in the Actions column.
+*   NEW FEATURE: Email settings added to allow you to disable signup confirmation emails and/or reminder emails
+*   NEW FEATURE: Included the StateSave DataTables module for the Admin tables of View Signups and All Signup Data, which will allow you to create and view/update/delete different "states" (visible columns, sorting/filtering, etc.) of your DataTables settings for each table
+*   Added Task Description to the columns for admin view signups and view/export all data
+*   Updated DataTables to the latest version
+*   CHANGED THE TRANSLATION TEXT DOMAIN to match the directory name to enable editing of translations at the wordpress.org website. If you were using your own translation file, you need to change the filename to match the new text domain, replacing pta_volunteer_sus with pta-volunteer-sign-up-sheets . All the old translation files submitted by others have been changed to the new file names, so they should be a good starting point
+*   Tested with WordPress 5.9.3
+
 **Version 3.7.1**
 
 *   Remove any commas in first or last name part of the TO email address for any sent emails, as WordPress would treat the text as a comma separated list of emails and cause delivery issues

@@ -202,11 +202,11 @@ jQuery(document).ready(function($) {
     let ptaTableParams = {
         order: [],
         dom: '<B>lfrtip',
-        colReorder: true,
+        colReorder: false,
         responsive: false,
         stateSave: false,
         pageLength: 100,
-        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, "All" ]],
+        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, 'All']],
         buttons: [
             {
                 extend: 'excel',
@@ -304,17 +304,18 @@ jQuery(document).ready(function($) {
                     this.disable();
                 }
             },
+            'createState', 'savedStates'
         ]
     };
 
     let allTableParams = {
         order: [],
         dom: '<B>lfrtip',
-        colReorder: true,
+        colReorder: false,
         responsive: false,
         stateSave: false,
         pageLength: 100,
-        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, "All" ]],
+        lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, 'All']],
         buttons: [
             {
                 extend: 'excel',
@@ -412,6 +413,7 @@ jQuery(document).ready(function($) {
                     this.disable();
                 }
             },
+            'createState', 'savedStates'
         ]
     };
 
@@ -444,8 +446,6 @@ jQuery(document).ready(function($) {
                 this.disable();
             }
         });
-        //console.log(ptaTableParams);
-        //console.log(allTableParams);
     }
 
     var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );
@@ -533,5 +533,94 @@ jQuery(document).ready(function($) {
             $('.pta-multi-input').prop('required',false);
         }
     }).trigger('change');
+
+    // Move students form
+    let sheetID = $('#pta_sheet_id');
+    let taskSelectP = $('p.task_select');
+    let taskSelect = $('#pta_task_id');
+    let moveSubmitP = $('p.move-signup');
+    let submitButton = $('#pta-move-signup-submit');
+    let confirmP = $('p.admin_confirm');
+    let confirm = $('#pta_admin_confirm');
+    let signupQty = $('#signup_qty').val();
+
+    // When task select, show submit button if selection not empty
+    taskSelect.on('change', function(){
+
+        confirmP.hide().prop('checked', false);
+        let ptaMessage = $('#pta-ajax-messages');
+        if(ptaMessage.length) {
+            ptaMessage.remove();
+        }
+        let selectedTD =  $(this).val();
+
+        if('' !== selectedTD) {
+            confirmP.show().prop('checked', false);
+        }
+    });
+
+    // Populate tasks when sheet selected
+    sheetID.on('change', function(){
+        taskSelectP.hide();
+        taskSelect.empty();
+        moveSubmitP.hide();
+        confirmP.hide().prop('checked', false);
+        let selectedID = $(this).val();
+        let data = {
+            'action': 'pta_sus_get_tasks_for_sheet',
+            'security': PTASUS.ptaNonce,
+            'sheet_id': selectedID,
+            'old_task_id': $('#old_task_id').val(),
+            'old_signup_id': $('#old_signup_id').val(),
+            'qty': signupQty
+        };
+        $.post(ajaxurl, data, function(response) {
+            if(response) {
+                if(false === response.success && '' !== selectedID) {
+                    $('#pta-ajax-messages').html('<div id="pta-message" class="pta-sus error"><span class="pta-message-close"><a href="">X</a></span><p>' + response.message+'</p></div>');
+                    $('.pta-message-close').on('click', function(e){
+                        e.preventDefault();
+                        $('#pta-message').fadeOut('fast', function(){$('#pta-message').remove()});
+                    });
+                }
+                if(true === response.success) {
+                    let tasks = response.tasks;
+                    console.log(Object.keys(tasks).length);
+                    if($(tasks).length) {
+                        if(Object.keys(tasks).length > 1) {
+                            taskSelect.append($("<option></option>").attr("value",'').text('Please Select a Task'));
+                        } else {
+                            // show the submit button if only 1 task to select
+                            moveSubmitP.show();
+                        }
+                        if(Object.keys(tasks).length > 0) {
+                            taskSelectP.show();
+                            $.each(tasks, function(key, value){
+                                taskSelect.append($("<option></option>").attr("value",key).text(value));
+                            });
+                            if(1 === Object.keys(tasks).length) {
+                                taskSelect.trigger('change');
+                            }
+                        } else {
+                            $('#pta-ajax-messages').html('<div id="pta-message" class="pta-sus error"><span class="pta-message-close"><a href="">X</a></span><p>No Available Tasks for that event.</p></div>');
+                        }
+
+                    } else {
+                        $('#pta-ajax-messages').html('<div id="pta-message" class="pta-sus error"><span class="pta-message-close"><a href="">X</a></span><p>No Available Tasks for that event.</p></div>');
+                    }
+                }
+            }
+        });
+    }).trigger('change');
+
+    confirm.on('click change', function () {
+        if($(this).is(":checked")){
+            moveSubmitP.show();
+            submitButton.prop('disabled',false);
+        } else {
+            moveSubmitP.hide();
+            submitButton.prop('disabled',true);
+        }
+    });
     
 });
