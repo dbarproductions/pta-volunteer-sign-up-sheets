@@ -202,7 +202,7 @@ jQuery(document).ready(function($) {
     let ptaTableParams = {
         order: [],
         dom: '<B>lfrtip',
-        colReorder: false,
+        colReorder: true,
         responsive: false,
         stateSave: false,
         pageLength: 100,
@@ -311,7 +311,7 @@ jQuery(document).ready(function($) {
     let allTableParams = {
         order: [],
         dom: '<B>lfrtip',
-        colReorder: false,
+        colReorder: true,
         responsive: false,
         stateSave: false,
         pageLength: 100,
@@ -448,75 +448,59 @@ jQuery(document).ready(function($) {
         });
     }
 
-    var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );
+    function createSelectFilters(table) {
+        table.draw(); // draw to update search cache values for columns
+        // remove any existing select inputs first so that we don't get multiple select when move a column
+        $('.pta-select-filter').remove();
 
-    ptaTable.columns( '.select-filter' ).every( function () {
-        var that = this;
+        table.columns( '.select-filter' ).every( function () {
+            var that = this;
 
-        // Create the select list and search operation
-        var select = $('<select />')
-            .appendTo(
-                this.footer()
-            )
-            .on( 'change', function () {
-                var searchVal = $.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                );
-                that.search( searchVal ? '^'+searchVal+'$' : '', true, false ).draw();
-            } );
+            // Create the select list and search operation
+            var select = $('<select class="pta-select-filter" />')
+                .appendTo(
+                    this.footer()
+                )
+                .on( 'change', function () {
+                    var searchVal = $.fn.dataTable.util.escapeRegex(
+                        $(this).val()
+                    );
+                    that.search( searchVal ? '^'+searchVal+'$' : '', true, false ).draw();
+                } );
 
-        // Get the search data for the first column and add to the select list
-        select.append( $('<option value="">'+ PTASUS.showAll +'</option>') );
-        this
-            .cache( 'search' )
-            .sort()
-            .unique()
-            .each( function ( d ) {
-                if('' !== d) {
-                    let showVal = d;
-                    // remove hidden timestamp for date sorting
-                    if(d.match(/\|/)) {
-                        showVal = d.substring(11);
+
+            // Get the search data for the first column and add to the select list
+            select.append( $('<option value="">'+ PTASUS.showAll +'</option>') );
+            this
+                .cache('search')
+                .sort()
+                .unique()
+                .each( function ( d ) {
+                    if('' !== d) {
+                        let showVal = d;
+                        // remove hidden timestamp for date sorting
+                        if(d.match(/\|/)) {
+                            showVal = d.substring(11);
+                        }
+                        select.append( $('<option value="'+d+'">'+showVal+'</option>') );
                     }
-                    select.append( $('<option value="'+d+'">'+showVal+'</option>') );
-                }
-            } );
+                } );
+        } );
+    }
+
+    var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );
+    ptaTable.on( 'column-reorder', function ( e, settings, details ) {
+        createSelectFilters(ptaTable);
     } );
+    createSelectFilters(ptaTable);
 
     var allTable = $('#pta-all-data').DataTable( allTableParams );
-
-    allTable.columns( '.select-filter' ).every( function () {
-        var that = this;
-
-        // Create the select list and search operation
-        var select = $('<select />')
-            .appendTo(
-                this.footer()
-            )
-            .on( 'change', function () {
-                var seachVal = $.fn.dataTable.util.escapeRegex(
-                    $(this).val()
-                );
-                that.search( seachVal ? '^'+seachVal+'$' : '', true, false ).draw();
-            } );
-
-        // Get the search data for the first column and add to the select list
-        select.append( $('<option value="">Show All</option>') );
-        this
-            .cache( 'search' )
-            .sort()
-            .unique()
-            .each( function ( d ) {
-                if('' !== d) {
-                    let showVal = d;
-                    // remove hidden timestamp for date sorting
-                    if(d.match(/\|/)) {
-                        showVal = d.substring(11);
-                    }
-                    select.append( $('<option value="'+d+'">'+showVal+'</option>') );
-                }
-            } );
+    allTable.on( 'column-reorder', function ( e, settings, details ) {
+        createSelectFilters(allTable);
     } );
+    createSelectFilters(allTable);
+
+
 
     let methodSelect = $('#pta-reschedule-sheet-form [name="method"]');
     methodSelect.on('change', function (e){

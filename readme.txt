@@ -163,6 +163,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.1.0**
+
+*   Updated admin side scripts to allow DataTables column reordering in the View Signups and All Signup Data pages. You can now drag and drop columns to put them in the order you want them.
+
 **Version 4.0.0**
 
 *   NEW FEATURE: Admin can now Move a Signup to a different Sheet, Task, and/or Date. You can do this from the Admin side View Signups page. A new icon has been added after the Edit icon in the Actions column.
