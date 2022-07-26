@@ -77,6 +77,7 @@ class PTA_SUS_Emails {
 
         $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
 		$to = str_replace( ',', '', $to);
+	    $to = apply_filters('pta_sus_email_recipient', $to, $signup, $task, $sheet, $reminder, $clear, $reschedule);
     
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
@@ -335,7 +336,7 @@ class PTA_SUS_Emails {
                 
                 $reminder = $event->reminder_num;
 
-                if ($this->send_mail($event->signup_id, $reminder ) == TRUE) {
+                if ( $this->send_mail( $event->signup_id, $reminder ) ) {
                     // Keep track of # of reminders sent
                     $reminder_count++; 
                     // Add reminder message to reminders_log

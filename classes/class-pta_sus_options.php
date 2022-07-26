@@ -108,6 +108,7 @@ class PTA_SUS_Options {
         add_settings_field('show_login_link', __('Show Login Link?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_login_link_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('disable_signup_login_notice', __('Disable Login Notices?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_signup_login_notice_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('no_global_overlap', __('Prevent Global Overlapping Signups?', 'pta-volunteer-sign-up-sheets'), array($this, 'no_global_overlap_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('show_task_description_on_signup_form', __('Show Task Description on Signup Form?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_task_description_on_signup_form_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_cron_notifications', __('Enable CRON Notifications?', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_cron_notifications_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('detailed_reminder_admin_emails', __('Detailed Reminder Notifications?', 'pta-volunteer-sign-up-sheets'), array($this, 'detailed_reminder_admin_emails_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('skip_signups_check', __('Skip Signups Check?', 'pta-volunteer-sign-up-sheets'), array($this, 'skip_signups_check_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -218,47 +219,48 @@ class PTA_SUS_Options {
     public function pta_sus_validate_main_options($inputs) {
     	$options = "main_options";
 	    $fields = array(
-		    'enable_test_mode'                => 'bool',
-		    'test_mode_message'               => 'text',
-		    'volunteer_page_id'               => 'integer',
-		    'hide_volunteer_names'            => 'bool',
-		    'show_remaining'                  => 'bool',
-		    'hide_contact_info'               => 'bool',
-		    'show_ongoing_in_widget'          => 'bool',
-		    'show_ongoing_last'               => 'bool',
-		    'no_phone'                        => 'bool',
-		    'login_required'                  => 'bool',
-		    'login_required_signup'           => 'bool',
-		    'login_required_message'          => 'text',
-		    'login_signup_message'            => 'text',
-		    'readonly_signup'                 => 'bool',
-		    'show_login_link'                 => 'bool',
-		    'disable_signup_login_notice'     => 'bool',
-		    'enable_cron_notifications'       => 'bool',
-		    'detailed_reminder_admin_emails'  => 'bool',
-		    'show_expired_tasks'              => 'bool',
-		    'clear_expired_signups'           => 'bool',
-		    'enable_signup_search'            => 'bool',
-		    'hide_donation_button'            => 'bool',
-		    'signup_search_tables'            => 'text',
-		    'hide_details_qty'                => 'bool',
-		    'hide_signups_details_qty'        => 'bool',
-		    'signup_redirect'                 => 'bool',
-		    'phone_required'                  => 'bool',
-		    'details_required'                => 'bool',
-		    'use_divs'                        => 'bool',
-		    'disable_css'                     => 'bool',
-		    'disable_user_signups'            => 'bool',
-		    'show_full_name'                  => 'bool',
-		    'suppress_duplicates'             => 'bool',
-		    'show_remaining_slots_csv_export' => 'bool',
-		    'show_dates_csv_export'           => 'bool',
-		    'no_global_overlap'               => 'bool',
-		    'admin_only_settings'             => 'bool',
-		    'disable_datei18n'                => 'bool',
-		    'disable_grouping'                => 'bool',
-		    'show_all_slots_for_all_data'     => 'bool',
-		    'skip_signups_check'              => 'bool'
+		    'enable_test_mode'                     => 'bool',
+		    'test_mode_message'                    => 'text',
+		    'volunteer_page_id'                    => 'integer',
+		    'hide_volunteer_names'                 => 'bool',
+		    'show_remaining'                       => 'bool',
+		    'hide_contact_info'                    => 'bool',
+		    'show_ongoing_in_widget'               => 'bool',
+		    'show_ongoing_last'                    => 'bool',
+		    'no_phone'                             => 'bool',
+		    'login_required'                       => 'bool',
+		    'login_required_signup'                => 'bool',
+		    'login_required_message'               => 'text',
+		    'login_signup_message'                 => 'text',
+		    'readonly_signup'                      => 'bool',
+		    'show_login_link'                      => 'bool',
+		    'disable_signup_login_notice'          => 'bool',
+		    'enable_cron_notifications'            => 'bool',
+		    'detailed_reminder_admin_emails'       => 'bool',
+		    'show_expired_tasks'                   => 'bool',
+		    'clear_expired_signups'                => 'bool',
+		    'enable_signup_search'                 => 'bool',
+		    'hide_donation_button'                 => 'bool',
+		    'signup_search_tables'                 => 'text',
+		    'hide_details_qty'                     => 'bool',
+		    'hide_signups_details_qty'             => 'bool',
+		    'signup_redirect'                      => 'bool',
+		    'phone_required'                       => 'bool',
+		    'details_required'                     => 'bool',
+		    'use_divs'                             => 'bool',
+		    'disable_css'                          => 'bool',
+		    'disable_user_signups'                 => 'bool',
+		    'show_full_name'                       => 'bool',
+		    'suppress_duplicates'                  => 'bool',
+		    'show_remaining_slots_csv_export'      => 'bool',
+		    'show_dates_csv_export'                => 'bool',
+		    'no_global_overlap'                    => 'bool',
+		    'admin_only_settings'                  => 'bool',
+		    'disable_datei18n'                     => 'bool',
+		    'disable_grouping'                     => 'bool',
+		    'show_all_slots_for_all_data'          => 'bool',
+		    'skip_signups_check'                   => 'bool',
+		    'show_task_description_on_signup_form' => 'bool'
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -696,6 +698,18 @@ class PTA_SUS_Options {
 		<?php
 		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Checking this option will check ALL user signups, across ALL sheets, to see if the same user has already signed up for another task on the same date with overlapping times. If so, an error message will be shown and they will not be able to sign up. This is a global setting. If you only want to check for overlapping times on a single sheet, use the setting on that sheet. Checking this will ignore that per sheet setting and always check all signups for the user.', 'pta-volunteer-sign-up-sheets').'</em>';
 	}
+
+    public function show_task_description_on_signup_form_checkbox() {
+	    if(isset($this->main_options['show_task_description_on_signup_form']) && true === $this->main_options['show_task_description_on_signup_form']) {
+		    $checked = 'checked="checked"';
+	    } else {
+		    $checked = '';
+	    }
+	    ?>
+        <input name="pta_volunteer_sus_main_options[show_task_description_on_signup_form]" type="checkbox" value="1" <?php echo $checked; ?> />
+	    <?php
+	    echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Checking this option will show the task description on the signup form.', 'pta-volunteer-sign-up-sheets').'</em>';
+    }
 
     public function enable_cron_notifications_checkbox() {
         if(isset($this->main_options['enable_cron_notifications']) && true === $this->main_options['enable_cron_notifications']) {

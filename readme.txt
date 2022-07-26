@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 5.6
-Tested up to: 5.9.3
+Tested up to: 6.0.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -163,6 +163,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.2.0**
+
+*   Added option to show the task description on the signup form.
+*   Changed Quantity input to "number" type input and set minimum to 1 so can't try to submit with invalid numbers, or text, in the quantity input
+*   Tested with WordPress 6.0.1
+
 **Version 4.1.0**
 
 *   Updated admin side scripts to allow DataTables column reordering in the View Signups and All Signup Data pages. You can now drag and drop columns to put them in the order you want them.

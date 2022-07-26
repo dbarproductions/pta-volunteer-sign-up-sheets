@@ -40,7 +40,7 @@ class PTA_SUS_Public {
 	private $hidden;
 	private $date;
 	private $date_header;
-	private $show_time;
+	private $show_time = true;
 	private $phone_required;
 	private $show_full_name = false;
 	private $show_phone = false;
@@ -1152,6 +1152,11 @@ class PTA_SUS_Public {
         if ($this->show_time && !empty($task->time_end)) {
             $form .= '<span class="time_end">'.esc_html($this->end_time_header) . ': '. pta_datetime(get_option("time_format"), strtotime($task->time_end)) . '</span><br/>';
         }
+		if($this->main_options['show_task_description_on_signup_form']) {
+			if(!empty($task->description)) {
+				$form .= '<div class="pta-sus task-description">'.wp_kses_post($task->description).'</div>';
+			}
+		}
         $firstname_label = apply_filters( 'pta_sus_public_output', __('First Name', 'pta-volunteer-sign-up-sheets'), 'firstname_label' );
         $lastname_label = apply_filters( 'pta_sus_public_output', __('Last Name', 'pta-volunteer-sign-up-sheets'), 'lastname_label' );
         $email_label = apply_filters( 'pta_sus_public_output', __('E-mail', 'pta-volunteer-sign-up-sheets'), 'email_label' );
@@ -1250,7 +1255,7 @@ class PTA_SUS_Public {
             $available = $this->data->get_available_qty($task_id, $date, $task->qty);
             if ($available > 1) {
                 $form .= '<label class="required" for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
-                <input type="text" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" />';
+                <input type="number" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" min="1" />';
             } elseif ( 1 == $available) {
                 $form .= '<strong>'.apply_filters( 'pta_sus_public_output', __('Only 1 remaining! Your quantity will be set to 1.', 'pta-volunteer-sign-up-sheets'), 'only_1_remaining' ).'</strong>';
                 $form .= '<input type="hidden" name="signup_item_qty" value="1" />';
