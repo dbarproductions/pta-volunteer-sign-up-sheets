@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 4.2.0
+Version: 4.3.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPL2
@@ -18,7 +18,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.2.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.3.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -86,6 +86,9 @@ class PTA_Sign_Up_Sheet {
 	    wp_register_script( 'jquery-plugin', plugins_url( 'assets/js/jquery.plugin.min.js' , __FILE__ ), array( 'jquery' ) );
 	    wp_register_script( 'pta-jquery-datepick', plugins_url( 'assets/js/jquery.datepick.min.js' , __FILE__ ), array( 'jquery','jquery-plugin' ), '5.1.0' );
 	    wp_register_style( 'pta-jquery-datepick', plugins_url( 'assets/css/jquery.datepick.css', __FILE__ ) );
+		// Select 2 - Used by several extensions
+	    wp_register_style('pta-select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
+	    wp_register_script('pta-select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13');
     }
 
 	/**

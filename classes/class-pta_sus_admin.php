@@ -565,6 +565,8 @@ class PTA_SUS_Admin {
                     $this->data->clear_all_signups_for_task($id);
                 }
             }
+
+	        do_action( 'pta_sus_sheet_rescheduled', $sheet_id);
         }
 
         $copy_signups = !$clear_signups;
@@ -578,6 +580,7 @@ class PTA_SUS_Admin {
                 if(!empty($new_tasks)) {
                     $this->queue_reschedule_emails($new_tasks);
                 }
+	            do_action( 'pta_sus_sheet_copied', $new_sheet_id);
             }
         }
 
@@ -605,6 +608,7 @@ class PTA_SUS_Admin {
                     if(!empty($new_tasks)) {
                         $this->queue_reschedule_emails($new_tasks);
                     }
+	                do_action( 'pta_sus_sheet_copied', $new_sheet_id);
                 }
             }
         }
@@ -1581,8 +1585,12 @@ class PTA_SUS_Admin {
 		$messages = '';
 		$errors = 0;
 		// Get all needed info, or set error messages
-		if(isset($_POST['sheet_select']) && is_numeric($_POST['sheet_select'])) {
-			$sheet_id = absint($_POST['sheet_select']);
+		if(isset($_POST['sheet_select']) && ( 'users' === $_POST['sheet_select'] || is_numeric($_POST['sheet_select']) ) ) {
+			if('users' === $_POST['sheet_select']) {
+				$sheet_id = 0;
+			} else {
+				$sheet_id = absint($_POST['sheet_select']);
+			}
 		} else {
 			$errors++;
 			$messages .= '<div class="error"><p><strong>'.__('Invalid sheet selection', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
@@ -1614,8 +1622,20 @@ class PTA_SUS_Admin {
 		$individually = (isset($_POST['individually']) && 1 == absint($_POST['individually']));
 
 		if(0 == $errors) {
-			// No errors, get volunteer emails
-			$emails = $this->data->get_volunteer_emails($sheet_id);
+			// No errors, get emails
+			if($sheet_id > 0) {
+				$emails = $this->data->get_volunteer_emails($sheet_id);
+			} else {
+				$users = get_users();
+				$emails = array();
+				foreach($users as $user) {
+					/**
+					 * @var WP_User $user
+					 */
+					$emails[] = sanitize_email( $user->user_email);
+				}
+			}
+
 			if(empty($emails)) {
 				$messages .= '<div class="error"><p><strong>'.__('No signups found for that sheet', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
 			} else {

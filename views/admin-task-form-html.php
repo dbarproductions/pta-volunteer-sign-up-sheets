@@ -132,3 +132,4 @@ if (count($rows)>1) : ?>
 	<input type="submit" name="Submit" class="button-primary" value="<?php _e("Move", "pta_volunteer_sus"); ?>" />
 	</form>
 <?php endif;
+do_action( 'pta_sus_tasks_form_bottom', $f ); ?>

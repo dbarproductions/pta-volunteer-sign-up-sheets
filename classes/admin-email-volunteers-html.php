@@ -27,6 +27,7 @@ $checked = isset($_POST['individually']) ? absint($_POST['individually']) : 0;
 				<td>
 					<select name="sheet_select">
 						<option value="0"><?php _e('All Sheets', 'pta-volunteer-sign-up-sheets'); ?></option>
+                        <option value="users"><?php _e('All WordPress Users', 'pta-volunteer-sign-up-sheets'); ?></option>
 						<?php foreach ($sheets as $id => $title): ?>
 						<option value="<?php echo absint($id); ?>" <?php selected($selected, $id); ?> ><?php echo esc_html($title); ?></option>
 						<?php endforeach; ?>

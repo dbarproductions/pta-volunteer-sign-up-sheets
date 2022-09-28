@@ -163,6 +163,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.3.0**
+
+*   Added select option for all WordPress Users on the Admin Email Volunteers page, so you can now directly email all of your WordPress users.
+*   Added hooks for new extensions
+*   Register the select2 script (as 'pta-select2') so that it can be shared by several extensions that use it without having to register it separately in each extension
+*   Tested with WordPress 6.0.2
+
 **Version 4.2.0**
 
 *   Added option to show the task description on the signup form.
