@@ -1412,7 +1412,7 @@ class PTA_SUS_Data
             foreach ($vars as $k=>$v) {
                 $input->{$k} = $this->stripslashes_full($v);
             }
-        } else {
+        } elseif (!empty($input)) {
             $input = stripslashes($input);
         }
         return $input;

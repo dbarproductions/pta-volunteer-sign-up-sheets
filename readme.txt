@@ -3,8 +3,8 @@ Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
-Requires PHP: 5.6
-Tested up to: 6.0.1
+Requires PHP: 7.4
+Tested up to: 6.3.1
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
