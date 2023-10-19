@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 7.4
-Tested up to: 6.3.1
+Tested up to: 6.3.2
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -163,6 +163,18 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.4.1**
+
+*   Minor change to the way the timestamp is calculated for use on the Admin view pages (to view all signup data) to allow dataTables to properly sort the date column. An issue was discovered where some date formats in other languages could cause an issue with the calculation of the timestamp using PHP's strtotime function.
+*   Tested with PHP 8.2.10
+*   Tested with WordPress 6.3.2
+
+**Version 4.4.0**
+
+*   Minor code cleanup
+*   Tested with PHP 8.2.10
+*   Tested with WordPress 6.3.1
+
 **Version 4.3.0**
 
 *   Added select option for all WordPress Users on the Admin Email Volunteers page, so you can now directly email all of your WordPress users.

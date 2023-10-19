@@ -260,9 +260,14 @@ class PTA_SUS_Admin {
 		echo '</div>';
 	}
 	
-	public function output_signup_column_data($slug, $i, $sheet, $task, $signup, $show_date) {
+	public function output_signup_column_data($slug, $i, $sheet, $task, $signup, $task_date) {
 		if(!is_object($signup) && in_array($slug, array('name','email','phone','details','qty','actions'))) {
 			return;
+		}
+		if ("0000-00-00" == $task_date) {
+			$show_date = '';
+		} else {
+			$show_date = mysql2date( get_option('date_format'), $task_date, $translate = true );
 		}
 		switch ($slug) {
 			case 'slot':
@@ -278,7 +283,7 @@ class PTA_SUS_Admin {
 				break;
 			case 'date':
 				$date = apply_filters('pta_sus_admin_signup_display_task_date', esc_html($show_date), $task);
-				echo '<span class="pta-sortdate">'.strtotime($show_date).'|</span><strong>'.esc_html($date).'</strong>';
+				echo '<span class="pta-sortdate">'.strtotime($task_date).'|</span><strong>'.esc_html($date).'</strong>';
 				break;
 			case 'start':
 				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
