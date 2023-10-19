@@ -63,7 +63,7 @@ $num_cols = count($columns);
 			<?php foreach ($signups AS $signup): ?>
 			<tr>
 				<?php foreach ($columns as $slug => $label): ?>
-				<td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup, $show_date); ?></td>
+				<td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, $signup, $tdate); ?></td>
 				<?php endforeach; ?>
 				<?php
 					if ('YES' === $task->enable_quantities) {
@@ -96,7 +96,7 @@ $num_cols = count($columns);
                         <?php
                     } else {
                         ?>
-                        <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $show_date); ?></td>
+                        <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $tdate); ?></td>
                         <?php
                     }
                 endforeach; ?>

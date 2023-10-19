@@ -165,10 +165,6 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 == Changelog ==
 **Version 4.4.2**
 
-*   No code changes. Sync up version with tag version in SVN
-
-**Version 4.4.1**
-
 *   Minor change to the way the timestamp is calculated for use on the Admin view pages (to view all signup data) to allow dataTables to properly sort the date column. An issue was discovered where some date formats in other languages could cause an issue with the calculation of the timestamp using PHP's strtotime function.
 *   Tested with PHP 8.2.10
 *   Tested with WordPress 6.3.2

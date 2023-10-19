@@ -99,7 +99,7 @@ $num_cols = count($columns);
                                     <?php
                                 } else {
                                     ?>
-                                    <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $show_date); ?></td>
+                                    <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $tdate); ?></td>
                                     <?php
                                 }
                             endforeach; ?>
@@ -116,7 +116,7 @@ $num_cols = count($columns);
                                     <?php
                                 } else {
                                     ?>
-                                    <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $show_date); ?></td>
+                                    <td class="<?php echo esc_attr($slug); ?>"><?php $this->output_signup_column_data($slug, $i+1, $sheet, $task, false, $tdate); ?></td>
                                     <?php
                                 }
                             endforeach; ?>
