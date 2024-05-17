@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
 Requires at least: 3.3
 Requires PHP: 7.4
-Tested up to: 6.3.2
+Tested up to: 6.5.3
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -99,7 +99,9 @@ Much more! Read the documentation for all the current features.
 *   [Volunteer Sign Up Sheets Customizer](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/) - Edit all public facing text displays. Customize the styling of sheet/task list tables. Create custom Layout Templates that can be assigned on a per sheet basis, to display only the columns you want in the order that you want them. Create custom emails for any email type that can be assigned on a per sheet basis, and much more!
 *   [Volunteer Sign Up Sheets Custom Fields](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/) - Create custom fields that can be used to display additional info for sheets and/or tasks, and can also be used to collect (and optionally display) additional information from users when they sign up for a task/item.
 *   [Volunteer Sign Up Sheets Calendar Display](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/) - Display your events and signups in one or more custom calendars, with a variety of display options.
-*   [Volunteer Sign Up Sheets Groups](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/) - Organize your sign up sheets by Groups, or Categories. Can also import groups from BuddyPress and the WordPress Groups extension.
+*   [Volunteer Sign Up Sheets Groups](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/) - Organize your sign-up sheets by Groups, or Categories. Can also import groups from BuddyPress and the WordPress Groups extension.
+*   [Volunteer Sign Up Sheets Mailchimp](https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-mailchimp/) - Connects to your Mailchimp mailing list and adds a checkbox to the sign-up form where they can opt-in/opt-out of your mailing list.
+*   [Volunteer Sign Up Sheets Automated and Conditional Emails](https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-automated-and-conditional-emails/) - Allows you to set up triggers and conditions to automatically send out emails to predefined lists. Can be used for things like a weekly summary of upcoming events. Can also be used to replace most of the built-in emails with custom HTML formatted emails.
 
 == Installation ==
 
@@ -163,6 +165,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.5.0**
+
+*   Added a database check for open spots and new error message "All spots have already been filled." that will show if a spot is filled by one person while another person is still filling out the form or still browsing the list of sheets. Thus when the second person tried to view the sign-up form, or tries to submit the sign-up form, when someone else just took the last spot, a more appropriate error message will be shown to avoid any confusion.
+*   Minor code cleanup
+*   Tested with PHP 8.2.10 and WordPress 6.5.3
+
 **Version 4.4.2**
 
 *   Minor change to the way the timestamp is calculated for use on the Admin view pages (to view all signup data) to allow dataTables to properly sort the date column. An issue was discovered where some date formats in other languages could cause an issue with the calculation of the timestamp using PHP's strtotime function.

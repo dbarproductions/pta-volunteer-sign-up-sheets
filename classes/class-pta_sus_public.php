@@ -18,6 +18,7 @@ class PTA_SUS_Public {
     public $success;
     public $errors;
     public $messages;
+	public $filled = false;
     private $cleared;
     private $messages_displayed = false;
 	private $errors_displayed = false;
@@ -67,7 +68,6 @@ class PTA_SUS_Public {
         
         add_action('wp_enqueue_scripts', array($this, 'add_css_and_js_to_frontend'));
 
-        //add_action('wp_loaded', array($this, 'ajax_actions'));
         add_action('wp_loaded', array($this, 'process_signup_form'));
         add_action('wp_loaded', array($this, 'set_up_filters'));
         
@@ -139,6 +139,13 @@ class PTA_SUS_Public {
 	        
 	        $details_required = isset($task->details_required) && "YES" == $task->details_required;
 
+			$available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+			if($available < 1) {
+				$this->err++;
+				$this->filled = true;
+				$this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ).'</p>';
+			}
+
             //Error Handling
             if (
                 empty(sanitize_text_field($posted['signup_firstname']))
@@ -184,11 +191,10 @@ class PTA_SUS_Public {
                     $this->err++;
                     $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Signup Item!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'item_details_error_message' ).'</p>';
                 }
-            elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty) ) )
+            elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $available ) )
                 {
                     $this->err++;
-                    $variable = (int)$this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta-volunteer-sign-up-sheets'), $variable), 'item_quantity_error_message', $variable ).'</p>';
+                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_error_message', $variable ).'</p>';
                 }
             elseif (!$this->data->check_date($posted['signup_date']))
                 {
@@ -1126,6 +1132,21 @@ class PTA_SUS_Public {
 
         $task = apply_filters( 'pta_sus_public_signup_get_task', $this->data->get_task($task_id), $task_id);
         do_action( 'pta_sus_before_signup_form', $task, $date );
+
+		$go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $task->sheet_id);
+		$go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
+
+		$available = $this->data->get_available_qty($task->id, $date, $task->qty);
+		// Check if nothing available before showing the sign-up form, or if it was filled before they submitted the form
+		if($available < 1 && !$this->filled) {
+			$this->filled = true;
+			$message = '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ).'</p>';
+			$message .= '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
+			return $message;
+		} elseif( $this->filled ) {
+			return '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
+		}
+
 		// Give other plugins a chance to restrict signup access
 		if( ! apply_filters( 'pta_sus_can_signup', true, $task, $date ) ) {
 			return '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message' ).'</p>';
@@ -1268,8 +1289,6 @@ class PTA_SUS_Public {
         $form .= apply_filters( 'pta_sus_signup_form_after_details_field', '', $task, $date );
 
         // Spam check and form submission
-        $go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $task->sheet_id);
-        $go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
         $form .= '
 			<div style="visibility:hidden"> 
 	            <input name="website" type="text" size="20" />
