@@ -165,6 +165,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.5.1**
+
+*   Minor code change for compatibility with some custom extensions
+*   Tested with PHP 8.2.10 and WordPress 6.5.3
+
 **Version 4.5.0**
 
 *   Added a database check for open spots and new error message "All spots have already been filled." that will show if a spot is filled by one person while another person is still filling out the form or still browsing the list of sheets. Thus when the second person tried to view the sign-up form, or tries to submit the sign-up form, when someone else just took the last spot, a more appropriate error message will be shown to avoid any confusion.

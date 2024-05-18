@@ -417,12 +417,13 @@ class PTA_SUS_Admin {
 		if(!$edit) {
 			$signup_id = $result; // returns insert ID
 		}
+		// this hook needs to fire before sending emails so extensions have time to process items that may affect email find/replace template tags
+		do_action('pta_sus_admin_saved_signup', $signup_id, $task_id, $date);
 		if($send_mail) {
 			$emails = new PTA_SUS_Emails();
 			$emails->send_mail($signup_id, false, false);
 		}
 		echo '<div class="updated"><p>'.__('Signup Saved', 'pta-volunteer-sign-up-sheets').'</p></div>';
-		do_action('pta_sus_admin_saved_signup', $signup_id, $task_id, $date);
 		return true;
 	}
 
