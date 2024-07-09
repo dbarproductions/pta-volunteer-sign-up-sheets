@@ -3,10 +3,11 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 4.5.1
+Version: 4.5.2
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
-License: GPL2
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: pta-volunteer-sign-up-sheets
 Domain Path: /languages
 */
@@ -18,7 +19,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.5.1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.5.2');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -202,14 +203,14 @@ class PTA_Sign_Up_Sheet {
 	 *
 	 * @return string html signup form
 	 */
-	public function get_signup_form($task_id, $date) {
+	public function get_signup_form($task_id, $date, $skip_filled_check = false) {
 		if(!is_object($this->public)) {
 			if (!class_exists('PTA_SUS_Public')) {
 				include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
 			}
 			$this->public = new PTA_SUS_Public();
 		}
-		return $this->public->display_signup_form($task_id, $date);
+		return $this->public->display_signup_form($task_id, $date, $skip_filled_check);
 	}
 
     public function register_sus_widget() {

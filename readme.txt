@@ -1,10 +1,12 @@
 === Volunteer Sign Up Sheets ===
 Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
-Tags: Volunteer, Volunteers, Sign Up, Signup, Signups, Events
+Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 3.3
 Requires PHP: 7.4
 Tested up to: 6.5.3
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Stable tag: trunk
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -165,6 +167,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.5.2**
+
+*   Minor code changes for compatibility with custom extensions
+*   Tested with PHP 8.3.8 and WordPress 6.5.5
+
 **Version 4.5.1**
 
 *   Minor code change for compatibility with some custom extensions

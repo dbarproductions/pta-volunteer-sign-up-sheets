@@ -134,12 +134,17 @@ class PTA_SUS_Public {
 	        // Give other plugins a chance to modify signup data
 	        $posted = apply_filters('pta_sus_signup_posted_values', $_POST);
 
+	        // Moved these for compatibility with check-in extension to allow automatically adding extra slots
+	        $signup_task_id = $posted['signup_task_id'];
+	        do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
+
             $task = $this->data->get_task(intval($posted['signup_task_id']));
 	        $sheet = $this->data->get_sheet(intval($task->sheet_id));
 	        
 	        $details_required = isset($task->details_required) && "YES" == $task->details_required;
 
-			$available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+	        $available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+
 			if($available < 1) {
 				$this->err++;
 				$this->filled = true;
@@ -227,9 +232,7 @@ class PTA_SUS_Public {
             
             // Add Signup
             if (absint($this->err) < 1) {
-            	$signup_task_id = $posted['signup_task_id'];
-            	
-                do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
+
                 $signup_id=$this->data->add_signup($posted,$signup_task_id);
                 if ( $signup_id === false) {
                     $this->err++;
@@ -1115,7 +1118,7 @@ class PTA_SUS_Public {
 		return $return;
 	} // Display task list
 
-	public function display_signup_form($task_id, $date) {
+	public function display_signup_form($task_id, $date, $skip_filled_check = false) {
 		if( $this->main_options['login_required_signup'] && !is_user_logged_in()) {
 			$message = '<p class="pta-sus error">' . esc_html($this->main_options['login_signup_message']) . '</p>';
 			if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
@@ -1137,14 +1140,16 @@ class PTA_SUS_Public {
 		$go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
 
 		$available = $this->data->get_available_qty($task->id, $date, $task->qty);
-		// Check if nothing available before showing the sign-up form, or if it was filled before they submitted the form
-		if($available < 1 && !$this->filled) {
-			$this->filled = true;
-			$message = '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ).'</p>';
-			$message .= '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
-			return $message;
-		} elseif( $this->filled ) {
-			return '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
+		if(!$skip_filled_check) {
+			// Check if nothing available before showing the sign-up form, or if it was filled before they submitted the form
+			if($available < 1 && !$this->filled) {
+				$this->filled = true;
+				$message = '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ).'</p>';
+				$message .= '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
+				return $message;
+			} elseif( $this->filled ) {
+				return '<p><a class="pta-sus-link go-back" href="'.esc_url($go_back_url).'">'.esc_html( apply_filters( 'pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text' ) ).'</a></p>';
+			}
 		}
 
 		// Give other plugins a chance to restrict signup access
