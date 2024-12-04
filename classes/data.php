@@ -11,6 +11,7 @@ class PTA_SUS_Data
     public $tables = array();
     public $now;
     public $time;
+	public $main_options;
     
     public function __construct()
     {
@@ -18,6 +19,8 @@ class PTA_SUS_Data
         $this->wpdb = $wpdb;
         $this->now = current_time( 'mysql' );
         $this->time = current_time( 'timestamp' );
+
+		$this->main_options =get_option( 'pta_volunteer_sus_main_options', array() );
         
         // Set table names
         $this->tables = array(
@@ -41,6 +44,8 @@ class PTA_SUS_Data
 	                'duplicate_times' => 'bool',
                     'visible' => 'bool',
                     'trash' => 'bool',
+					'clear_emails' => 'text',
+	                'signup_emails' => 'text'
                 ),
                 'required_fields' => array(
                     'title' => 'Title',
@@ -80,6 +85,7 @@ class PTA_SUS_Data
                     'reminder1_sent' => 'bool',
                     'reminder2_sent' => 'bool',
                     'item_qty' => 'int',
+	                'ts' => 'int'
                 ),
             )),
         );
@@ -1084,6 +1090,9 @@ class PTA_SUS_Data
         if ($count > $task->qty) {
             return false;
         }
+		// set ts to current timestamp
+	    $clean_fields['ts'] = $this->time;
+
         // wpdb->insert does all necessary sanitation before inserting into database
         // $fields were also validated before this function was called
         $result=$this->wpdb->insert($this->tables['signup']['name'], $clean_fields);
@@ -1210,15 +1219,45 @@ class PTA_SUS_Data
 	 */
     public function delete_expired_signups($exclude = array()) {
     	$exclude = apply_filters('pta_sus_delete_expired_signups_exclusions', $exclude);
-	    $sql = "DELETE FROM ".$this->tables['signup']['name']." WHERE %s > ADDDATE(date, 1)";
+	    $num_days = !empty($this->main_options['num_days_expired']) ? absint($this->main_options['num_days_expired']) : 1;
+	    if($num_days < 1) {
+		    $num_days = 1;
+	    }
+	    $sql = "DELETE FROM ".$this->tables['signup']['name']." WHERE %s > ADDDATE(date, %d)";
     	if(!empty($exclude)) {
     		$clean_ids = array_map('absint', $exclude);
     		$exclusions = implode(',', $clean_ids);
 		    $sql .= " AND id NOT IN ($exclusions)";
 	    }
-	    $safe_sql = $this->wpdb->prepare($sql, $this->now);
+	    $safe_sql = $this->wpdb->prepare($sql, $this->now, $num_days);
         return $this->wpdb->query($safe_sql);
     }
+
+	public function delete_expired_sheets($exclude = array()) {
+		$exclude = apply_filters('pta_sus_delete_expired_sheets_exclusions', $exclude);
+		$num_days = !empty($this->main_options['num_days_expired']) ? absint($this->main_options['num_days_expired']) : 1;
+		if($num_days < 1) {
+			$num_days = 1;
+		}
+		// get sheet IDs for expired sheets
+		$sql = "SELECT id FROM ".$this->tables['sheet']['name']." WHERE %s > ADDDATE(last_date, %d)";
+		if(!empty($exclude)) {
+			$clean_ids = array_map('absint', $exclude);
+			$exclusions = implode(',', $clean_ids);
+			$sql .= " AND id NOT IN ($exclusions)";
+		}
+		$safe_sql = $this->wpdb->prepare($sql, $this->now, $num_days);
+		$ids = $this->wpdb->get_col($safe_sql);
+		$deleted = 0;
+		if(!empty($ids)) {
+			foreach ($ids AS $id) {
+				if( $this->delete_sheet($id) ) {
+					$deleted++;
+				}
+			}
+		}
+		return $deleted;
+	}
     
     /**
     * Copy a sheet and all tasks to a new sheet for editing
@@ -1538,20 +1577,22 @@ class PTA_SUS_Data
                         $sanitized_fields[$field] = sanitize_text_field( $clean_fields[$field] );
                         break;
                     case 'names':
-                        // Sanitize and format one or more names that will be separated by commas
-                        $names = str_getcsv(sanitize_text_field( $clean_fields[$field] ));
                         $valid_names = '';
-                        $count = 1;
-                        foreach ($names as $name) {
-                            $name = trim($name);
-                            if ('' != $name) {
-                                if ($count >1) {
-                                    $valid_names .= ',';
-                                }
-                                $valid_names .= $name;
-                            }
-                            $count++;
-                        }
+	                    // Sanitize and format one or more names that will be separated by commas
+						if(!empty($clean_fields[$field])) {
+							$names = str_getcsv(sanitize_text_field( $clean_fields[$field] ));
+							$count = 1;
+							foreach ($names as $name) {
+								$name = !empty($name) ? trim($name) : '';
+								if ('' != $name) {
+									if ($count >1) {
+										$valid_names .= ',';
+									}
+									$valid_names .= $name;
+								}
+								$count++;
+							}
+						}
                         $sanitized_fields[$field] = $valid_names;
                         break;
                     case 'textarea':
@@ -1559,25 +1600,28 @@ class PTA_SUS_Data
                         break;
 
                     case 'emails':
-                        // Sanitize one or more emails that will be separated by commas
-                        // First, get rid of any spaces
-                        $emails_field = preg_replace('/\s+/', '', $clean_fields[$field]);
-                        // Then, separate out the emails into a simple data array, using comma as separator
-                        $emails = str_getcsv($emails_field);
-                        // create an empty string to store our valid emails
-                        $valid_emails = '';
-                        $count = 1;
-                        foreach ($emails as $email) {
-                            // Only add the email if it's a valid email
-                            if (is_email( $email )) {
-                                if ($count > 1) {
-                                    // separate multiple emails by comma
-                                    $valid_emails .= ',';
-                                }
-                                $valid_emails .= $email;
-                            }
-                            $count++;
+	                    // create an empty string to store our valid emails
+	                    $valid_emails = '';
+                        if(!empty($clean_fields[$field])) {
+	                        // Sanitize one or more emails that will be separated by commas
+	                        // First, get rid of any spaces
+	                        $emails_field = preg_replace('/\s+/', '', $clean_fields[$field]);
+	                        // Then, separate out the emails into a simple data array, using comma as separator
+	                        $emails = str_getcsv($emails_field);
+	                        $count = 1;
+	                        foreach ($emails as $email) {
+		                        // Only add the email if it's a valid email
+		                        if (is_email( $email )) {
+			                        if ($count > 1) {
+				                        // separate multiple emails by comma
+				                        $valid_emails .= ',';
+			                        }
+			                        $valid_emails .= $email;
+		                        }
+		                        $count++;
+	                        }
                         }
+
                         $sanitized_fields[$field] = $valid_emails;
                         break;
 
@@ -1596,7 +1640,7 @@ class PTA_SUS_Data
                         break;
 
                     case 'bool':
-                        if ($clean_fields[$field] == true) {
+                        if ( $clean_fields[ $field ] ) {
                             $sanitized_fields[$field] = 1;
                         } else {
                             $sanitized_fields[$field] = 0;
@@ -1628,13 +1672,16 @@ class PTA_SUS_Data
         // return !preg_match( "/[^A-Za-z0-9\p{L}\p{Z}\p{N}\-\.\,\!\&\(\)\'\/\?\ ]+$/", stripslashes($text) );
         
         // New method to allow all good text... check against wordpress santized version
-        $text = preg_replace('/\s+/', ' ', trim($text)); // strip out extra spaces before compare
-        $sanitized = sanitize_text_field( $text );
-        if ( $text === $sanitized ) {
-            return true;
-        } else {
-            return false;
-        }
+	    if(!empty($text)) {
+		    $text = preg_replace('/\s+/', ' ', trim($text)); // strip out extra spaces before compare
+		    $sanitized = sanitize_text_field( $text );
+		    if ( $text === $sanitized ) {
+			    return true;
+		    } else {
+			    return false;
+		    }
+	    }
+        return true; // empty allowed
     }
 
     public function check_date($date) {

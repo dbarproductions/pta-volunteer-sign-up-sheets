@@ -11,7 +11,6 @@ TABLE.pta-sus-sheets TD,
 TABLE.pta-sus-tasks TH,
 TABLE.pta-sus-sheets TH {
     padding: .2em .6em;
-    text-align: left;
     vertical-align: top;
     }
 
@@ -101,6 +100,18 @@ div.head {
     font-weight:bold;
 }
 
-.column-start-time, .column-end-time, .column-phone, .column-clear {
+div.column-start-time, div.column-end-time, div.column-phone, div.column-clear {
     width: 12%;
+}
+
+div.column-title, td.title-td, th.column-title, div.column-date, td.date-td, th.column-date, div.column-task, td.task-td, th.column-task {
+    text-align: left;
+}
+
+div.column-item, td.item-td, th.column-item, div.column-qty, td.qty-td, th.column-qty {
+    text-align: center;
+}
+
+div.column-start-time, td.start-time-td, div.column-end-time, td.end-time-td, div.column-clear, td.clear-td, th.column-time {
+    text-align: right;
 }

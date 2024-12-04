@@ -39,45 +39,62 @@ class PTA_SUS_Emails {
         $text = str_replace('<br/>', "\r\n", $text);
         $text = str_replace('<br />', "\r\n", $text);
         // Strip any other tags
-        $text = strip_tags($text);
-        return $text;
+       return strip_tags($text);
 
     }
 
 	/**
     * Send signs up & reminder emails
     * 
-    * @param    int  the signup id
-    *           bool signup or reminder email
-    * @return   bool
+    * @param    int  $signup_id the signup id
+    * @param    bool $reminder is this a reminder email?
+	 * @param    bool $clear is this a clear email?
+	 * @param    bool $reschedule is this a reschedule email?
+    * @return   bool true if success or email does not need to be sent. False on sending failure
     */
     public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false) {
-    	// are emails disabled? Don't send any emails if disabled
-	    if( isset($this->email_options['disable_emails']) && $this->email_options['disable_emails'] ) {
-	    	return true;
-	    }
-		// Maybe don't send confirmation emails
-		if( isset($this->email_options['no_confirmation_emails']) && $this->email_options['no_confirmation_emails'] && !($reminder || $clear || $reschedule)) {
-	    	return true;
-	    }
+	    $signup = $this->data->get_signup($signup_id);
+	    if(!$signup) return false;
+	    $task = $this->data->get_task($signup->task_id);
+	    $sheet = $this->data->get_sheet($task->sheet_id);
+
+		$confirmation = !($reminder || $clear || $reschedule);
+
+		// maybe don't send clear emails
+		if($clear) {
+			if('default' === $sheet->clear_emails && isset($this->email_options['disable_emails']) && $this->email_options['disable_emails']) {
+				return true;
+			}
+			if('none' === $sheet->clear_emails) {
+				return true;
+			}
+		}
+		// maybe don't send confirmation emails
+		if( $confirmation ) {
+			if('default' === $sheet->signup_emails) {
+				if(isset($this->email_options['disable_emails']) && $this->email_options['disable_emails']) {
+					return true;
+				}
+				if(isset($this->email_options['no_confirmation_emails']) && $this->email_options['no_confirmation_emails']) {
+					return true;
+				}
+			}
+			if('none' === $sheet->signup_emails) {
+				return true;
+			}
+		}
+
 		// Maybe don't send reminder emails
 		if( isset($this->email_options['no_reminder_emails']) && $this->email_options['no_reminder_emails'] && $reminder) {
 	    	return true;
 	    }
-	    
-        $signup = $this->data->get_signup($signup_id);
-	    if(!$signup) return false;
-        $task = $this->data->get_task($signup->task_id);
-        $sheet = $this->data->get_sheet($task->sheet_id);
+
+		$use_html = isset($this->email_options['use_html']) && $this->email_options['use_html'];
 
         do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear, $reschedule );
         
         $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule);
         if (empty($from)) $from = get_bloginfo('admin_email');
-
-        $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
-		$to = str_replace( ',', '', $to);
-	    $to = apply_filters('pta_sus_email_recipient', $to, $signup, $task, $sheet, $reminder, $clear, $reschedule);
     
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
@@ -106,6 +123,11 @@ class PTA_SUS_Emails {
 	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule));
 	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule));
 
+		// convert old line breaks to html when using html
+	    if($use_html) {
+		    $message = wpautop($message, false);
+	    }
+
         // Get Chair emails
 	    if (isset($sheet->position) && '' != $sheet->position) {
 		    $chair_emails = $this->get_member_directory_emails($sheet->position);
@@ -116,10 +138,47 @@ class PTA_SUS_Emails {
 			    $chair_emails = explode(',', $sheet->chair_email);
 		    }
 	    }
+
+		$to_chair = false;
+		// check if should send to user, and make them the $to address if so
+		if(  ($clear && in_array($sheet->clear_emails, array('default','user','both')))
+			|| ($confirmation && in_array($sheet->signup_emails, array('default','user','both')))) {
+			$to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
+			$to = str_replace( ',', '', $to);
+		} elseif ( ($clear && 'chair' === $sheet->clear_emails) || ($confirmation && 'chair' === $sheet->signup_emails) ) {
+			$to_chair = true;
+			if(empty($chair_emails)) {
+				// return since nobody to send to
+				return true;
+			}
+			$to = $chair_emails;
+		}
+
+		// other extensions can modify $to address
+	    $to = apply_filters('pta_sus_email_recipient', $to, $signup, $task, $sheet, $reminder, $clear, $reschedule);
+
 	    $cc_emails = array();
-	    if(!isset($this->email_options['no_chair_emails']) || false == $this->email_options['no_chair_emails']) {
-	    	$cc_emails = $chair_emails;
-	    }
+
+		if(!$to_chair) {
+			// check if we should CC chairs
+			if($clear && in_array($sheet->clear_emails, array('default','chair','both'))) {
+				if('default' == $sheet->clear_emails) {
+					if( !isset($this->email_options['no_chair_emails']) || ! $this->email_options['no_chair_emails'] ) {
+						$cc_emails = $chair_emails;
+					}
+				} else {
+					$cc_emails = $chair_emails;
+				}
+			} elseif($confirmation && in_array($sheet->signup_emails, array('default','chair','both'))) {
+				if('default' == $sheet->signup_emails) {
+					if( !isset($this->email_options['no_chair_emails']) || ! $this->email_options['no_chair_emails'] ) {
+						$cc_emails = $chair_emails;
+					}
+				} else {
+					$cc_emails = $chair_emails;
+				}
+			}
+		}
 	    
 	    // If global CC is set, and it's a valid email, add to cc_emails
 	    $global_cc = isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email']) ? $this->email_options['cc_email'] : '';
@@ -149,15 +208,21 @@ class PTA_SUS_Emails {
 		    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
 	    }
 	
-	    if(isset($this->email_options['replyto_chairs']) && true == $this->email_options['replyto_chairs'] && !empty($chair_emails)) {
+	    if( isset($this->email_options['replyto_chairs']) && $this->email_options['replyto_chairs'] && !empty($chair_emails)) {
 	        $replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule);
 	    } else {
 		    $replyto = apply_filters('pta_sus_replyto_email', $this->email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule );
 	    }
 	    
 	    if (empty($replyto)) $replyto = get_bloginfo('admin_email');
-	    
-        $headers = array();
+
+		$headers = array();
+
+		// Add html content type header if HTML emails are enabled
+	    if($use_html) {
+		    $headers[] = 'Content-Type: text/html; charset=UTF-8';
+	    }
+
         $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
         if(is_array($replyto)) {
         	foreach ($replyto as $reply) {
@@ -190,7 +255,11 @@ class PTA_SUS_Emails {
         } else {
         	$contact_emails = __('N/A', 'pta-volunteer-sign-up-sheets');
         }
-        $sheet_details = $this->convert_to_plain_text($sheet->details);
+		$sheet_details =  $sheet->details;
+		if(!$use_html) {
+			$sheet_details = $this->convert_to_plain_text($sheet->details);
+		}
+
         
         // Replace any template tags with the appropriate variables
 	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{task_description}','{date}','{start_time}',
@@ -211,6 +280,18 @@ class PTA_SUS_Emails {
             $this->last_reminder = "To: " . $to . "\r\n\r\n" . $message . "\r\n\r\n\r\n";
         }
 
+		// allow other plugins to add attachments to emails where it makes sense
+		$attachments = array();
+		if($confirmation) {
+			$attachments = apply_filters('pta_sus_confirmation_email_attachments', array(), $signup, $task, $sheet);
+		}
+		if($reminder) {
+			$attachments = apply_filters('pta_sus_reminder_email_attachments', array(), $signup, $task, $sheet);
+		}
+		if($reschedule) {
+			$attachments = apply_filters('pta_sus_reschedule_email_attachments', array(), $signup, $task, $sheet);
+		}
+
         do_action( 'pta_sus_before_send_email', $to, $subject, $message, $headers );
 
         // Allow other plugins to determine if we should send this email -- return false to not send
@@ -219,11 +300,11 @@ class PTA_SUS_Emails {
         if($send_email && !empty($subject) && !empty($message)) {
         	if($this->email_options['individual_emails'] && !empty($cc_emails) && !$reminder) {
         		// Send out first email to the original TO address, set errors to result (bool)
-				$sent = wp_mail($to, $subject, $message, $headers);
+				$sent = wp_mail($to, $subject, $message, $headers, $attachments);
 		        // loop through all chair_emails and send individually
 		        foreach ($cc_emails as $to) {
 		            if(is_email($to)) {
-				        $result = wp_mail($to, $subject, $message, $headers);
+				        $result = wp_mail($to, $subject, $message, $headers, $attachments);
 				        if(false === $result) {
 					        $sent = false;
 				        }
@@ -232,7 +313,7 @@ class PTA_SUS_Emails {
 		        return $sent;
 	        } else {
 	        	// sending with CC/BCC in headers
-		        return wp_mail($to, $subject, $message, $headers);
+		        return wp_mail($to, $subject, $message, $headers, $attachments);
 	        }
 
         } else {
@@ -317,7 +398,7 @@ class PTA_SUS_Emails {
         $reminder_count = 0;
 
         if (!empty($reminder_events)) {
-            // Next, go through the each reminder event and prepare/send an email
+            // Next, go through each reminder event and prepare/send an email
             // Each event object returned by get_all_data is actually an individual signup,
             // so each one can be used to create a personalized email.  However, if there are
             // no signups for a given task on a sheet, an event object for that task will still
@@ -378,7 +459,7 @@ class PTA_SUS_Emails {
 
         // Set another option to save the last time any reminders were sent
         if (!$sent = get_option('pta_sus_last_reminders')) {
-            $sent = array('time' => 0, 'num' => 0, 'last' => 0);
+            $sent = array('time' => 0, 'num' => 0);
         }
         $sent['last'] = $now;
         if ( 0 < $reminder_count ) {
@@ -417,7 +498,7 @@ class PTA_SUS_Emails {
         $reschedule_count = 0;
 
         if (!empty($reschedule_queue)) {
-            // Next, go through the each reschedule event and prepare/send an email
+            // Next, go through each reschedule event and prepare/send an email
 
             foreach ($reschedule_queue as $index => $signup_id) {
 
@@ -449,7 +530,7 @@ class PTA_SUS_Emails {
 
         // Set another option to save the last time any reminders were sent
         if (!$sent = get_option('pta_sus_last_reschedule_emails')) {
-            $sent = array('time' => 0, 'num' => 0, 'last' => 0);
+            $sent = array('time' => 0, 'num' => 0);
         }
         $sent['last'] = $now;
         if ( 0 < $reschedule_count ) {

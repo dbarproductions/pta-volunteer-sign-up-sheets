@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 4.5.2
+Version: 4.6.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -19,7 +19,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.5.2');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.6.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -41,14 +41,13 @@ class PTA_Sign_Up_Sheet {
     public $data;
     public $public = false;
     public $emails;
-    public $db_version = '3.0.0';
+    public $db_version = '3.3.0';
     public $main_options;
     public $admin = null;
     
     public function __construct() {
-        
-        $this->emails = new PTA_SUS_Emails();
 	    $this->data = new PTA_SUS_Data();
+        $this->emails = new PTA_SUS_Emails();
 
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook( __FILE__, array($this, 'deactivate'));
@@ -110,8 +109,8 @@ class PTA_Sign_Up_Sheet {
 	 * @param     bool     get hidden sheets or not
 	 * @return    mixed    array of sheets
 	 */
-	public function get_sheets($trash=false, $active_only=false, $show_hidden=false) {
-		return $this->data->get_sheets($trash, $active_only, $show_hidden);
+	public function get_sheets($trash=false, $active_only=false, $show_hidden=false,$order_by='first_date', $order = 'ASC') {
+		return $this->data->get_sheets($trash, $active_only, $show_hidden,$order_by,$order);
 	}
 
 	/**
@@ -226,18 +225,35 @@ class PTA_Sign_Up_Sheet {
         $this->emails->send_reminders();
         $this->emails->send_reschedule_emails();
 
-        // If automatic clearing of expired signups is enabled, run the check
+	    $to = get_bloginfo( 'admin_email' );
+	    $subject = __("Volunteer Signup Housekeeping Completed!", 'pta-volunteer-sign-up-sheets');
+		$message = '';
+		$send_mail = false;
+
+	    // If automatic clearing of expired signups is enabled, run the check
+	    if($this->main_options['clear_expired_sheets']) {
+		    $results = $this->data->delete_expired_sheets();
+		    if($results && $this->main_options['enable_cron_notifications']) {
+			    $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
+			               sprintf(__("%d expired sheets were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
+			    $send_mail = true;
+		    }
+	    }
+
+		// If automatic clearing of expired signups is enabled, run the check
         if($this->main_options['clear_expired_signups']) {
-            $this->data = new PTA_SUS_Data();
             $results = $this->data->delete_expired_signups();
             if($results && $this->main_options['enable_cron_notifications']) {
-                $to = get_bloginfo( 'admin_email' );
-                $subject = __("Volunteer Signup Housekeeping Completed!", 'pta-volunteer-sign-up-sheets');
-                $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
-                sprintf(__("%d expired signups were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
-                wp_mail($to, $subject, $message);            
+                $message .= __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
+                            sprintf(__("%d expired signups were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
+                $send_mail = true;
             }
         }
+
+		if($send_mail) {
+			wp_mail($to, $subject, $message);
+		}
+
     }
 
     public function public_init() {
@@ -259,47 +275,51 @@ class PTA_Sign_Up_Sheet {
 
         // If options haven't previously been setup, create the default options
         // MAIN OPTIONS
-        $defaults = array(
-            'enable_test_mode' => false,
-            'test_mode_message' => 'The Volunteer Sign-Up System is currently undergoing maintenance. Please check back later.',
-            'volunteer_page_id' => 0,
-            'hide_volunteer_names' => false,
-            'show_remaining' => false,
-            'hide_details_qty' => false,
-            'hide_signups_details_qty' => false,
-            'show_ongoing_in_widget' => true,
-            'show_ongoing_last' => true,
-            'no_phone' => false,
-            'hide_contact_info' => false,
-            'login_required' => false,
-            'login_required_signup' => false,
-            'login_required_message' => 'You must be logged in to a valid account to view and sign up for volunteer opportunities.',
-            'login_signup_message' => 'Login to Signup',
-            'readonly_signup' => false,
-            'show_login_link' => false,
-            'disable_signup_login_notice' => false,
-            'enable_cron_notifications' => true,
-            'detailed_reminder_admin_emails' => true,
-            'show_expired_tasks' => false,
-            'clear_expired_signups' => false,
-            'hide_donation_button' => false,
-            'reset_options' => false,
-            'enable_signup_search' => false,
-            'signup_search_tables' => 'signups',
-            'signup_redirect' => true,
-            'phone_required' => true,
-            'use_divs' => false,
-            'disable_css' => false,
-            'show_full_name' => false,
-            'suppress_duplicates' => true,
-            'no_global_overlap' => false,
-            'admin_only_settings' => false,
-            'disable_datei18n' => false,
-	        'disable_grouping' => false,
-	        'show_all_slots_for_all_data' => false,
-	        'skip_signups_check' => false,
-	        'show_task_description_on_signup_form' => false
-        );
+	    $defaults = array(
+		    'enable_test_mode'                     => false,
+		    'test_mode_message'                    => 'The Volunteer Sign-Up System is currently undergoing maintenance. Please check back later.',
+		    'volunteer_page_id'                    => 0,
+		    'hide_volunteer_names'                 => false,
+		    'show_remaining'                       => false,
+		    'hide_details_qty'                     => false,
+		    'hide_signups_details_qty'             => false,
+		    'show_ongoing_in_widget'               => true,
+		    'show_ongoing_last'                    => true,
+		    'no_phone'                             => false,
+		    'hide_contact_info'                    => false,
+		    'login_required'                       => false,
+		    'login_required_signup'                => false,
+		    'login_required_message'               => 'You must be logged in to a valid account to view and sign up for volunteer opportunities.',
+		    'login_signup_message'                 => 'Login to Signup',
+		    'readonly_signup'                      => false,
+		    'show_login_link'                      => false,
+		    'disable_signup_login_notice'          => false,
+		    'enable_cron_notifications'            => true,
+		    'detailed_reminder_admin_emails'       => true,
+		    'show_expired_tasks'                   => false,
+		    'clear_expired_signups'                => false,
+		    'clear_expired_sheets'                 => false,
+			'num_days_expired'                     => 1,
+		    'hide_donation_button'                 => false,
+		    'reset_options'                        => false,
+		    'enable_signup_search'                 => false,
+		    'signup_search_tables'                 => 'signups',
+		    'signup_redirect'                      => true,
+		    'phone_required'                       => true,
+		    'use_divs'                             => false,
+		    'disable_css'                          => false,
+			'enable_mobile_css'                    => false,
+		    'show_full_name'                       => false,
+		    'suppress_duplicates'                  => true,
+		    'no_global_overlap'                    => false,
+		    'admin_only_settings'                  => false,
+		    'disable_datei18n'                     => false,
+		    'disable_grouping'                     => false,
+		    'show_all_slots_for_all_data'          => false,
+		    'skip_signups_check'                   => false,
+		    'show_task_description_on_signup_form' => false,
+		    'hide_single_date_header'              => false,
+	    );
         $options = get_option( 'pta_volunteer_sus_main_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
         foreach ($defaults as $key => $value) {
@@ -414,6 +434,7 @@ Thank You!
 		    'no_reminder_emails'          => false,
 		    'disable_emails'              => false,
 		    'replyto_chairs'              => false,
+		    'use_html'                    => false
 	    );
         $options = get_option( 'pta_volunteer_sus_email_options', $defaults );
         // Make sure each option is set -- this helps if new options have been added during plugin upgrades
@@ -510,6 +531,8 @@ Thank You!
             duplicate_times BOOL NOT NULL DEFAULT FALSE,
             visible BOOL NOT NULL DEFAULT TRUE,
             trash BOOL NOT NULL DEFAULT FALSE,
+            clear_emails VARCHAR(50) NOT NULL DEFAULT 'default',
+            signup_emails VARCHAR(50) NOT NULL DEFAULT 'default',
             PRIMARY KEY id (id),
             KEY `first_date` (`first_date`),
             KEY `last_date` (`last_date`)
@@ -545,6 +568,7 @@ Thank You!
             reminder1_sent BOOL NOT NULL DEFAULT FALSE,
             reminder2_sent BOOL NOT NULL DEFAULT FALSE,
             item_qty INT NOT NULL DEFAULT 1,
+            ts INT NULL DEFAULT NULL,
             PRIMARY KEY id (id),
             KEY `task_id` (`task_id`),
             KEY `date` (`date`),

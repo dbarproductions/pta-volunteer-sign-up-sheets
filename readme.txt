@@ -2,9 +2,9 @@
 Contributors: DBAR Productions
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
-Requires at least: 3.3
+Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.5.3
+Tested up to: 6.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Stable tag: trunk
@@ -25,6 +25,7 @@ Read the documentation here:
 
 **Features:**
 
+*   Version 4.6 adds HTML format emails, as well as per sheet options for recipients of signup confirmation and clear emails, along with a mobile CSS option to collapse the tables to a single column format for smaller screens, and many other new features and settings.
 *   Version 3.6 adds the ability to Reschedule a sheet to new date and times, copy a sheet with new dates and times, or create multiple copies of a sheet at specified day intervals. These new functions allow optionally copying the signups, and have a new email template to notify those signups of the new dates and times.
 *   [pta_user_signups] shortcode allows you to show a list of the current logged in user's signups on any page (with clear links, if allowed).
 *   Integrates with the GDPR privacy functions of WordPress 4.9.6. Exported personal data from WordPress will include any signups for the specified email or user ID associated with that email. If the user requests their data be deleted, that same user signup data will be deleted along with all other WordPress data for that user.
@@ -167,6 +168,22 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.6.0**
+*   New option added to email settings page to enable sending emails in HTML format. If this is checked, the simple textarea input will change to the WordPress TinyMCE visual/text editor for email message templates. Line breaks in email templates will be converted to HTML with the WordPress wpautop function before sending the email.
+*   New option added to enable automatic clear/deletion of expired sheets. This will delete the sheet from the database, along with all associated tasks and signups, a specified number of days after the sheet end date. You can also manually trigger this function from the CRON functions page to manually delete all expired sheets at any time.
+*   New option to specify the number of days after the signup date, or the last sheet date, before clearing the sheets or signups. Default is 1 to be consistent with previous functionality. But, now you can increase this if you wish to automatically clean up your database, but want to give your managers some more time to be able to view/export the data before it's cleared from the database.
+*   New option to hide the date header above the task tables when the sheet type is "Single", as this might be considered redundant by showing the same date above each task table.
+*   User Signup Lists now have the sheet title linked to the individual sheet, as long as you have the "Volunteer Sign Up Page" set in the main options. It will link to that page with the sheet_id URL argument added so that the specific sheet is displayed. If you are using the Calendar extension and have that sheet linked to a calendar for view, the title will open the associated calendar for that sheet.
+*   Added a timestamp column to the signups table that will be set to the current timestamp based on your WordPress time zone when a signup is added. This field will be shown on the admin View Signups and View/Export All Data pages in a "Signup Time" column with date and time formatted as set in your WordPress general settings.
+*   New select options added to the add/edit sheet page to specify the recipients of signup confirmation and clear emails, which will override global email settings if you select anything other than default for each. You can choose from Default, Chairs, User, Both, or None. There are separate selections for signup confirmation emails and clear emails.
+*   Added code to prevent viewing or signup for a sheet that has been trashed. This is for those rare situations where a shortcode includes a specific sheet ID, or there was an old manual link that included the sheet ID, but that sheet has been trashed. Previously the sheet would still be shown (but not in the main list of sheets).
+*   data-label attribute added to each cell of tables, which is used in the mobile CSS added in this version (see below), but could also be used in any custom CSS or js to get the label/header for any cell.
+*   Made the chair name(s) and chair email(s) fields no longer required when adding or editing a sheet. Note that this will result in a message on the sheet saying "No Event Chair contact info provided" (message can be changed or disabled with the Customizer extension), and the reply to address will be set to the Reply-To email in the email settings, or the admin email if the Reply-To email is not set.
+*   Added option to include some simple mobile CSS that will style the tables to a one column display on screen sizes less than 600px wide. Table headers are hidden and table cells will be displayed in block format so each cell takes the full width, and a label will be added to the left from the data-label attribute added to each cell.
+*   Modified and removed some of the default CSS table styling, and modified/added to some of the class names for elements, to work better with the new mobile CSS and Customizer extension.
+*   Minor code optimization changes
+*   Tested with PHP 8.3.13 and WordPress 6.7.1
+
 **Version 4.5.2**
 
 *   Minor code changes for compatibility with custom extensions

@@ -7,6 +7,7 @@
      *
      * @var object $sheet
      * @var array $tasks
+     * @var PTA_SUS_Admin $this
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -24,6 +25,7 @@ $columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
 	'phone'       => __( 'Phone', 'pta-volunteer-sign-up-sheets' ),
 	'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
 	'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
+    'ts'          => __( 'Signup Time', 'pta-volunteer-sign-up-sheets' ),
 	'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' )
 ), $sheet );
 $num_cols = count($columns);

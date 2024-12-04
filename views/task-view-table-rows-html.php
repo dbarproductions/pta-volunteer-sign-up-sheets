@@ -12,11 +12,11 @@ if(!empty($row['extra-class'])) {
     $row_class .= ' '.$row['extra-class'];
 }
 ?>
-<tr class="<?php echo esc_attr($row_class); ?>">
+<tr class="pta-sus-table-row <?php echo esc_attr($row_class); ?>">
     <?php foreach($columns as $class => $label):
-        $value = isset($row[$class]) ? $row[$class] : '';
+	    $value = !empty($row[ $class ]) ? $row[$class] : '&nbsp;';
         ?>
-        <td class="<?php echo esc_attr($class); ?>">
+        <td class="pta-sus <?php echo esc_attr($class); ?>" data-label="<?php echo esc_attr($label); ?>">
             <?php echo wp_kses_post($value); ?>
         </td>
     <?php endforeach; ?>

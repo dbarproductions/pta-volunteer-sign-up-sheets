@@ -2,11 +2,12 @@
 /**
  * @var object $task
  * @var string $date
+ * @var bool $show_date
  */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 <div class="pta-sus task-info-header">
-    <?php if(!empty($date) && '0000-00-00' != $date): ?>
+    <?php if($show_date && !empty($date) && '0000-00-00' != $date): ?>
     <div class="pta-sus date-header"><?php echo mysql2date( get_option('date_format'), $date, $translate = true ); ?></div>
     <?php endif; ?>
     <div class="pta-sus title-header"><?php echo esc_html($task->title); ?></div>

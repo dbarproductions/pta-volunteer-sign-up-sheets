@@ -1,0 +1,46 @@
+@media screen and (max-width: 600px) {
+
+    .pta-sus-table-head {
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    .pta-sus-table-row  {
+        display: block;
+    }
+
+    /*Here we are setting each td display to block*/
+    td.pta-sus, TABLE.pta-sus-sheets TD, TABLE.pta-sus-tasks TD {
+        display: block;
+        text-align: right;
+    }
+
+    /*Override specific columns that were centered in the main/basic CSS*/
+    TABLE.pta-sus-sheets .column-open_spots {
+        text-align: right;
+    }
+    TABLE.pta-sus-sheets .column-open_spots {
+        text-align: right;
+    }
+
+    td.pta-sus:last-child {
+        border-bottom: darkgrey solid 4px;
+    }
+
+    /*
+    Now the other data-label we have added on each td comes into play.
+    */
+
+    td.pta-sus::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+    }
+
+}

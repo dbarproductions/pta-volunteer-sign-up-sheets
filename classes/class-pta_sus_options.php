@@ -89,6 +89,7 @@ class PTA_SUS_Options {
 	    add_settings_field('suppress_duplicates', __('Suppress Duplicate Output?', 'pta-volunteer-sign-up-sheets'), array($this, 'suppress_duplicates_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('use_divs', __('Use divs?', 'pta-volunteer-sign-up-sheets'), array($this, 'use_divs_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_css', __('Disable plugin CSS?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('enable_mobile_css', __('Enable Mobile CSS?', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_mobile_css_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_user_signups', __('Disable User Signups List?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_user_signups_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_volunteer_names', __('Hide volunteer names from public?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_volunteer_names_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('show_full_name', __('Show full name?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_full_name_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -96,6 +97,7 @@ class PTA_SUS_Options {
 	    add_settings_field('hide_details_qty', __('Hide Details and Quantities', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('hide_signups_details_qty', __('Hide User Signups Details and Quantities', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_signups_details_qty_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_contact_info', __('Hide chair contact info from public?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_contact_info_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('hide_single_date_header', __('Hide Date header for Single date events?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_single_date_header_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_in_widget', __('Show Ongoing events in Widget?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_ongoing_in_widget_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_ongoing_last', __('Show Ongoing events last?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_ongoing_last_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('phone_required', __('Phone Required?', 'pta-volunteer-sign-up-sheets'), array($this, 'phone_required_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -114,6 +116,8 @@ class PTA_SUS_Options {
         add_settings_field('skip_signups_check', __('Skip Signups Check?', 'pta-volunteer-sign-up-sheets'), array($this, 'skip_signups_check_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('show_expired_tasks', __('Show Expired Tasks?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_expired_tasks_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('clear_expired_signups', __('Automatically clear expired signups?', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_expired_signups_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('clear_expired_sheets', __('Automatically clear expired sheets?', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_expired_sheets_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('num_days_expired', __('# of days before clear?', 'pta-volunteer-sign-up-sheets'), array($this, 'num_days_expired_input'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_signup_search', __('Enable Sign-up form live search?', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_signup_search_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('signup_search_tables', __('Live Search Tables', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_search_tables_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('admin_only_settings', __('Admin Only Settings Access?', 'pta-volunteer-sign-up-sheets'), array($this, 'admin_only_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -125,6 +129,7 @@ class PTA_SUS_Options {
         // Email Settings
         register_setting( 'pta_volunteer_sus_email_options', 'pta_volunteer_sus_email_options', array($this, 'pta_sus_validate_email_options') );
         add_settings_section('pta_volunteer_email', __('Email Settings', 'pta-volunteer-sign-up-sheets'), array($this, 'pta_volunteer_email_description'), 'pta_volunteer_sus_email');
+	    add_settings_field('use_html', __('Send HTML emails?', 'pta-volunteer-sign-up-sheets'), array($this, 'use_html_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('from_email', __('FROM email:', 'pta-volunteer-sign-up-sheets'), array($this, 'from_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('replyto_email', __('Reply-To email:', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('replyto_chairs', __('Reply-To Chairs?', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_chairs_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -239,6 +244,8 @@ class PTA_SUS_Options {
 		    'detailed_reminder_admin_emails'       => 'bool',
 		    'show_expired_tasks'                   => 'bool',
 		    'clear_expired_signups'                => 'bool',
+		    'clear_expired_sheets'                 => 'bool',
+            'num_days_expired'                     => 'integer',
 		    'enable_signup_search'                 => 'bool',
 		    'hide_donation_button'                 => 'bool',
 		    'signup_search_tables'                 => 'text',
@@ -249,6 +256,7 @@ class PTA_SUS_Options {
 		    'details_required'                     => 'bool',
 		    'use_divs'                             => 'bool',
 		    'disable_css'                          => 'bool',
+            'enable_mobile_css'                    => 'bool',
 		    'disable_user_signups'                 => 'bool',
 		    'show_full_name'                       => 'bool',
 		    'suppress_duplicates'                  => 'bool',
@@ -260,7 +268,8 @@ class PTA_SUS_Options {
 		    'disable_grouping'                     => 'bool',
 		    'show_all_slots_for_all_data'          => 'bool',
 		    'skip_signups_check'                   => 'bool',
-		    'show_task_description_on_signup_form' => 'bool'
+		    'show_task_description_on_signup_form' => 'bool',
+            'hide_single_date_header'              => 'bool'
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -268,6 +277,7 @@ class PTA_SUS_Options {
     public function pta_sus_validate_email_options($inputs) {
     	$options = "email_options";
 	    $fields = array(
+            'use_html'                    => 'bool',
 		    'from_email'                  => 'email',
 		    'replyto_email'               => 'email',
 		    'cc_email'                    => 'email',
@@ -441,6 +451,11 @@ class PTA_SUS_Options {
         echo '<em> '. __('Max # of reminder emails to send out in a hour. Leave blank or zero for no limit.', 'pta-volunteer-sign-up-sheets') . '</em>';
     }
 
+    public function num_days_expired_input() {
+	    echo "<input id='num_days_expired' name='pta_volunteer_sus_main_options[num_days_expired]' type='number' value='{$this->main_options['num_days_expired']}' min='1' style='width: 5em;'/>";
+	    echo '<em> '. __('# of days after the last sheet date (when clearing sheets automatically), or signup date (when clearing signups automatically), before clearing the sheet or signup from the database. Min/default is 1 calendar day. Note this is calendar days and NOT based on hours or task times.', 'pta-volunteer-sign-up-sheets') . '</em>';
+    }
+
     public function enable_member_directory_checkbox() {
         if(isset($this->integration_options['enable_member_directory']) && true === $this->integration_options['enable_member_directory']) {
             $checked = 'checked="checked"';
@@ -566,6 +581,19 @@ class PTA_SUS_Options {
 		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'When checked, the plugin will NOT queue up its own CSS style sheet.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
 	}
 
+	public function enable_mobile_css_checkbox() {
+		if ( isset( $this->main_options['enable_mobile_css'] ) && true === $this->main_options['enable_mobile_css'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[enable_mobile_css]" type="checkbox"
+               value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'When checked, the plugin will queue a very small mobile CSS stylesheet to collapse plugin tables to a single column when screen width is less than 600px. This is independent of the above setting, so you can still disable the main css (above) and use custom CSS of your own, or from the Customizer extension, and still enqueue the mobile CSS.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+	}
+
 	public function disable_user_signups_checkbox() {
 		if ( isset( $this->main_options['disable_user_signups'] ) && true === $this->main_options['disable_user_signups'] ) {
 			$checked = 'checked="checked"';
@@ -590,6 +618,18 @@ class PTA_SUS_Options {
         <em><?php _e('If checked sheet chair contact info will NOT be shown to the public.', 'pta-volunteer-sign-up-sheets'); ?></em>
         <?php
     }
+
+	public function hide_single_date_header_checkbox() {
+		if(isset($this->main_options['hide_single_date_header']) && true === $this->main_options['hide_single_date_header']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[hide_single_date_header]" type="checkbox" value="1" <?php echo $checked; ?> />
+        <em><?php _e('Check this to hide the date header above the table for each task on the view sheet page when the sheet type is Single.', 'pta-volunteer-sign-up-sheets'); ?></em>
+		<?php
+	}
 
     public function show_ongoing_in_widget_checkbox() {
         if(isset($this->main_options['show_ongoing_in_widget']) && true === $this->main_options['show_ongoing_in_widget']) {
@@ -771,6 +811,18 @@ class PTA_SUS_Options {
         echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Automatically clears expired signups from the database (runs with hourly CRON function). Expired signups are not counted in the Filled Spots column.', 'pta-volunteer-sign-up-sheets').'</em>';
     }
 
+	public function clear_expired_sheets_checkbox() {
+		if(isset($this->main_options['clear_expired_sheets']) && true === $this->main_options['clear_expired_sheets']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[clear_expired_sheets]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Automatically clears expired sheets, including all associated tasks and signups, from the database a specified number of days (below) after the last date for the sheet (runs with hourly CRON function). This is independent of the clear signups option above and will ALWAYS delete all associated tasks and signups from the database.', 'pta-volunteer-sign-up-sheets').'</em>';
+	}
+
     public function hide_donation_button_checkbox() {
         if(isset($this->main_options['hide_donation_button']) && true === $this->main_options['hide_donation_button']) {
             $checked = 'checked="checked"';
@@ -805,6 +857,18 @@ class PTA_SUS_Options {
 		<input name="pta_volunteer_sus_main_options[signup_redirect]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
 		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('If checked, sign-up links will always go to the main volunteer page (set above). Un-check this if you are using different shortcodes on different pages to display different sheets and want to stay on that page when displaying the sign up form.', 'pta-volunteer-sign-up-sheets').'</em>';
+	}
+
+	public function use_html_checkbox() {
+		if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[use_html]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('If checked, emails will be sent in HTML format and you can use HTML tags in the email templates.', 'pta-volunteer-sign-up-sheets').'</em>';
 	}
 
 	public function individual_emails_checkbox() {
@@ -957,42 +1021,64 @@ class PTA_SUS_Options {
     }
 
     public function confirmation_email_template_textarea_input() {
-        echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";
-        echo esc_textarea( $this->email_options['confirmation_email_template'] );
-        echo '</textarea>';
+        if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+            wp_editor(wpautop($this->email_options['confirmation_email_template']),'confirmation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[confirmation_email_template]'));
+        } else {
+	        echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";
+	        echo esc_textarea( $this->email_options['confirmation_email_template'] );
+	        echo '</textarea>';
+        }
+
         echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function reminder_email_template_textarea_input() {
-        echo "<textarea id='reminder_email_template' name='pta_volunteer_sus_email_options[reminder_email_template]' cols='55' rows='15' >";
-        echo esc_textarea( $this->email_options['reminder_email_template'] );
-        echo '</textarea>';
+	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+		    wp_editor(wpautop($this->email_options['reminder_email_template']),'reminder_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reminder_email_template]'));
+	    } else {
+		    echo "<textarea id='reminder_email_template' name='pta_volunteer_sus_email_options[reminder_email_template]' cols='55' rows='15' >";
+		    echo esc_textarea( $this->email_options['reminder_email_template'] );
+		    echo '</textarea>';
+	    }
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 	
 	public function reminder2_email_template_textarea_input() {
-		echo "<textarea id='reminder2_email_template' name='pta_volunteer_sus_email_options[reminder2_email_template]' cols='55' rows='15' >";
-		echo esc_textarea( $this->email_options['reminder2_email_template'] );
-		echo '</textarea>';
+		if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+			wp_editor(wpautop($this->email_options['reminder2_email_template']),'reminder2_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reminder2_email_template]'));
+		} else {
+			echo "<textarea id='reminder2_email_template' name='pta_volunteer_sus_email_options[reminder2_email_template]' cols='55' rows='15' >";
+			echo esc_textarea( $this->email_options['reminder2_email_template'] );
+			echo '</textarea>';
+		}
+
 		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta-volunteer-sign-up-sheets');
 		echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
 	}
 
     public function reschedule_email_template_textarea_input() {
-        echo "<textarea id='reschedule_email_template' name='pta_volunteer_sus_email_options[reschedule_email_template]' cols='55' rows='15' >";
-        echo esc_textarea( $this->email_options['reschedule_email_template'] );
-        echo '</textarea>';
+	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+		    wp_editor(wpautop($this->email_options['reschedule_email_template']),'reschedule_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reschedule_email_template]'));
+	    } else {
+		    echo "<textarea id='reschedule_email_template' name='pta_volunteer_sus_email_options[reschedule_email_template]' cols='55' rows='15' >";
+		    echo esc_textarea( $this->email_options['reschedule_email_template'] );
+		    echo '</textarea>';
+	    }
         echo '<br />' . __('Reschedule email sent to volunteers. Template tags will show the new dates and times.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Reschedule emails will be sent hourly via the same CRON job and limits set for reminder emails.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
 
     public function clear_email_template_textarea_input() {
-        echo "<textarea id='clear_email_template' name='pta_volunteer_sus_email_options[clear_email_template]' cols='55' rows='15' >";
-        echo esc_textarea( $this->email_options['clear_email_template'] );
-        echo '</textarea>';
+	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+		    wp_editor(wpautop($this->email_options['clear_email_template']),'clear_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[clear_email_template]'));
+	    } else {
+		    echo "<textarea id='clear_email_template' name='pta_volunteer_sus_email_options[clear_email_template]' cols='55' rows='15' >";
+		    echo esc_textarea( $this->email_options['clear_email_template'] );
+		    echo '</textarea>';
+	    }
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }

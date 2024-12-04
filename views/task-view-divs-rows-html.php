@@ -7,7 +7,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 ?>
 <?php foreach ($column_data as $row):
-$row_class = 'pta-sus-tasks-row';
+$row_class = 'pta-sus-table-row pta-sus-tasks-row';
 if(!empty($row['extra-class'])) {
     $row_class .= ' '.$row['extra-class'];
 }

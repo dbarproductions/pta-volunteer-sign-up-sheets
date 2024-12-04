@@ -181,10 +181,14 @@ class PTA_SUS_Admin {
 		}
 	}
 
+	/**
+	 * This was relabeld as the CRON Functions page in the admin menu
+	 * @return void
+	 */
 	public function admin_reminders_page() {
 		$messages = '';
         $rescheduled_messages = '';
-		$cleared_message = '';
+		$cleared_message = $cleared_sheets_message = '';
 		if ( $last = get_option( 'pta_sus_last_reminders' ) ) {
 			$messages .= '<hr/>';
 			$messages .= '<h4>' . __('Last reminders sent:', 'pta-volunteer-sign-up-sheets'). '</h4>';
@@ -235,12 +239,20 @@ class PTA_SUS_Admin {
 			$results = sprintf( _n( '1 signup cleared', '%d signups cleared', $num, 'pta-volunteer-sign-up-sheets'), $num );
 			$cleared_message = '<div class="updated">'.$results.'</div>';
 		}
+		if (isset($_GET['action']) && 'clear_sheets' == $_GET['action'] ) {
+			check_admin_referer( 'pta-sus-clear-sheets', '_sus_nonce');
+			$num = $this->data->delete_expired_sheets();
+			$results = sprintf( _n( '1 sheet cleared', '%d sheets cleared', $num, 'pta-volunteer-sign-up-sheets'), $num );
+			$cleared_sheets_message = '<div class="updated">'.$results.'</div>';
+		}
 		$reminders_link = add_query_arg(array('action' => 'reminders'));
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
         $reschedule_link = add_query_arg(array('action' => 'reschedule'));
         $nonced_reschedule_link = wp_nonce_url( $reschedule_link, 'pta-sus-reschedule', '_sus_nonce');
 		$clear_signups_link = add_query_arg(array('action' => 'clear_signups'));
 		$nonced_clear_signups_link = wp_nonce_url( $clear_signups_link, 'pta-sus-clear-signups', '_sus_nonce');
+		$clear_sheets_link = add_query_arg(array('action' => 'clear_sheets'));
+		$nonced_clear_sheets_link = wp_nonce_url( $clear_sheets_link, 'pta-sus-clear-sheets', '_sus_nonce');
 		echo '<div class="wrap pta_sus">';
 		echo '<h2>'.__('CRON Functions', 'pta-volunteer-sign-up-sheets').'</h2>';
 		echo '<h3>'.__('Volunteer Reminders', 'pta-volunteer-sign-up-sheets').'</h3>';
@@ -257,6 +269,11 @@ class PTA_SUS_Admin {
 		echo '<p>'.__("If you have disabled the automatic clearing of expired signups, you can use this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT BE UNDONE!", "pta_volunteer_sus") . '</p>';
 		echo '<p><a href="'.esc_url($nonced_clear_signups_link).'" class="button-secondary">'.__('Clear Expired Signups', 'pta-volunteer-sign-up-sheets').'</a></p>';
 		echo $cleared_message;
+		echo '<hr/>';
+		echo '<h3>'.__('Clear Expired Sheets', 'pta-volunteer-sign-up-sheets').'</h3>';
+		echo '<p>'.__("If you have disabled the automatic clearing of expired sheets, you can use this to clear ALL expired sheets from database, which will also clear all associated tasks and signups. NOTE: THIS ACTION CAN NOT BE UNDONE!", "pta_volunteer_sus") . '</p>';
+		echo '<p><a href="'.esc_url($nonced_clear_sheets_link).'" class="button-secondary">'.__('Clear Expired Sheets', 'pta-volunteer-sign-up-sheets').'</a></p>';
+		echo $cleared_sheets_message;
 		echo '</div>';
 	}
 	
@@ -317,6 +334,17 @@ class PTA_SUS_Admin {
 			case 'qty':
 				$qty = apply_filters('pta_sus_admin_signup_display_quantity', $signup->item_qty, $sheet, $signup);
 				echo wp_kses_post($qty);
+				break;
+			case 'ts':
+				$datetime = '';
+				if(!empty($signup->ts)) {
+					$ts = apply_filters('pta_sus_admin_signup_display_signup_time', $signup->ts, $sheet, $signup);
+					if(null != $ts) {
+						$format = get_option('date_format') . ' ' . get_option('time_format');
+						$datetime = pta_datetime($format, $ts);
+					}
+				}
+				echo $datetime;
 				break;
 			case 'actions':
 				$clear_url = '?page='.$this->admin_settings_slug.'_sheets&amp;sheet_id='.$sheet->id.'&amp;signup_id='.$signup->id.'&amp;action=clear';
@@ -1008,7 +1036,7 @@ class PTA_SUS_Admin {
 					}
 					// If the date changed, check for signups on the old date
 					$old_task = $this->data->get_task($task['task_id']);
-					if ($old_task->dates !== $task['task_dates']) {
+					if ($old_task && $old_task->dates !== $task['task_dates']) {
 						// Date has changed - check if there were signups
 						$signups = $this->data->get_signups($old_task->id, $old_task->dates);
 						$signup_count = count($signups);
@@ -1221,7 +1249,7 @@ class PTA_SUS_Admin {
 
 			do_action( 'pta_sus_admin_process_sheet_start' );
 			$sheet_err = 0;
-			$sheet_success = false;
+
 			// Validate the posted fields
 			if ((isset($_POST['sheet_position']) && '' != $_POST['sheet_position'] ) && !empty($_POST['sheet_chair_name'])) {
 				$sheet_err++;
@@ -1232,9 +1260,6 @@ class PTA_SUS_Admin {
 			} elseif ((isset($_POST['sheet_position']) && '' == $_POST['sheet_position']) && (empty($_POST['sheet_chair_name']) || empty($_POST['sheet_chair_email']))) {
 				$sheet_err++;
 				echo '<div class="error"><p><strong>'.__('Please either select a position or type in the chair contact info!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
-			} elseif (!isset($_POST['sheet_position']) && (empty($_POST['sheet_chair_email']) || empty($_POST['sheet_chair_name']))) {
-				$sheet_err++;
-				echo '<div class="error"><p><strong>'.__('Please enter Chair Name(s) and Email(s)!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
 			}
 			$results = $this->data->validate_post($_POST, 'sheet');
 			// Give extensions a chance to validate any custom fields
@@ -1270,6 +1295,13 @@ class PTA_SUS_Admin {
 					$sheet_fields['sheet_duplicate_times'] = true;
 				} else {
 					$sheet_fields['sheet_duplicate_times'] = false;
+				}
+				$email_options = array('default','chair','user','both','none');
+				if(empty($sheet_fields['sheet_clear_emails']) || !in_array($sheet_fields['sheet_clear_emails'], $email_options)) {
+					$sheet_fields['sheet_clear_emails'] = 'default';
+				}
+				if(empty($sheet_fields['sheet_signup_emails']) || !in_array($sheet_fields['sheet_signup_emails'], $email_options)) {
+					$sheet_fields['sheet_signup_emails'] = 'default';
 				}
 				if ($duplicates && $add) {
 					echo '<div class="error"><p><strong>'.__('A Sheet with the same name already exists!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
@@ -1498,6 +1530,9 @@ class PTA_SUS_Admin {
 			<em>&nbsp;'.__('<strong>Uncheck</strong> if you want to <strong>hide</strong> this sheet from the public. Administrators and Sign-Up Sheet Managers can still see hidden sheets.', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>';
 
+		// Allow other plugins to add fields to the form
+		do_action( 'pta_sus_sheet_form_after_visible', $f, $edit );
+
 		echo '
 			<p>
 			<label for="sheet_duplicate_times">'.__('Allow Duplicate Signup Times?', 'pta-volunteer-sign-up-sheets').'&nbsp;</label>
@@ -1505,8 +1540,41 @@ class PTA_SUS_Admin {
 			<em>&nbsp;'.__('Check this to allow a volunteer to signup for more than one task (in this sheet) with overlapping time ranges.', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>';
 
+		echo '<hr/>';
+		echo '<h3>'.__('Sheet Email Options','pta-volunteer-sign-up-sheets').'</h3>';
+		echo '<p>'.__('Select where you want signup confirmation and clear emails to go for this sheet. Leave them set to "Default" to use the global settings from the Email settings page.','pta-volunteer-sign-up-sheets').'<br/>';
+		echo __('If you select anything other than "Default" for these options, they will override the main email settings. Even if you disable all emails via the emails settings page, emails for signup confirmation and clear emails will be sent to your selections here (unless you select none or default).','pta-volunteer-sign-up-sheets').'</p>';
+
+
+		$email_options = array(
+			'default' => __('Default', 'pta-volunteer-sign-up-sheets'),
+			'chair' => __('Chair Only', 'pta-volunteer-sign-up-sheets'),
+			'user' => __('User Only', 'pta-volunteer-sign-up-sheets'),
+			'both' => __('Both Chair & User', 'pta-volunteer-sign-up-sheets'),
+			'none' => __('None (no emails)', 'pta-volunteer-sign-up-sheets'),
+		);
+		echo '
+			<p>
+			<label for="sheet_clear_emails">'.__("Send Clear Emails to:",'pta-volunteer-sign-up-sheets').'</label>
+			<select name="sheet_clear_emails" id="sheet_clear_emails">';
+		$selected = !empty($f['sheet_clear_emails']) && in_array($f['sheet_clear_emails'], array_keys($email_options)) ? $f['sheet_clear_emails'] : 'default';
+		foreach ($email_options as $value => $label) {
+			echo '<option value="'.$value.'" '.selected($value, $selected).'>'.$label.'</option>';
+		}
+		echo '</select></p>';
+		echo '
+			<p>
+			<label for="sheet_signup_emails">'.__("Send Signup Confirmation Emails to:",'pta-volunteer-sign-up-sheets').'</label>
+			<select name="sheet_signup_emails" id="sheet_signup_emails">';
+		$selected = !empty($f['sheet_signup_emails']) && in_array($f['sheet_signup_emails'], array_keys($email_options)) ? $f['sheet_signup_emails'] : 'default';
+		foreach ($email_options as $value => $label) {
+			echo '<option value="'.$value.'" '.selected($value, $selected).'>'.$label.'</option>';
+		}
+		echo '</select></p>';
+
 		// Allow other plugins to add fields to the form
-		do_action( 'pta_sus_sheet_form_after_visible', $f, $edit );
+		do_action( 'pta_sus_sheet_form_before_contact_info', $f, $edit );
+
 		echo '
 			<hr />
 			<h3>'.__('Contact Info:', 'pta-volunteer-sign-up-sheets').'</h3>';
