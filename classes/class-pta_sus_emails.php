@@ -140,12 +140,10 @@ class PTA_SUS_Emails {
 	    }
 
 		$to_chair = false;
-		// check if should send to user, and make them the $to address if so
-		if(  ($clear && in_array($sheet->clear_emails, array('default','user','both')))
-			|| ($confirmation && in_array($sheet->signup_emails, array('default','user','both')))) {
-			$to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
-			$to = str_replace( ',', '', $to);
-		} elseif ( ($clear && 'chair' === $sheet->clear_emails) || ($confirmation && 'chair' === $sheet->signup_emails) ) {
+	    $to = $signup->firstname . ' ' . $signup->lastname . ' <'. $signup->email . '>';
+	    $to = str_replace( ',', '', $to);
+		// $to should always go to signup user unless it's clear/confirmation and only chair is specified in the new sheet settings
+		if ( ($clear && 'chair' === $sheet->clear_emails) || ($confirmation && 'chair' === $sheet->signup_emails) ) {
 			$to_chair = true;
 			if(empty($chair_emails)) {
 				// return since nobody to send to

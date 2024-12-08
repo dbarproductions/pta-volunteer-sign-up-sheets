@@ -145,6 +145,9 @@ class PTA_SUS_Public {
 
 	        $available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
 
+			// Allow extensions to modify available slots - e.g. allow waitlist extension to add extra available spots so signup can be processed
+	        $available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
+
 			if($available < 1) {
 				$this->err++;
 				$this->filled = true;
@@ -233,24 +236,37 @@ class PTA_SUS_Public {
             // Add Signup
             if (absint($this->err) < 1) {
 
-                $signup_id=$this->data->add_signup($posted,$signup_task_id);
-                if ( $signup_id === false) {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta-volunteer-sign-up-sheets'), 'add_signup_database_error_message' ).'</p>';
-                } else {
-	                do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
-                    if(!class_exists('PTA_SUS_Emails')) {
-                        include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
-                    }
-                    $emails = new PTA_SUS_Emails();
-                    $this->success = true;
-                    $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('You have been signed up!', 'pta-volunteer-sign-up-sheets'), 'signup_success_message' ).'</p>';
-                    if ($emails->send_mail(intval($signup_id)) === false) { 
-                        $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ).'</p>';
-                    }
-					// Allow other plugins to add messages
-	                $this->messages .= apply_filters('pta_sus_add_message_after_add_signup', '', $signup_id, $task, $sheet);
-                }
+				// Allow extensions to bypass adding signup to main database
+	            if( apply_filters( 'pta_sus_signup_add_signup_to_main_database', true, $posted, $signup_task_id ) ) {
+		            $signup_id=$this->data->add_signup($posted,$signup_task_id);
+		            if ( $signup_id === false) {
+			            $this->err++;
+			            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta-volunteer-sign-up-sheets'), 'add_signup_database_error_message' ).'</p>';
+		            } else {
+			            do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
+			            if(!class_exists('PTA_SUS_Emails')) {
+				            include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
+			            }
+			            $emails = new PTA_SUS_Emails();
+			            $this->success = true;
+			            $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('You have been signed up!', 'pta-volunteer-sign-up-sheets'), 'signup_success_message' ).'</p>';
+			            if ($emails->send_mail(intval($signup_id)) === false) {
+				            $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ).'</p>';
+			            }
+			            // Allow other plugins to add messages
+			            $this->messages .= apply_filters('pta_sus_add_message_after_add_signup', '', $signup_id, $task, $sheet);
+		            }
+	            } else {
+					// for extensions that bypass adding the signup to main database
+		            // allow extensions to process signup after all validation and add messages and set success
+		            do_action('pta_sus_signup_database_bypass', $posted, $signup_task_id);
+					$this->success = apply_filters('pta_sus_signup_database_bypass_success', $this->success, $posted, $signup_task_id);
+		            $this->messages .= apply_filters('pta_sus_signup_database_bypass_messages', '', $task, $sheet);
+	            }
+
+            } else {
+				// allow other plugins to do something if there were errors
+	            do_action('pta_sus_signup_form_errors', $this->errors, $posted, $signup_task_id);
             }
             
         }
@@ -348,6 +364,8 @@ class PTA_SUS_Public {
 		    $start_date = ($sheet->first_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->first_date));
 		    $end_date = ($sheet->last_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->last_date));
 		    $view_link = ($open_spots > 0) ? '<a class="pta-sus-link view" href="'.esc_url($sheet_url).'">'.esc_html( $view_signup_text ).'</a>' : '&#10004; '.esc_html( $sheet_filled_text );
+			// allow extensions to modify the view link
+		    $view_link = apply_filters('pta_sus_view_link_for_sheet', $view_link, $sheet, $open_spots );
 
 		    $row_data = array();
 		    $row_data['column-title'] = $title;
@@ -818,6 +836,12 @@ class PTA_SUS_Public {
             }
         }
 
+		// Give other plugins a chance to create their own output and not go any further
+	    $alt_display = apply_filters('pta_sus_main_shortcode_alt_display', '', $atts);
+		if(!empty($alt_display)) {
+			return $alt_display;
+		}
+
 	    // Give other plugins a chance to restrict access to the sheets list
 	    if( ! apply_filters( 'pta_sus_can_view_sheets', true, $atts ) ) {
 		    return '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message' ).'</p>';
@@ -1142,8 +1166,10 @@ class PTA_SUS_Public {
 				$return .= '</body></table>'; // close body and table
 			}
 
-			$return .= apply_filters( 'pta_sus_after_task_list', '', $tasks );
+			$return .= apply_filters( 'pta_sus_after_single_task_list', '', $task, $date );
 		}
+
+		$return .= apply_filters( 'pta_sus_after_all_tasks_list', '', $tasks );
 
 		$return .= '</div>'; // close wrapper for both table and divs layouts
 
@@ -1311,9 +1337,10 @@ class PTA_SUS_Public {
         if ($task->enable_quantities == "YES") {
             $form .= '<p>';
             $available = $this->data->get_available_qty($task_id, $date, $task->qty);
+			$available = apply_filters('pta_sus_signup_form_available_qty', $available, $task, $date);
             if ($available > 1) {
                 $form .= '<label class="required" for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
-                <input type="number" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" min="1" />';
+                <input type="number" id="signup_item_qty" name="signup_item_qty" value="'.((isset($posted['signup_item_qty'])) ? (int)($posted['signup_item_qty']) : '').'" min="1" max="'.esc_attr($available).'" />';
             } elseif ( 1 == $available) {
                 $form .= '<strong>'.apply_filters( 'pta_sus_public_output', __('Only 1 remaining! Your quantity will be set to 1.', 'pta-volunteer-sign-up-sheets'), 'only_1_remaining' ).'</strong>';
                 $form .= '<input type="hidden" name="signup_item_qty" value="1" />';

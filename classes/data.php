@@ -311,9 +311,8 @@ class PTA_SUS_Data
 	    } else {
 		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id));
 	    }
-        
-        $results = $this->stripslashes_full($results);
-        return $results;
+
+	    return $this->stripslashes_full($results);
     }
 
 	/**
@@ -385,17 +384,16 @@ class PTA_SUS_Data
 	    } else {
 		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id));
 	    }
-        
-        $results = $this->stripslashes_full($results);
-        return $results;
+
+	    return $this->stripslashes_full($results);
     }
 
     public function get_signups2($search='')
     {
         $SQL = "SELECT * FROM ".$this->tables['signup']['name']." WHERE lastname like '%s' OR firstname like '%s' GROUP BY firstname, lastname";
         $results = $this->wpdb->get_results($this->wpdb->prepare($SQL,'%'.$search.'%','%'.$search.'%'));
-        $results = $this->stripslashes_full($results);
-        return $results;
+
+	    return $this->stripslashes_full($results);
     }
 
     public function get_users($search='') {
@@ -441,8 +439,8 @@ class PTA_SUS_Data
 		    $SQL .= "WHERE task_id IN(".implode(',',$safe_ids).")";
 	    }
 	    $results = $this->wpdb->get_col($SQL);
-	    $results = $this->stripslashes_full($results);
-	    return $results;
+
+	    return $this->stripslashes_full($results);
     }
     
     public function get_signup($id)
@@ -540,8 +538,8 @@ class PTA_SUS_Data
             INNER JOIN ".$this->tables['task']['name']." task ON sheet.id = task.sheet_id
             INNER JOIN ".$this->tables['signup']['name']." signup ON task.id = signup.task_id
         ");
-        $results = $this->stripslashes_full($results);
-        return $results;
+
+	    return $this->stripslashes_full($results);
     }
     
     /**
@@ -816,8 +814,8 @@ class PTA_SUS_Data
 		    $safe_sql = $this->wpdb->prepare($sql, $user_id);
 	    }
         $results = $this->wpdb->get_results($safe_sql);
-        $results = $this->stripslashes_full($results);
-        return $results;
+
+	    return $this->stripslashes_full($results);
     }
 
 	public function get_sheet_signups_by_user_name($firstname, $lastname, $sheet_id, $date = false ) {
@@ -853,8 +851,8 @@ class PTA_SUS_Data
 			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id);
 		}
 		$results = $this->wpdb->get_results($safe_sql);
-		$results = $this->stripslashes_full($results);
-		return $results;
+
+		return $this->stripslashes_full($results);
 	}
 	
 	public function get_all_signups_by_user_name($firstname, $lastname, $date = false ) {
@@ -891,8 +889,8 @@ class PTA_SUS_Data
 		}
 		
 		$results = $this->wpdb->get_results($safe_sql);
-		$results = $this->stripslashes_full($results);
-		return $results;
+
+		return $this->stripslashes_full($results);
 	}
 
 	public function get_all_signups_by_email($email, $date = false ) {
@@ -930,8 +928,8 @@ class PTA_SUS_Data
 		}
 
 		$results = $this->wpdb->get_results($safe_sql);
-		$results = $this->stripslashes_full($results);
-		return $results;
+
+		return $this->stripslashes_full($results);
 	}
 	
 	/**
@@ -974,8 +972,8 @@ class PTA_SUS_Data
         	$safe_sql = $this->wpdb->prepare($sql, $this->now);
         }
 		$results = $this->wpdb->get_results($safe_sql);
-		$results = $this->stripslashes_full($results);
-		return $results;
+
+		return $this->stripslashes_full($results);
 	}
 
     public function get_chair_names_html($names_csv) {

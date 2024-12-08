@@ -168,6 +168,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 4.6.1**
+*   Bug fix for "to" email address not being set for reminder and reschedule emails after changes introduced in version 4.6.0
+*   Set a max limit on the quantity input on the signup form to the number of available slots
+*   Minor update to activation functions for multisite installs for best practices
+*   Minor code optimization changes
+*   Additional hooks added for new extensions
+
 **Version 4.6.0**
 *   New option added to email settings page to enable sending emails in HTML format. If this is checked, the simple textarea input will change to the WordPress TinyMCE visual/text editor for email message templates. Line breaks in email templates will be converted to HTML with the WordPress wpautop function before sending the email.
 *   New option added to enable automatic clear/deletion of expired sheets. This will delete the sheet from the database, along with all associated tasks and signups, a specified number of days after the sheet end date. You can also manually trigger this function from the CRON functions page to manually delete all expired sheets at any time.

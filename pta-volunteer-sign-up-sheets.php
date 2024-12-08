@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 4.6.0
+Version: 4.6.1
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -19,7 +19,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.6.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.6.1');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -470,10 +470,9 @@ Thank You!
         global $wpdb;
      
         if (is_plugin_active_for_network('pta-volunteer-sign-up-sheets/pta-volunteer-sign-up-sheets.php')) {
-            $old_blog = $wpdb->blogid;
             switch_to_blog($blog_id);
             $this->pta_sus_activate();
-            switch_to_blog($old_blog);
+            restore_current_blog();
         }
     }
     
@@ -486,14 +485,13 @@ Thank You!
         if (function_exists('is_multisite') && is_multisite()) {
             // check if it is a network activation - if so, run the activation function for each blog id
             if ($networkwide) {
-                $old_blog = $wpdb->blogid;
                 // Get all blog ids
                 $blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
                 foreach ($blogids as $blog_id) {
                     switch_to_blog($blog_id);
                     $this->pta_sus_activate();
+					restore_current_blog();
                 }
-                switch_to_blog($old_blog);
                 return;
             }  
         }
