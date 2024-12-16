@@ -251,7 +251,7 @@ class PTA_SUS_Public {
 			            $this->success = true;
 			            $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('You have been signed up!', 'pta-volunteer-sign-up-sheets'), 'signup_success_message' ).'</p>';
 			            if ($emails->send_mail(intval($signup_id)) === false) {
-				            $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ).'</p>';
+				            $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ).'</p>';
 			            }
 			            // Allow other plugins to add messages
 			            $this->messages .= apply_filters('pta_sus_add_message_after_add_signup', '', $signup_id, $task, $sheet);
@@ -1153,6 +1153,8 @@ class PTA_SUS_Public {
 					}
 				}
 			}
+
+			$column_data = apply_filters('pta_sus_task_display_rows', $column_data, $task, $date);
 
 			if($this->use_divs) {
 				ob_start();
