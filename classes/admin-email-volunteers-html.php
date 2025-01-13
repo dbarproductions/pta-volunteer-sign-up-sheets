@@ -1,9 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Stephen
- * Date: 9/21/2016
- * Time: 5:01 PM
+ * @var string $messages
  */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $sheets = $this->data->get_all_sheet_ids_and_titles();

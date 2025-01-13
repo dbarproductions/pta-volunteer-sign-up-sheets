@@ -26,6 +26,7 @@ $columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
 	'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
 	'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
     'ts'          => __( 'Signup Time', 'pta-volunteer-sign-up-sheets' ),
+	'validated'   => __( 'Validated', 'pta-volunteer-sign-up-sheets' ),
 	'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' )
 ), $sheet );
 $num_cols = count($columns);

@@ -8,12 +8,14 @@ class PTA_SUS_Emails {
 
 	public $email_options;
 	public $main_options;
+	public $validation_options;
 	public $data;
     public $last_reminder;
 
 	public function __construct() {
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
+		$this->validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 		$this->data = new PTA_SUS_Data();
 
 	} // Construct
@@ -50,15 +52,16 @@ class PTA_SUS_Emails {
     * @param    bool $reminder is this a reminder email?
 	 * @param    bool $clear is this a clear email?
 	 * @param    bool $reschedule is this a reschedule email?
+	 * @param    string $action the action being performed, if not one of the boolean values
     * @return   bool true if success or email does not need to be sent. False on sending failure
     */
-    public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false) {
+    public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false, $action='') {
 	    $signup = $this->data->get_signup($signup_id);
 	    if(!$signup) return false;
 	    $task = $this->data->get_task($signup->task_id);
 	    $sheet = $this->data->get_sheet($task->sheet_id);
 
-		$confirmation = !($reminder || $clear || $reschedule);
+		$confirmation = !($reminder || $clear || $reschedule) && empty($action);
 
 		// maybe don't send clear emails
 		if($clear) {
@@ -95,7 +98,8 @@ class PTA_SUS_Emails {
         
         $from = apply_filters('pta_sus_from_email', $this->email_options['from_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule);
         if (empty($from)) $from = get_bloginfo('admin_email');
-    
+
+		$subject = $message = $validation_link = '';
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
 		        $subject = $this->email_options['reminder2_email_subject'];
@@ -114,14 +118,22 @@ class PTA_SUS_Emails {
         } elseif ($reschedule) {
             $subject = $this->email_options['reschedule_email_subject'];
             $message = $this->email_options['reschedule_email_template'];
-        } else {
+        } elseif($confirmation) {
             $subject = $this->email_options['confirmation_email_subject'];
             $message = $this->email_options['confirmation_email_template'];
+        } elseif('validate_signup' === $action) {
+            $subject = $this->validation_options['signup_validation_email_subject'];
+            $message = $this->validation_options['signup_validation_email_template'];
+	        $validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
         }
         
         // Allow extensions to modify subject and template
-	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule));
-	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule));
+	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule, $action));
+	    $message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule, $action));
+
+		if(empty($subject) || empty($message)) {
+			return false;
+		}
 
 		// convert old line breaks to html when using html
 	    if($use_html) {
@@ -260,12 +272,53 @@ class PTA_SUS_Emails {
 
         
         // Replace any template tags with the appropriate variables
-	    $search = array('{sheet_title}','{sheet_details}','{task_title}','{task_description}','{date}','{start_time}',
-		    '{end_time}','{item_details}','{item_qty}','{details_text}','{firstname}','{lastname}',
-		    '{contact_emails}','{contact_names}','{site_name}','{site_url}','{phone}', '{email}');
+	    $search = array(
+		    '{sheet_title}',
+		    '{sheet_details}',
+		    '{task_title}',
+		    '{task_description}',
+		    '{date}',
+		    '{start_time}',
+		    '{end_time}',
+		    '{item_details}',
+		    '{item_qty}',
+		    '{details_text}',
+		    '{firstname}',
+		    '{lastname}',
+		    '{contact_emails}',
+		    '{contact_names}',
+		    '{site_name}',
+		    '{site_url}',
+		    '{phone}',
+		    '{email}',
+		    '{validation_link}',
+		    '{signup_expiration_hours}',
+		    '{validation_code_expiration_hours}'
+	    );
 
-	    $replace = array($sheet->title, $sheet_details, $task->title, $task->description, $date, $start_time, $end_time, $item, $signup->item_qty,
-		    $task->details_text, $signup->firstname, $signup->lastname, $contact_emails, $chair_names, get_bloginfo('name'), get_bloginfo('url'), $signup->phone, $signup->email );
+	    $replace = array(
+		    $sheet->title,
+		    $sheet_details,
+		    $task->title,
+		    $task->description,
+		    $date,
+		    $start_time,
+		    $end_time,
+		    $item,
+		    $signup->item_qty,
+		    $task->details_text,
+		    $signup->firstname,
+		    $signup->lastname,
+		    $contact_emails,
+		    $chair_names,
+		    get_bloginfo( 'name' ),
+		    get_bloginfo( 'url' ),
+		    $signup->phone,
+		    $signup->email,
+		    $validation_link,
+		    ($this->validation_options['signup_expiration_hours'] ?? 1),
+		    ($this->validation_options['validation_code_expiration_hours'] ?? 48),
+	    );
 	    
 	    // Allow extension to modify/add to search and replace arrays
 	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear, $reschedule);
@@ -318,6 +371,69 @@ class PTA_SUS_Emails {
             return true;
         }
     }
+
+	public function send_user_validation_email($firstname, $lastname, $email) {
+		$firstname  = sanitize_text_field($firstname);
+		$lastname = sanitize_text_field($lastname);
+		$email = sanitize_email($email);
+		if(empty($firstname) || empty($lastname) || empty($email)) return false;
+		$user_validation_template = "
+Please click on, or copy and paste, the link below to validate yourself:
+{validation_link}
+	    ";
+		$subject = $this->validation_options['user_validation_email_subject'] ?? __('Your Validation Link', 'pta-volunteer-sign-up-sheets');
+		$message = $this->validation_options['user_validation_email_template'] ?? $user_validation_template;
+		// Allow extensions to modify subject and template
+		$subject = stripslashes(apply_filters('pta_sus_validation_email_subject', $subject, $firstname, $lastname, $email));
+		$message = stripslashes(apply_filters('pta_sus_validation_email_template', $message, $firstname, $lastname, $email));
+
+		$validation_link = pta_create_validation_link($firstname,$lastname,$email );
+		// Replace any template tags with the appropriate variables
+		$search = array(
+			'{firstname}',
+			'{lastname}',
+			'{email}',
+			'{site_name}',
+			'{site_url}',
+			'{validation_link}',
+			'{validation_code_expiration_hours}'
+		);
+
+		$replace = array(
+			$firstname,
+			$lastname,
+			$email,
+			get_bloginfo( 'name' ),
+			get_bloginfo( 'url' ),
+			$validation_link,
+			($this->validation_options['validation_code_expiration_hours'] ?? 48),
+		);
+
+		// Allow extension to modify/add to search and replace arrays
+		$search = apply_filters('pta_sus_validation_email_search', $search, $firstname, $lastname, $email);
+		$replace = apply_filters('pta_sus_validation_email_replace', $replace, $firstname, $lastname, $email);
+
+		$message = str_replace($search, $replace, $message);
+		$subject = str_replace($search, $replace, $subject);
+		$to = sanitize_text_field($firstname) . ' ' . sanitize_text_field($lastname) . ' <'. sanitize_email($email) . '>';
+		$to = str_replace( ',', '', $to);
+		$use_html = isset($this->email_options['use_html']) && $this->email_options['use_html'];
+		$domain = parse_url(get_site_url(), PHP_URL_HOST);
+		$from = 'no-reply@' . $domain;
+		$headers = array();
+		// Add html content type header if HTML emails are enabled
+		if($use_html) {
+			$headers[] = 'Content-Type: text/html; charset=UTF-8';
+		}
+		$headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
+		// Allow other plugins to determine if we should send this email -- return false to not send
+		$send_email = apply_filters( 'pta_sus_send_validation_email_check', true, $firstname, $lastname, $email );
+		if($send_email) {
+			return wp_mail($to, $subject, $message, $headers);
+		} else {
+			return true;
+		}
+	}
 
     public function get_member_directory_emails($group='') {
         $args = array( 'post_type' => 'member', 'member_category' => $group );
@@ -375,6 +491,7 @@ class PTA_SUS_Emails {
         $reminder_events = array();
         foreach ($events as $event) {
             if ($event->sheet_trash) continue; // skip trashed events
+	        if(!$event->signup_validated) continue; // no reminders for unvalidated signups
             if (empty($event->email)) continue; // skip if nobody signed up
             $event_time = strtotime($event->signup_date);
             if($event_time < $now) continue; // skip old events that haven't been deleted
@@ -495,36 +612,33 @@ class PTA_SUS_Emails {
 
         $reschedule_count = 0;
 
-        if (!empty($reschedule_queue)) {
-            // Next, go through each reschedule event and prepare/send an email
 
-            foreach ($reschedule_queue as $index => $signup_id) {
+        // Next, go through each reschedule event and prepare/send an email
+        foreach ($reschedule_queue as $index => $signup_id) {
 
-                // Check if we have reached our hourly limit or not
-                if ($limit && !empty($last_batch)) {
-                    if ( $limit <= ($last_batch['num'] + $reschedule_count) ) {
-                        // limit reached, so break out of foreach loop
-                        break;
-                    }
-                }
-
-                if (true == $this->send_mail($signup_id, false, false, true )) {
-                    // Keep track of # of emails sent
-                    $reschedule_count++;
-                    unset($reschedule_queue[$index]); // remove it from queue
+            // Check if we have reached our hourly limit or not
+            if ($limit && !empty($last_batch)) {
+                if ( $limit <= ($last_batch['num'] + $reschedule_count) ) {
+                    // limit reached, so break out of foreach loop
+                    break;
                 }
             }
 
-            if($limit && !empty($last_batch)) {
-                // increment our last batch num by number of reminders sent
-                $last_batch['num'] += $reschedule_count;
-                update_option( 'pta_sus_reschedule_emails_last_batch', $last_batch );
+            if ( $this->send_mail( $signup_id, false, false, true ) ) {
+                // Keep track of # of emails sent
+                $reschedule_count++;
+                unset($reschedule_queue[$index]); // remove it from queue
             }
-
-            // update queue
-            update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
-
         }
+
+        if($limit && !empty($last_batch)) {
+            // increment our last batch num by number of reminders sent
+            $last_batch['num'] += $reschedule_count;
+            update_option( 'pta_sus_reschedule_emails_last_batch', $last_batch );
+        }
+
+        // update queue
+        update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
 
         // Set another option to save the last time any reminders were sent
         if (!$sent = get_option('pta_sus_last_reschedule_emails')) {

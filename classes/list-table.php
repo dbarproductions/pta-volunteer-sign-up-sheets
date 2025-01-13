@@ -169,7 +169,6 @@ class PTA_SUS_List_Table extends WP_List_Table
     * @see      WP_List_Table::::single_row_columns()
     * @param    array   one row of data
     * @return   string  text that will go in the column's TD
-    * @todo     finish
     */
     function column_cb($item)
     {

@@ -85,7 +85,8 @@ class PTA_SUS_Data
                     'reminder1_sent' => 'bool',
                     'reminder2_sent' => 'bool',
                     'item_qty' => 'int',
-	                'ts' => 'int'
+	                'ts' => 'int',
+	                'validated' => 'bool'
                 ),
             )),
         );
@@ -128,7 +129,7 @@ class PTA_SUS_Data
 	        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash));
         }
         
-        $results = $this->stripslashes_full($results);
+        $results = stripslashes_deep($results);
         // Hide incomplete sheets (no tasks) from public
 
         if (!is_admin()) {
@@ -160,11 +161,16 @@ class PTA_SUS_Data
 	 *
 	 * @return    mixed
 	 */
-    public function get_sheet($id)
-    {
+    public function get_sheet($id) {
+	    if(is_object($id)) {
+		    if(empty($id->id)) {
+			    return false;
+		    }
+		    $id = $id->id;
+	    }
         $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id));
 	    if(!empty($row) ) {
-		    return $this->stripslashes_full($row);
+		    return stripslashes_deep($row);
 	    } else {
 		    return false;
 	    }
@@ -312,7 +318,7 @@ class PTA_SUS_Data
 		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id));
 	    }
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
 
 	/**
@@ -342,15 +348,41 @@ class PTA_SUS_Data
      * @param     int      task id
      * @return    mixed    single task object
      */
-    public function get_task($id)
-    {
-        $results = $this->wpdb->get_results($this->wpdb->prepare("SELECT * FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
-	    if(!empty($results) && isset($results[0])) {
-		    return $this->stripslashes_full($results[0]);
+    public function get_task($id) {
+		if(is_object($id)) {
+			if(empty($id->id)) {
+				return false;
+			}
+			$id = $id->id;
+		}
+        $task = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
+	    if(!empty($task)) {
+		    return stripslashes_deep($task);
 	    } else {
 		    return false;
 	    }
     }
+
+	public function get_all_task_dates_for_sheet($sheet_id) {
+		$SQL = "SELECT DISTINCT dates FROM ".$this->tables['task']['name']." WHERE sheet_id = %d";
+		$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id));
+		$dates = array();
+		if(empty($results)) {
+			return $dates;
+		}
+		foreach($results as $result) {
+			// split out individual dates
+			$task_dates = explode(',', $result);
+			foreach($task_dates as $task_date) {
+				$task_date = trim($task_date);
+				if(!empty($task_date) && !in_array($task_date, $dates)) {
+					$dates[] = $task_date;
+				}
+			}
+			$dates[] = $result;
+		}
+		return $dates;
+	}
 
 	/**
 	 * Move tasks
@@ -372,8 +404,13 @@ class PTA_SUS_Data
      * @param    int        id of task
      * @return    mixed    array of signups
      */
-    public function get_signups($task_id, $date='')
-    {
+    public function get_signups($task_id, $date='') {
+	    if(is_object($task_id)) {
+		    if(empty($task_id->id)) {
+			    return false;
+		    }
+		    $task_id = $task_id->id;
+	    }
         $SQL = "SELECT * FROM ".$this->tables['signup']['name']." WHERE task_id = %d ";
         if ('' != $date) {
             $SQL .= "AND date = %s";
@@ -385,7 +422,7 @@ class PTA_SUS_Data
 		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id));
 	    }
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
 
     public function get_signups2($search='')
@@ -393,7 +430,7 @@ class PTA_SUS_Data
         $SQL = "SELECT * FROM ".$this->tables['signup']['name']." WHERE lastname like '%s' OR firstname like '%s' GROUP BY firstname, lastname";
         $results = $this->wpdb->get_results($this->wpdb->prepare($SQL,'%'.$search.'%','%'.$search.'%'));
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
 
     public function get_users($search='') {
@@ -440,14 +477,14 @@ class PTA_SUS_Data
 	    }
 	    $results = $this->wpdb->get_col($SQL);
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
     
     public function get_signup($id)
     {
         $results = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['signup']['name']." WHERE id = %d" , $id));
         if(!empty($results)) {
-        	$results = $this->stripslashes_full($results);
+        	$results = stripslashes_deep($results);
         }
         return $results;
     }
@@ -488,7 +525,7 @@ class PTA_SUS_Data
         ", $signup_id);
 		$results = $this->wpdb->get_results($safe_sql);
 		if(!empty($results) && isset($results[0])) {
-			return $this->stripslashes_full($results[0]);
+			return stripslashes_deep($results[0]);
 		} else {
 			return false;
 		}
@@ -529,6 +566,8 @@ class PTA_SUS_Data
                 , signup.date AS signup_date
                 , signup.item_qty AS item_qty
                 , signup.user_id AS signup_user_id
+                , signup.validated AS signup_validated
+                , signup.ts AS signup_ts
                 , item
                 , firstname
                 , lastname
@@ -539,7 +578,7 @@ class PTA_SUS_Data
             INNER JOIN ".$this->tables['signup']['name']." signup ON task.id = signup.task_id
         ");
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
     
     /**
@@ -713,7 +752,7 @@ class PTA_SUS_Data
 
 	    $results = $this->wpdb->get_results($safe_sql);
 	    if(!empty($results)) {
-		    $results = $this->stripslashes_full($results);
+		    $results = stripslashes_deep($results);
 		    foreach ($results as $signup) {
 			    // Most item IDs should look like postType-postID
 			    // If you don't have a post, comment or other ID to work with,
@@ -775,13 +814,34 @@ class PTA_SUS_Data
     	return $this->wpdb->delete($signup_table, $where, $where_format);
     }
 
+	public function get_all_signups_for_sheet($sheet_id, $date='') {
+		$signup_table = $this->tables['signup']['name'];
+		$task_table = $this->tables['task']['name'];
+		if(is_object($sheet_id)) {
+			$sheet_id = absint($sheet_id->id);
+		}
+		$sql = "SELECT $signup_table.* FROM $signup_table INNER JOIN $task_table ON $signup_table.task_id = $task_table.id WHERE $task_table.sheet_id = %d";
+
+		if (!empty($date)) {
+			$sql .= " AND $signup_table.date = %s";
+			$sql = $this->wpdb->prepare($sql, $sheet_id, $date);
+		} else {
+			$sql = $this->wpdb->prepare($sql, $sheet_id);
+		}
+
+		return $this->wpdb->get_results($sql);
+	}
+
     /**
      * Get all the signups for a given user id
      * Return info on what they signed up for
-     * @param  int $user_id wordpress uer id
-     * @return Object Array    Returns an array of objects with the user's signup info
+     * @param  int $user_id WordPress uer id
+     * @return Array    Returns an array of objects with the user's signup info
      */
     public function get_user_signups($user_id, $show_expired = false) {
+		if($user_id < 1) {
+			return array();
+		}
         $signup_table = $this->tables['signup']['name'];
         $task_table = $this->tables['task']['name'];
         $sheet_table = $this->tables['sheet']['name'];
@@ -815,7 +875,7 @@ class PTA_SUS_Data
 	    }
         $results = $this->wpdb->get_results($safe_sql);
 
-	    return $this->stripslashes_full($results);
+	    return stripslashes_deep($results);
     }
 
 	public function get_sheet_signups_by_user_name($firstname, $lastname, $sheet_id, $date = false ) {
@@ -833,6 +893,7 @@ class PTA_SUS_Data
             $task_table.time_start AS time_start,
             $task_table.time_end AS time_end,
             $sheet_table.title AS title,
+            $sheet_table.id AS sheet_id,
             $sheet_table.clear AS clear,
             $sheet_table.clear_days AS clear_days,
             $task_table.dates AS task_dates
@@ -852,84 +913,38 @@ class PTA_SUS_Data
 		}
 		$results = $this->wpdb->get_results($safe_sql);
 
-		return $this->stripslashes_full($results);
+		return stripslashes_deep($results);
 	}
 	
 	public function get_all_signups_by_user_name($firstname, $lastname, $date = false ) {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
-		$sheet_table = $this->tables['sheet']['name'];
-		$sql = "SELECT
-			$signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-            $sheet_table.title AS title,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $signup_table.firstname = %s AND $signup_table.lastname = %s
-            AND $sheet_table.trash = 0";
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '4.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() '.sprintf('Called from %s line %s', $file, $line) );
+		$where = array(
+			'firstname' => $firstname,
+			'lastname' => $lastname,
+		);
 		if($date) {
-			$sql .= "  AND $signup_table.date = %s";
+			$where['date'] = $date;
 		}
-		$sql .= " ORDER BY signup_date, time_start";
-		if($date) {
-			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $date);
-		} else {
-			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname);
-		}
-		
-		$results = $this->wpdb->get_results($safe_sql);
-
-		return $this->stripslashes_full($results);
+		return PTA_SUS_Signup_Functions::get_detailed_signups($where);
 	}
 
 	public function get_all_signups_by_email($email, $date = false ) {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
-		$sheet_table = $this->tables['sheet']['name'];
-		$sql = "SELECT 
-			$signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-       		$sheet_table.id AS sheet_id,
-            $sheet_table.title AS title,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $signup_table.email = %s 
-            AND $sheet_table.trash = 0";
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '4.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() '.sprintf('Called from %s line %s', $file, $line) );
+		$where = array(
+			'email' => $email
+		);
 		if($date) {
-			$sql .= "  AND $signup_table.date = %s";
+			$where['date'] = $date;
 		}
-		$sql .= " ORDER BY signup_date, time_start";
-		if($date) {
-			$safe_sql = $this->wpdb->prepare($sql, $email, $date);
-		} else {
-			$safe_sql = $this->wpdb->prepare($sql, $email);
-		}
-
-		$results = $this->wpdb->get_results($safe_sql);
-
-		return $this->stripslashes_full($results);
+		return PTA_SUS_Signup_Functions::get_detailed_signups($where);
 	}
 	
 	/**
@@ -940,46 +955,15 @@ class PTA_SUS_Data
 	 * @return Object Array    Returns an array of objects with signup info
 	 */
 	public function get_all_signups($show_expired = false) {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
-		$sheet_table = $this->tables['sheet']['name'];
-		$sql = "SELECT
-            $signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-            $sheet_table.title AS title,
-            $sheet_table.id AS sheet_id,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $sheet_table.trash = 0";
-		if(!$show_expired) {
-			$sql .= " AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')";
-		}
-		$sql .= " ORDER BY signup_date, time_start";
-        if($show_expired) {
-        	$safe_sql = $sql;
-        } else {
-        	$safe_sql = $this->wpdb->prepare($sql, $this->now);
-        }
-		$results = $this->wpdb->get_results($safe_sql);
-
-		return $this->stripslashes_full($results);
+		_deprecated_function( __FUNCTION__, '4.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups()' );
+		$where = array();
+		return PTA_SUS_Signup_Functions::get_detailed_signups($where,$show_expired);
 	}
 
     public function get_chair_names_html($names_csv) {
         $html_names = '';
         $i = 1;
-        $names = str_getcsv($names_csv);
+        $names = explode( ',',sanitize_text_field($names_csv));
         $count = count($names);
         foreach ($names as $name) {
             if ($i > 1) {
@@ -1442,17 +1426,12 @@ class PTA_SUS_Data
     * @return   mixed   cleaned input data
     */
     public function stripslashes_full($input) {
-        if (is_array($input)) {
-            $input = array_map(array('PTA_SUS_Data', 'stripslashes_full'), $input);
-        } elseif (is_object($input)) {
-            $vars = get_object_vars($input);
-            foreach ($vars as $k=>$v) {
-                $input->{$k} = $this->stripslashes_full($v);
-            }
-        } elseif (!empty($input)) {
-            $input = stripslashes($input);
-        }
-        return $input;
+	    $trace = debug_backtrace();
+	    $caller = $trace[1] ?? array();
+	    $file = $caller['file'] ?? '';
+	    $line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '4.7.0', 'stripslashes_deep() '.sprintf('Called from %s line %s', $file, $line) );
+	    return stripslashes_deep($input);
     }
 
     public function validate_post($fields, $post_type="sheet") {
@@ -1493,7 +1472,7 @@ class PTA_SUS_Data
                         // First, get rid of any spaces
                         $emails_field = str_replace(' ', '', $clean_fields[$field]);
                         // Then, separate out the emails into a simple data array, using comma as separator
-                        $emails = str_getcsv($emails_field);
+                        $emails = explode( ',',$emails_field);
 
                         foreach ($emails as $email) {
                             if (!is_email( $email )) {
@@ -1516,7 +1495,7 @@ class PTA_SUS_Data
                         // First, get rid of any spaces
                         $dates_field = str_replace(' ', '', $clean_fields[$field]);
                         // Then, separate out the dates into a simple data array, using comma as separator
-                        $dates = str_getcsv($dates_field);
+                        $dates = explode(',', $dates_field);
                         foreach ($dates as $date) {
                             if (!$this->check_date( $date )) {
                                 $results['errors']++;
@@ -1578,7 +1557,7 @@ class PTA_SUS_Data
                         $valid_names = '';
 	                    // Sanitize and format one or more names that will be separated by commas
 						if(!empty($clean_fields[$field])) {
-							$names = str_getcsv(sanitize_text_field( $clean_fields[$field] ));
+							$names = explode( ',',sanitize_text_field( $clean_fields[$field] ));
 							$count = 1;
 							foreach ($names as $name) {
 								$name = !empty($name) ? trim($name) : '';
@@ -1605,7 +1584,7 @@ class PTA_SUS_Data
 	                        // First, get rid of any spaces
 	                        $emails_field = preg_replace('/\s+/', '', $clean_fields[$field]);
 	                        // Then, separate out the emails into a simple data array, using comma as separator
-	                        $emails = str_getcsv($emails_field);
+	                        $emails = explode( ',',$emails_field);
 	                        $count = 1;
 	                        foreach ($emails as $email) {
 		                        // Only add the email if it's a valid email
@@ -1707,7 +1686,7 @@ class PTA_SUS_Data
         // First, get rid of any spaces
         $dates = str_replace(' ', '', $dates);
         // Then, separate out the dates into a simple data array, using comma as separator
-        $dates = str_getcsv($dates);
+        $dates = explode(',', $dates);
         $valid_dates = array();
         foreach ($dates as $date) {
             if ($this->check_date( $date )) {

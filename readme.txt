@@ -25,6 +25,7 @@ Read the documentation here:
 
 **Features:**
 
+*   Version 4.7 add a new Validation option to validate signups via an email code, as well as to validate a user so that they can view and clear their signups without having to login to a WordPress user account.
 *   Version 4.6 adds HTML format emails, as well as per sheet options for recipients of signup confirmation and clear emails, along with a mobile CSS option to collapse the tables to a single column format for smaller screens, and many other new features and settings.
 *   Version 3.6 adds the ability to Reschedule a sheet to new date and times, copy a sheet with new dates and times, or create multiple copies of a sheet at specified day intervals. These new functions allow optionally copying the signups, and have a new email template to notify those signups of the new dates and times.
 *   [pta_user_signups] shortcode allows you to show a list of the current logged in user's signups on any page (with clear links, if allowed).
@@ -168,10 +169,15 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
-**Version 4.6.2**
-*   Minor code optimization
+**Version 4.7.0**
+*   Added new Validation features to (optionally) validate signups and allow users to view and clear their own signups without having to have a WordPress user account. Check the documentation for more details.
+*   Logfile creation and viewing from the admin CRON functions page that will show any actions run during the CRON run. Log files will be automatically cleared every 30 days, or can be manually cleared from the CRON functions page.
+*   Code optimization & moving common functions from extensions to global functions to reduce code duplication
+*   Beginning to refactor the very old code base to make it more modular and easier to extend, moving toward a more object-oriented approach.
 *   Additional hooks added for new extensions, specifically for the new Waitlists extension
-*   Tested with PHP 8.3.13 and WordPress 6.7.1
+*   Minor changes to prevent deprecation notices in PHP8.4
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+*   This update, and all future versions of this plugin, as well as all extensions, will require PHP 7.4 or higher.
 
 **Version 4.6.1**
 *   Bug fix for "to" email address not being set for reminder and reschedule emails after changes introduced in version 4.6.0

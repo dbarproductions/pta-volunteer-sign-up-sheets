@@ -59,5 +59,4 @@ jQuery(document).ready( function() {
     if(jQuery("input[name=signup_firstname],input[name=signup_lastname]").length > 0) {
         pta_volunteer_info ();
     }
-    
 });

@@ -133,6 +133,8 @@ class PTA_SUS_Widget extends WP_Widget
 	 * @see WP_Widget::form()
 	 *
 	 * @param array $instance Previously saved values from database.
+     *
+     * @return string
 	 */
 	public function form( $instance ) {
 		/* Set up default widget settings. */

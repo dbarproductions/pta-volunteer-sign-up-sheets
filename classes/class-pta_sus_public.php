@@ -7,21 +7,21 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class PTA_SUS_Public {
 
 	private $data;
-    private $plugin_path;
+	private $emails;
+
     private $all_sheets_uri;
     public $main_options;
     public $email_options;
     public $integration_options;
-    public $member_directory_active;
+	public $validation_options;
+
     public $submitted;
     public $err;
     public $success;
-    public $errors;
-    public $messages;
+
 	public $filled = false;
     private $cleared;
     private $messages_displayed = false;
-	private $errors_displayed = false;
     private $task_item_header;
     private $start_time_header;
     private $end_time_header;
@@ -50,35 +50,74 @@ class PTA_SUS_Public {
 	private $show_headers = true;
 	private $show_date_start = true;
 	private $show_date_end = true;
-	private $no_global_overlap = false;
+	private $no_global_overlap;
+
+	public $validation_sent = false;
+	public $validation_enabled = false;
+
+
+	/**
+	 * @var PTA_SUS_Volunteer $volunteer
+	 */
+	private $volunteer;
+
+	private $processed = false;
     
     public function __construct() {
         $this->data = new PTA_SUS_Data();
-        
-        $this->plugin_path = dirname(__FILE__).'/';
 
         $this->all_sheets_uri = add_query_arg(array('sheet_id' => false, 'date' => false, 'signup_id' => false, 'task_id' => false));
 
 	    $this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 	    $this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 	    $this->integration_options = get_option( 'pta_volunteer_sus_integration_options' );
-
-        add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
-	    add_shortcode('pta_user_signups', array($this, 'process_user_signups_shortcode'));
+	    $this->validation_options = get_option( 'pta_volunteer_sus_validation_options' );
+		$this->validation_enabled = isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'];
         
         add_action('wp_enqueue_scripts', array($this, 'add_css_and_js_to_frontend'));
 
-        add_action('wp_loaded', array($this, 'process_signup_form'));
-        add_action('wp_loaded', array($this, 'set_up_filters'));
+        add_action('init', array($this, 'init'));
         
-        $this->phone_required = isset($this->main_options['phone_required']) ? $this->main_options['phone_required'] : true;
-	    $this->use_divs = isset($this->main_options['use_divs']) ? $this->main_options['use_divs'] : false;
-	    $this->show_full_name = isset($this->main_options['show_full_name']) ? $this->main_options['show_full_name'] : false;
-	    $this->suppress_duplicates = isset($this->main_options['suppress_duplicates']) ? $this->main_options['suppress_duplicates'] : true;
-	    $this->no_global_overlap = isset($this->main_options['no_global_overlap']) ? $this->main_options['no_global_overlap'] : false;
+        $this->phone_required = $this->main_options['phone_required'] ?? true;
+	    $this->use_divs = $this->main_options['use_divs'] ?? false;
+	    $this->show_full_name = $this->main_options['show_full_name'] ?? false;
+	    $this->suppress_duplicates = $this->main_options['suppress_duplicates'] ?? true;
+	    $this->no_global_overlap = $this->main_options['no_global_overlap'] ?? false;
 
-        
     } // Construct
+
+	public function init() {
+		if(!session_id()) {
+			session_start();
+		}
+		$this->volunteer = new PTA_SUS_Volunteer(get_current_user_id());
+		$this->set_up_filters();
+		$this->process_signup_form();
+		if($this->validation_enabled) {
+			$this->process_validation_form();
+			$this->maybe_validate_volunteer();
+		}
+
+
+		// Get any session messages if we did a redirect
+		if(isset($_SESSION['pta_sus_messages'])) {
+			foreach($_SESSION['pta_sus_messages'] as $msg) {
+				PTA_SUS_Messages::add_message($msg);
+			}
+			unset($_SESSION['pta_sus_messages']);
+		}
+		if(isset($_SESSION['pta_sus_errors'])) {
+			foreach($_SESSION['pta_sus_errors'] as $error) {
+				PTA_SUS_Messages::add_error($error);
+			}
+			unset($_SESSION['pta_sus_errors']);
+		}
+
+		add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
+		add_shortcode('pta_user_signups', array($this, 'process_user_signups_shortcode'));
+		add_shortcode('pta_validation_form', array($this, 'process_validation_form_shortcode'));
+
+	}
 
     public function set_up_filters() {
         // Set up some public output strings used by multiple functions
@@ -105,183 +144,344 @@ class PTA_SUS_Public {
 	    }
     }
 
+	private function maybe_validate_volunteer() {
+		if(empty($_GET['pta-sus-action'])) return;
+		$action = sanitize_text_field($_GET['pta-sus-action']);
+		if('clear_validation' === $action) {
+			if(!wp_verify_nonce($_GET['pta-sus-clear-validation-nonce'], 'pta-sus-clear-validation')) {
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Sorry! Your security nonce did not verify!', 'pta-volunteer-sign-up-sheets'), 'nonce_error_message' ));
+				return;
+			}
+			pta_clear_validated_user_cookie();
+			PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Your validation code has been cleared.', 'pta-volunteer-sign-up-sheets'), 'validation_cleared_message' ));
+			setcookie(
+				'pta_sus_validation_cleared',
+				'1',
+				time() + (120),
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+			pta_clean_redirect();
+			return;
+		}
+		$code = !empty($_GET['code']) ? sanitize_text_field($_GET['code']) : false;
+		if(!$code) return;
+		$user_info = pta_validate_code($code);
+		if(empty($user_info)) {
+			// @todo: add to customizer
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid or Expired Code','pta-volunteer-sign-up-sheets'),'validation_invalid_code_error' ));
+			return;
+		}
+		$firstname = sanitize_text_field($user_info->firstname);
+		$lastname = sanitize_text_field($user_info->lastname);
+		$email = sanitize_email($user_info->email);
+
+		if('validate_user' === $action) {
+			// @todo: add to customizer
+			PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('User Validation successful.','pta-volunteer-sign-up-sheets'),'user_validation_success_message' ));
+			pta_set_validated_user_cookie($firstname, $lastname, $email);
+		}
+		if('validate_signup' === $action) {
+			if(empty($_GET['validate_signup_id'])) {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Missing Signup ID.','pta-volunteer-sign-up-sheets'),'signup_validation_signup_id_error' ));
+				return;
+			}
+			$signup_id = absint($_GET['validate_signup_id']);
+			$signup = PTA_SUS_Signup_Functions::get_signup($signup_id);
+			if(empty($signup)) {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup not found.','pta-volunteer-sign-up-sheets'),'signup_validation_signup_not_found_error' ));
+				return;
+			}
+			if($signup->firstname === $firstname && $signup->lastname === $lastname && $signup->email === $email) {
+				$validated = PTA_SUS_Signup_Functions::validate_signup($signup_id);
+				if($validated) {
+					// @todo: add to customizer
+					PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup validated.','pta-volunteer-sign-up-sheets'),'signup_validation_success_message' ));
+					pta_set_validated_user_cookie($firstname, $lastname, $email);
+					$emails = new PTA_SUS_Emails();
+					if ($emails->send_mail(intval($signup_id)) === false) {
+						// @todo: add to customizer
+						PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ));
+					}
+				} else {
+					// @todo: add to customizer
+					PTA_SUS_Messages::add_error( apply_filters( 'pta_sus_public_output', __( 'Signup validation failed.', 'pta-volunteer-sign-up-sheets' ), 'signup_validation_failed_error' ) );
+				}
+			} else {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup info does not match validation code info.','pta-volunteer-sign-up-sheets'),'signup_validation_info_mismatch_error' ));
+			}
+		}
+	}
+
+	/**
+	 * Processes the validation form submission and sends validation email
+	 */
+	private function process_validation_form() {
+		if(isset($_POST['pta-sus-validate-form-submit']) && !$this->validation_sent) {
+			if(!wp_verify_nonce($_POST['pta-sus-validate-form-nonce'], 'pta-sus-validate-form')) {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Form Validation Failed!','pta-volunteer-sign-up-sheets'),'validation_form_nonce_error' ));
+				return;
+			}
+			if(empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email'])) {
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output',__('Please complete all required fields.', 'pta-volunteer-sign-up-sheets'), 'required_fields_error_message' ));
+				return;
+			}
+			$firstname = sanitize_text_field($_POST['firstname']);
+			$lastname = sanitize_text_field($_POST['lastname']);
+			$email = sanitize_email($_POST['email']);
+			if(empty($this->emails)) {
+				$this->emails = new PTA_SUS_Emails();
+			}
+			if($this->emails->send_user_validation_email($firstname, $lastname, $email)) {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Validation email sent.','pta-volunteer-sign-up-sheets'),'validation_email_sent_message' ));
+				$this->validation_sent = true;
+				$resubmit = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
+				$resubmit_time = time() + (absint($resubmit) * 60);
+				// When form is submitted, set a cookie
+				setcookie(
+					'pta_sus_validation_form_submitted',
+					'1',
+					$resubmit_time,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+
+			} else {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Validation email failed to send.','pta-volunteer-sign-up-sheets'),'validation_email_send_error' ));
+			}
+		}
+
+	}
+
+	public function validate_signup_form_fields($posted) {
+		// Moved these for compatibility with check-in extension to allow automatically adding extra slots
+		$signup_task_id = $posted['signup_task_id'];
+		do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
+
+		$task = $this->data->get_task(intval($posted['signup_task_id']));
+		$sheet = $this->data->get_sheet(intval($task->sheet_id));
+
+		$details_required = isset($task->details_required) && "YES" == $task->details_required;
+
+		$available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+
+		// Allow extensions to modify available slots - e.g. allow waitlist extension to add extra available spots so signup can be processed
+		$available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
+
+		if($available < 1) {
+			$this->err++;
+			$this->filled = true;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ));
+		}
+
+		//Error Handling
+		if (
+			empty(sanitize_text_field($posted['signup_firstname']))
+			|| empty(sanitize_text_field($posted['signup_lastname']))
+			|| empty($posted['signup_email'])
+			|| empty($posted['signup_validate_email'])
+			|| ( ! $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)
+			|| ("YES" == $task->need_details && $details_required && empty($posted['signup_item']) )
+			|| ("YES" == $task->enable_quantities && !isset($posted['signup_item_qty']))
+		) {
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Please complete all required fields.', 'pta-volunteer-sign-up-sheets'), 'required_fields_error_message' ));
+		}
+
+		// Check for non-allowed characters
+		elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_firstname'])))
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in First Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'firstname_error_message' ));
+		}
+		elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_lastname'])))
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Last Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'lastname_error_message' ));
+		}
+		elseif ( !is_email( trim($posted['signup_email']) ) )
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Email!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'email_error_message' ));
+		}
+		elseif ( trim($posted['signup_email']) != trim($posted['signup_validate_email'])  )
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Email and Confirmation Email do not match!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'confirmation_email_error_message' ));
+		}
+		elseif ( ! $this->main_options['no_phone'] && preg_match("/[^0-9\-\.\(\)\ \+]/", $posted['signup_phone']))
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Phone Number!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'phone_error_message' ));
+		}
+		elseif ( "YES" == $task->need_details && ! $this->data->check_allowed_text(stripslashes($posted['signup_item'])))
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Signup Item!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'item_details_error_message' ));
+		}
+		elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $available ) )
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_error_message', $available ));
+		}
+		elseif (!$this->data->check_date($posted['signup_date']))
+		{
+			$this->err++;
+			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Hidden signup date field is invalid!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'signup_date_error_message' ));
+		}
+		// Allow extensions to bypass duplicate checks
+		$perform_duplicate_checks = apply_filters('pta_sus_perform_duplicate_checks', true, $task, $sheet);
+		if($perform_duplicate_checks) {
+			// If no errors so far, Check for duplicate signups if not allowed
+			if (!$this->err && 'NO' == $task->allow_duplicates) {
+				if( $this->data->check_duplicate_signup( $posted['signup_task_id'], $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname']) ) {
+					$this->err++;
+					PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for this task!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_error_message' ));
+				}
+			}
+			if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
+				$this->err++;
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ));
+			}
+			if ($this->no_global_overlap && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
+				$this->err++;
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ));
+			}
+		}
+		return ! ( $this->err > 0 );
+	}
+
+	public function add_signup($posted, $signup_task_id,$task, $sheet) {
+		$validate_signups = isset($this->validation_options['enable_signup_validation']) && $this->validation_options['enable_signup_validation'];
+		$posted['signup_validated'] = $validate_signups ? $this->volunteer->is_validated() : 1;
+		$needs_validation = ($validate_signups && !$this->volunteer->is_validated());
+		// Allow extensions to bypass adding signup to main database
+		if( apply_filters( 'pta_sus_signup_add_signup_to_main_database', true, $posted, $signup_task_id ) ) {
+			$signup_id=$this->data->add_signup($posted,$signup_task_id);
+			if ( $signup_id === false) {
+				$this->err++;
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta-volunteer-sign-up-sheets'), 'add_signup_database_error_message' ));
+				return false;
+			} else {
+				do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
+				if(!class_exists('PTA_SUS_Emails')) {
+					include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
+				}
+				if(empty($this->emails)) {
+					$this->emails = new PTA_SUS_Emails();
+				}
+
+				$this->success = true;
+				if($needs_validation) {
+					$sent = $this->emails->send_mail($signup_id,false,false,false,'validate_signup');
+					if($sent) {
+						// @todo: add to customizer
+						PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup Validation email sent.','pta-volunteer-sign-up-sheets'), 'signup_validation_sent_message' ));
+						$this->validation_sent = true;
+					} else {
+						// @todo: add to customizer
+						PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup Validation email failed to send.','pta-volunteer-sign-up-sheets'), 'signup_validation_send_error_message' ));
+					}
+				} else {
+					PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('You have been signed up!', 'pta-volunteer-sign-up-sheets'), 'signup_success_message' ),true);
+					$sent = $this->emails->send_mail(intval($signup_id));
+					if (!$sent) {
+						PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ));
+					}
+				}
+
+				// only redirect if not doing ajax - so we don't break calendar popup signups
+				if(!defined('DOING_AJAX')) {
+					pta_clean_redirect();
+				} else {
+					return $signup_id;
+				}
+
+			}
+		} else {
+			// for extensions that bypass adding the signup to main database
+			// allow extensions to process signup after all validation and set success
+			do_action('pta_sus_signup_database_bypass', $posted, $signup_task_id);
+			$this->success = apply_filters('pta_sus_signup_database_bypass_success', $this->success, $posted, $signup_task_id);
+
+			return $this->success;
+		}
+	}
+
     public function process_signup_form() {
         
         $this->submitted = (isset($_POST['pta_sus_form_mode']) && $_POST['pta_sus_form_mode'] == 'submitted');
         $this->err = 0;
         $this->success = false;
-        $this->errors = '';
-        $this->messages = '';
         $this->messages_displayed = false; // reset
-	    $this->errors_displayed = false; // reset
 	    $this->cleared = false;
         
         // Process Sign-up Form
-        if ($this->submitted) {
+        if ($this->submitted && !$this->processed) {
+			$this->processed = true;
             // NONCE check
             if ( ! isset( $_POST['pta_sus_signup_nonce'] ) || ! wp_verify_nonce( $_POST['pta_sus_signup_nonce'], 'pta_sus_signup' ) ) {
                 $this->err++;
-                $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Sorry! Your security nonce did not verify!', 'pta-volunteer-sign-up-sheets'), 'nonce_error_message' ).'</p>';
+                PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Sorry! Your security nonce did not verify!', 'pta-volunteer-sign-up-sheets'), 'nonce_error_message' ));
                 return;
             }
             // Check for spambots
             if (!empty($_POST['website'])) {
                 $this->err++;
-                $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Oops! You filled in the spambot field. Please leave it blank and try again.', 'pta-volunteer-sign-up-sheets'), 'spambot_error_message' ).'</p>';
+                PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Oops! You filled in the spambot field. Please leave it blank and try again.', 'pta-volunteer-sign-up-sheets'), 'spambot_error_message' ));
                 return;
             }
 	
 	        // Give other plugins a chance to modify signup data
 	        $posted = apply_filters('pta_sus_signup_posted_values', $_POST);
 
-	        // Moved these for compatibility with check-in extension to allow automatically adding extra slots
-	        $signup_task_id = $posted['signup_task_id'];
-	        do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
-
-            $task = $this->data->get_task(intval($posted['signup_task_id']));
+	        $this->validate_signup_form_fields($posted);
+			$signup_task_id = $posted['signup_task_id'];
+	        $task = $this->data->get_task(intval($posted['signup_task_id']));
 	        $sheet = $this->data->get_sheet(intval($task->sheet_id));
-	        
-	        $details_required = isset($task->details_required) && "YES" == $task->details_required;
 
-	        $available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
-
-			// Allow extensions to modify available slots - e.g. allow waitlist extension to add extra available spots so signup can be processed
-	        $available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
-
-			if($available < 1) {
-				$this->err++;
-				$this->filled = true;
-				$this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('All spots have already been filled.', 'pta-volunteer-sign-up-sheets'), 'no_spots_available_signup_error_message' ).'</p>';
-			}
-
-            //Error Handling
-            if (
-                empty(sanitize_text_field($posted['signup_firstname']))
-                || empty(sanitize_text_field($posted['signup_lastname']))
-                || empty($posted['signup_email'])
-                || empty($posted['signup_validate_email'])
-                || ( ! $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)
-                || ("YES" == $task->need_details && $details_required && empty($posted['signup_item']) )
-                || ("YES" == $task->enable_quantities && !isset($posted['signup_item_qty']))
-            ) {
-                $this->err++;
-                $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Please complete all required fields.', 'pta-volunteer-sign-up-sheets'), 'required_fields_error_message' ).'</p>';
-            }
-
-            // Check for non-allowed characters
-            elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_firstname'])))
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in First Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'firstname_error_message' ).'</p>';
-                }
-            elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_lastname'])))
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Last Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'lastname_error_message' ).'</p>';
-                }
-            elseif ( !is_email( trim($posted['signup_email']) ) )
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Email!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'email_error_message' ).'</p>';
-                }
-            elseif ( trim($posted['signup_email']) != trim($posted['signup_validate_email'])  )
-                {
-	            $this->err++;
-	            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Email and Confirmation Email do not match!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'confirmation_email_error_message' ).'</p>';
-                }
-            elseif (false == $this->main_options['no_phone'] && preg_match("/[^0-9\-\.\(\)\ \+]/", $posted['signup_phone']))
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Phone Number!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'phone_error_message' ).'</p>';
-                }
-            elseif ( "YES" == $task->need_details && ! $this->data->check_allowed_text(stripslashes($posted['signup_item'])))
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Invalid Characters in Signup Item!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'item_details_error_message' ).'</p>';
-                }
-            elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $available ) )
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_error_message', $available ).'</p>';
-                }
-            elseif (!$this->data->check_date($posted['signup_date']))
-                {
-                    $this->err++;
-                    $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Hidden signup date field is invalid!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'signup_date_error_message' ).'</p>';
-                }
-            // Allow extensions to bypass duplicate checks
-	        $perform_duplicate_checks = apply_filters('pta_sus_perform_duplicate_checks', true, $task, $sheet);
-            if($perform_duplicate_checks) {
-	            // If no errors so far, Check for duplicate signups if not allowed
-	            if (!$this->err && 'NO' == $task->allow_duplicates) {
-		            if( $this->data->check_duplicate_signup( $posted['signup_task_id'], $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname']) ) {
-			            $this->err++;
-			            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for this task!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_error_message' ).'</p>';
-		            }
-	            }
-	            if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
-		            $this->err++;
-		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ).'</p>';
-	            }
-	            if ($this->no_global_overlap && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
-		            $this->err++;
-		            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ).'</p>';
-	            }
-            }
-
-            // Allow other plugins to validate and add error messages
+            // Allow other plugins to validate
 	        $this->err = apply_filters('pta_sus_signup_form_error_count' , $this->err, $posted, $task, $sheet);
-            $this->errors = apply_filters('pta_sus_signup_form_error_messages' , $this->errors, $posted, $task, $sheet);
             
             // Add Signup
             if (absint($this->err) < 1) {
-
-				// Allow extensions to bypass adding signup to main database
-	            if( apply_filters( 'pta_sus_signup_add_signup_to_main_database', true, $posted, $signup_task_id ) ) {
-		            $signup_id=$this->data->add_signup($posted,$signup_task_id);
-		            if ( $signup_id === false) {
-			            $this->err++;
-			            $this->errors .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta-volunteer-sign-up-sheets'), 'add_signup_database_error_message' ).'</p>';
-		            } else {
-			            do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
-			            if(!class_exists('PTA_SUS_Emails')) {
-				            include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
-			            }
-			            $emails = new PTA_SUS_Emails();
-			            $this->success = true;
-			            $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('You have been signed up!', 'pta-volunteer-sign-up-sheets'), 'signup_success_message' ).'</p>';
-			            if ($emails->send_mail(intval($signup_id)) === false) {
-				            $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ).'</p>';
-			            }
-			            // Allow other plugins to add messages
-			            $this->messages .= apply_filters('pta_sus_add_message_after_add_signup', '', $signup_id, $task, $sheet);
-		            }
-	            } else {
-					// for extensions that bypass adding the signup to main database
-		            // allow extensions to process signup after all validation and add messages and set success
-		            do_action('pta_sus_signup_database_bypass', $posted, $signup_task_id);
-					$this->success = apply_filters('pta_sus_signup_database_bypass_success', $this->success, $posted, $signup_task_id);
-		            $this->messages .= apply_filters('pta_sus_signup_database_bypass_messages', '', $task, $sheet);
-	            }
-
+				$this->add_signup($posted, $signup_task_id,$task, $sheet);
             } else {
 				// allow other plugins to do something if there were errors
-	            do_action('pta_sus_signup_form_errors', $this->errors, $posted, $signup_task_id);
+	            do_action('pta_sus_signup_form_errors', $this->err, $posted, $signup_task_id);
             }
             
         }
 
 	    // Check if they clicked on a CLEAR link
-	    // Perhaps add some sort of confirmation, maybe with jQuery?
-	    if (isset($_GET['signup_id']) && $_GET['signup_id'] > 0 && is_user_logged_in()) {
+	    if (isset($_GET['signup_id']) && $_GET['signup_id'] > 0 ) {
+			// Verify Nonce
+		    if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'pta_sus_clear_signup' ) ) {
+			    // @todo: add to customizer
+			    wp_die( apply_filters( 'pta_sus_public_output', __('Security check failed!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_nonce_message' ) );
+		    }
+			if(!$this->volunteer->is_validated()) {
+				// @todo: add to customizer
+				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You need to be validated first!', 'pta-volunteer-sign-up-sheets'), 'clear_not_validated_message' ));
+			}
+
 		    // Make sure the signup exists first
 		    $signup=$this->data->get_signup((int)$_GET['signup_id']);
-		    if (!is_user_logged_in()) {
-			    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Not allowed!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ).'</p>';
-		    } elseif (null == $signup) {
-			    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Not a valid signup!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ).'</p>';
-		    } elseif ($signup->user_id != get_current_user_id() && !current_user_can( 'manage_signup_sheets' )) {
-			    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('Not allowed!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ).'</p>';
+		    if (null == $signup) {
+			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Not a valid signup!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ));
+		    } elseif (!$this->volunteer->can_modify_signup($signup)) {
+			    // @todo: add to customizer
+			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are not allowed to do that!', 'pta-volunteer-sign-up-sheets'), 'clear_not_allowed_error_message' ));
 		    } else {
 			    // Send cleared emails
 			    if(!class_exists('PTA_SUS_Emails')) {
@@ -291,11 +491,16 @@ class PTA_SUS_Public {
 			    $emails->send_mail((int)$_GET['signup_id'], $reminder=false, $clear=true);
 			    $cleared = $this->data->delete_signup((int)$_GET['signup_id']);
 			    if ($cleared) {
-				    $this->messages .= '<p class="pta-sus updated">'.apply_filters( 'pta_sus_public_output', __('Signup Cleared', 'pta-volunteer-sign-up-sheets'), 'signup_cleared_message' ).'</p>';
+				    PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup Cleared', 'pta-volunteer-sign-up-sheets'), 'signup_cleared_message' ),true);
 				    $this->cleared = true;
 				    do_action('pta_sus_signup_cleared', $signup);
+				    if(!defined('DOING_AJAX')) {
+					    pta_clean_redirect();
+				    } else {
+					    return $cleared;
+				    }
 			    } else {
-				    $this->messages .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __('ERROR clearing signup!', 'pta-volunteer-sign-up-sheets'), 'error_clearing_signup_message' ).'</p>';
+				    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('ERROR clearing signup!', 'pta-volunteer-sign-up-sheets'), 'error_clearing_signup_message' ));
 			    }
 		    }
 	    }
@@ -471,7 +676,7 @@ class PTA_SUS_Public {
 			    } else {
 				    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
 				    // Check if there is more than one chair name to display either Chair or Chairs
-				    $names = str_getcsv($sheet->chair_name);
+				    $names = explode( ',', sanitize_text_field($sheet->chair_name));
 				    $count = count($names);
 				    if ( $count > 1) {
 					    $display_chair = apply_filters( 'pta_sus_public_output', __('Event Chairs:', 'pta-volunteer-sign-up-sheets'), 'event_chairs_label_plural') .' <a class="pta-sus-link contact" href="mailto:'.esc_attr($sheet->chair_email).'">'.esc_html($chair_names).'</a>';
@@ -502,12 +707,7 @@ class PTA_SUS_Public {
 		    if (!$this->submitted || $this->err) {
 			    if (isset($_GET['task_id']) && isset($_GET['date'])) {
 				    do_action('pta_sus_before_display_signup_form', $_GET['task_id'], $_GET['date'] );
-				    $errors = '';
-				    if(!$this->errors_displayed || !$this->suppress_duplicates) {
-					    $errors = $this->errors;
-					    $this->errors_displayed = true;
-				    }
-				    return wp_kses_post($errors) . $this->display_signup_form($_GET['task_id'], $_GET['date']);
+				    return $this->display_signup_form($_GET['task_id'], $_GET['date']);
 			    }
 		    }
 
@@ -550,9 +750,12 @@ class PTA_SUS_Public {
     
     public function get_user_signups_list($atts) {
     	$return = '';
-	    $current_user = wp_get_current_user();
-	    if ( !($current_user instanceof WP_User) )
-		    return '';
+		if(!$this->volunteer->is_validated()) {
+			if(isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation']) {
+				return pta_get_validation_form();
+			}
+		}
+		$signups = $this->volunteer->get_detailed_signups();
 		/**
 	     * @var string $show_time
 	     */
@@ -561,8 +764,8 @@ class PTA_SUS_Public {
 	    ), $atts, 'pta_user_signups' ) );
 	    $times = 'no' !== $show_time;
 	    $details = empty($this->main_options['hide_signups_details_qty']) || false == $this->main_options['hide_signups_details_qty'];
-	    $signups = apply_filters( 'pta_sus_user_signups', $this->data->get_user_signups($current_user->ID) );
-	    if ($signups) {
+
+	    if (!empty($signups)) {
 		    $return .= apply_filters( 'pta_sus_before_user_signups_list_headers', '' );
 		    $return .= '<h3 class="pta-sus user-heading">'.apply_filters( 'pta_sus_public_output', __('You have signed up for the following', 'pta-volunteer-sign-up-sheets'), 'user_signups_list_headers_h3' ).'</h3>';
 		    $return .= '<h4 class="pta-sus user-heading">'.apply_filters( 'pta_sus_public_output', __('Click on Clear to remove yourself from a signup.', 'pta-volunteer-sign-up-sheets'), 'user_signups_list_headers_h4' ).'</h4>';
@@ -641,7 +844,8 @@ class PTA_SUS_Public {
 			    if ( $signup->clear && ( 0 == $signup->clear_days || $signup->signup_date == "0000-00-00"
 			                             || ( strtotime( $signup->signup_date ) - current_time( 'timestamp' ) > ((int)$signup->clear_days * 60 * 60 * 24) ) ) ) {
 				    $clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
-				    $clear_url = add_query_arg($clear_args);
+				    $raw_clear_url = add_query_arg($clear_args);
+					$clear_url = wp_nonce_url( $raw_clear_url, 'pta_sus_clear_signup' );
 				    $clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta-volunteer-sign-up-sheets'), 'clear_signup_link_text');
 			    } else {
 				    $clear_url = '';
@@ -692,10 +896,10 @@ class PTA_SUS_Public {
 				    }
 			    }
 			    if($this->use_divs) {
-				    $return .= '<div class="column-clear" ><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
+				    $return .= '<div class="column-clear" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
                         </div>';
 			    } else {
-				    $return .= '<td class="pta-sus clear-td" data-label="" ><a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
+				    $return .= '<td class="pta-sus clear-td" data-label="" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
                         </tr>';
 			    }
 
@@ -714,14 +918,60 @@ class PTA_SUS_Public {
 	    }
     }
 
-    public function process_user_signups_shortcode($atts) {
+	public function maybe_get_clear_validation_message() {
+		$return = '';
+		if($this->volunteer->is_validated() && !is_user_logged_in() && isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] && isset($this->validation_options['enable_clear_validation']) && $this->validation_options['enable_clear_validation']) {
+			// @todo: add to customizer
+			$return .= '<p>' . apply_filters( 'pta_sus_public_output', __( 'Use the link below to clear the validation info from your browser. You should do this on public computers, or if you need to validate again as a spouse or family member using a different name or email.', 'pta-volunteer-sign-up-sheets' ), 'clear_validation_message' ) . '</p>';
+			$args = array('pta-sus-action' => 'clear_validation','validate_signup_id' => false, 'code' => false);
+			$raw_url = add_query_arg($args);
+			$url = wp_nonce_url( $raw_url, 'pta-sus-clear-validation', 'pta-sus-clear-validation-nonce' );
+			$link_text = apply_filters( 'pta_sus_public_output', __('Clear Validation', 'pta-volunteer-sign-up-sheets'), 'clear_validation_link_text');
+			$return .= '<p><a href="'.esc_url($url).'">'.esc_html($link_text).'</a></p>';
+		}
+		return $return;
+	}
 
-    	$return = $this->get_user_signups_list($atts);
+    public function process_user_signups_shortcode($atts) {
+		$return = PTA_SUS_Messages::show_messages();
+		PTA_SUS_Messages::clear_messages();
+    	$return .= $this->get_user_signups_list($atts);
     	if(empty($return)) {
-    		$return = __('You do not have any current signups', 'pta-volunteer-sign-up-sheets');
+			// @todo: add to customizer
+    		$return = apply_filters( 'pta_sus_public_output', __('You do not have any current signups', 'pta-volunteer-sign-up-sheets'),'no_user_signups_message');
+	    } else {
+		    $return .= $this->maybe_get_clear_validation_message();
 	    }
 	    return $return;
     }
+
+	public function process_validation_form_shortcode($atts) {
+		$return = PTA_SUS_Messages::show_messages();
+		PTA_SUS_Messages::clear_messages();
+		if(!$this->volunteer->is_validated()) {
+			if(isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
+				if($this->validation_sent) {
+					return $return;
+				}
+				if (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) {
+					$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
+					// @todo: add to customizer
+					$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
+					return $return;
+				}
+
+				$return .= pta_get_validation_form();
+			} else {
+				// @todo: add to customizer
+				$return .= '<p>'.apply_filters( 'pta_sus_public_output', __('User Validation is currently disabled.', 'pta-volunteer-sign-up-sheets'), 'user_validation_disabled_message').'</p>';
+			}
+		} elseif(!isset($_GET['pta-sus-action']) || ($_GET['pta-sus-action'] != 'validate_signup' && $_GET['pta-sus-action'] != 'validate_user') ){
+			// @todo: add to customizer
+			$return .= '<p>' . apply_filters( 'pta_sus_public_output', __( 'You are already validated.', 'pta-volunteer-sign-up-sheets' ), 'already_validated_message' ) . '</p>';
+		}
+		$return .= $this->maybe_get_clear_validation_message();
+		return $return;
+	}
 
 	/**
      * Process shortcode to Output the volunteer sheets list or individual sheet
@@ -746,11 +996,17 @@ class PTA_SUS_Public {
             if (!is_user_logged_in()) {
                 $message = '<p class="pta-sus error">' . esc_html($this->main_options['login_required_message']) . '</p>';
                 if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-                    $message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.__("Login", "pta_volunteer_sus").'</a></p>';
+	                // @todo: add to customizer - login_link_text
+                    $message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.apply_filters( 'pta_sus_public_output', __("Login", "pta_volunteer_sus"), 'login_link_text').'</a></p>';
                 }
                 return $message;
             }
         }
+	    if(isset($this->validation_options['require_validation_to_view']) && true === $this->validation_options['require_validation_to_view'] ) {
+		    if (!$this->volunteer->is_validated()) {
+			    return pta_get_validation_required_message();
+		    }
+	    }
         extract( shortcode_atts( array(
             'id' => '',
             'date' => '',
@@ -844,7 +1100,8 @@ class PTA_SUS_Public {
 
 	    // Give other plugins a chance to restrict access to the sheets list
 	    if( ! apply_filters( 'pta_sus_can_view_sheets', true, $atts ) ) {
-		    return '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message' ).'</p>';
+		    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message' ));
+		    return PTA_SUS_Messages::show_messages();
 	    }
 
         $return = apply_filters( 'pta_sus_before_display_sheets', $return, $id, $this->date );
@@ -852,12 +1109,12 @@ class PTA_SUS_Public {
 
 	    if( !$this->messages_displayed || !$this->suppress_duplicates) {
 	    	// only show messages above first list if multiple shortcodes on one page
-		    $return .= $this->messages;
+		    $return .= PTA_SUS_Messages::show_messages();
+			PTA_SUS_Messages::clear_messages();
 		    $this->messages_displayed = true;
 	    }
         
         if ($id === false) {
-            
             // Display all active
 	        // allow modification of list title header
 	        $title_header =  '<h2 class="pta-sus-list-title">'.apply_filters( 'pta_sus_public_output', esc_html($list_title), 'sheet_list_title' ).'</h2>';
@@ -889,14 +1146,15 @@ class PTA_SUS_Public {
             
             // If current user has signed up for anything, list their signups and allow them to edit/clear them
             // If they aren't logged in, prompt them to login to see their signup info
-	        if(!isset($this->main_options['disable_user_signups']) || false == $this->main_options['disable_user_signups']) {
-	        	if ( !is_user_logged_in() ) {
+	        if( !isset($this->main_options['disable_user_signups']) || ! $this->main_options['disable_user_signups'] ) {
+	        	if ( !$this->volunteer->is_validated() ) {
 	                if (!$this->main_options['disable_signup_login_notice']) {
 	                    $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta-volunteer-sign-up-sheets'), 'user_not_loggedin_signups_list_message' ).'</p>';
 	                }
 	            } else {
 	                $user_signups_list = $this->get_user_signups_list($atts);
 	                $return .= apply_filters('pta_sus_display_user_signups_table', $user_signups_list);
+			        $return .= $this->maybe_get_clear_validation_message();
 	            }
 	        }
 
@@ -983,7 +1241,7 @@ class PTA_SUS_Public {
 				$columns['column-quantity'] = $this->item_qty_header;
 			}
 
-			if(is_user_logged_in() && !$one_row && $show_clear) {
+			if($this->volunteer->is_validated() && !$one_row && $show_clear) {
 				$columns['column-clear'] = '';
 			}
 
@@ -1046,7 +1304,7 @@ class PTA_SUS_Public {
 				$separator = apply_filters('pta_sus_public_output', ', ', 'task_spots_filled_remaining_separator');
 				$display_consolidated = $filled_text;
 				if($remaining > 0 && $allow_signups) {
-					if( ! $this->main_options['login_required_signup'] || is_user_logged_in()) {
+					if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
 						$display_consolidated .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
 					} else {
 						$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
@@ -1077,7 +1335,8 @@ class PTA_SUS_Public {
 
 					if ( $signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets') ) {
 						$clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
-						$clear_url = add_query_arg($clear_args);
+						$raw_clear_url = add_query_arg($clear_args);
+						$clear_url = wp_nonce_url( $raw_clear_url, 'pta_sus_clear_signup' );
 						$clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta-volunteer-sign-up-sheets'), 'clear_signup_link_text');
 					} else {
 						$clear_url = '';
@@ -1090,7 +1349,7 @@ class PTA_SUS_Public {
 					$row_data['column-email'] = $signup->email;
 					$row_data['column-details'] = $signup->item;
 					$row_data['column-quantity'] = ("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "");
-					if(is_user_logged_in()) {
+					if($this->volunteer->is_validated()) {
 						$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
 					} else {
 						$row_data['column-clear'] = '';
@@ -1119,7 +1378,7 @@ class PTA_SUS_Public {
 					$signup_message = '';
 					if(!$no_signups) {
 						if($allow_signups) {
-							if( ! $this->main_options['login_required_signup'] || is_user_logged_in()) {
+							if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
 								$signup_message = '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
 							} else {
 								if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
@@ -1182,7 +1441,7 @@ class PTA_SUS_Public {
 		if( $this->main_options['login_required_signup'] && !is_user_logged_in()) {
 			$message = '<p class="pta-sus error">' . esc_html($this->main_options['login_signup_message']) . '</p>';
 			if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-				$message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.__("Login", "pta_volunteer_sus").'</a></p>';
+				$message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a></p>';
 			}
 			return $message;
 		}
@@ -1229,7 +1488,8 @@ class PTA_SUS_Public {
         $form .= '<h3 class="pta-sus sign-up-header">'.apply_filters( 'pta_sus_public_output', __('Sign Up', 'pta-volunteer-sign-up-sheets'), 'sign_up_form_heading' ).'</h3>';
         $form .= '<h4 class="pta-sus sign-up-header">'. apply_filters( 'pta_sus_public_output', __('You are signing up for... ', 'pta-volunteer-sign-up-sheets'), 'you_are_signing_up_for' ).'<br/><strong>'.esc_html($task->title).'</strong> ';
         if ($show_date) {
-            $form .= sprintf(__('on %s', 'pta-volunteer-sign-up-sheets'), $show_date);
+			// @todo: add to customizer
+            $form .= apply_filters( 'pta_sus_public_output', sprintf(__('on %s', 'pta-volunteer-sign-up-sheets'), $show_date), 'sign_up_for_date',$show_date );
         }
         $form .= '</h4>';
         if ($this->show_time && !empty($task->time_start)) {
@@ -1252,6 +1512,10 @@ class PTA_SUS_Public {
         $form .= apply_filters( 'pta_sus_signup_form_before_form_fields', '<br/>', $task, $date );
 		// Give other plugins a chance to modify signup data
 		$posted = apply_filters('pta_sus_signup_posted_values', $_POST);
+		// Give other plugins a chance to modify signup data
+		$posted = apply_filters('pta_sus_signup_posted_values', $_POST);
+
+		// Initialize values array with posted data if it exists
 		$values = array(
 			'signup_user_id' => isset($posted['signup_user_id']) ? absint($posted['signup_user_id']) : '',
 			'signup_firstname' => isset($posted['signup_firstname']) ? sanitize_text_field($posted['signup_firstname']) : '',
@@ -1260,40 +1524,54 @@ class PTA_SUS_Public {
 			'signup_validate_email' => isset($posted['signup_validate_email']) ? sanitize_email($posted['signup_validate_email']) : '',
 			'signup_phone' => isset($posted['signup_phone']) ? sanitize_text_field($posted['signup_phone']) : ''
 		);
-		$readonly_first="";
-        $readonly_last="";
-        $readonly_email="";
-        // Prefill user data if they are signed in and not admin or signup sheet manager - don't change if posted (form error)
-        if ( is_user_logged_in() && !isset($_POST['pta_sus_form_mode']) ) {
-            $current_user = wp_get_current_user();
-            if ( !($current_user instanceof WP_User) ) {
-            	wp_die('Not a valid user');
-            }
-            if ( isset($this->main_options['login_required_signup']) && true === $this->main_options['login_required_signup']
-                 && isset($this->main_options['readonly_signup']) && true === $this->main_options['readonly_signup']
-                 && !current_user_can('manage_signup_sheets') ) {
-               if (!empty($current_user->user_firstname))
-                  $readonly_first="readonly='readonly'";
-               if (!empty($current_user->user_lastname))
-                  $readonly_last="readonly='readonly'";
-               $readonly_email="readonly='readonly'";
-	        }
-            // Only populate values if regular user or if admin/manager and not using live search
-	        if(!(current_user_can( 'manage_signup_sheets') && true === $this->main_options['enable_signup_search'])) {
-	        	$values['signup_user_id'] = $current_user->ID;
-	            $values['signup_firstname'] = $current_user->user_firstname;
-	            $values['signup_lastname'] = $current_user->user_lastname;
-	            $values['signup_email'] = $current_user->user_email;
-	            $values['signup_validate_email'] = $current_user->user_email;
-	            if (!$this->main_options['no_phone'] ) {
-	                $phone = apply_filters('pta_sus_user_phone', get_user_meta( $current_user->ID, 'billing_phone', true ), $current_user );
-	                $values['signup_phone'] = $phone;
-	            }
+
+		$readonly_first = "";
+		$readonly_last = "";
+		$readonly_email = "";
+
+		// Only pre-fill if no form submission error and user is validated
+		if (!isset($_POST['pta_sus_form_mode']) && $this->volunteer->is_validated()) {
+
+			// Set readonly attributes if required
+			if (isset($this->main_options['readonly_signup']) &&
+			    true === $this->main_options['readonly_signup'] &&
+			    !current_user_can('manage_signup_sheets')) {
+
+				if (!empty($this->volunteer->get_firstname())) {
+					$readonly_first = "readonly='readonly'";
+				}
+				if (!empty($this->volunteer->get_lastname())) {
+					$readonly_last = "readonly='readonly'";
+				}
+				$readonly_email = "readonly='readonly'";
+			}
+
+			// Pre-populate form for regular users, or admins when live search is disabled
+			if (!current_user_can('manage_signup_sheets') ||
+			    !$this->main_options['enable_signup_search']) {
+
+				// Set values from volunteer object
+				$values['signup_user_id'] = $this->volunteer->get_user_id();
+				$values['signup_firstname'] = $this->volunteer->get_firstname();
+				$values['signup_lastname'] = $this->volunteer->get_lastname();
+				$values['signup_email'] = $this->volunteer->get_email();
+				$values['signup_validate_email'] = $this->volunteer->get_email();
+
+				// Handle phone separately since it's not in volunteer object
+				if (!$this->main_options['no_phone'] && $this->volunteer->get_user_id() > 0) {
+					$phone = apply_filters('pta_sus_user_phone',
+						get_user_meta($this->volunteer->get_user_id(), 'billing_phone', true),
+						get_user_by('id', $this->volunteer->get_user_id())
+					);
+					$values['signup_phone'] = $phone;
+				}
+
 				$values = apply_filters('pta_sus_prefilled_user_signup_values', $values);
-	        }
-        }
-        // Default User Fields
-        if (!is_user_logged_in() && false == $this->main_options['disable_signup_login_notice']) {
+			}
+		}
+
+		// Default User Fields
+        if ( !is_user_logged_in() && ! $this->main_options['disable_signup_login_notice'] ) {
             $form .= '<p>'.apply_filters( 'pta_sus_public_output', __('If you have an account, it is strongly recommended that you <strong>login before you sign up</strong> so that you can view and edit all your signups.', 'pta-volunteer-sign-up-sheets'), 'signup_login_notice' ).'</p>';
         }
         $form .= '
@@ -1315,7 +1593,7 @@ class PTA_SUS_Public {
 				<label class="required" for="signup_validate_email">'.$validate_email_label.'</label>
 				<input type="email" class="required email" id="signup_validate_email" name="signup_validate_email" value="'.((isset($values['signup_validate_email'])) ? esc_attr($values['signup_validate_email']) : '').'" '.$readonly_email.' required />
 			</p>';
-        if( false == $this->main_options['no_phone'] ) {
+        if( ! $this->main_options['no_phone'] ) {
             $form .= '
             <p>
                 <label class="'.esc_attr($phone_required).'" for="signup_phone">'.$phone_label.'</label>
@@ -1379,6 +1657,9 @@ class PTA_SUS_Public {
     * Enqueue plugin css and js files
     */
     public function add_css_and_js_to_frontend() {
+	    static $done = false;
+	    if ($done) return;
+	    $done = true;
 
 	    if ( ! isset( $this->main_options['disable_css'] ) || ! $this->main_options['disable_css'] ) {
 		    wp_register_style( 'pta-sus-style', plugins_url( '../assets/css/style.min.css', __FILE__ ) );
@@ -1399,6 +1680,26 @@ class PTA_SUS_Public {
 				'ptanonce' => wp_create_nonce( 'ajax-pta-nonce' )
 			) );
 	    }
+
+	    // Always enqueue URL cleanup script
+	    // Register script with no source
+	    wp_register_script('pta-sus-url-cleanup', '', array(), '', true);
+	    wp_enqueue_script('pta-sus-url-cleanup');
+	    $inline_script = "
+	        if(document.querySelector('.pta-sus-messages[data-clear-url]')) {
+	            window.history.replaceState({}, '', window.location.pathname);
+	        }
+	        
+	        document.addEventListener('DOMContentLoaded', function() {
+		        var clearLinks = document.querySelectorAll('.clear-signup-link');
+		        clearLinks.forEach(function(link) {
+		            link.addEventListener('click', function(e) {
+		                return confirm('Are you sure you want to clear this signup?');
+		            });
+		        });
+		    });
+	    ";
+	    wp_add_inline_script('pta-sus-url-cleanup', $inline_script);
     }
 
 } // End of class

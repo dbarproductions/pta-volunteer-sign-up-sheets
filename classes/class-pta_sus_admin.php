@@ -175,11 +175,12 @@ class PTA_SUS_Admin {
 				'disableGrouping' => __('Disable Grouping', 'pta-volunteer-sign-up-sheets'),
 				'colvisText' => __('Column Visibility', 'pta-volunteer-sign-up-sheets'),
 				'showAll' => __('Show All', 'pta-volunteer-sign-up-sheets'),
-				'disableAdminGrouping' => isset($this->main_options['disable_grouping']) ? $this->main_options['disable_grouping'] : false,
+				'disableAdminGrouping' => $this->main_options['disable_grouping'] ?? false,
 			);
 			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
 		}
 	}
+
 
 	/**
 	 * This was relabeld as the CRON Functions page in the admin menu
@@ -245,6 +246,13 @@ class PTA_SUS_Admin {
 			$results = sprintf( _n( '1 sheet cleared', '%d sheets cleared', $num, 'pta-volunteer-sign-up-sheets'), $num );
 			$cleared_sheets_message = '<div class="updated">'.$results.'</div>';
 		}
+		// Handle clear log action
+		if (isset($_GET['action']) && 'clear_debug_log' == $_GET['action']) {
+			check_admin_referer('pta-sus-clear-debug-log', '_sus_nonce');
+			if(pta_clear_log_file()) {
+				echo '<div class="updated"><p>' . __('Debug log cleared successfully.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
+			}
+		}
 		$reminders_link = add_query_arg(array('action' => 'reminders'));
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
         $reschedule_link = add_query_arg(array('action' => 'reschedule'));
@@ -253,6 +261,9 @@ class PTA_SUS_Admin {
 		$nonced_clear_signups_link = wp_nonce_url( $clear_signups_link, 'pta-sus-clear-signups', '_sus_nonce');
 		$clear_sheets_link = add_query_arg(array('action' => 'clear_sheets'));
 		$nonced_clear_sheets_link = wp_nonce_url( $clear_sheets_link, 'pta-sus-clear-sheets', '_sus_nonce');
+		// Create clear log button with nonce
+		$clear_log_url = add_query_arg(array('action' => 'clear_debug_log'));
+		$nonced_clear_log_url = wp_nonce_url($clear_log_url, 'pta-sus-clear-debug-log', '_sus_nonce');
 		echo '<div class="wrap pta_sus">';
 		echo '<h2>'.__('CRON Functions', 'pta-volunteer-sign-up-sheets').'</h2>';
 		echo '<h3>'.__('Volunteer Reminders', 'pta-volunteer-sign-up-sheets').'</h3>';
@@ -274,7 +285,18 @@ class PTA_SUS_Admin {
 		echo '<p>'.__("If you have disabled the automatic clearing of expired sheets, you can use this to clear ALL expired sheets from database, which will also clear all associated tasks and signups. NOTE: THIS ACTION CAN NOT BE UNDONE!", "pta_volunteer_sus") . '</p>';
 		echo '<p><a href="'.esc_url($nonced_clear_sheets_link).'" class="button-secondary">'.__('Clear Expired Sheets', 'pta-volunteer-sign-up-sheets').'</a></p>';
 		echo $cleared_sheets_message;
+		echo '<hr/>';
+		echo '<h3>' . __('Debug Log', 'pta-volunteer-sign-up-sheets') . '</h3>';
+		echo '<p>'.__("This log file will show results of any actions taken during CRON functions, and can be helpful for debugging issues. Use the button below the textarea to clear/reset the log.", "pta_volunteer_sus") . '</p>';
 		echo '</div>';
+		// Display log contents
+		$log_file = WP_CONTENT_DIR . '/uploads/pta-logs/pta_debug.log';
+		$log_contents = '';
+		if(file_exists($log_file)) {
+			$log_contents = file_get_contents($log_file);
+		}
+		echo '<textarea readonly style="width: 100%; height: 300px; font-family: monospace;">' . esc_textarea($log_contents) . '</textarea>';
+		echo '<p><a href="' . esc_url($nonced_clear_log_url) . '" class="button-secondary">' . __('Clear Debug Log', 'pta-volunteer-sign-up-sheets') . '</a></p>';
 	}
 	
 	public function output_signup_column_data($slug, $i, $sheet, $task, $signup, $task_date) {
@@ -334,6 +356,16 @@ class PTA_SUS_Admin {
 			case 'qty':
 				$qty = apply_filters('pta_sus_admin_signup_display_quantity', $signup->item_qty, $sheet, $signup);
 				echo wp_kses_post($qty);
+				break;
+			case 'validated':
+				if(!$signup) break;
+				$validated = apply_filters('pta_sus_admin_signup_display_validated', $signup->validated, $sheet, $signup);
+				if($validated) {
+					_e('Yes', 'pta-volunteer-sign-up-sheets');
+				} elseif (!empty($signup->email)) {
+					// only show "No" if it's not an empty slot
+					_e( 'No', 'pta-volunteer-sign-up-sheets' );
+				}
 				break;
 			case 'ts':
 				$datetime = '';
@@ -719,12 +751,17 @@ class PTA_SUS_Admin {
 				$emails = new PTA_SUS_Emails();
 				$emails->send_mail($_GET['signup_id'], false, true);
 			}
-			if (($result = $this->data->delete_signup($_GET['signup_id'])) === false) {
-				echo '<div class="error"><p>'.sprintf( __('Error clearing spot (ID # %s)', 'pta-volunteer-sign-up-sheets'), esc_attr($_GET['signup_id']) ).'</p></div>';
-			} else {
-				if ($result > 0) echo '<div class="updated"><p>'.__('Spot has been cleared.', 'pta-volunteer-sign-up-sheets').'</p></div>';
-				do_action('pta_sus_admin_clear_signup', $_GET['signup_id']);
+			// make sure there is a signup record first, and get the data before deleting in case extensions need it
+			$signup = $this->data->get_signup($_GET['signup_id']);
+			if(!empty($signup)) {
+				if (($result = $this->data->delete_signup($_GET['signup_id'])) === false) {
+					echo '<div class="error"><p>'.sprintf( __('Error clearing spot (ID # %s)', 'pta-volunteer-sign-up-sheets'), esc_attr($_GET['signup_id']) ).'</p></div>';
+				} else {
+					if ($result > 0) echo '<div class="updated"><p>'.__('Spot has been cleared.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+					do_action('pta_sus_admin_clear_signup', $signup);
+				}
 			}
+
 		}
 
 		// Add/Edit Signup form submitted
@@ -921,8 +958,8 @@ class PTA_SUS_Admin {
 		}
 
 		// Set mode vars
-		$edit = (empty($_GET['sheet_id'])) ? false : true;
-		$add = ($edit) ? false : true;
+		$edit = ! empty( $_GET['sheet_id'] );
+		$add = ! $edit;
 		$sheet_submitted = (isset($_POST['sheet_mode']) && $_POST['sheet_mode'] == 'submitted');
 		$tasks_submitted = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] == 'submitted');
 		$tasks_move = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] == 'move_tasks');
@@ -932,6 +969,8 @@ class PTA_SUS_Admin {
 		$tasks_success = false;
 		$add_tasks = false;
 		$moved = false;
+		$sheet_fields = array();
+		$new_sheet_id = 0;
 
 		if ($tasks_move) {
 			// Nonce check
@@ -1111,7 +1150,7 @@ class PTA_SUS_Admin {
 								if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
 									$task_err++;
 									$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
-									if (!empty($task_err)) echo '<div class="error"><p><strong>';
+									echo '<div class="error"><p><strong>';
 									printf(__('The number of spots for task "%1$s" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task.', 'pta-volunteer-sign-up-sheets'), esc_attr($_POST['task_title'][$i]), (int)$signup_count, $people);
 									echo '</strong></p></div>';
 								}
@@ -1137,7 +1176,7 @@ class PTA_SUS_Admin {
 						if ($signup_count > 0) {
 							$task_err++;
 							$task = $this->data->get_task($task_id);
-							if (!empty($task_err)) echo '<div class="error"><p><strong>';
+							echo '<div class="error"><p><strong>';
 							$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
 							printf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta-volunteer-sign-up-sheets'), esc_html($task->title), (int)$signup_count, $people);
 							echo '</strong></p></div>';
@@ -1542,7 +1581,7 @@ class PTA_SUS_Admin {
 
 		echo '<hr/>';
 		echo '<h3>'.__('Sheet Email Options','pta-volunteer-sign-up-sheets').'</h3>';
-		echo '<p>'.__('Select where you want signup confirmation and clear emails to go for this sheet. Leave them set to "Default" to use the global settings from the Email settings page.','pta-volunteer-sign-up-sheets').'<br/>';
+		echo '<p>'. __(/** @lang Text */'Select where you want signup confirmation and clear emails to go for this sheet. Leave them set to "Default" to use the global settings from the Email settings page.','pta-volunteer-sign-up-sheets').'<br/>';
 		echo __('If you select anything other than "Default" for these options, they will override the main email settings. Even if you disable all emails via the emails settings page, emails for signup confirmation and clear emails will be sent to your selections here (unless you select none or default).','pta-volunteer-sign-up-sheets').'</p>';
 
 
@@ -1658,11 +1697,11 @@ class PTA_SUS_Admin {
 	public function send_volunteer_emails() {
 		$messages = '';
 		$errors = 0;
+		$sheet_id = 0;
+		$from_name = $subject = $message = '';
 		// Get all needed info, or set error messages
 		if(isset($_POST['sheet_select']) && ( 'users' === $_POST['sheet_select'] || is_numeric($_POST['sheet_select']) ) ) {
-			if('users' === $_POST['sheet_select']) {
-				$sheet_id = 0;
-			} else {
+			if('users' !== $_POST['sheet_select']) {
 				$sheet_id = absint($_POST['sheet_select']);
 			}
 		} else {
@@ -1715,6 +1754,7 @@ class PTA_SUS_Admin {
 			} else {
 				// Send some emails!
 				$from_email = isset($_POST['from_email']) ? sanitize_email($_POST['from_email']) : get_option('admin_email');
+				$reply_to = !empty($reply_to) && is_email($reply_to) ? $reply_to : $from_email;
 				$headers = array();
 				$headers[]  = "From: " . $from_name . " <" . $from_email . ">";
 				$headers[]  = "Reply-To: " . $reply_to;

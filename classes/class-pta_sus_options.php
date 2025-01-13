@@ -8,6 +8,7 @@ class PTA_SUS_Options {
 	public $main_options;
 	public $email_options;
 	public $integration_options;
+    public $validation_options;
 	public $member_directory_active;
 	private $settings_page_slug = 'pta-sus-settings_settings';
 
@@ -15,6 +16,7 @@ class PTA_SUS_Options {
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 		$this->integration_options = get_option( 'pta_volunteer_sus_integration_options' );
+        $this->validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 		add_action('admin_init', array($this, 'register_options'));
 
 	} // End Construct
@@ -33,10 +35,11 @@ class PTA_SUS_Options {
             <div id="icon-themes" class="icon32"></div>
             <h2><?php _e('PTA Volunteer Sign-up Sheets Settings', 'pta-volunteer-sign-up-sheets'); ?></h2>
             <?php settings_errors(); ?>
-            <?php $active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'main_options'; ?> 
+            <?php $active_tab = $_GET['tab'] ?? 'main_options'; ?>
             <h2 class="nav-tab-wrapper">  
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=main_options" class="nav-tab <?php echo $active_tab == 'main_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Main Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=email_options" class="nav-tab <?php echo $active_tab == 'email_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Email Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
+                <a href="?page=<?php echo $this->settings_page_slug?>&tab=validation_options" class="nav-tab <?php echo $active_tab == 'validation_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Validation Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=integration_options" class="nav-tab <?php echo $active_tab == 'integration_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Integration Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <?php do_action('pta_sus_settings_nav_tabs', $active_tab); ?>
             </h2> 
@@ -52,6 +55,9 @@ class PTA_SUS_Options {
                 } elseif ( 'integration_options' == $active_tab ) {
                 	settings_fields('pta_volunteer_sus_integration_options'); 
                 	do_settings_sections('pta_volunteer_sus_integration'); 
+                } elseif('validation_options' == $active_tab ) {
+                	settings_fields('pta_volunteer_sus_validation_options');
+                	do_settings_sections('pta_volunteer_sus_validation');
                 } else {
                     // Allow extensions to create their own tabs
                     do_action('pta_sus_extensions_settings_tabs', $active_tab);
@@ -162,7 +168,28 @@ class PTA_SUS_Options {
             $this->member_directory_active = true;
         } else {
             $this->member_directory_active = false;
-        }       
+        }
+
+        // Validation Settings
+        register_setting( 'pta_volunteer_sus_validation_options', 'pta_volunteer_sus_validation_options', array($this, 'pta_sus_validate_validation_options') );
+        add_settings_section('pta_volunteer_validation', __('Validation Settings', 'pta-volunteer-sign-up-sheets'), array($this, 'pta_volunteer_validation_description'), 'pta_volunteer_sus_validation');
+        add_settings_field('enable_validation', __('Enable Validation:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('require_validation_to_view', __('Require Validation to View:', 'pta-volunteer-sign-up-sheets'), array($this, 'require_validation_to_view_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_required_message', __('Validation Required Message:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_required_message_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_page_link_text', __('Validation Page link text:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_page_link_text_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_page_id', __('Validation Page:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_page_id_select'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+        add_settings_field('enable_signup_validation', __('Enable Signup Validation:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_signup_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+        add_settings_field('signup_expiration_hours', __('Signup Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('signup_validation_email_subject', __('Signup Validation Email Subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_subject_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('signup_validation_email_template', __('Signup Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('enable_user_validation_form', __('Enable User Validation Form:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_user_validation_form_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_code_expiration_hours', __('Validation Code Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_code_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_form_header', __('User Validation Form Header:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_header_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('user_validation_email_subject', __('User Validation Email Subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_subject_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('user_validation_email_template', __('User Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('validation_form_resubmission_minutes', __('Validation Form Resubmission Time (minutes):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_resubmission_minutes_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('enable_clear_validation', __('Enable Clear Validation link:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_clear_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+
     } // Register Options
 
     protected function validate_options($inputs, $fields, $options) {
@@ -196,7 +223,7 @@ class PTA_SUS_Options {
 		                $this->{$options}[$field] = sanitize_text_field( $inputs[$field] );
 		            break;
 	            case 'bool':
-	                if(isset($inputs[$field]) && true == $inputs[$field]) {
+	                if( isset($inputs[$field]) && $inputs[ $field ] ) {
 		                $this->{$options}[$field] = true;
                     } else {
 		                $this->{$options}[$field] = false;
@@ -303,14 +330,6 @@ class PTA_SUS_Options {
     	return $this->validate_options($inputs, $fields, $options);
     }
 
-    public function pta_sus_validate_group_options($inputs) {
-        $options = "group_options";
-        $fields = array(
-            'enable_groups' => 'bool',
-            );
-        return $this->validate_options($inputs, $fields, $options);
-    }
-
     public function pta_sus_validate_integration_options($inputs) {
     	$options = "integration_options";
     	$fields = array(
@@ -321,18 +340,46 @@ class PTA_SUS_Options {
     	return $this->validate_options($inputs, $fields, $options);
     }
 
+	public function pta_sus_validate_validation_options($inputs) {
+		$options = "validation_options";
+		$fields = array(
+            'enable_validation' => 'bool',
+            'enable_signup_validation' => 'bool',
+            'signup_expiration_hours' => 'integer',
+            'validation_code_expiration_hours' => 'integer',
+            'signup_validation_email_subject' => 'text',
+            'signup_validation_email_template' => 'textarea',
+            'user_validation_email_subject' => 'text',
+            'user_validation_email_template' => 'textarea',
+            'validation_form_header' => 'textarea',
+            'enable_user_validation_form' => 'bool',
+            'validation_form_resubmission_minutes' => 'integer',
+            'require_validation_to_view' => 'bool',
+            'validation_required_message' => 'text',
+            'validation_page_link_text' => 'text',
+            'validation_page_id' => 'integer',
+            'enable_clear_validation' => 'bool',
+		);
+		return $this->validate_options($inputs, $fields, $options);
+	}
+
     public function pta_volunteer_main_description() {
-        echo '<p> ' . __('Main plugin settings', 'pta-volunteer-sign-up-sheets') . '</p>';
+        echo '<p> ' . __('The main plugin settings that control the overall functionality.', 'pta-volunteer-sign-up-sheets') . '</p>';
     }
 
     public function pta_volunteer_email_description() {
-        echo '<p> ' . __('Email settings', 'pta-volunteer-sign-up-sheets') . '</p>';
+        echo '<p> ' . __('Set up email templates and email options', 'pta-volunteer-sign-up-sheets') . '</p>';
+    }
+
+    public function pta_volunteer_validation_description() {
+        echo '<p> ' . __('If you have disabled the main settings that requires users to be logged in to view and/or signup for signup sheets, you can enable user validation via unique codes, sent via email, to not only validate a signup, but to also allow users without a user account to view and clear their signups.', 'pta-volunteer-sign-up-sheets') . '</p>';
+	    echo '<p> ' . __('If a user is logged in to a WordPress user account, they are automatically considered validated, and many of the below options will not be applicable. Signups are automatically validated if a user is logged in, and no cookies or validation codes will be needed to view or clear signups when the user is signed in.', 'pta-volunteer-sign-up-sheets') . '</p>';
     }
 
     public function pta_volunteer_integration_description() {
         echo '<p> ' . __('Integration with other plugins', 'pta-volunteer-sign-up-sheets') . '</p>';
         if (!is_plugin_active( 'pta-member-directory/pta-member-directory.php' )) {
-            $link = '<a href="http://wordpress.org/plugins/pta-member-directory/">http://wordpress.org/plugins/pta-member-directory/</a>';
+            $link = '<a href="https://wordpress.org/plugins/pta-member-directory/">https://wordpress.org/plugins/pta-member-directory/</a>';
             echo '<p> ' . __('This plugin can integrate with the PTA Member Directory and Contact Form plugin to set contacts for each sign-up sheet, with contact links being directed to the contact form.', 'pta-volunteer-sign-up-sheets') . '</p>';
             echo '<p> ' . sprintf(__('Search for "PTA Member Directory" from your Install Plugins page, or download from Wordpress.org here: %s', 'pta-volunteer-sign-up-sheets'), $link ) . '</p>';
         }
@@ -373,6 +420,18 @@ class PTA_SUS_Options {
         wp_dropdown_pages( $args );
         echo '<em> ' . __('The member directory contact form page where you put the shortcode [pta_member_contact] if you are using the separate contact form.', 'pta-volunteer-sign-up-sheets') . '</em>';
     }
+
+	public function validation_page_id_select() {
+		$args = array(
+			'name'          => 'pta_volunteer_sus_validation_options[validation_page_id]',
+			'selected'      => $this->validation_options['validation_page_id'],
+			'show_option_none'  => __('None', 'pta-volunteer-sign-up-sheets'),
+			'option_none_value' => 0,
+			'post_status' => array('publish','private')
+		);
+		wp_dropdown_pages( $args );
+		echo '<em> ' . __('The validation form page where you put the shortcode [pta_validation_form]. Validation links are also sent to this page, so you MUST select a page and include the shortcode on that page.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	}
 
 	public function signup_search_tables_select() {
 		$selected = $this->main_options['signup_search_tables'];
@@ -455,6 +514,41 @@ class PTA_SUS_Options {
 	    echo "<input id='num_days_expired' name='pta_volunteer_sus_main_options[num_days_expired]' type='number' value='{$this->main_options['num_days_expired']}' min='1' style='width: 5em;'/>";
 	    echo '<em> '. __('# of days after the last sheet date (when clearing sheets automatically), or signup date (when clearing signups automatically), before clearing the sheet or signup from the database. Min/default is 1 calendar day. Note this is calendar days and NOT based on hours or task times.', 'pta-volunteer-sign-up-sheets') . '</em>';
     }
+
+    public function signup_validation_email_subject_text_input() {
+        echo '<input id="signup_validation_email_subject" name="pta_volunteer_sus_validation_options[signup_validation_email_subject]" size="60" type="text" value="'.esc_attr($this->validation_options["signup_validation_email_subject"]).'" />';
+        echo '<em> '. __('Subject line for signup validation email messages.', 'pta-volunteer-sign-up-sheets') . '</em>';
+    }
+
+	public function user_validation_email_subject_text_input() {
+		echo '<input id="user_validation_email_subject" name="pta_volunteer_sus_validation_options[user_validation_email_subject]" size="60" type="text" value="'.esc_attr($this->validation_options["user_validation_email_subject"]).'" />';
+		echo '<em> '. __('Subject line for user validation email messages.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	}
+
+    public function signup_expiration_hours_number_input() {
+        echo "<input id='signup_expiration_hours' name='pta_volunteer_sus_validation_options[signup_expiration_hours]' type='number' value='{$this->validation_options['signup_expiration_hours']}' min='1' style='width: 5em;'/>";
+        echo '<em> '. __('Number of hours after a user signs up before the signup is deleted if it is not validated. Min/default is 1 hour.', 'pta-volunteer-sign-up-sheets') . '</em>';
+    }
+
+	public function validation_code_expiration_hours_number_input() {
+		echo "<input id='validation_code_expiration_hours' name='pta_volunteer_sus_validation_options[validation_code_expiration_hours]' type='number' value='{$this->validation_options['validation_code_expiration_hours']}' min='1' style='width: 5em;'/>";
+		echo '<em> '. __('Number of hours that a user validation code, and the associated browser cookie, is valid. The browser cookie will be set to expire after this number of hours, and the validation code will be deleted from the database. The user will need to be validated again after this time if they have not visited the site within that amount of time.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	}
+
+    public function validation_form_resubmission_minutes_number_input() {
+	    echo  "<input id='validation_form_resubmission_minutes' name='pta_volunteer_sus_validation_options[validation_form_resubmission_minutes]' type='number' value='{$this->validation_options['validation_form_resubmission_minutes']}' min='1' style='width: 5em;'/>";
+        echo '<em> '. __('Number of minutes after a user submits the validation form before they can resubmit the form. Min/default is 1 minute.', 'pta-volunteer-sign-up-sheets') . '</em>';
+    }
+
+	public function validation_required_message_text_input() {
+		echo  "<input id='validation_required_message' name='pta_volunteer_sus_validation_options[validation_required_message]' size='60' type='text' value='{$this->validation_options['validation_required_message']}' />";
+		echo '<em> '. __('Message to show when validation is required to view sheets and signup info.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	}
+
+	public function validation_page_link_text_text_input() {
+		echo  "<input id='validation_page_link_text' name='pta_volunteer_sus_validation_options[validation_page_link_text]' size='60' type='text' value='{$this->validation_options['validation_page_link_text']}' />";
+		echo '<em> '. __('Text for the link to the page with the validation form.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	}
 
     public function enable_member_directory_checkbox() {
         if(isset($this->integration_options['enable_member_directory']) && true === $this->integration_options['enable_member_directory']) {
@@ -1020,6 +1114,66 @@ class PTA_SUS_Options {
 		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to show each empty slot in its own row on the admin View/Export ALL Data page. Useful in you want to print a manual signup form for multiple sheets at once. NOTE that this will greatly slow down the load time and dataTables initialization time of that page.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
     }
 
+    public function enable_validation_checkbox() {
+        if ( isset( $this->validation_options['enable_validation'] ) && true === $this->validation_options['enable_validation'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_validation_options[enable_validation]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to enable the validation system for non-logged-in users.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
+    public function enable_signup_validation_checkbox() {
+        if ( isset( $this->validation_options['enable_signup_validation'] ) && true === $this->validation_options['enable_signup_validation'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_validation_options[enable_signup_validation]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to send a validation email to a non-validated user when they sign up for anything (if validation is enabled). An email will be sent to the signup email address with a link they must click on to validate the signup. The signup will be marked as non-validated until they click on the link. Non-validated signups will be deleted after the expiration hours you set below.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
+    public function enable_user_validation_form_checkbox() {
+        if ( isset( $this->validation_options['enable_user_validation_form'] ) && true === $this->validation_options['enable_user_validation_form'] ) {
+            $checked = 'checked="checked"';
+        } else {
+            $checked = '';
+        }
+        ?>
+        <input name="pta_volunteer_sus_validation_options[enable_user_validation_form]" type="checkbox" value="1" <?php echo $checked; ?> />
+        <?php
+        echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to enable the user validation form on the front end. This will allow users to validate themselves, if they are not already validated via a signup validation email, in order to view and clear their signups.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
+    public function require_validation_to_view_checkbox() {
+	    if ( isset( $this->validation_options['require_validation_to_view'] ) && true === $this->validation_options['require_validation_to_view'] ) {
+		    $checked = 'checked="checked"';
+	    } else {
+		    $checked = '';
+	    }
+	    ?>
+        <input name="pta_volunteer_sus_validation_options[require_validation_to_view]" type="checkbox" value="1" <?php echo $checked; ?> />
+	    <?php
+	    echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to require the user to be validated before they can view signup sheets or signup info. You will need to enable the validation form so that they can be validated if you are not using WordPress user accounts.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
+	public function enable_clear_validation_checkbox() {
+		if ( isset( $this->validation_options['enable_clear_validation'] ) && true === $this->validation_options['enable_clear_validation'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_validation_options[enable_clear_validation]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Keep this checked to allow users to clear the validation cookie from their browser via a link on the page where you put the validation form shortcode. It will also appear below the lists of their signups. Useful to clear cookies on public computers, or if they have signed up spouses or family members using different info and need to revalidate with different info.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+	}
+
     public function confirmation_email_template_textarea_input() {
         if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
             wp_editor(wpautop($this->email_options['confirmation_email_template']),'confirmation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[confirmation_email_template]'));
@@ -1082,6 +1236,39 @@ class PTA_SUS_Options {
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
     }
+
+    public function signup_validation_email_template_textarea() {
+	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+		    wp_editor(wpautop($this->validation_options['signup_validation_email_template']),'signup_validation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[signup_validation_email_template]'));
+	    } else {
+		    echo "<textarea id='signup_validation_email_template' name='pta_volunteer_sus_validation_options[signup_validation_email_template]' cols='55' rows='15' >";
+		    echo esc_textarea( $this->validation_options['signup_validation_email_template'] );
+		    echo '</textarea>';
+	    }
+	    echo '<br />' . __('Signup Validation email sent to volunteers when a non-validated user signs up for something.', 'pta-volunteer-sign-up-sheets');
+        echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
+	    echo '<br />'.__('You can also use {signup_expiration_hours} to show how much time they have to validate the signup before it is deleted.', 'pta-volunteer-sign-up-sheets');
+	    echo '<br /><strong>' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '</strong><br/> {validation_link} {signup_expiration_hours} <br/> {sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url} ';
+    }
+
+	public function user_validation_email_template_textarea() {
+		if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
+			wp_editor(wpautop($this->validation_options['user_validation_email_template']),'user_validation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[user_validation_email_template]'));
+		} else {
+			echo "<textarea id='user_validation_email_template' name='pta_volunteer_sus_validation_options[user_validation_email_template]' cols='55' rows='15' >";
+			echo esc_textarea( $this->validation_options['user_validation_email_template'] );
+			echo '</textarea>';
+		}
+		echo '<br />' . __('User Validation email sent to a non-validated user when they fill out the validation form.', 'pta-volunteer-sign-up-sheets');
+		echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
+		echo '<br />'.__('You can also use {validation_code_expiration_hours} to show how much time they have to validate themselves before the code expires.', 'pta-volunteer-sign-up-sheets');
+		echo '<br /><strong>' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '</strong><br/> {validation_link} {validation_code_expiration_hours} <br/> {firstname} {lastname} {email} {site_name} {site_url} ';
+	}
+
+	public function validation_form_header_textarea() {
+        wp_editor(wpautop($this->validation_options['validation_form_header']),'validation_form_header',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[validation_form_header]'));
+		echo '<br />' . __('Info to display above the user validation form. HTML is allowed.', 'pta-volunteer-sign-up-sheets');
+	}
 
 } // End Class
 /* EOF */
