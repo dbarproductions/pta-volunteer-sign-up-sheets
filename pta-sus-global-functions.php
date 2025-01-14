@@ -340,9 +340,6 @@ function pta_delete_expired_validation_codes() {
 	$table  = $wpdb->prefix . 'pta_sus_validation_codes';
 	$deleted = $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE ts < DATE_SUB(NOW(), INTERVAL %d HOUR)", $hours	));
 	$deleted > 0 ? $message = sprintf('%d expired validation codes deleted from %s', $deleted, $table) : $message = '';
-	if(!empty($message)) {
-		pta_logToFile($message);
-	}
 	return $message;
 }
 
@@ -353,9 +350,6 @@ function pta_delete_unvalidated_signups() {
 	$table  = $wpdb->prefix . 'pta_sus_signups';
 	$deleted = $wpdb->query($wpdb->prepare("DELETE FROM $table WHERE validated = 0 AND ts < DATE_SUB(NOW(), INTERVAL %d HOUR)", $hours	));
 	$deleted > 0 ? $message = sprintf('%d unvalidated signups deleted from %s', $deleted, $table) : $message = '';
-	if(!empty($message)) {
-		pta_logToFile($message);
-	}
 	return $message;
 }
 

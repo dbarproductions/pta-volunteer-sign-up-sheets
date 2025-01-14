@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "pta-volunteer-sus/user-signups",
+  "title": "User Signups List",
+  "category": "widgets",
+  "icon": "list-view",
+  "description": "Display user's volunteer sign up list",
+  "keywords": ["volunteer", "sign up", "user list"],
+  "version": "2.0.0",
+  "textdomain": "pta-volunteer-sign-up-sheets",
+  "attributes": {
+    "show_time": {
+      "type": "string",
+      "default": "yes"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:../build/blocks.build.js"
+}

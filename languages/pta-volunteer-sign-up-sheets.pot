@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
-"POT-Creation-Date: 2025-01-13 11:45-0800\n"
+"POT-Creation-Date: 2025-01-14 14:49-0800\n"
 "PO-Revision-Date: 2016-02-09 19:42-0800\n"
 "Last-Translator: Stephen Sherrard <stephen@dbar-productions.com>\n"
 "Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
@@ -381,14 +381,14 @@ msgid "Name"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:24
-#: classes/admin-view-signups-html.php:24 classes/class-pta_sus_public.php:1508
+#: classes/admin-view-signups-html.php:24 classes/class-pta_sus_public.php:1515
 #: views/admin-add-edit-signup-form.php:69 views/public-validation-form.php:7
 msgid "E-mail"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:25
-#: classes/admin-view-signups-html.php:25 classes/class-pta_sus_public.php:1229
-#: classes/class-pta_sus_public.php:1510
+#: classes/admin-view-signups-html.php:25 classes/class-pta_sus_public.php:1236
+#: classes/class-pta_sus_public.php:1517
 #: views/admin-add-edit-signup-form.php:72
 msgid "Phone"
 msgstr ""
@@ -440,7 +440,7 @@ msgstr ""
 msgid " - Ongoing"
 msgstr ""
 
-#: classes/class-pta-sus-ajax.php:141 classes/class-pta_sus_public.php:1492
+#: classes/class-pta-sus-ajax.php:141 classes/class-pta_sus_public.php:1499
 #, php-format
 msgid "on %s"
 msgstr ""
@@ -457,7 +457,7 @@ msgstr ""
 msgid "Add New"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:122 pta-volunteer-sign-up-sheets.php:854
+#: classes/class-pta_sus_admin.php:122 pta-volunteer-sign-up-sheets.php:852
 msgid "Settings"
 msgstr ""
 
@@ -1258,8 +1258,8 @@ msgstr ""
 msgid "Volunteer Signup Reminders sent"
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:564 pta-volunteer-sign-up-sheets.php:241
-#: pta-volunteer-sign-up-sheets.php:250
+#: classes/class-pta_sus_emails.php:564 pta-volunteer-sign-up-sheets.php:242
+#: pta-volunteer-sign-up-sheets.php:251
 msgid "Volunteer signup sheet CRON job has been completed."
 msgstr ""
 
@@ -2395,7 +2395,7 @@ msgstr ""
 msgid "Validation email failed to send."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:284 classes/class-pta_sus_public.php:1466
+#: classes/class-pta_sus_public.php:284 classes/class-pta_sus_public.php:1473
 msgid "All spots have already been filled."
 msgstr ""
 
@@ -2489,8 +2489,8 @@ msgstr ""
 msgid "View &amp; sign-up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:559 classes/class-pta_sus_public.php:1301
-#: classes/class-pta_sus_public.php:1329
+#: classes/class-pta_sus_public.php:559 classes/class-pta_sus_public.php:1308
+#: classes/class-pta_sus_public.php:1336
 msgid "Filled"
 msgstr ""
 
@@ -2502,8 +2502,8 @@ msgstr ""
 msgid "Sign-up sheet not found."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:626 classes/class-pta_sus_public.php:1103
-#: classes/class-pta_sus_public.php:1476
+#: classes/class-pta_sus_public.php:626 classes/class-pta_sus_public.php:1110
+#: classes/class-pta_sus_public.php:1483
 msgid "You don't have permission to view this page."
 msgstr ""
 
@@ -2543,7 +2543,7 @@ msgstr ""
 msgid "Click on Clear to remove yourself from a signup."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:849 classes/class-pta_sus_public.php:1340
+#: classes/class-pta_sus_public.php:849 classes/class-pta_sus_public.php:1347
 msgid "Clear"
 msgstr ""
 
@@ -2562,111 +2562,111 @@ msgstr ""
 msgid "You do not have any current signups"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:959
+#: classes/class-pta_sus_public.php:966
 #, php-format
 msgid ""
 "User Validation email has been sent. Please check your email. If you did not "
 "receive the email, you can return and submit the form again after %d minutes."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:966
+#: classes/class-pta_sus_public.php:973
 msgid "User Validation is currently disabled."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:970
+#: classes/class-pta_sus_public.php:977
 msgid "You are already validated."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:988
+#: classes/class-pta_sus_public.php:995
 msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1000
+#: classes/class-pta_sus_public.php:1007
 msgid "Login"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1021 classes/class-pta_sus_public.php:1048
+#: classes/class-pta_sus_public.php:1028 classes/class-pta_sus_public.php:1055
 msgid "Current Volunteer Sign-up Sheets"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1141
+#: classes/class-pta_sus_public.php:1148
 msgid "No sheets currently available at this time."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1152
+#: classes/class-pta_sus_public.php:1159
 msgid "Please login to view and edit your volunteer sign ups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1174
+#: classes/class-pta_sus_public.php:1181
 msgid "No tasks were found for "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1226
+#: classes/class-pta_sus_public.php:1233
 msgid "Available Spots"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1233
+#: classes/class-pta_sus_public.php:1240
 msgid "Email"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1299
+#: classes/class-pta_sus_public.php:1306
 #, php-format
 msgid "%d Filled"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1303 classes/class-pta_sus_public.php:1407
+#: classes/class-pta_sus_public.php:1310 classes/class-pta_sus_public.php:1414
 #, php-format
 msgid "%d remaining: &nbsp;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1308 classes/class-pta_sus_public.php:1382
+#: classes/class-pta_sus_public.php:1315 classes/class-pta_sus_public.php:1389
 msgid "Sign up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1467 classes/class-pta_sus_public.php:1470
-#: classes/class-pta_sus_public.php:1646
+#: classes/class-pta_sus_public.php:1474 classes/class-pta_sus_public.php:1477
+#: classes/class-pta_sus_public.php:1653
 msgid "&laquo; go back to the Sign-Up Sheet"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1488
+#: classes/class-pta_sus_public.php:1495
 msgid "Sign Up"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1489
+#: classes/class-pta_sus_public.php:1496
 msgid "You are signing up for... "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1506
+#: classes/class-pta_sus_public.php:1513
 #: views/admin-add-edit-signup-form.php:67 views/public-validation-form.php:5
 msgid "First Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1507
+#: classes/class-pta_sus_public.php:1514
 #: views/admin-add-edit-signup-form.php:68 views/public-validation-form.php:6
 msgid "Last Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1509
+#: classes/class-pta_sus_public.php:1516
 msgid "Confirm E-mail"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1575
+#: classes/class-pta_sus_public.php:1582
 msgid ""
 "If you have an account, it is strongly recommended that you <strong>login "
 "before you sign up</strong> so that you can view and edit all your signups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1622
+#: classes/class-pta_sus_public.php:1629
 #: views/admin-add-edit-signup-form.php:159
 #, php-format
 msgid "Item QTY (1 - %d): "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1625
+#: classes/class-pta_sus_public.php:1632
 msgid "Only 1 remaining! Your quantity will be set to 1."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1645
+#: classes/class-pta_sus_public.php:1652
 msgid "Sign me up!"
 msgstr ""
 
@@ -2930,33 +2930,41 @@ msgstr ""
 msgid "CSS Class for ul list of signups"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:233
+#: pta-volunteer-sign-up-sheets.php:225
+msgid "Beginning hourly CRON job"
+msgstr ""
+
+#: pta-volunteer-sign-up-sheets.php:234
 msgid "Volunteer Signup Housekeeping Completed!"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:242
+#: pta-volunteer-sign-up-sheets.php:243
 #, php-format
 msgid "%d expired sheets were deleted."
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:251
+#: pta-volunteer-sign-up-sheets.php:252
 #, php-format
 msgid "%d expired signups were deleted."
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:850
+#: pta-volunteer-sign-up-sheets.php:277
+msgid "Finished hourly CRON job"
+msgstr ""
+
+#: pta-volunteer-sign-up-sheets.php:848
 msgid "Extensions"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:852
+#: pta-volunteer-sign-up-sheets.php:850
 msgid "Docs"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:870 pta-volunteer-sign-up-sheets.php:908
+#: pta-volunteer-sign-up-sheets.php:868 pta-volunteer-sign-up-sheets.php:906
 msgid "Volunteer Sign Up Data"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:938
+#: pta-volunteer-sign-up-sheets.php:936
 msgid "Your Volunteer Sign Up Info was unable to be removed at this time."
 msgstr ""
 

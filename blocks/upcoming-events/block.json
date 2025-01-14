@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "pta-volunteer-sus/upcoming-events",
+  "title": "Upcoming Events",
+  "category": "widgets",
+  "icon": "calendar",
+  "description": "Display a list of upcoming volunteer events in a widget area",
+  "keywords": ["volunteer", "events", "upcoming"],
+  "version": "2.0.0",
+  "textdomain": "pta-volunteer-sign-up-sheets",
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Current Volunteer Opportunities"
+    },
+    "num_items": {
+      "type": "number",
+      "default": 10
+    },
+    "show_what": {
+      "type": "string",
+      "default": "both"
+    },
+    "sort_by": {
+      "type": "string",
+      "default": "first_date"
+    },
+    "order": {
+      "type": "string",
+      "default": "ASC"
+    },
+    "list_class": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:../build/blocks.build.js"
+}

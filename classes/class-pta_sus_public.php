@@ -763,7 +763,7 @@ class PTA_SUS_Public {
 		    'show_time' => 'yes'
 	    ), $atts, 'pta_user_signups' ) );
 	    $times = 'no' !== $show_time;
-	    $details = empty($this->main_options['hide_signups_details_qty']) || false == $this->main_options['hide_signups_details_qty'];
+	    $details = !$this->main_options['hide_signups_details_qty'];
 
 	    if (!empty($signups)) {
 		    $return .= apply_filters( 'pta_sus_before_user_signups_list_headers', '' );
@@ -946,8 +946,15 @@ class PTA_SUS_Public {
     }
 
 	public function process_validation_form_shortcode($atts) {
+		$atts = shortcode_atts(array(
+			'hide_when_validated' => 'no'
+		), $atts, 'pta_validation_form');
 		$return = PTA_SUS_Messages::show_messages();
 		PTA_SUS_Messages::clear_messages();
+		// Return empty if user is validated and hide_when_validated is enabled
+		if($this->volunteer->is_validated() && 'yes' === $atts['hide_when_validated']) {
+			return '';
+		}
 		if(!$this->volunteer->is_validated()) {
 			if(isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
 				if($this->validation_sent) {

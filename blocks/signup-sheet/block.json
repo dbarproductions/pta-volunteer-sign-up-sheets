@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "pta-volunteer-sus/signup-sheet",
+  "title": "Sign Up Sheets",
+  "category": "widgets",
+  "icon": "welcome-write-blog",
+  "description": "Display volunteer sign up sheets with live preview",
+  "keywords": ["volunteer", "sign up", "sheets"],
+  "version": "2.0.0",
+  "textdomain": "pta-volunteer-sign-up-sheets",
+  "attributes": {
+    "id": {
+      "type": "string",
+      "default": ""
+    },
+    "date": {
+      "type": "string",
+      "default": ""
+    },
+    "group": {
+      "type": "string",
+      "default": ""
+    },
+    "list_title": {
+      "type": "string",
+      "default": ""
+    },
+    "show_headers": {
+      "type": "string",
+      "default": "yes"
+    },
+    "show_time": {
+      "type": "string",
+      "default": "yes"
+    },
+    "show_phone": {
+      "type": "string",
+      "default": "no"
+    },
+    "show_email": {
+      "type": "string",
+      "default": "no"
+    },
+    "order_by": {
+      "type": "string",
+      "default": "first_date"
+    },
+    "order": {
+      "type": "string",
+      "default": "ASC"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:../build/blocks.build.js"
+}

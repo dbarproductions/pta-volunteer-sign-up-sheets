@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "pta-volunteer-sus/validation-form",
+  "title": "Volunteer Validation Form",
+  "category": "widgets",
+  "icon": "admin-users",
+  "description": "Display the volunteer validation form",
+  "keywords": ["volunteer", "validation", "form"],
+  "version": "2.0.0",
+  "textdomain": "pta-volunteer-sign-up-sheets",
+  "attributes": {
+    "hide_when_validated": {
+      "type": "string",
+      "default": "no"
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:../build/blocks.build.js"
+}

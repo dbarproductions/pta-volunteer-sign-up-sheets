@@ -21,11 +21,11 @@ You may submit new features here:
 Read the documentation here:
 <https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/>
 
-**An alternative to sites like Signup Genius for your events, this plugin lets you keep your signup sheets on your own site. Easily create and manage sign up sheets for your school, organization, business, or anything else where need people to sign up.**
+**An alternative to sites like Signup Genius for your events, this plugin lets you keep your signup sheets on your own site. Easily create and manage sign up sheets for your school, organization, business, or anything else where people need to sign up.**
 
 **Features:**
 
-*   Version 4.7 add a new Validation option to validate signups via an email code, as well as to validate a user so that they can view and clear their signups without having to login to a WordPress user account.
+*   Version 5.0 add a new Validation option to validate signups via an email code, and to validate a user so that they can view and clear their signups without having to login to a WordPress user account. A validation form is also provided to allow validation at any time. See the documentation for more information.
 *   Version 4.6 adds HTML format emails, as well as per sheet options for recipients of signup confirmation and clear emails, along with a mobile CSS option to collapse the tables to a single column format for smaller screens, and many other new features and settings.
 *   Version 3.6 adds the ability to Reschedule a sheet to new date and times, copy a sheet with new dates and times, or create multiple copies of a sheet at specified day intervals. These new functions allow optionally copying the signups, and have a new email template to notify those signups of the new dates and times.
 *   [pta_user_signups] shortcode allows you to show a list of the current logged in user's signups on any page (with clear links, if allowed).
@@ -68,17 +68,19 @@ Sheets can also be specified as a "No Sign Up" event, which can be useful for ge
 
 Each sign-up sheet can be set to visible or hidden, so that you can create sign-up sheets ahead of time, but only make them visible to the public when you are ready for them to start signing up. There is also a test mode which will only show sign-up sheets on the public side to admin users or those who you give the "manage_signup_sheets" capability. Everyone else will see a message of your choosing while you are in test mode. When not in test mode, admins and users with the "manage_signup_sheets" capability can still view hidden sheets on the public side (for testing those sheets without putting the whole system into test mode).
 
-In the settings, you can choose to require that users be logged in to view and/or sign-up for any volunteer sign-up sheets, and pick the message they will see if they are not logged in. Even if you keep the sheets open to the public, you can choose which personal info to show, or simply show "Filled" for filled slots.
+In the settings, you can choose to require that users be logged in, or validated (version 5.0), to view and/or sign-up for any volunteer sign-up sheets, and pick the message they will see if they are not logged in. Even if you keep the sheets open to the public, you can choose which personal info to show, or simply show "Filled" for filled slots.
 
 There is also a hidden spambot field to prevent signup form submission from spambots.
 
 If a user is logged in when they sign up, the system will keep track of the user ID, and on the main volunteer sign-ups page, they will also see a list of items/tasks that they have signed up for, and it will give them a link to clear each sign up if they need to cancel or reschedule. If they are not logged in when they sign up, but they use the same email as a registered user, that sign-up will be linked to that user's account. You can also use the shortcode [pta_user_signups] to show the list of the current user's signups on any page (along with clear links, if allowed).
 
+The Validation system added in version 5.0 now allows a way to validate signups and users via email, without forcing them to have WordPress user accounts. Validated users can view their signups, and can clear their signups (if enabled). You can also require that signups be validated first if the user signing up is not current validated or signed in to a user account. Unvalidated signups will be automatically deleted after a set amount of time that you can define.
+
 Admin users can add/edit signups from the View Signups page in the admin dashboard, or they can use the "live search" option on the front end sign up form to search for volunteers in either the plugin's signups table, the WordPress users table, or both. If the admin then selects a volunteer, they can sign up that volunteer, and the signup will be assigned to that user's account (if your volunteers have user accounts).
 
 There is a shortcode for a main sign-up sheet page - [pta_sign_up_sheet] - that will show a list of all active (and non-hidden) sign-up sheets, showing the number of open volunteer slots with links to view each individual sheet. Individual sheets have links next to each open task/item for signing up.  When signing up, if the user is already logged in, their name and contact info (phone and email) will be pre-filled in the sign-up page form if that info exists in the user's meta data. You can also enter shortcode arguments to display a specific sign-up sheet on any page. Additionally, there are shortcode arguments for many other features (see documentation).
 
-There is a sidebar widget to show upcoming volunteer events and how many spots still need to be filled for each, linked to each individual sign-up sheet. You can choose whether or not to show Ongoing type events in the widget, and if they should be at the top or bottom of the list (since they don't have dates associated with them).
+There is a sidebar widget to show upcoming volunteer events and how many spots still need to be filled for each, linked to each individual sign-up sheet. You can choose whether to show Ongoing type events in the widget, and if they should be at the top or bottom of the list (since they don't have dates associated with them).
 
 Admin users can view sign-ups for each sheet, and add, edit, or clear any spots with a simple link. Each sheet can also be exported to Excel, CSV, PDF or Print formats. Admin side signups are displayed using the jQuery DataTables plugin, which allows sorting, filtering, searching, and showing/hiding columns, so you can arrange the data anyway you want before exporting or printing.
 
@@ -169,11 +171,14 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
-**Version 4.7.0**
+**Version 5.0.0**
 *   Added new Validation features to (optionally) validate signups and allow users to view and clear their own signups without having to have a WordPress user account. Check the documentation for more details.
+*   Updated the old Sign Up Sheets block to use the newest block API and to show a live preview of the output.
+*   Added new blocks for the User Signups List, Upcoming Events list (old widget remains as well), and the User Validation Form.
+*   New shortcode added for the User Validation Form. [pta_validation_form]
 *   Logfile creation and viewing from the admin CRON functions page that will show any actions run during the CRON run. Log files will be automatically cleared every 30 days, or can be manually cleared from the CRON functions page.
 *   Code optimization & moving common functions from extensions to global functions to reduce code duplication
-*   Beginning to refactor the very old code base to make it more modular and easier to extend, moving toward a more object-oriented approach.
+*   Beginning to refactor the very old code base to make it more modular and easier to extend, moving toward a more object-oriented and modular approach.
 *   Additional hooks added for new extensions, specifically for the new Waitlists extension
 *   Minor changes to prevent deprecation notices in PHP8.4
 *   Tested with PHP 8.4.2 and WordPress 6.7.1

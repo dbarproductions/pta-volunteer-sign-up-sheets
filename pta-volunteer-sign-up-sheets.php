@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 4.7.0.RC1
+Version: 5.0.0.beta1
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '4.7.0.RC1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.0.0.beta1');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -222,6 +222,7 @@ class PTA_Sign_Up_Sheet {
 
 
     public function cron_functions() {
+		pta_logToFile(__('Beginning hourly CRON job', 'pta-volunteer-sign-up-sheets'));
         // Let other plugins hook into our hourly cron job
         do_action( 'pta_sus_hourly_cron' );
 
@@ -238,7 +239,7 @@ class PTA_Sign_Up_Sheet {
 	    if($this->main_options['clear_expired_sheets']) {
 		    $results = $this->data->delete_expired_sheets();
 		    if($results) {
-			    $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
+			    $message .= __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
 			               sprintf(__("%d expired sheets were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
 		    }
 	    }
@@ -265,12 +266,15 @@ class PTA_Sign_Up_Sheet {
 			}
 		}
 
+		$message .= apply_filters('pta_sus_cron_message', '');
+
 		if(!empty($message)) {
 			pta_logToFile($message);
 			if($send_mail) {
 				wp_mail($to, $subject, $message);
 			}
 		}
+	    pta_logToFile(__('Finished hourly CRON job', 'pta-volunteer-sign-up-sheets'));
 
 	    $last_log_clear = get_option('pta_sus_last_log_clear', 0);
 	    $clear_interval = 30 * DAY_IN_SECONDS; // 30 days
@@ -721,116 +725,110 @@ Please click on, or copy and paste, the link below to validate yourself:
 	/**
 	 * Enqueue Gutenberg block assets for both frontend + backend.
 	 *
-	 * Assets enqueued:
-	 * 1. blocks.style.build.css - Frontend + Backend.
-	 * 2. blocks.build.js - Backend.
-	 * 3. blocks.editor.build.css - Backend.
-	 *
-	 * @uses {wp-blocks} for block type registration & related functions.
-	 * @uses {wp-element} for WP Element abstraction — structure of blocks.
-	 * @uses {wp-i18n} to internationalize the block's text.
-	 * @uses {wp-editor} for WP editor styles.
-	 * @since 1.0.0
 	 */
-	public function block_assets() { // phpcs:ignore
-		if(!function_exists( 'register_block_type')) return;
-		// Register block styles for both frontend + backend.
-		wp_register_style(
-			'pta_volunteer_sus_block-style-css', // Handle.
-			plugins_url( 'blocks/blocks.style.build.css', __FILE__  ), // Block style CSS.
-			array( 'wp-editor' ), // Dependency to include the CSS after it.
-			null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.style.build.css' ) // Version: File modification time.
-		);
+	public function block_assets() {
+		register_block_type( __DIR__ . '/blocks/signup-sheet/block.json', array(
+			'render_callback' => array( $this, 'render_volunteer_signup_block' )
+		) );
 
-		// Register block editor script for backend.
-		wp_register_script(
-			'pta_volunteer_sus_block-block-js', // Handle.
-			plugins_url( 'blocks/blocks.build.js', __FILE__  ), // Block.build.js: We register the block here. Built with Webpack.
-			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ), // Dependencies, defined above.
-			null, // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.build.js' ), // Version: filemtime — Gets file modification time.
-			true // Enqueue the script in the footer.
-		);
+		register_block_type( __DIR__ . '/blocks/user-signups/block.json', array(
+			'render_callback' => array( $this, 'render_user_signups_block' )
+		) );
 
-		// Register block editor styles for backend.
-		wp_register_style(
-			'pta_volunteer_sus_block-block-editor-css', // Handle.
-			plugins_url( 'blocks/blocks.editor.build.css', __FILE__  ), // Block editor CSS.
-			array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
-			null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.editor.build.css' ) // Version: File modification time.
-		);
+		register_block_type( __DIR__ . '/blocks/upcoming-events/block.json', array(
+			'render_callback' => array( $this, 'render_upcoming_events_block' )
+		) );
 
-		/**
-		 * Register Gutenberg block on server-side.
-		 *
-		 * Register the block on server-side to ensure that the block
-		 * scripts and styles for both frontend and backend are
-		 * enqueued when the editor loads.
-		 *
-		 * @link https://wordpress.org/gutenberg/handbook/blocks/writing-your-first-block-type#enqueuing-block-scripts
-		 * @since 1.16.0
-		 */
-		register_block_type(
-			'pta-volunteer-sus-block/block-pta-volunteer-sus-block', array(
-				// Enqueue blocks.style.build.css on both frontend & backend.
-				'style'         => 'pta_volunteer_sus_block-style-css',
-				// Enqueue blocks.build.js in the editor only.
-				'editor_script' => 'pta_volunteer_sus_block-block-js',
-				// Enqueue blocks.editor.build.css in the editor only.
-				'editor_style'  => 'pta_volunteer_sus_block-block-editor-css',
-				'attributes' => [
-					'id' => [
-						'type' => 'text',
-						'default' => ''
-					],
-					'date' => [
-						'type' => 'text',
-						'default' => ''
-					],
-					'group' => [
-						'type' => 'text',
-						'default' => ''
-					],
-					'list_title' => [
-						'type' => 'text',
-						'default' => ''
-					],
-					'show_headers' => [
-						'type' => 'text',
-						'default' => 'yes'
-					],
-					'show_time' => [
-						'type' => 'text',
-						'default' => 'yes'
-					],
-					'show_phone' => [
-						'type' => 'text',
-						'default' => 'no'
-					],
-					'show_email' => [
-						'type' => 'text',
-						'default' => 'no'
-					],
-					'show_date_start' => [
-						'type' => 'text',
-						'default' => 'no'
-					],
-					'show_date_end' => [
-						'type' => 'text',
-						'default' => 'no'
-					],
-					'order_by' => [
-						'type' => 'text',
-						'default' => 'first_date'
-					],
-					'order' => [
-						'type' => 'text',
-						'default' => 'ASC'
-					]
-				]
-			)
-		);
+		register_block_type( __DIR__ . '/blocks/validation-form/block.json', array(
+			'render_callback' => array( $this, 'render_validation_form_block' )
+		) );
+
 	}
-	
+
+	public function render_volunteer_signup_block( $attributes ) {
+		$shortcode_atts = array(
+			'id' => $attributes['id'] ?? '',
+			'date' => $attributes['date'] ?? '',
+			'group' => $attributes['group'] ?? '',
+			'list_title' => $attributes['listtitle'] ?? '',
+			'show_headers' => $attributes['showheaders'] ?? 'yes',
+			'show_time' => $attributes['showtime'] ?? 'yes',
+			'show_phone' => $attributes['showphone'] ?? 'no',
+			'show_email' => $attributes['showemail'] ?? 'no',
+			'order_by' => $attributes['orderby'] ?? 'first_date',
+			'order' => $attributes['order'] ?? 'ASC'
+		);
+
+		$shortcode = '[pta_sign_up_sheet';
+		foreach ($shortcode_atts as $key => $value) {
+			if (!empty($value)) {
+				$shortcode .= ' ' . $key . '="' . esc_attr($value) . '"';
+			}
+		}
+		$shortcode .= ']';
+
+		return do_shortcode($shortcode);
+	}
+
+	public function render_user_signups_block($attributes) {
+		$shortcode_atts = array(
+			'show_time' => $attributes['showtime'] ?? 'yes',
+			'show_details' => $attributes['showdetails'] ?? 'yes',
+			'show_qty' => $attributes['showqty'] ?? 'yes'
+		);
+
+		$shortcode = '[pta_user_signups';
+		foreach ($shortcode_atts as $key => $value) {
+			if (!empty($value)) {
+				$shortcode .= ' ' . $key . '="' . esc_attr($value) . '"';
+			}
+		}
+		$shortcode .= ']';
+
+		return do_shortcode($shortcode);
+	}
+
+	public function render_upcoming_events_block($attributes) {
+		$widget = new PTA_SUS_Widget();
+
+		$widget_args = array(
+			'before_widget' => '',
+			'after_widget' => '',
+			'before_title' => '<h2>',
+			'after_title' => '</h2>'
+		);
+
+		$instance = array(
+			'title' => $attributes['title'] ?? 'Current Volunteer Opportunities',
+			'num_items' => $attributes['num_items'] ?? 10,
+			'show_what' => $attributes['show_what'] ?? 'both',
+			'sort_by' => $attributes['sort_by'] ?? 'first_date',
+			'order' => $attributes['order'] ?? 'ASC',
+			'list_class' => $attributes['list_class'] ?? ''
+		);
+
+		ob_start();
+		$widget->widget($widget_args, $instance);
+		return ob_get_clean();
+	}
+
+	public function render_validation_form_block($attributes) {
+		// For block editor preview and REST requests
+		if (defined('REST_REQUEST') && REST_REQUEST || is_admin()) {
+			return pta_get_validation_form();
+		}
+
+		// For frontend rendering
+		if (!isset($this->public)) {
+			if (!class_exists('PTA_SUS_Public')) {
+				include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
+			}
+			$this->public = new PTA_SUS_Public();
+		}
+		return $this->public->process_validation_form_shortcode($attributes);
+	}
+
+
 }
 
 require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
