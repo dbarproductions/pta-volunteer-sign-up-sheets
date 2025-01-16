@@ -189,6 +189,8 @@ class PTA_SUS_Options {
 	    add_settings_field('user_validation_email_template', __('User Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_form_resubmission_minutes', __('Validation Form Resubmission Time (minutes):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_resubmission_minutes_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('enable_clear_validation', __('Enable Clear Validation link:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_clear_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('clear_validation_message', __('Clear Validation Message:', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_validation_message_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('clear_validation_link_text', __('Clear Validation link text:', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_validation_link_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 
     } // Register Options
 
@@ -359,6 +361,8 @@ class PTA_SUS_Options {
             'validation_page_link_text' => 'text',
             'validation_page_id' => 'integer',
             'enable_clear_validation' => 'bool',
+            'clear_validation_link_text' => 'text',
+            'clear_validation_message' => 'textarea',
 		);
 		return $this->validate_options($inputs, $fields, $options);
 	}
@@ -430,7 +434,7 @@ class PTA_SUS_Options {
 			'post_status' => array('publish','private')
 		);
 		wp_dropdown_pages( $args );
-		echo '<em> ' . __('The validation form page where you put the shortcode [pta_validation_form]. Validation links are also sent to this page, so you MUST select a page and include the shortcode on that page.', 'pta-volunteer-sign-up-sheets') . '</em>';
+		echo '<em> ' . __('The validation form page where you put the shortcode [pta_validation_form], or where you inserted the Validation Form block. Validation links are also sent to this page, so you MUST select a page and include the shortcode, or block, on that page.', 'pta-volunteer-sign-up-sheets') . '</em>';
 	}
 
 	public function signup_search_tables_select() {
@@ -524,6 +528,12 @@ class PTA_SUS_Options {
 		echo '<input id="user_validation_email_subject" name="pta_volunteer_sus_validation_options[user_validation_email_subject]" size="60" type="text" value="'.esc_attr($this->validation_options["user_validation_email_subject"]).'" />';
 		echo '<em> '. __('Subject line for user validation email messages.', 'pta-volunteer-sign-up-sheets') . '</em>';
 	}
+
+    public function clear_validation_link_text_input() {
+        echo '<input id="clear_validation_link_text" name="pta_volunteer_sus_validation_options[clear_validation_link_text]" size="60" type="text" value="'.esc_attr($this->validation_options["clear_validation_link_text"]).'" />';
+        echo '<em> '. __('Text for the link to clear the browser user validation cookie.', 'pta-volunteer-sign-up-sheets') . '</em>';
+
+    }
 
     public function signup_expiration_hours_number_input() {
         echo "<input id='signup_expiration_hours' name='pta_volunteer_sus_validation_options[signup_expiration_hours]' type='number' value='{$this->validation_options['signup_expiration_hours']}' min='1' style='width: 5em;'/>";
@@ -1147,7 +1157,7 @@ class PTA_SUS_Options {
         ?>
         <input name="pta_volunteer_sus_validation_options[enable_user_validation_form]" type="checkbox" value="1" <?php echo $checked; ?> />
         <?php
-        echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to enable the user validation form on the front end. This will allow users to validate themselves, if they are not already validated via a signup validation email, in order to view and clear their signups.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+        echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to enable the user validation form on the front end in place of the User Signups List if the user is not validated or logged in. This will allow users to validate themselves in order to view and clear their signups. The validation form shortcode or block will always show the validation form regardless of this setting. This just automatically shows it where the user signups list would be when they are not validated or logged in.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
     }
 
     public function require_validation_to_view_checkbox() {
@@ -1266,8 +1276,13 @@ class PTA_SUS_Options {
 	}
 
 	public function validation_form_header_textarea() {
-        wp_editor(wpautop($this->validation_options['validation_form_header']),'validation_form_header',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[validation_form_header]'));
+        wp_editor(wpautop($this->validation_options['validation_form_header']),'validation_form_header',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 5,'textarea_name' => 'pta_volunteer_sus_validation_options[validation_form_header]'));
 		echo '<br />' . __('Info to display above the user validation form. HTML is allowed.', 'pta-volunteer-sign-up-sheets');
+	}
+
+	public function clear_validation_message_textarea() {
+		wp_editor(wpautop($this->validation_options['clear_validation_message']),'clear_validation_message',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 5,'textarea_name' => 'pta_volunteer_sus_validation_options[clear_validation_message]'));
+		echo '<br />' . __('Info to display above the user clear validation link (when enabled). HTML is allowed. You can leave it blank for no message.', 'pta-volunteer-sign-up-sheets');
 	}
 
 } // End Class

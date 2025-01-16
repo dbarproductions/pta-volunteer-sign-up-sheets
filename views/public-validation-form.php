@@ -8,7 +8,6 @@ $email_label = apply_filters( 'pta_sus_public_output', __('E-mail', 'pta-volunte
 ?>
 <div class="pta-sus validation-form-wrapper">
     <?php echo wp_kses_post($header); ?>
-    <?php PTA_SUS_Messages::show_messages(true); ?>
     <form id="pta-sus-validation-form" action="" method="post" enctype="multipart/form-data">
         <table class="pta-sus waitlist-validation-form">
             <tr>

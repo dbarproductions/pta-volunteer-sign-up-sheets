@@ -34,14 +34,14 @@ class PTA_SUS_Messages {
 	public static function show_messages($echo=false) {
 		$output = '';
         if (sizeof(self::$errors) > 0) {
-			$output .=  '<div id="pta-sus-messages" class="pta-sus error fade">';
+			$output .=  '<div id="pta-sus-messages" class="pta-sus error-div fade">';
             foreach (self::$errors as $error) {
                 $output .=  '<p class="pta-sus error">' . esc_html($error) . '</p>';
             }
 			$output .=  '</div>';
         }
         if (sizeof(self::$messages) > 0) {
-	        $output .=  '<div id="pta-sus-messages" class="pta-sus notice fade"'. (self::$data_clear_url ? ' data-clear-url="true"' : '') . '>';
+	        $output .=  '<div id="pta-sus-messages" class="pta-sus notice-div fade"'. (self::$data_clear_url ? ' data-clear-url="true"' : '') . '>';
             foreach (self::$messages as $message) {
                 $output .=  '<p class="pta-sus updated">' . esc_html($message) . '</p>';
             }

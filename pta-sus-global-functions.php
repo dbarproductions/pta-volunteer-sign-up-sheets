@@ -364,6 +364,18 @@ function pta_get_validation_form($echo=false) {
 	}
 }
 
+function pta_get_main_options() {
+	return get_option('pta_volunteer_sus_main_options', array());
+}
+
+function pta_get_validation_options() {
+	return get_option('pta_volunteer_sus_validation_options', array());
+}
+
+function pta_get_email_options() {
+	return get_option('pta_volunteer_sus_email_options', array());
+}
+
 function pta_clean_redirect() {
 	// Store current messages in session
 	$_SESSION['pta_sus_messages'] = PTA_SUS_Messages::get_messages();

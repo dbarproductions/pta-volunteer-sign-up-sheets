@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.0.0.beta1
+Version: 5.0.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.0.0.beta1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.0.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -528,7 +528,9 @@ Please click on, or copy and paste, the link below to validate yourself:
 		    'validation_required_message' => 'You must be validated to view this page.',
 		    'validation_page_link_text' => 'Go to the validation form',
 		    'validation_page_id' => 0,
-		    'enable_clear_validation' => true
+		    'enable_clear_validation' => true,
+		    'clear_validation_message' => 'Use the link below to clear the validation info from your browser. You should do this on public computers, or if you need to validate again as a spouse or family member using a different name or email.',
+		    'clear_validation_link_text' => 'Clear Validation',
 	    );
 	    $options = get_option( 'pta_volunteer_sus_validation_options', $defaults );
 	    // Make sure each option is set -- this helps if new options have been added during plugin upgrades
@@ -750,12 +752,12 @@ Please click on, or copy and paste, the link below to validate yourself:
 			'id' => $attributes['id'] ?? '',
 			'date' => $attributes['date'] ?? '',
 			'group' => $attributes['group'] ?? '',
-			'list_title' => $attributes['listtitle'] ?? '',
-			'show_headers' => $attributes['showheaders'] ?? 'yes',
-			'show_time' => $attributes['showtime'] ?? 'yes',
-			'show_phone' => $attributes['showphone'] ?? 'no',
-			'show_email' => $attributes['showemail'] ?? 'no',
-			'order_by' => $attributes['orderby'] ?? 'first_date',
+			'list_title' => $attributes['list_title'] ?? '',
+			'show_headers' => $attributes['show_headers'] ?? 'yes',
+			'show_time' => $attributes['show_time'] ?? 'yes',
+			'show_phone' => $attributes['show_phone'] ?? 'no',
+			'show_email' => $attributes['show_email'] ?? 'no',
+			'order_by' => $attributes['order_by'] ?? 'first_date',
 			'order' => $attributes['order'] ?? 'ASC'
 		);
 
@@ -772,9 +774,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 	public function render_user_signups_block($attributes) {
 		$shortcode_atts = array(
-			'show_time' => $attributes['showtime'] ?? 'yes',
-			'show_details' => $attributes['showdetails'] ?? 'yes',
-			'show_qty' => $attributes['showqty'] ?? 'yes'
+			'show_time' => $attributes['show_time'] ?? 'yes'
 		);
 
 		$shortcode = '[pta_user_signups';
