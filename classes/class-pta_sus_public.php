@@ -152,7 +152,9 @@ class PTA_SUS_Public {
 
 	private function maybe_validate_volunteer() {
 		if(empty($_GET['pta-sus-action'])) return;
+		if(!$this->validation_enabled) return;
 		$action = sanitize_text_field($_GET['pta-sus-action']);
+		$this->success = false;
 		if('clear_validation' === $action) {
 			if(!wp_verify_nonce($_GET['pta-sus-clear-validation-nonce'], 'pta-sus-clear-validation')) {
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Sorry! Your security nonce did not verify!', 'pta-volunteer-sign-up-sheets'), 'nonce_error_message' ));
@@ -187,6 +189,7 @@ class PTA_SUS_Public {
 		if('validate_user' === $action) {
 			// @todo: add to customizer
 			PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('User Validation successful.','pta-volunteer-sign-up-sheets'),'user_validation_success_message' ));
+			$this->success = true;
 			pta_set_validated_user_cookie($firstname, $lastname, $email);
 		}
 		if('validate_signup' === $action) {
@@ -208,6 +211,7 @@ class PTA_SUS_Public {
 					// @todo: add to customizer
 					PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup validated.','pta-volunteer-sign-up-sheets'),'signup_validation_success_message' ));
 					pta_set_validated_user_cookie($firstname, $lastname, $email);
+					$this->success = true;
 					$emails = new PTA_SUS_Emails();
 					if ($emails->send_mail(intval($signup_id)) === false) {
 						// @todo: add to customizer
@@ -373,9 +377,9 @@ class PTA_SUS_Public {
 	}
 
 	public function add_signup($posted, $signup_task_id) {
-		$validate_signups = isset($this->validation_options['enable_signup_validation']) && $this->validation_options['enable_signup_validation'];
+		$validate_signups =  $this->validation_enabled && isset($this->validation_options['enable_signup_validation']) && $this->validation_options['enable_signup_validation'];
 		$posted['signup_validated'] = $validate_signups ? $this->volunteer->is_validated() : 1;
-		$needs_validation = ($validate_signups && !$this->volunteer->is_validated());
+		$needs_validation = ($this->validation_enabled && $validate_signups && !$this->volunteer->is_validated());
 		// Allow extensions to bypass adding signup to main database
 		if( apply_filters( 'pta_sus_signup_add_signup_to_main_database', true, $posted, $signup_task_id ) ) {
 			$signup_id=$this->data->add_signup($posted,$signup_task_id);
@@ -766,7 +770,7 @@ class PTA_SUS_Public {
     public function get_user_signups_list($atts) {
     	$return = '';
 		if(!$this->volunteer->is_validated()) {
-			if(isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
+			if( $this->validation_enabled && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form'] ) {
 				if ( (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) || $this->validation_sent ) {
 					$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
 					// @todo: add to customizer
@@ -933,15 +937,15 @@ class PTA_SUS_Public {
 		    } else {
 			    $return .= '</tbody></table></div>';
 		    }
-		    
-		    $return .= apply_filters( 'pta_sus_after_user_signups_list_table', '' );
-		    return $return;
+
 	    }
+	    $return .= apply_filters( 'pta_sus_after_user_signups_list_table', '' );
+	    return $return;
     }
 
 	public function maybe_get_clear_validation_message() {
 		$return = '';
-		if($this->volunteer->is_validated() && !is_user_logged_in() && isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] && isset($this->validation_options['enable_clear_validation']) && $this->validation_options['enable_clear_validation']) {
+		if($this->volunteer->is_validated() && !is_user_logged_in() && $this->validation_enabled && isset($this->validation_options['enable_clear_validation']) && $this->validation_options['enable_clear_validation']) {
 			$message = $this->validation_options['clear_validation_message'] ?? '';
 			if($message) {
 				$return .= '<div class="pta-sus clear-validation-message">'. wpautop( $message).'</div>';
@@ -970,6 +974,11 @@ class PTA_SUS_Public {
     }
 
 	public function process_validation_form_shortcode($atts) {
+		// don't show anything if the system is not enabled
+		if(!$this->validation_enabled || !(isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) ) {
+			// @todo: add to customizer
+			return '<p>'.apply_filters( 'pta_sus_public_output', __('User Validation is currently disabled.', 'pta-volunteer-sign-up-sheets'), 'user_validation_disabled_message').'</p>';
+		}
 		$atts = shortcode_atts(array(
 			'hide_when_validated' => 'no'
 		), $atts, 'pta_validation_form');
@@ -985,22 +994,16 @@ class PTA_SUS_Public {
 			return '';
 		}
 		if(!$this->volunteer->is_validated()) {
-			if(isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'] ) {
-				if($this->validation_sent) {
-					return $return;
-				}
-				if (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) {
-					$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
-					// @todo: add to customizer
-					$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
-					return $return;
-				}
-
-				$return .= pta_get_validation_form();
-			} else {
-				// @todo: add to customizer
-				$return .= '<p>'.apply_filters( 'pta_sus_public_output', __('User Validation is currently disabled.', 'pta-volunteer-sign-up-sheets'), 'user_validation_disabled_message').'</p>';
+			if($this->validation_sent) {
+				return $return;
 			}
+			if (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) {
+				$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
+				// @todo: add to customizer
+				$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
+				return $return;
+			}
+			$return .= pta_get_validation_form();
 		} elseif(!isset($_GET['pta-sus-action']) || ($_GET['pta-sus-action'] != 'validate_signup' && $_GET['pta-sus-action'] != 'validate_user') ){
 			// @todo: add to customizer
 			$return .= '<p>' . apply_filters( 'pta_sus_public_output', __( 'You are already validated.', 'pta-volunteer-sign-up-sheets' ), 'already_validated_message' ) . '</p>';
@@ -1038,7 +1041,7 @@ class PTA_SUS_Public {
                 return $message;
             }
         }
-	    if(isset($this->validation_options['require_validation_to_view']) && true === $this->validation_options['require_validation_to_view'] ) {
+	    if($this->validation_enabled && isset($this->validation_options['require_validation_to_view']) && true === $this->validation_options['require_validation_to_view'] ) {
 		    if (!$this->volunteer->is_validated()) {
 			    return pta_get_validation_required_message();
 		    }
@@ -1187,7 +1190,7 @@ class PTA_SUS_Public {
 	                if (!$this->main_options['disable_signup_login_notice']) {
 	                    $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta-volunteer-sign-up-sheets'), 'user_not_loggedin_signups_list_message' ).'</p>';
 	                }
-					if(isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
+					if($this->validation_enabled && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
 						if ( (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared']) || $this->validation_sent) ) {
 							$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
 							// @todo: add to customizer
@@ -1210,6 +1213,218 @@ class PTA_SUS_Public {
         $return .= apply_filters( 'pta_sus_after_display_sheets', '', $id, $this->date );
         return $return;
     } // Display Sheet
+
+	public function generate_signup_row_data($signup, $task, $i, $show_names = true, $show_clear=false) {
+		$row_data = array();
+
+		if($show_names) {
+			if($this->show_full_name) {
+				$display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
+			} else {
+				$display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
+			}
+			$row_data['extra-class'] = 'signup';
+		} else {
+			$display_signup = apply_filters('pta_sus_public_output', __('Filled', 'pta-volunteer-sign-up-sheets'), 'task_spot_filled_message');
+			$row_data['extra-class'] = 'filled';
+		}
+
+		$display_signup = apply_filters('pta_sus_display_signup_name', $display_signup, $signup);
+
+		$clear_url = '';
+		$clear_text = '';
+		if ($this->volunteer->can_modify_signup($signup)) {
+			$clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
+			$raw_clear_url = add_query_arg($clear_args);
+			$clear_url = wp_nonce_url($raw_clear_url, 'pta_sus_clear_signup');
+			$clear_text = apply_filters('pta_sus_public_output', __('Clear', 'pta-volunteer-sign-up-sheets'), 'clear_signup_link_text');
+		}
+
+		$row_data['column-available-spots'] = '#'.$i.': '.$display_signup;
+		$row_data['column-phone'] = $signup->phone;
+		$row_data['column-email'] = $signup->email;
+		$row_data['column-details'] = $signup->item;
+		$row_data['column-quantity'] = (int)($signup->item_qty);
+
+		if($show_clear && $this->volunteer->is_validated()) {
+			$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
+		} else {
+			$row_data['column-clear'] = '';
+		}
+
+		return apply_filters('pta_sus_generate_signup_row_data', $row_data, $signup, $task, $i);
+	}
+
+	public function generated_consolidated_signup_row_data($signups, $task_qty, $task_url, $allow_signups) {
+		$row_data = array();
+		$filled = 0;
+		foreach($signups as $signup) {
+			$filled += $signup->item_qty;
+		}
+		$remaining = $task_qty - $filled;
+
+		if($remaining > 0) {
+			$filled_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d Filled', 'pta-volunteer-sign-up-sheets'),(int)$filled ), 'task_number_spots_filled_message', (int)$filled );
+		} else {
+			$filled_text = apply_filters('pta_sus_public_output', __('Filled', 'pta-volunteer-sign-up-sheets'), 'task_spots_full_message');
+		}
+		$remaining_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta-volunteer-sign-up-sheets'), (int)$remaining), 'task_number_remaining', (int)$remaining );
+		$separator = apply_filters('pta_sus_public_output', ', ', 'task_spots_filled_remaining_separator');
+		$display_consolidated = $filled_text;
+		if($remaining > 0 && $allow_signups) {
+			if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
+				$display_consolidated .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
+			} else {
+				$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
+			}
+		}
+		$row_data['column-available-spots'] = $display_consolidated;
+		$row_data['extra-class'] = 'consolidated';
+		return $row_data;
+	}
+
+	public function get_default_task_column_values($task, $date) {
+		$display_date = $date != "0000-00-00" ? mysql2date( get_option('date_format'), $date, $translate = true ) : '';
+		$start_time = '' !== $task->time_start ? pta_datetime(get_option("time_format"), strtotime($task->time_start)) : '';
+		$end_time = '' !== $task->time_end ? pta_datetime(get_option("time_format"), strtotime($task->time_end)) : '';
+		$description = wp_kses_post($task->description);
+		$task_title = sanitize_text_field($task->title);
+		$row_data = array();
+		$row_data['column-description'] = $description;
+		$row_data['column-date'] = $display_date;
+		$row_data['column-start-time'] = $start_time;
+		$row_data['column-end-time'] = $end_time;
+		$row_data['column-task'] = $task_title;
+		return $row_data;
+	}
+
+	public function get_task_row_data($task, $date, $sheet_id, $show_clear=false, $no_signups = false, $signups = array()) {
+		$column_data = array();
+		$show_all_slots = true;
+		if(isset($this->main_options['show_remaining']) && $this->main_options['show_remaining']) {
+			$show_all_slots = false;
+		}
+		$show_names = true;
+		if($this->main_options['hide_volunteer_names']) {
+			$show_names = false;
+		}
+
+		$show_details = false;
+
+		if ( isset( $this->main_options['hide_details_qty'] ) && ! $this->main_options['hide_details_qty'] ) {
+			if ( 'YES' == $task->need_details ) {
+				$show_details = true;
+			}
+		}
+
+		$default_data = $this->get_default_task_column_values($task, $date);
+		$display_date = $default_data['column-date'];
+		$start_time = $default_data['column-start-time'];
+		$end_time = $default_data['column-end-time'];
+		$description = $default_data['column-description'];
+		$task_title = $default_data['column-task'];
+
+		$allow_signups = apply_filters( 'pta_sus_allow_signups', true, $task, $sheet_id, $date );
+		$task_qty      = $no_signups ? 1 : absint( $task->qty );
+		if(empty($signups)) {
+			$signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups( $task->id, $date ), $task->id, $date );
+		}
+
+		$one_row = false;
+		if ( ! $show_all_slots && ! $show_details && ! $show_names && ! $no_signups ) {
+			$one_row = true;
+		}
+
+		$task_args = array( 'sheet_id'  => $sheet_id, 'task_id'   => $task->id, 'date'      => $date, 'signup_id' => false );
+		if ( is_page( $this->main_options['volunteer_page_id'] ) || ! $this->main_options['signup_redirect'] ) {
+			$task_url = add_query_arg( $task_args );
+		} else {
+			$main_page_url = get_permalink( $this->main_options['volunteer_page_id'] );
+			$task_url      = add_query_arg( $task_args, $main_page_url );
+		}
+		$task_url = apply_filters( 'pta_sus_task_signup_url', $task_url, $task, $sheet_id, $date );
+
+		if ( $one_row ) {
+			// Consolidated single row view
+			$row_data = $this->generated_consolidated_signup_row_data($signups,$task_qty,$task_url,$allow_signups);
+			$default_data = $this->get_default_task_column_values($task, $date);
+			$row_data = array_merge($row_data, $default_data);
+			$row_data['column-num'] = '';
+			$column_data[] = apply_filters( 'pta_sus_task_consolidated_row_data', $row_data, $task, $date );
+		} else {
+			// Individual rows for each signup
+			$i = 1;
+			foreach ( $signups as $signup ) {
+				$row_data = $this->generate_signup_row_data( $signup, $task, $i, $show_names, $show_clear );
+				$default_data = $this->get_default_task_column_values($task, $date);
+				$row_data = array_merge($row_data, $default_data);
+				$row_data['column-num'] = $i;
+				if ( 'YES' === $task->enable_quantities ) {
+					$i += $signup->item_qty;
+				} else {
+					$i ++;
+				}
+				$column_data[] = apply_filters( 'pta_sus_task_signup_display_row_data', $row_data, $task, $signup, $date );
+			}
+
+			// Add remaining spots rows
+			$remaining = $task_qty - ( $i - 1 );
+			$start     = $i;
+
+			if ( ! $show_all_slots ) {
+				$start    = $remaining;
+				$task_qty = $remaining;
+			}
+			if ( $remaining > 0 ) {
+				// set up all the common data first to speed things up
+				$row_data       = array();
+				$signup_message = '';
+				if ( ! $no_signups ) {
+					if ( $allow_signups ) {
+						if ( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
+							$signup_message = '<a class="pta-sus-link signup" href="' . esc_url( $task_url ) . '">' . apply_filters( 'pta_sus_public_output', __( 'Sign up &raquo;', 'pta-volunteer-sign-up-sheets' ), 'task_sign_up_link_text' ) . '</a>';
+						} else {
+							if ( isset( $this->main_options['show_login_link'] ) && true === $this->main_options['show_login_link'] ) {
+								$signup_message = '<a class="pta-sus-link login" href="' . wp_login_url( get_permalink() ) . '" title="Login">' . esc_html( $this->main_options['login_signup_message'] ) . '</a>';
+							} else {
+								$signup_message = esc_html( $this->main_options['login_signup_message'] );
+							}
+						}
+					}
+
+					$row_data['column-phone'] = '';
+					$row_data['column-email'] = '';
+
+				}
+				$row_data['column-clear']    = '';
+				$row_data['column-details']  = '';
+				$row_data['column-quantity'] = '';
+				$row_data['column-task'] = $task_title;
+				$row_data['extra-class'] = 'remaining';
+				$row_data['column-description'] = $description;
+				$row_data['column-date'] = $display_date;
+				$row_data['column-start-time'] = $start_time;
+				$row_data['column-end-time'] = $end_time;
+				$row_data['column-num'] = $i;
+				$row_data                = apply_filters( 'pta_sus_task_remaining_display_row_data', $row_data, $task, $date );
+				for ( $i = $start; $i <= $task_qty; $i ++ ) {
+					if ( ! $no_signups ) {
+						if ( $show_all_slots ) {
+							$row_data['column-available-spots'] = '#' . $i . ': ';
+						} else {
+							$row_data['column-available-spots'] = apply_filters( 'pta_sus_public_output', sprintf( __( '%d remaining: &nbsp;', 'pta-volunteer-sign-up-sheets' ), (int) $remaining ), 'task_number_remaining', (int) $remaining );
+						}
+						$row_data['column-available-spots'] .= $signup_message;
+					}
+					$column_data[] = $row_data;
+				}
+			}
+		}
+
+		return apply_filters('pta_sus_task_row_data', $column_data, $task, $date);
+	}
+
+
 
 	public function display_task_list($sheet_id, $date, $no_signups=false) {
 		// Tasks
@@ -1235,14 +1450,7 @@ class PTA_SUS_Public {
 		if('single' === strtolower($sheet->type) && isset($this->main_options['hide_single_date_header']) && $this->main_options['hide_single_date_header']) {
 			$show_date = false;
 		}
-		if ( current_user_can('manage_signup_sheets') || ( true == $sheet->clear &&  ( 0 == $sheet->clear_days || $date == "0000-00-00"
-		       || ( strtotime( $date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) ))
-		) ){
-			$show_clear = true;
-		} else {
-			$show_clear = false;
-		}
-
+		$show_clear = pta_sus_show_clear($sheet, $date);
 		$return .= '<div class="pta-sus-sheets tasks">';
 
 		foreach($tasks as $task) {
@@ -1291,23 +1499,11 @@ class PTA_SUS_Public {
 				$columns['column-clear'] = '';
 			}
 
-			$task_args = array('sheet_id' => $sheet_id, 'task_id' => $task->id, 'date' => $date, 'signup_id' => false);
-			if ( is_page($this->main_options['volunteer_page_id']) || ! $this->main_options['signup_redirect'] ) {
-				$task_url = add_query_arg($task_args);
-			} else {
-				$main_page_url = get_permalink( $this->main_options['volunteer_page_id'] );
-				$task_url = add_query_arg($task_args, $main_page_url);
-			}
-			$task_url = apply_filters( 'pta_sus_task_signup_url', $task_url, $task, $sheet_id, $date );
-
 			$i=1;
 			$signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups($task->id, $date), $task->id, $date);
 
 			// Set qty to one for no_signups sheets
 			$task_qty = $no_signups ? 1 : absint($task->qty);
-
-			// Allow extensions to determine if signup links should be shown
-			$allow_signups = apply_filters('pta_sus_allow_signups', true, $task, $sheet_id, $date);
 			
 			// Allow extensions to add/modify column headers
 			$columns = apply_filters('pta_sus_task_column_headers', $columns, $task, $date, $one_row);
@@ -1331,135 +1527,9 @@ class PTA_SUS_Public {
 				$return .= '</thead><tbody>';
 			}
 
-			// One simple row if everything should be consolidated (no item details or names and consolidate option is set)
-			$column_data = array();
-			if($one_row) {
-				$row_data = array();
-				$filled = 0;
-				foreach($signups as $signup) {
-					$filled += $signup->item_qty;
-				}
-				$remaining = $task_qty - $filled;
+			$column_data = $this->get_task_row_data($task,$date,$sheet_id,$show_clear,$no_signups);
 
-				if($remaining > 0) {
-					$filled_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d Filled', 'pta-volunteer-sign-up-sheets'),(int)$filled ), 'task_number_spots_filled_message', (int)$filled );
-				} else {
-					$filled_text = apply_filters('pta_sus_public_output', __('Filled', 'pta-volunteer-sign-up-sheets'), 'task_spots_full_message');
-				}
-				$remaining_text = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta-volunteer-sign-up-sheets'), (int)$remaining), 'task_number_remaining', (int)$remaining );
-				$separator = apply_filters('pta_sus_public_output', ', ', 'task_spots_filled_remaining_separator');
-				$display_consolidated = $filled_text;
-				if($remaining > 0 && $allow_signups) {
-					if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
-						$display_consolidated .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
-					} else {
-						$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
-					}
-				}
-				$row_data['column-available-spots'] = $display_consolidated;
-				$row_data['extra-class'] = 'consolidated';
-				$column_data[] = apply_filters('pta_sus_task_consolidated_row_data', $row_data, $task, $date);
-			} else {
-				// show signup rows
-				foreach ($signups AS $signup) {
-					$row_data = array();
-
-					if($show_names) {
-						if($this->show_full_name) {
-							$display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
-						} else {
-							$display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
-						}
-						$row_data['extra-class'] = 'signup';
-					} else {
-						$display_signup = apply_filters( 'pta_sus_public_output', __('Filled', 'pta-volunteer-sign-up-sheets'), 'task_spot_filled_message' );
-						$row_data['extra-class'] = 'filled';
-					}
-
-					// hook to allow others to modify how the signed up names are displayed
-					$display_signup = apply_filters( 'pta_sus_display_signup_name', $display_signup, $signup );
-
-					if ( $signup->user_id == get_current_user_id() || current_user_can('manage_signup_sheets') ) {
-						$clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
-						$raw_clear_url = add_query_arg($clear_args);
-						$clear_url = wp_nonce_url( $raw_clear_url, 'pta_sus_clear_signup' );
-						$clear_text = apply_filters( 'pta_sus_public_output', __('Clear', 'pta-volunteer-sign-up-sheets'), 'clear_signup_link_text');
-					} else {
-						$clear_url = '';
-						$clear_text = '';
-					}
-
-					$row_data['column-available-spots'] = '#'.$i.': '.$display_signup;
-					// always populate data so it's there for Custom Templates in Customizer
-					$row_data['column-phone'] = $signup->phone;
-					$row_data['column-email'] = $signup->email;
-					$row_data['column-details'] = $signup->item;
-					$row_data['column-quantity'] = ("YES" === $task->enable_quantities ? (int)($signup->item_qty) : "");
-					if($this->volunteer->is_validated()) {
-						$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
-					} else {
-						$row_data['column-clear'] = '';
-					}
-
-					if ('YES' === $task->enable_quantities) {
-						$i += $signup->item_qty;
-					} else {
-						$i++;
-					}
-					$column_data[] = apply_filters('pta_sus_task_signup_display_row_data', $row_data, $task, $signup, $date);
-				}
-
-				$remaining = $task_qty - ($i - 1);
-
-				$start = $i;
-
-				if(!$show_all_slots) {
-					$start = $remaining;
-					$task_qty = $remaining;
-				}
-
-				if($remaining > 0) {
-					// set up all the common data first to speed things up
-					$row_data=array();
-					$signup_message = '';
-					if(!$no_signups) {
-						if($allow_signups) {
-							if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
-								$signup_message = '<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
-							} else {
-								if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-									$signup_message = '<a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a>';
-								} else {
-									$signup_message = esc_html($this->main_options['login_signup_message']);
-								}
-							}
-						}
-
-						$row_data['column-phone'] = '';
-						$row_data['column-email'] = '';
-
-					}
-					$row_data['column-clear'] = '';
-					$row_data['column-details'] = '';
-					$row_data['column-quantity'] = '';
-
-					$row_data['extra-class'] = 'remaining';
-					$row_data = apply_filters('pta_sus_task_remaining_display_row_data', $row_data, $task, $date);
-					for ($i=$start; $i<=$task_qty; $i++) {
-						if(!$no_signups) {
-							if($show_all_slots) {
-								$row_data['column-available-spots'] = '#'.$i.': ';
-							} else {
-								$row_data['column-available-spots'] = apply_filters( 'pta_sus_public_output', sprintf(__('%d remaining: &nbsp;', 'pta-volunteer-sign-up-sheets'), (int)$remaining), 'task_number_remaining', (int)$remaining );
-							}
-							$row_data['column-available-spots'] .= $signup_message;
-						}
-						$column_data[] = $row_data;
-					}
-				}
-			}
-
-			$column_data = apply_filters('pta_sus_task_display_rows', $column_data, $task, $date);
+			$column_data = apply_filters('pta_sus_task_display_rows', $column_data, $task, $date, $one_row);
 
 			if($this->use_divs) {
 				ob_start();
@@ -1490,6 +1560,11 @@ class PTA_SUS_Public {
 				$message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.esc_html($this->main_options['login_signup_message']).'</a></p>';
 			}
 			return $message;
+		}
+		if($this->validation_enabled && isset($this->validation_options['require_validation_to_signup']) && $this->validation_options['require_validation_to_signup']) {
+			if(!$this->volunteer->is_validated()) {
+				return pta_get_validation_required_message();
+			}
 		}
 		
 		if( $this->suppress_duplicates && apply_filters( 'pta_sus_signup_form_already_displayed', $this->signup_displayed, $task_id, $date ) ) {

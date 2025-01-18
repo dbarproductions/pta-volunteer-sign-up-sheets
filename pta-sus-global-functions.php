@@ -116,6 +116,11 @@ function pta_get_validation_required_message() {
 	return $message;
 }
 
+function pta_validation_enabled() {
+	$validation_options = get_option( 'pta_volunteer_sus_validation_options' );
+	return isset($validation_options['enable_validation']) && $validation_options['enable_validation'];
+}
+
 function pta_get_validated_user_info($validation_code='') {
 	$user_info = false;
 	$user = wp_get_current_user();
@@ -392,6 +397,13 @@ function pta_clean_redirect() {
 	// Redirect to individual sheet page
 	wp_redirect(esc_url($clean_url));
 	exit;
+}
+
+function pta_sus_show_clear($sheet, $date) {
+	if ( current_user_can('manage_signup_sheets') || ( $sheet->clear && ( 0 == $sheet->clear_days || $date == "0000-00-00" || ( strtotime( $date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) )) ) ){
+		return true;
+	}
+	return false;
 }
 
 function pta_logToFile($msg, $filename='')	{

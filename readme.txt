@@ -161,6 +161,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.1.0**
+*   Fixed issues with certain validation features still working even when the main checkbox to enable the validation system was unchecked.
+*   Added new Require Validation to Signup option to the Validation settings. Checking this will require that users validate their email address using the validation form before they can signup for an event, if you are not already requiring visitor to login or validate to view the signup sheets.
+*   Added new option to disable sending the Signup Validation email to the global CC email address. Check if you do NOT want to get a copy of the validation emails when an unvalidated visitor has signed up for something (only if signup validation is enabled and you are not requiring validation to view).
+*   Continued refactoring and modularization of the plugin code to make it easier to maintain and extend. Slowly working toward a complete overhaul of the core plugin code and a more object-oriented approach.
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.0.0**
 *   Added new Validation features to (optionally) validate signups and allow users to view and clear their own signups without having to have a WordPress user account. Check the documentation for more details.
 *   Updated the old Sign Up Sheets block to use the newest block API and to show a live preview of the output.

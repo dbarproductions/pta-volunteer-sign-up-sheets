@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.0.0
+Version: 5.1.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.0.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.1.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -42,7 +42,7 @@ class PTA_Sign_Up_Sheet {
     public $data;
     public $public = null;
     public $emails;
-    public $db_version = '4.0.0';
+    public $db_version = '5.1.0';
     public $main_options;
 	public $validation_options;
     public $admin = null;
@@ -515,6 +515,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 	    $defaults = array(
 		    'enable_validation' => false,
 			'require_validation_to_view' => false,
+		    'require_validation_to_signup' => false,
 		    'enable_signup_validation' => true,
 		    'signup_expiration_hours' => 1,
 		    'signup_validation_email_subject' =>'Your Sign Up Validation Link',
@@ -531,6 +532,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 		    'enable_clear_validation' => true,
 		    'clear_validation_message' => 'Use the link below to clear the validation info from your browser. You should do this on public computers, or if you need to validate again as a spouse or family member using a different name or email.',
 		    'clear_validation_link_text' => 'Clear Validation',
+		    'disable_cc_validation_signup_emails' => true,
 	    );
 	    $options = get_option( 'pta_volunteer_sus_validation_options', $defaults );
 	    // Make sure each option is set -- this helps if new options have been added during plugin upgrades

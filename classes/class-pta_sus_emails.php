@@ -100,6 +100,7 @@ class PTA_SUS_Emails {
         if (empty($from)) $from = get_bloginfo('admin_email');
 
 		$subject = $message = $validation_link = '';
+		$signup_validation = false;
         if($reminder) {
         	if( 2 == $reminder && isset($this->email_options['reminder2_email_subject']) && '' !== $this->email_options['reminder2_email_subject']) {
 		        $subject = $this->email_options['reminder2_email_subject'];
@@ -125,6 +126,7 @@ class PTA_SUS_Emails {
             $subject = $this->validation_options['signup_validation_email_subject'];
             $message = $this->validation_options['signup_validation_email_template'];
 	        $validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
+			$signup_validation = true;
         }
         
         // Allow extensions to modify subject and template
@@ -191,7 +193,11 @@ class PTA_SUS_Emails {
 		}
 	    
 	    // If global CC is set, and it's a valid email, add to cc_emails
-	    $global_cc = isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email']) ? $this->email_options['cc_email'] : '';
+	    $use_global_cc = true;
+	    if($signup_validation && (!isset($this->validation_options['disable_cc_validation_signup_emails']) || $this->validation_options['disable_cc_validation_signup_emails']) ) {
+		    $use_global_cc = false;
+	    }
+	    $global_cc = $use_global_cc && isset($this->email_options['cc_email']) && is_email($this->email_options['cc_email']) ? $this->email_options['cc_email'] : '';
 	    
 	    // other plugins can modify CC address, or set it blank to disable
 	    $cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear, $reschedule);

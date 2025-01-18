@@ -28,12 +28,13 @@ class PTA_SUS_Options {
         if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
         }
-        $docs_link = '<a href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta-volunteer-sign-up-sheets') . '</a>';
+        $docs_link = '<a class="button-secondary" href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta-volunteer-sign-up-sheets') . '</a>';
 
         ?>
         <div class="wrap pta_sus">
             <div id="icon-themes" class="icon32"></div>
             <h2><?php _e('PTA Volunteer Sign-up Sheets Settings', 'pta-volunteer-sign-up-sheets'); ?></h2>
+            <p><?php echo $docs_link; ?></p>
             <?php settings_errors(); ?>
             <?php $active_tab = $_GET['tab'] ?? 'main_options'; ?>
             <h2 class="nav-tab-wrapper">  
@@ -175,6 +176,7 @@ class PTA_SUS_Options {
         add_settings_section('pta_volunteer_validation', __('Validation Settings', 'pta-volunteer-sign-up-sheets'), array($this, 'pta_volunteer_validation_description'), 'pta_volunteer_sus_validation');
         add_settings_field('enable_validation', __('Enable Validation:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('require_validation_to_view', __('Require Validation to View:', 'pta-volunteer-sign-up-sheets'), array($this, 'require_validation_to_view_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('require_validation_to_signup', __('Require Validation to Signup:', 'pta-volunteer-sign-up-sheets'), array($this, 'require_validation_to_signup_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_required_message', __('Validation Required Message:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_required_message_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_page_link_text', __('Validation Page link text:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_page_link_text_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_page_id', __('Validation Page:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_page_id_select'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
@@ -182,6 +184,7 @@ class PTA_SUS_Options {
         add_settings_field('signup_expiration_hours', __('Signup Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('signup_validation_email_subject', __('Signup Validation Email Subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_subject_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('signup_validation_email_template', __('Signup Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('disable_cc_validation_signup_emails', __('Disable CC for Signup Validation emails:', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_cc_validation_signup_emails_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('enable_user_validation_form', __('Enable User Validation Form:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_user_validation_form_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_code_expiration_hours', __('Validation Code Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_code_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_form_header', __('User Validation Form Header:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_header_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
@@ -357,12 +360,14 @@ class PTA_SUS_Options {
             'enable_user_validation_form' => 'bool',
             'validation_form_resubmission_minutes' => 'integer',
             'require_validation_to_view' => 'bool',
+            'require_validation_to_signup' => 'bool',
             'validation_required_message' => 'text',
             'validation_page_link_text' => 'text',
             'validation_page_id' => 'integer',
             'enable_clear_validation' => 'bool',
             'clear_validation_link_text' => 'text',
             'clear_validation_message' => 'textarea',
+            'disable_cc_validation_signup_emails' => 'bool',
 		);
 		return $this->validate_options($inputs, $fields, $options);
 	}
@@ -1145,8 +1150,20 @@ class PTA_SUS_Options {
 		?>
         <input name="pta_volunteer_sus_validation_options[enable_signup_validation]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
-		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to send a validation email to a non-validated user when they sign up for anything (if validation is enabled). An email will be sent to the signup email address with a link they must click on to validate the signup. The signup will be marked as non-validated until they click on the link. Non-validated signups will be deleted after the expiration hours you set below.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to send a validation email to a non-validated user when they sign up for anything (if validation is enabled and you are NOT requiring validation to view and NOT requiring validation to signup). An email will be sent to the signup email address with a link they must click on to validate the signup. The signup will be marked as non-validated until they click on the link. Non-validated signups will be deleted after the expiration hours you set below.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
     }
+
+	public function disable_cc_validation_signup_emails_checkbox() {
+		if ( isset( $this->validation_options['disable_cc_validation_signup_emails'] ) && true === $this->validation_options['disable_cc_validation_signup_emails'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_validation_options[disable_cc_validation_signup_emails]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'When this is checked, the signup validation emails will NOT get copied to the global CC email address (in email settings). Uncheck if you want the CC email to also receive the emails with signup validation links (when signup validation is enabled).', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+	}
 
     public function enable_user_validation_form_checkbox() {
         if ( isset( $this->validation_options['enable_user_validation_form'] ) && true === $this->validation_options['enable_user_validation_form'] ) {
@@ -1171,6 +1188,18 @@ class PTA_SUS_Options {
 	    <?php
 	    echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to require the user to be validated before they can view signup sheets or signup info. You will need to enable the validation form so that they can be validated if you are not using WordPress user accounts.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
     }
+
+	public function require_validation_to_signup_checkbox() {
+		if ( isset( $this->validation_options['require_validation_to_signup'] ) && true === $this->validation_options['require_validation_to_signup'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_validation_options[require_validation_to_signup]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to require the user to be validated before they can signup, if you are not already requiring validation to view. You will need to enable the validation form so that they can be validated if you are not using WordPress user accounts. If this is checked, then the Enable Signup Validation option below no longer matters, as they will first need to validate using the validation form before they can signup.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+	}
 
 	public function enable_clear_validation_checkbox() {
 		if ( isset( $this->validation_options['enable_clear_validation'] ) && true === $this->validation_options['enable_clear_validation'] ) {

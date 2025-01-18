@@ -55,6 +55,8 @@ class PTA_SUS_Volunteer {
 				$this->user_id = 0;
 				$this->validated = false;
 			}
+		} else {
+			$this->validated = false;
 		}
 	}
 
