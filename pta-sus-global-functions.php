@@ -382,22 +382,42 @@ function pta_get_email_options() {
 }
 
 function pta_clean_redirect() {
-	// Store current messages in session
-	$_SESSION['pta_sus_messages'] = PTA_SUS_Messages::get_messages();
-	$_SESSION['pta_sus_errors'] = PTA_SUS_Messages::get_errors();
+	// Store current messages in cookies
+	setcookie(
+		'pta_sus_messages',
+		json_encode(PTA_SUS_Messages::get_messages()),
+		time() + 300,
+		COOKIEPATH,
+		COOKIE_DOMAIN,
+		is_ssl(),
+		true
+	);
+
+	setcookie(
+		'pta_sus_errors',
+		json_encode(PTA_SUS_Messages::get_errors()),
+		time() + 300,
+		COOKIEPATH,
+		COOKIE_DOMAIN,
+		is_ssl(),
+		true
+	);
+
 	// Keep only sheet_id parameter, if set
 	if(isset($_GET['sheet_id'])) {
 		$clean_url = add_query_arg(
 			['sheet_id' => $_GET['sheet_id']],
-			remove_query_arg( array_keys($_GET) )
+			remove_query_arg(array_keys($_GET))
 		);
 	} else {
-		$clean_url = remove_query_arg( array_keys($_GET) );
+		$clean_url = remove_query_arg(array_keys($_GET));
 	}
+
 	// Redirect to individual sheet page
 	wp_redirect(esc_url($clean_url));
 	exit;
 }
+
 
 function pta_sus_show_clear($sheet, $date) {
 	if ( current_user_can('manage_signup_sheets') || ( $sheet->clear && ( 0 == $sheet->clear_days || $date == "0000-00-00" || ( strtotime( $date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) )) ) ){

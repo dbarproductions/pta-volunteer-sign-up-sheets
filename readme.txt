@@ -161,6 +161,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.1.1**
+*   Switched from sessions to cookies for storing the message data during redirects to be more compatible with different WordPress environments and plugins that may send out headers before this plugin has a chance to start the session, which was causing PHP Warnings on some sites.
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.1.0**
 *   Fixed issues with certain validation features still working even when the main checkbox to enable the validation system was unchecked.
 *   Added new Require Validation to Signup option to the Validation settings. Checking this will require that users validate their email address using the validation form before they can signup for an event, if you are not already requiring visitor to login or validate to view the signup sheets.

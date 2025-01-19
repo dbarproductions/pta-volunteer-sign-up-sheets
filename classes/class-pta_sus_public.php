@@ -87,9 +87,6 @@ class PTA_SUS_Public {
     } // Construct
 
 	public function init() {
-		if(!session_id()) {
-			session_start();
-		}
 		$this->volunteer = new PTA_SUS_Volunteer(get_current_user_id());
 		$this->set_up_filters();
 		$this->process_signup_form();
@@ -99,19 +96,27 @@ class PTA_SUS_Public {
 		}
 
 
-		// Get any session messages if we did a redirect
-		if(isset($_SESSION['pta_sus_messages'])) {
-			foreach($_SESSION['pta_sus_messages'] as $msg) {
-				PTA_SUS_Messages::add_message($msg);
+		// Get any messages save in cookies if we did a redirect
+		if(isset($_COOKIE['pta_sus_messages'])) {
+			$messages = json_decode(stripslashes($_COOKIE['pta_sus_messages']), true);
+			if($messages) {
+				foreach($messages as $msg) {
+					PTA_SUS_Messages::add_message($msg);
+				}
 			}
-			unset($_SESSION['pta_sus_messages']);
+			setcookie('pta_sus_messages', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
 		}
-		if(isset($_SESSION['pta_sus_errors'])) {
-			foreach($_SESSION['pta_sus_errors'] as $error) {
-				PTA_SUS_Messages::add_error($error);
+
+		if(isset($_COOKIE['pta_sus_errors'])) {
+			$errors = json_decode(stripslashes($_COOKIE['pta_sus_errors']), true);
+			if($errors) {
+				foreach($errors as $error) {
+					PTA_SUS_Messages::add_error($error);
+				}
 			}
-			unset($_SESSION['pta_sus_errors']);
+			setcookie('pta_sus_errors', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
 		}
+
 
 		add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
 		add_shortcode('pta_user_signups', array($this, 'process_user_signups_shortcode'));
