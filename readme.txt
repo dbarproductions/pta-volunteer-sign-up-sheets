@@ -161,6 +161,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.1.2**
+*   Minor change to the blocks build script to include a required WordPress dependency, that could cause the block editor to crash if you tried to edit a page with the old/legacy Sign Up Sheets block. If other blocks loaded by the editor include the dependency, then the editor will crash.
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.1.1**
 *   Switched from sessions to cookies for storing the message data during redirects to be more compatible with different WordPress environments and plugins that may send out headers before this plugin has a chance to start the session, which was causing PHP Warnings on some sites.
 *   Tested with PHP 8.4.2 and WordPress 6.7.1
