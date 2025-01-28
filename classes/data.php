@@ -39,6 +39,7 @@ class PTA_SUS_Data
                     'reminder1_days' => 'int',
                     'reminder2_days' => 'int',
                     'clear' => 'bool',
+					'clear_type' => 'text',
                     'clear_days' => 'int',
                     'no_signups' => 'bool',
 	                'duplicate_times' => 'bool',
@@ -1078,9 +1079,9 @@ class PTA_SUS_Data
         // wpdb->insert does all necessary sanitation before inserting into database
         // $fields were also validated before this function was called
         $result=$this->wpdb->insert($this->tables['signup']['name'], $clean_fields);
-	if ($result !== false)
-		return $this->wpdb->insert_id;
-	else
+		if ($result !== false) {
+			return $this->wpdb->insert_id;
+		}
 		return false;
     }
     

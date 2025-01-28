@@ -81,10 +81,10 @@ class PTA_SUS_Volunteer {
 			return true;
 		}
 		if($this->user_id > 0) {
-			return ($signup->user_id = $this->user_id);
+			return (absint($signup->user_id) === $this->user_id);
 		}
 		if($this->validation_enabled) {
-			return ($this->firstname = $signup->firstname && $this->lastname = $signup->lastname && $this->email = $signup->email);
+			return ($this->firstname === $signup->firstname && $this->lastname === $signup->lastname && $this->email === $signup->email);
 		}
 		return false;
 	}

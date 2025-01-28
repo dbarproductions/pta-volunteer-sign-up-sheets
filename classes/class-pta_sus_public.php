@@ -1455,7 +1455,7 @@ class PTA_SUS_Public {
 		if('single' === strtolower($sheet->type) && isset($this->main_options['hide_single_date_header']) && $this->main_options['hide_single_date_header']) {
 			$show_date = false;
 		}
-		$show_clear = pta_sus_show_clear($sheet, $date);
+
 		$return .= '<div class="pta-sus-sheets tasks">';
 
 		foreach($tasks as $task) {
@@ -1465,6 +1465,7 @@ class PTA_SUS_Public {
 
 			$columns = array();
 
+			$show_clear = pta_sus_show_clear($sheet, $date, $task->time_start);
 			$show_details = false;
 			$show_qty = false;
 			if( isset($this->main_options['hide_details_qty']) && ! $this->main_options['hide_details_qty'] ) {

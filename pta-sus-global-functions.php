@@ -419,8 +419,18 @@ function pta_clean_redirect() {
 }
 
 
-function pta_sus_show_clear($sheet, $date) {
-	if ( current_user_can('manage_signup_sheets') || ( $sheet->clear && ( 0 == $sheet->clear_days || $date == "0000-00-00" || ( strtotime( $date ) - current_time( 'timestamp' ) > ((int)$sheet->clear_days * 60 * 60 * 24) )) ) ){
+function pta_sus_show_clear($sheet, $date, $time='') {
+	if ( current_user_can('manage_signup_sheets')) {
+		// admin/manager can always clear
+		return true;
+	}
+	if ($sheet->clear && (
+			0 == $sheet->clear_days ||
+			$date == "0000-00-00" ||
+			(strtotime($date . (!empty($time) ? ' ' . $time : '')) - current_time('timestamp') > (
+					(int)$sheet->clear_days * 60 * 60 * ($sheet->clear_type === 'hours' ? 1 : 24)
+				))
+		)) {
 		return true;
 	}
 	return false;

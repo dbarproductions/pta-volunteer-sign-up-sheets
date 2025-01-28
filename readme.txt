@@ -161,6 +161,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.2.0**
+*   New option on sheets to select if the clear time should be treated as days (default) or hours. Days are now treated as 24 hours instead of a calendar day.
+*   The allow clear check function now will also look to see if the task has a start time, and if so, will base the allowed clear time calculation on the date and start time. If no start time, it defaults to midnight (time zero) of the signup date.
+*   Bug fix for clear link showing to logged-in users for other user's signups
+*   Minor code consolidation and optimization
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.1.2**
 *   Minor change to the blocks build script to include a required WordPress dependency, that could cause the block editor to crash if you tried to edit a page with the old/legacy Sign Up Sheets block. If other blocks loaded by the editor include the dependency, then the editor will crash.
 *   Tested with PHP 8.4.2 and WordPress 6.7.1

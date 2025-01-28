@@ -1323,6 +1323,12 @@ class PTA_SUS_Admin {
 				} else {
 					$sheet_fields['sheet_clear'] = false;
 				}
+				// check new sheet_clear_type gets set correctly
+				if (isset($sheet_fields['sheet_clear_type']) && in_array($sheet_fields['sheet_clear_type'], array('days','hours'))) {
+					$sheet_fields['sheet_clear_type'] = sanitize_text_field($sheet_fields['sheet_clear_type']);
+				} else {
+					$sheet_fields['sheet_clear_type'] = 'days';
+				}
 				// Make sure our no_signups gets set correctly
 				if (isset($sheet_fields['sheet_no_signups']) && '1' == $sheet_fields['sheet_no_signups']) {
 					$sheet_fields['sheet_no_signups'] = true;
@@ -1556,10 +1562,17 @@ class PTA_SUS_Admin {
 			<input type="checkbox" id="sheet_clear" name="sheet_clear" value="1" '.$clear_checked.'/>
 			<em>&nbsp;'.__('<strong>Uncheck</strong> if you want to <strong>HIDE</strong> the clear link in the user\'s signup list. Administrators and Sign-Up Sheet Managers can still clear volunteers from signups in the admin dashboard.', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>
+			<p>
+			<label for="sheet_clear_type">'.__('Clear Time Type:', 'pta-volunteer-sign-up-sheets').'</label>
+			<select id="sheet_clear_type" name="sheet_clear_type">
+			<option value="days" '.((isset($f['sheet_clear_type']) && 'days' == $f['sheet_clear_type']) ? 'selected="selected"' : '').'>'.__('Days', 'pta-volunteer-sign-up-sheets').'</option>
+			<option value="hours" '.((isset($f['sheet_clear_type']) && 'hours' == $f['sheet_clear_type']) ? 'selected="selected"' : '').'>'.__('Hours', 'pta-volunteer-sign-up-sheets').'</option>
+			</select>
+			</p>
 			<p>    
-			<label for="sheet_clear_days">'.__('# of days to allow clear:', 'pta-volunteer-sign-up-sheets').'</label>
+			<label for="sheet_clear_days">'.__('# of days/hours to allow clear:', 'pta-volunteer-sign-up-sheets').'</label>
 			<input type="text" id="sheet_clear_days" name="sheet_clear_days" value="'.((isset($f['sheet_clear_days']) ? esc_attr($f['sheet_clear_days']) : '')).'" size="5" >
-			<em>'.__('If the above option is checked, enter the MINIMUM # of days before the signup event/item date during which volunteers can clear their signups. Leave blank (or 0) to allow them to clear themselves at any time.', 'pta-volunteer-sign-up-sheets').'</em>
+			<em>'.__('If the Show Clear option is checked, enter the MINIMUM # of days, or hours, before the signup event/item date during which volunteers can clear their signups. Leave blank (or 0) to allow them to clear themselves at any time.', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>';
 
 		echo '

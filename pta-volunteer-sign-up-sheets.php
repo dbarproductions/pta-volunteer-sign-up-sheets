@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.1.2
+Version: 5.2.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.1.2');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.2.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -42,7 +42,7 @@ class PTA_Sign_Up_Sheet {
     public $data;
     public $public = null;
     public $emails;
-    public $db_version = '5.1.0';
+    public $db_version = '5.2.0';
     public $main_options;
 	public $validation_options;
     public $admin = null;
@@ -607,6 +607,7 @@ Please click on, or copy and paste, the link below to validate yourself:
             reminder1_days INT,
             reminder2_days INT,
             clear BOOL NOT NULL DEFAULT TRUE,
+            clear_type varchar(20) NOT NULL DEFAULT 'days',
             clear_days INT DEFAULT 0,
             no_signups BOOL NOT NULL DEFAULT FALSE,
             duplicate_times BOOL NOT NULL DEFAULT FALSE,
