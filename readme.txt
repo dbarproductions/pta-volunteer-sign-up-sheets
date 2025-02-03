@@ -96,6 +96,7 @@ Much more! Read the documentation for all the current features.
 
 **Available Extensions:**
 
+*   [Volunteer Sign Up Sheets Waitlists](https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-waitlists/) - Never turn away willing volunteers again. Automatically manage waitlists when tasks fill up and automatically sign-up or notify people when spots open. Perfect for classes, events, and any sign-up sheet where demand exceeds capacity.
 *   [Volunteer Sign Up Sheets Customizer](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-customizer/) - Edit all public facing text displays. Customize the styling of sheet/task list tables. Create custom Layout Templates that can be assigned on a per sheet basis, to display only the columns you want in the order that you want them. Create custom emails for any email type that can be assigned on a per sheet basis, and much more!
 *   [Volunteer Sign Up Sheets Custom Fields](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-custom-fields/) - Create custom fields that can be used to display additional info for sheets and/or tasks, and can also be used to collect (and optionally display) additional information from users when they sign up for a task/item.
 *   [Volunteer Sign Up Sheets Calendar Display](https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/) - Display your events and signups in one or more custom calendars, with a variety of display options.
@@ -161,6 +162,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.2.1**
+*   Updated the User Signups List code to properly show clear links based on the new clear hours option, if it is changed to hours instead of days for a sheet.
+*   Added link to new Waitlists extension on the admin "Add Ons" page
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.2.0**
 *   New option on sheets to select if the clear time should be treated as days (default) or hours. Days are now treated as 24 hours instead of a calendar day.
 *   The allow clear check function now will also look to see if the task has a start time, and if so, will base the allowed clear time calculation on the date and start time. If no start time, it defaults to midnight (time zero) of the signup date.

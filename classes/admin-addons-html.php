@@ -6,6 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	<h2><?php _e('Add Ons', 'pta-volunteer-sign-up-sheets'); ?></h2>
 	<h3><?php _e('The purchase of Add Ons helps support further development and new features!','pta-volunteer-sign-up-sheets'); ?></h3>
     <div class="pta-inline">
+        <a href="https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-waitlists/" target="_blank">
+            <img src="https://stephensherrardplugins.com/wp-content/uploads/edd/2025/01/Waitlists.png" alt="Volunteer Sign-Up Sheets Waitlists" height="200">
+            <span class="pta-center"><?php _e('Volunteer Sign Up Sheets Waitlists', 'pta-volunteer-sign-up-sheets'); ?></span>
+        </a>
+    </div>
+    <div class="pta-inline">
         <a href="https://stephensherrardplugins.com/plugins/volunteer-custom-fields/" target="_blank">
             <img src="https://stephensherrardplugins.com/wp-content/uploads/edd/2020/01/PTA-SUS-CustomFields.png" alt="Volunteer Sign-Up Sheets Custom Fields" >
             <span class="pta-center"><?php _e('Volunteer Sign Up Sheets Custom Fields', 'pta-volunteer-sign-up-sheets'); ?></span>

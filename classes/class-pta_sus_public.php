@@ -859,7 +859,7 @@ class PTA_SUS_Public {
 		    }
 		    
 		    foreach ($signups as $signup) {
-
+				$sheet = false;
 				$url = false;
 				if(isset($this->main_options['volunteer_page_id']) && absint($this->main_options['volunteer_page_id']) > 0) {
 					$url = get_permalink(absint($this->main_options['volunteer_page_id']));
@@ -871,8 +871,7 @@ class PTA_SUS_Public {
 
 				}
 			
-			    if ( $signup->clear && ( 0 == $signup->clear_days || $signup->signup_date == "0000-00-00"
-			                             || ( strtotime( $signup->signup_date ) - current_time( 'timestamp' ) > ((int)$signup->clear_days * 60 * 60 * 24) ) ) ) {
+			    if ( $sheet && pta_sus_show_clear($sheet,$signup->signup_date,$signup->time_start) ) {
 				    $clear_args = array('sheet_id' => false, 'task_id' => false, 'signup_id' => (int)$signup->id);
 				    $raw_clear_url = add_query_arg($clear_args);
 					$clear_url = wp_nonce_url( $raw_clear_url, 'pta_sus_clear_signup' );
