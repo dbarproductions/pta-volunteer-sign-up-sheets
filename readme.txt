@@ -162,6 +162,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.2.2**
+*   Bug fix for javascript browser confirmation when clearing a signup. Was still clearing the signup even if the user clicked "Cancel" in the confirmation box.
+*   Tested with PHP 8.4.2 and WordPress 6.7.1
+
 **Version 5.2.1**
 *   Updated the User Signups List code to properly show clear links based on the new clear hours option, if it is changed to hours instead of days for a sheet.
 *   Added link to new Waitlists extension on the admin "Add Ons" page

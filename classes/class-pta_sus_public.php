@@ -1815,13 +1815,16 @@ class PTA_SUS_Public {
 	        }
 	        
 	        document.addEventListener('DOMContentLoaded', function() {
-		        var clearLinks = document.querySelectorAll('.clear-signup-link');
-		        clearLinks.forEach(function(link) {
-		            link.addEventListener('click', function(e) {
-		                return confirm('Are you sure you want to clear this signup?');
-		            });
-		        });
-		    });
+			    var clearLinks = document.querySelectorAll('.clear-signup-link');
+			    clearLinks.forEach(function(link) {
+			        link.addEventListener('click', function(e) {
+			            e.preventDefault();
+			            if(confirm('Are you sure you want to clear this signup?')) {
+			                window.location.href = this.href;
+			            }
+			        });
+			    });
+			});
 	    ";
 	    wp_add_inline_script('pta-sus-url-cleanup', $inline_script);
     }
