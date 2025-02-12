@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.2.2
+Version: 5.3.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.2.2');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.3.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -94,8 +94,15 @@ class PTA_Sign_Up_Sheet {
 	    wp_register_script( 'pta-jquery-datepick', plugins_url( 'assets/js/jquery.datepick.min.js' , __FILE__ ), array( 'jquery','jquery-plugin' ), '5.1.0' );
 	    wp_register_style( 'pta-jquery-datepick', plugins_url( 'assets/css/jquery.datepick.css', __FILE__ ) );
 		// Select 2 - Used by several extensions
-	    wp_register_style('pta-select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css', array(), '4.0.13');
-	    wp_register_script('pta-select2', 'https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js', array('jquery'), '4.0.13');
+	    wp_register_style('pta-select2', 'https://cdn.jsdelivr.net/npm/select2/dist/css/select2.min.css');
+	    wp_register_script('pta-select2', 'https://cdn.jsdelivr.net/npm/select2/dist/js/select2.min.js', array('jquery'));
+		// Autocomplete - shared by Calendar extension
+	    wp_register_style('pta-sus-autocomplete', plugins_url('assets/css/jquery.autocomplete.min.css', __FILE__));
+	    wp_register_script('pta-sus-autocomplete', plugins_url('assets/js/frontend.min.js', __FILE__), array(), false, true);
+	    wp_localize_script('pta-sus-autocomplete', 'ptaSUS', array(
+		    'ajaxurl' => admin_url('admin-ajax.php'),
+		    'ptanonce' => wp_create_nonce('ajax-pta-nonce')
+	    ));
     }
 
 	/**
@@ -836,6 +843,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_messages.php');
+require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
 global $pta_sus;

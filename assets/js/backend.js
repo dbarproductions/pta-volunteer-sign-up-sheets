@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+(function($) {
 
     $(".tasks").sortable({
         distance: 5,
@@ -606,5 +606,4 @@ jQuery(document).ready(function($) {
             submitButton.prop('disabled',true);
         }
     });
-    
-});
+})(jQuery);

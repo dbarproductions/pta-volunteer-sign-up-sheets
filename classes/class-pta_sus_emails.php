@@ -20,30 +20,22 @@ class PTA_SUS_Emails {
 
 	} // Construct
 
-    public function convert_to_plain_text($html) {
-        // convert common formatting tags
-        $text = str_replace('<p>', '', $html);
-        $text = str_replace('<h1>', '', $text);
-        $text = str_replace('<h2>', '', $text);
-        $text = str_replace('<h3>', '', $text);
-        $text = str_replace('<h4>', '', $text);
-        $text = str_replace('<h5>', '', $text);
-        $text = str_replace('<h6>', '', $text);
-        $text = str_replace('<div>', '', $text);
-        $text = str_replace('</p>', "\r\n", $text);
-        $text = str_replace('</h1>', "\r\n", $text);
-        $text = str_replace('</h2>', "\r\n", $text);
-        $text = str_replace('</h3>', "\r\n", $text);
-        $text = str_replace('</h4>', "\r\n", $text);
-        $text = str_replace('</h5>', "\r\n", $text);
-        $text = str_replace('</h6>', "\r\n", $text);
-        $text = str_replace('</div>', "\r\n", $text);
-        $text = str_replace('<br/>', "\r\n", $text);
-        $text = str_replace('<br />', "\r\n", $text);
-        // Strip any other tags
-       return strip_tags($text);
 
-    }
+	private function get_email_headers($from, $replyto, $use_html = false) {
+		$headers = array();
+		if($use_html) {
+			$headers[] = 'Content-Type: text/html; charset=UTF-8';
+		}
+		$headers[] = "From: " . get_bloginfo('name') . " <" . $from . ">";
+		if(is_array($replyto)) {
+			foreach ($replyto as $reply) {
+				$headers[] = "Reply-To: <" . $reply . ">";
+			}
+		} else {
+			$headers[] = "Reply-To: <" . $replyto . ">";
+		}
+		return $headers;
+	}
 
 	/**
     * Send signs up & reminder emails
@@ -128,6 +120,7 @@ class PTA_SUS_Emails {
 	        $validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
 			$signup_validation = true;
         }
+		PTA_SUS_Template_Tags::add_tag('{validation_link}', $validation_link);
         
         // Allow extensions to modify subject and template
 	    $subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule, $action));
@@ -209,20 +202,6 @@ class PTA_SUS_Emails {
 			    $cc_emails[] = $cc;
 		    }
 	    }
-	    
-	    // Chair names
-	    $names = false;
-        $chair_names = '';
-	    if (isset($sheet->position) && '' != $sheet->position) {
-		    $names = $this->get_member_directory_names($sheet->position);
-		    if($names) {
-		    	$chair_names = implode(', ', $names);
-		    }
-	    }
-	    
-	    if(!$names) {
-		    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
-	    }
 	
 	    if( isset($this->email_options['replyto_chairs']) && $this->email_options['replyto_chairs'] && !empty($chair_emails)) {
 	        $replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule);
@@ -232,21 +211,7 @@ class PTA_SUS_Emails {
 	    
 	    if (empty($replyto)) $replyto = get_bloginfo('admin_email');
 
-		$headers = array();
-
-		// Add html content type header if HTML emails are enabled
-	    if($use_html) {
-		    $headers[] = 'Content-Type: text/html; charset=UTF-8';
-	    }
-
-        $headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
-        if(is_array($replyto)) {
-        	foreach ($replyto as $reply) {
-        		$headers[] = "Reply-To: ". " <" . $reply . ">";
-	        }
-        } else {
-	        $headers[]  = "Reply-To: " . " <" . $replyto . ">";
-        }
+		$headers = $this->get_email_headers($from,$replyto,$use_html);
 
         if ( !$reminder && !$this->email_options['individual_emails'] ) {
             if (!empty($cc_emails)) {
@@ -257,81 +222,8 @@ class PTA_SUS_Emails {
             }
         }
 
-        // Calculate some Variables for display
-        $date = ($signup->date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
-        $start_time = ($task->time_start == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
-        $end_time = ($task->time_end == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
-        if (isset($signup->item) && $signup->item != " ") {
-        	$item = $signup->item;
-        } else {
-        	$item = __('N/A', 'pta-volunteer-sign-up-sheets');
-        }
-        if (!empty($chair_emails)) {
-        	$contact_emails = implode("\r\n", $chair_emails);
-        } else {
-        	$contact_emails = __('N/A', 'pta-volunteer-sign-up-sheets');
-        }
-		$sheet_details =  $sheet->details;
-		if(!$use_html) {
-			$sheet_details = $this->convert_to_plain_text($sheet->details);
-		}
-
-        
-        // Replace any template tags with the appropriate variables
-	    $search = array(
-		    '{sheet_title}',
-		    '{sheet_details}',
-		    '{task_title}',
-		    '{task_description}',
-		    '{date}',
-		    '{start_time}',
-		    '{end_time}',
-		    '{item_details}',
-		    '{item_qty}',
-		    '{details_text}',
-		    '{firstname}',
-		    '{lastname}',
-		    '{contact_emails}',
-		    '{contact_names}',
-		    '{site_name}',
-		    '{site_url}',
-		    '{phone}',
-		    '{email}',
-		    '{validation_link}',
-		    '{signup_expiration_hours}',
-		    '{validation_code_expiration_hours}'
-	    );
-
-	    $replace = array(
-		    $sheet->title,
-		    $sheet_details,
-		    $task->title,
-		    $task->description,
-		    $date,
-		    $start_time,
-		    $end_time,
-		    $item,
-		    $signup->item_qty,
-		    $task->details_text,
-		    $signup->firstname,
-		    $signup->lastname,
-		    $contact_emails,
-		    $chair_names,
-		    get_bloginfo( 'name' ),
-		    get_bloginfo( 'url' ),
-		    $signup->phone,
-		    $signup->email,
-		    $validation_link,
-		    ($this->validation_options['signup_expiration_hours'] ?? 1),
-		    ($this->validation_options['validation_code_expiration_hours'] ?? 48),
-	    );
-	    
-	    // Allow extension to modify/add to search and replace arrays
-	    $search = apply_filters('pta_sus_email_search', $search, $signup, $reminder, $clear, $reschedule);
-	    $replace = apply_filters('pta_sus_email_replace', $replace, $signup, $reminder, $clear, $reschedule);
-
-	    $message = str_replace($search, $replace, $message);
-	    $subject = str_replace($search, $replace, $subject);
+	    $message = PTA_SUS_Template_Tags::process_text($message, $signup, $reminder, $clear, $reschedule);
+	    $subject = PTA_SUS_Template_Tags::process_text($subject, $signup, $reminder, $clear, $reschedule);
 
         if( $reminder && $this->main_options['detailed_reminder_admin_emails'] ) {
             $this->last_reminder = "To: " . $to . "\r\n\r\n" . $message . "\r\n\r\n\r\n";
@@ -426,12 +318,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 		$use_html = isset($this->email_options['use_html']) && $this->email_options['use_html'];
 		$domain = parse_url(get_site_url(), PHP_URL_HOST);
 		$from = 'no-reply@' . $domain;
-		$headers = array();
-		// Add html content type header if HTML emails are enabled
-		if($use_html) {
-			$headers[] = 'Content-Type: text/html; charset=UTF-8';
-		}
-		$headers[]  = "From: " . get_bloginfo('name') . " <" . $from . ">";
+		$headers = $this->get_email_headers($from,$from,$use_html);
 		// Allow other plugins to determine if we should send this email -- return false to not send
 		$send_email = apply_filters( 'pta_sus_send_validation_email_check', true, $firstname, $lastname, $email );
 		if($send_email) {
@@ -454,18 +341,6 @@ Please click on, or copy and paste, the link below to validate yourself:
         if(0 == count($emails)) return false;
         return $emails;
     }
-	
-	public function get_member_directory_names($group='') {
-		$args = array( 'post_type' => 'member', 'member_category' => $group );
-		$members = get_posts( $args );
-		if(!$members) return false;
-		$names = array();
-		foreach ($members as $member) {
-			$names[] = sanitize_text_field($member->post_title);
-		}
-		if(0 == count($names)) return false;
-		return $names;
-	}
 
     public function send_reminders() {
     	$limit = false;

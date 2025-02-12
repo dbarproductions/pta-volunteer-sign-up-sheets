@@ -162,6 +162,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.3.0**
+*   Separated out the email template tag functions into its own static class to be more accessible and extendable by extensions.
+*   Updated javascript/jQuery files to more modern standards.
+*   Minor HTML change for filter hooks on User Signups List for proper formatting for extensions that add columns after the "Clear" column.
+*   Switched to vanilla js autocomplete function instead of jQuery UI Autocomplete for better efficiency, and registered the script for use in extensions (shared by Calendar extension). This is only used to allow admins or Signup Sheet managers to signup other people via live search on the public side signup form in the main plugin and the calendar extension.
+*   Tested with PHP 8.4.2 and WordPress 6.7.2
+
 **Version 5.2.2**
 *   Bug fix for javascript browser confirmation when clearing a signup. Was still clearing the signup even if the user clicked "Cancel" in the confirmation box.
 *   Tested with PHP 8.4.2 and WordPress 6.7.1

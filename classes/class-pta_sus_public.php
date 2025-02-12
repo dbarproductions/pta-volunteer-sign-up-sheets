@@ -847,10 +847,16 @@ class PTA_SUS_Public {
 		    if($this->use_divs) {
 			    $return .= '<div class="column-clear_link head">&nbsp;</div>';
 		    } else {
-			    $return .= '<th class="column-clear_link">&nbsp;</th></tr>';
+			    $return .= '<th class="column-clear_link">&nbsp;</th>';
 		    }
 
 		    $return  .= apply_filters( 'pta_sus_user_signups_list_headers_after_clear', '', $this->use_divs );
+
+		    if($this->use_divs) {
+			    $return .= '</div>';
+		    } else {
+			    $return .= '</tr>';
+		    }
 
 		    if($this->use_divs) {
 			    $return .= '</div>';
@@ -925,14 +931,18 @@ class PTA_SUS_Public {
 				    }
 			    }
 			    if($this->use_divs) {
-				    $return .= '<div class="column-clear" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>
-                        </div>';
+				    $return .= '<div class="column-clear" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></div>';
 			    } else {
-				    $return .= '<td class="pta-sus clear-td" data-label="" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>
-                        </tr>';
+				    $return .= '<td class="pta-sus clear-td" data-label="" ><a class="pta-sus-link clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a></td>';
 			    }
 
 			    $return .= apply_filters( 'pta_sus_user_signups_list_content_after_clear', '', $signup, $this->use_divs );
+
+			    if($this->use_divs) {
+				    $return .= '</div>';
+			    } else {
+				    $return .= '</tr>';
+			    }
 
 		    }
 		    
@@ -1795,14 +1805,9 @@ class PTA_SUS_Public {
 		}
 
 	    if ( $this->main_options['enable_signup_search'] && isset( $_GET['task_id'] ) && current_user_can( 'manage_signup_sheets' ) ) {
-		    wp_register_style( 'pta-sus-autocomplete', plugins_url( '../assets/css/jquery.autocomplete.css', __FILE__ ) );
-		    wp_enqueue_style( 'pta-sus-autocomplete' );
-		    wp_enqueue_script( 'jquery-ui-autocomplete' );
-		    wp_enqueue_script( 'pta-sus-frontend', plugins_url( '../assets/js/frontend.min.js', __FILE__ ) );
-		    wp_localize_script( 'pta-sus-frontend', 'ptaSUS', array(
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
-				'ptanonce' => wp_create_nonce( 'ajax-pta-nonce' )
-			) );
+		    wp_enqueue_style('pta-sus-autocomplete');
+		    wp_enqueue_script('pta-sus-autocomplete');
+			wp_enqueue_script('pta-sus-live-search', plugins_url( '../assets/js/frontend-listener.min.js', __FILE__ ), array('pta-sus-autocomplete'), '', true);
 	    }
 
 	    // Always enqueue URL cleanup script
