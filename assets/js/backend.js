@@ -606,4 +606,52 @@
             submitButton.prop('disabled',true);
         }
     });
+
+    // TEMPLATE TAG HELPER FUNCTIONS
+    // Toggle panel
+    $('#pta-sus-template-helper-toggle').on('click', function() {
+        $('#pta-sus-template-helper-panel').toggleClass('active');
+    });
+
+    // Handle tag selection
+    $('.tag-item').on('click', function() {
+        const tag = $(this).data('tag');
+
+        // Use fallback if Clipboard API not available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(tag).then(() => {
+                showAdminNotice('Template tag copied to clipboard!');
+            });
+        } else {
+            // Fallback using temporary textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = tag;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showAdminNotice('Template tag copied to clipboard!');
+        }
+    });
+
+    // Function to show admin notice
+    function showAdminNotice(message) {
+        const notice = $('<div class="notice notice-success is-dismissible"><p>' + message + '</p></div>');
+        $('.wrap').first().prepend(notice);
+        setTimeout(() => {
+            notice.fadeOut(() => notice.remove());
+        }, 2000);
+    }
+
+    // Handle search
+    $('.pta-sus-helper-search input').on('input', function() {
+        const search = $(this).val().toLowerCase();
+        $('.tag-item').each(function() {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(search));
+        });
+    });
+
+
+
 })(jQuery);

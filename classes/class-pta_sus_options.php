@@ -43,7 +43,12 @@ class PTA_SUS_Options {
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=validation_options" class="nav-tab <?php echo $active_tab == 'validation_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Validation Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=integration_options" class="nav-tab <?php echo $active_tab == 'integration_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Integration Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <?php do_action('pta_sus_settings_nav_tabs', $active_tab); ?>
-            </h2> 
+            </h2>
+	        <?php
+            if('email_options' == $active_tab ) {
+	            PTA_SUS_Template_Tags_Helper::render_helper_panel();
+            }
+	        ?>
             <form action="options.php" method="post">
                 <?php 
 

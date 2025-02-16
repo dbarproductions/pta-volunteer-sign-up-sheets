@@ -844,6 +844,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_messages.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
+require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags_helper.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
 global $pta_sus;
