@@ -1,6 +1,8 @@
 <?php
 class PTA_SUS_Template_Tags {
 	private static $tags = array();
+
+	private static $extra_tags = array();
 	private static $registered_tag_callbacks = array();
 	private static $current_signup_id = null;
 
@@ -118,12 +120,17 @@ class PTA_SUS_Template_Tags {
 			'{signup_expiration_hours}' => ($validation_options['signup_expiration_hours'] ?? 1),
 			'{validation_code_expiration_hours}' => ($validation_options['validation_code_expiration_hours'] ?? 48)
 		);
-
+		// add any extra tags here, as above resets the tags array
+		foreach(self::$extra_tags as $tag => $value) {
+			if(!isset(self::$tags[$tag])) {
+				self::$tags[ $tag ] = $value;
+			}
+		}
 		return self::$tags;
 	}
 
 	public static function add_tag($tag, $value) {
-		self::$tags[$tag] = $value;
+		self::$extra_tags[$tag] = $value;
 	}
 
 	public static function process_text($text, $signup, $reminder=false, $clear=false, $reschedule=false) {
