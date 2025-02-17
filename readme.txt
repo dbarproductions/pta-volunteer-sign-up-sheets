@@ -162,6 +162,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.3.1**
+*   Fixed the {validation_link} template tag for signup validation emails which was broken in 5.3.0 after separating out the email template tag functions into its own separate class.
+*   Tested with PHP 8.4.2 and WordPress 6.7.2
+
 **Version 5.3.0**
 *   Separated out the email template tag functions into its own static class to be more accessible and extendable by extensions.
 *   Updated javascript/jQuery files to more modern standards.
