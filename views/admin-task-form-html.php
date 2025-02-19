@@ -38,7 +38,7 @@ if ($count < 3) $count = 3;
 		<?php _e('Date:','pta-volunteer-sign-up-sheets'); ?> <input type="text" class="singlePicker" name="task_dates[<?php echo $i; ?>]" id="singlePicker[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')); ?>" size="10" />&nbsp;&nbsp;
 	<?php endif; ?>
 	<?php if (!$no_signups) : ?>
-		<?php _e('# Needed:','pta-volunteer-sign-up-sheets'); ?> <input type="text" name="task_qty[<?php echo $i; ?>]" id="task_qty[<?php echo $i; ?>]" value="<?php echo((isset($f['task_qty'][$i]) ? (int)$f['task_qty'][$i] : '')); ?>" size="3" />
+		<?php _e('# Needed:','pta-volunteer-sign-up-sheets'); ?> <input type="number" name="task_qty[<?php echo $i; ?>]" id="task_qty[<?php echo $i; ?>]" value="<?php echo((isset($f['task_qty'][$i]) ? (int)$f['task_qty'][$i] : '')); ?>"  min="1" style="width: 4.5em;" />
 	<?php endif; ?>
 	&nbsp;&nbsp;<?php _e('Start Time:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" class="pta-timepicker" id="timepicker_start[<?php echo $i; ?>]" name="task_time_start[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_start'][$i]) ? esc_attr($f['task_time_start'][$i]) : '')); ?>" size="10" />
 	&nbsp;&nbsp;<?php _e('End Time:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" class="pta-timepicker" id="timepicker_end[<?php echo $i; ?>]" name="task_time_end[<?php echo $i; ?>]" value="<?php echo((isset($f['task_time_end'][$i]) ? esc_attr($f['task_time_end'][$i]) : '')); ?>" size="10" />

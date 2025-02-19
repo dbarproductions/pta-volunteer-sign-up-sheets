@@ -183,7 +183,6 @@ class PTA_SUS_Public {
 		if(!$code) return;
 		$user_info = pta_validate_code($code);
 		if(empty($user_info)) {
-			// @todo: add to customizer
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid or Expired Code','pta-volunteer-sign-up-sheets'),'validation_invalid_code_error' ));
 			return;
 		}
@@ -192,43 +191,36 @@ class PTA_SUS_Public {
 		$email = sanitize_email($user_info->email);
 
 		if('validate_user' === $action) {
-			// @todo: add to customizer
 			PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('User Validation successful.','pta-volunteer-sign-up-sheets'),'user_validation_success_message' ));
 			$this->success = true;
 			pta_set_validated_user_cookie($firstname, $lastname, $email);
 		}
 		if('validate_signup' === $action) {
 			if(empty($_GET['validate_signup_id'])) {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Missing Signup ID.','pta-volunteer-sign-up-sheets'),'signup_validation_signup_id_error' ));
 				return;
 			}
 			$signup_id = absint($_GET['validate_signup_id']);
 			$signup = PTA_SUS_Signup_Functions::get_signup($signup_id);
 			if(empty($signup)) {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup not found.','pta-volunteer-sign-up-sheets'),'signup_validation_signup_not_found_error' ));
 				return;
 			}
 			if($signup->firstname === $firstname && $signup->lastname === $lastname && $signup->email === $email) {
 				$validated = PTA_SUS_Signup_Functions::validate_signup($signup_id);
 				if($validated) {
-					// @todo: add to customizer
 					PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup validated.','pta-volunteer-sign-up-sheets'),'signup_validation_success_message' ));
 					pta_set_validated_user_cookie($firstname, $lastname, $email);
 					$this->success = true;
 					$emails = new PTA_SUS_Emails();
-					if ($emails->send_mail(intval($signup_id)) === false) {
-						// @todo: add to customizer
+					if ($emails->send_mail($signup_id) === false) {
 						PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('ERROR SENDING EMAIL', 'pta-volunteer-sign-up-sheets'), 'email_send_error_message' ));
 					}
 					pta_clean_redirect();
 				} else {
-					// @todo: add to customizer
 					PTA_SUS_Messages::add_error( apply_filters( 'pta_sus_public_output', __( 'Signup validation failed.', 'pta-volunteer-sign-up-sheets' ), 'signup_validation_failed_error' ) );
 				}
 			} else {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup info does not match validation code info.','pta-volunteer-sign-up-sheets'),'signup_validation_info_mismatch_error' ));
 			}
 		}
@@ -240,7 +232,6 @@ class PTA_SUS_Public {
 	private function process_validation_form() {
 		if(isset($_POST['pta-sus-validate-form-submit']) && !$this->validation_sent) {
 			if(!wp_verify_nonce($_POST['pta-sus-validate-form-nonce'], 'pta-sus-validate-form')) {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Form Validation Failed!','pta-volunteer-sign-up-sheets'),'validation_form_nonce_error' ));
 				return;
 			}
@@ -255,7 +246,6 @@ class PTA_SUS_Public {
 				$this->emails = new PTA_SUS_Emails();
 			}
 			if($this->emails->send_user_validation_email($firstname, $lastname, $email)) {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Validation email sent.','pta-volunteer-sign-up-sheets'),'validation_email_sent_message' ));
 				$this->validation_sent = true;
 				$resubmit = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
@@ -272,7 +262,6 @@ class PTA_SUS_Public {
 				);
 
 			} else {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Validation email failed to send.','pta-volunteer-sign-up-sheets'),'validation_email_send_error' ));
 			}
 		}
@@ -405,11 +394,9 @@ class PTA_SUS_Public {
 				if($needs_validation) {
 					$sent = $this->emails->send_mail($signup_id,false,false,false,'validate_signup');
 					if($sent) {
-						// @todo: add to customizer
 						PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup Validation email sent.','pta-volunteer-sign-up-sheets'), 'signup_validation_sent_message' ));
 						$this->validation_sent = true;
 					} else {
-						// @todo: add to customizer
 						PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Signup Validation email failed to send.','pta-volunteer-sign-up-sheets'), 'signup_validation_send_error_message' ));
 					}
 				} else {
@@ -491,11 +478,9 @@ class PTA_SUS_Public {
 	    if (isset($_GET['signup_id']) && $_GET['signup_id'] > 0 ) {
 			// Verify Nonce
 		    if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'pta_sus_clear_signup' ) ) {
-			    // @todo: add to customizer
 			    wp_die( apply_filters( 'pta_sus_public_output', __('Security check failed!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_nonce_message' ) );
 		    }
 			if(!$this->volunteer->is_validated()) {
-				// @todo: add to customizer
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You need to be validated first!', 'pta-volunteer-sign-up-sheets'), 'clear_not_validated_message' ));
 			}
 
@@ -504,7 +489,6 @@ class PTA_SUS_Public {
 		    if (null == $signup) {
 			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Not a valid signup!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ));
 		    } elseif (!$this->volunteer->can_modify_signup($signup)) {
-			    // @todo: add to customizer
 			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are not allowed to do that!', 'pta-volunteer-sign-up-sheets'), 'clear_not_allowed_error_message' ));
 		    } else {
 			    // Send cleared emails
@@ -778,7 +762,6 @@ class PTA_SUS_Public {
 			if( $this->validation_enabled && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form'] ) {
 				if ( (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) || $this->validation_sent ) {
 					$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
-					// @todo: add to customizer
 					$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
 					return $return;
 				}
@@ -979,7 +962,6 @@ class PTA_SUS_Public {
 		PTA_SUS_Messages::clear_messages();
     	$return .= $this->get_user_signups_list($atts);
     	if(empty($return)) {
-			// @todo: add to customizer
     		$return = apply_filters( 'pta_sus_public_output', __('You do not have any current signups', 'pta-volunteer-sign-up-sheets'),'no_user_signups_message');
 	    } else {
 		    $return .= $this->maybe_get_clear_validation_message();
@@ -990,7 +972,6 @@ class PTA_SUS_Public {
 	public function process_validation_form_shortcode($atts) {
 		// don't show anything if the system is not enabled
 		if(!$this->validation_enabled || !(isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) ) {
-			// @todo: add to customizer
 			return '<p>'.apply_filters( 'pta_sus_public_output', __('User Validation is currently disabled.', 'pta-volunteer-sign-up-sheets'), 'user_validation_disabled_message').'</p>';
 		}
 		$atts = shortcode_atts(array(
@@ -1013,13 +994,11 @@ class PTA_SUS_Public {
 			}
 			if (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) {
 				$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
-				// @todo: add to customizer
 				$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
 				return $return;
 			}
 			$return .= pta_get_validation_form();
 		} elseif(!isset($_GET['pta-sus-action']) || ($_GET['pta-sus-action'] != 'validate_signup' && $_GET['pta-sus-action'] != 'validate_user') ){
-			// @todo: add to customizer
 			$return .= '<p>' . apply_filters( 'pta_sus_public_output', __( 'You are already validated.', 'pta-volunteer-sign-up-sheets' ), 'already_validated_message' ) . '</p>';
 		}
 		$return .= $this->maybe_get_clear_validation_message();
@@ -1049,7 +1028,6 @@ class PTA_SUS_Public {
             if (!is_user_logged_in()) {
                 $message = '<p class="pta-sus error">' . esc_html($this->main_options['login_required_message']) . '</p>';
                 if(isset($this->main_options['show_login_link']) && true === $this->main_options['show_login_link']) {
-	                // @todo: add to customizer - login_link_text
                     $message .= '<p><a class="pta-sus-link login" href="'. wp_login_url( get_permalink() ) .'" title="Login">'.apply_filters( 'pta_sus_public_output', __("Login", "pta_volunteer_sus"), 'login_link_text').'</a></p>';
                 }
                 return $message;
@@ -1207,7 +1185,6 @@ class PTA_SUS_Public {
 					if($this->validation_enabled && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
 						if ( (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared']) || $this->validation_sent) ) {
 							$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
-							// @todo: add to customizer
 							$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
 						} else {
 							$return .= pta_get_validation_form();
@@ -1624,7 +1601,6 @@ class PTA_SUS_Public {
         $form .= '<h3 class="pta-sus sign-up-header">'.apply_filters( 'pta_sus_public_output', __('Sign Up', 'pta-volunteer-sign-up-sheets'), 'sign_up_form_heading' ).'</h3>';
         $form .= '<h4 class="pta-sus sign-up-header">'. apply_filters( 'pta_sus_public_output', __('You are signing up for... ', 'pta-volunteer-sign-up-sheets'), 'you_are_signing_up_for' ).'<br/><strong>'.esc_html($task->title).'</strong> ';
         if ($show_date) {
-			// @todo: add to customizer
             $form .= apply_filters( 'pta_sus_public_output', sprintf(__('on %s', 'pta-volunteer-sign-up-sheets'), $show_date), 'sign_up_for_date',$show_date );
         }
         $form .= '</h4>';

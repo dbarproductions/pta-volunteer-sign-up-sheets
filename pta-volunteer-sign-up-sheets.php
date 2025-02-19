@@ -61,7 +61,7 @@ class PTA_Sign_Up_Sheet {
     public function init_hooks() {
 	    add_action('pta_sus_cron_job', array($this, 'cron_functions'));
 
-	    add_action('plugins_loaded', array($this, 'init'));
+	    add_action('init', array($this, 'init'));
 	    add_action('plugins_loaded', array($this, 'public_init' ));
 
 	    add_action( 'init', array($this, 'block_assets' ));
@@ -83,7 +83,6 @@ class PTA_Sign_Up_Sheet {
 	    if (!class_exists('PTA_SUS_Public')) {
 		    include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
 	    }
-
     }
 
     public function register_scripts() {
@@ -847,6 +846,8 @@ require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags_helper.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
 require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
+require_once(dirname(__FILE__).'/classes/class-pta_sus_text_registry.php');
+
 global $pta_sus;
 $pta_sus = new PTA_Sign_Up_Sheet();
 $pta_sus->init_hooks();

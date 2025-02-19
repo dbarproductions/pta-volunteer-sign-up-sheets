@@ -71,6 +71,7 @@ class PTA_SUS_Template_Tags {
 		$date = ($signup->date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $signup->date, $translate = true );
 		$start_time = ($task->time_start == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
 		$end_time = ($task->time_end == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
+		$chair_emails = !empty($sheet->chair_email) ? explode(',', $sheet->chair_email) : array();
 		if (isset($signup->item) && $signup->item != " ") {
 			$item = $signup->item;
 		} else {
