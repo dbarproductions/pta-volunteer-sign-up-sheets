@@ -2,7 +2,7 @@
 if(!function_exists( 'pta_datetime')) {
 	function pta_datetime($format, $timestamp) {
 		$main_options = get_option( 'pta_volunteer_sus_main_options' );
-		if(isset($main_options['disable_datei18n']) && true == $main_options['disable_datei18n']) {
+		if( isset($main_options['disable_datei18n']) && $main_options['disable_datei18n'] ) {
 			$datetime = date($format, $timestamp);
 		} else {
 			$datetime = date_i18n( $format, $timestamp);

@@ -676,8 +676,14 @@
 
     // Function to show admin notice
     function showAdminNotice(message) {
-        const notice = $('<div class="notice notice-success is-dismissible"><p>' + message + '</p></div>');
-        $('.wrap').first().prepend(notice);
+        const notice = $('<div class="notice notice-success" style="position: fixed; top: 32px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"><p>' + message + '<button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></p></div>');
+        $('body').append(notice);
+
+        // Handle dismiss click
+        notice.find('.notice-dismiss').on('click', function() {
+            notice.fadeOut(() => notice.remove());
+        });
+
         setTimeout(() => {
             notice.fadeOut(() => notice.remove());
         }, 2000);
@@ -691,6 +697,22 @@
             $(this).toggle(text.includes(search));
         });
     });
+
+    // Add escape key handler
+    $(document).on('keyup', function(e) {
+        if (e.key === "Escape") {
+            $('#pta-sus-template-helper-panel').removeClass('active');
+        }
+    });
+
+    // Add close button
+    $('.pta-sus-helper-search').append('<button type="button" class="pta-helper-close" aria-label="Close template helper"><span class="dashicons dashicons-no-alt"></span></button>');
+
+    // Handle close button click
+    $('.pta-helper-close').on('click', function() {
+        $('#pta-sus-template-helper-panel').removeClass('active');
+    });
+
 
 
 

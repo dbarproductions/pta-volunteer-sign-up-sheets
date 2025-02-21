@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.7.1
+Tested up to: 6.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Stable tag: trunk
@@ -162,6 +162,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.5.0**
+*   Added new template tags for emails.
+*   Refactored template tag class to use separate functions for signup, task, and sheet tags, making it easier for extensions to utilize for specific objects.
+*   Improved the template tag helper to show tag copied notice even when the page is scrolled down, added a close icon, and also made it so the helper can be closed with the ESC key.
+*   Removed the list of available template tags under each email template editor now that additional tags are available and are more easily accessible with the template tags helper.
+*   Tested with PHP 8.4.2 and WordPress 6.7.2
+
 **Version 5.4.0**
 *   Add a Template Tags Helper feature, and class, to help with the creation of template tags for use in email templates. Extensions can also register their own template tags with the class.
 *   The Template Tags helper will appear at the top right of admin pages where you create email templates, and allow you to quickly search template tags and copy them to the clipboard just by clicking on them. Extensions will be updated after this to add their own template tags.

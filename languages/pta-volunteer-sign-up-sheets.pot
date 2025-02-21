@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PTA Volunteer Sign Up Sheets\n"
-"POT-Creation-Date: 2025-02-18 08:34-0800\n"
+"POT-Creation-Date: 2025-02-21 14:38-0800\n"
 "PO-Revision-Date: 2016-02-09 19:42-0800\n"
 "Last-Translator: Stephen Sherrard <stephen@dbar-productions.com>\n"
 "Language-Team: Stephen Sherrard <stephen@dbar-productions.com>\n"
@@ -366,7 +366,7 @@ msgstr ""
 
 #: classes/admin-view-all-signups-html.php:19
 #: classes/admin-view-signups-html.php:19
-#: classes/class-pta_sus_template_tags_helper.php:41
+#: classes/class-pta_sus_template_tags_helper.php:66
 msgid "Task Description"
 msgstr ""
 
@@ -386,14 +386,14 @@ msgid "Name"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:24
-#: classes/admin-view-signups-html.php:24 classes/class-pta_sus_public.php:1644
+#: classes/admin-view-signups-html.php:24 classes/class-pta_sus_public.php:1620
 #: views/admin-add-edit-signup-form.php:69 views/public-validation-form.php:7
 msgid "E-mail"
 msgstr ""
 
 #: classes/admin-view-all-signups-html.php:25
-#: classes/admin-view-signups-html.php:25 classes/class-pta_sus_public.php:1498
-#: classes/class-pta_sus_public.php:1646
+#: classes/admin-view-signups-html.php:25 classes/class-pta_sus_public.php:1475
+#: classes/class-pta_sus_public.php:1622
 #: views/admin-add-edit-signup-form.php:72
 msgid "Phone"
 msgstr ""
@@ -445,7 +445,7 @@ msgstr ""
 msgid " - Ongoing"
 msgstr ""
 
-#: classes/class-pta-sus-ajax.php:141 classes/class-pta_sus_public.php:1628
+#: classes/class-pta-sus-ajax.php:141 classes/class-pta_sus_public.php:1604
 #, php-format
 msgid "on %s"
 msgstr ""
@@ -462,7 +462,7 @@ msgstr ""
 msgid "Add New"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:122 pta-volunteer-sign-up-sheets.php:864
+#: classes/class-pta_sus_admin.php:122 pta-volunteer-sign-up-sheets.php:865
 msgid "Settings"
 msgstr ""
 
@@ -1021,7 +1021,7 @@ msgstr ""
 msgid "Multi-Day"
 msgstr ""
 
-#: classes/class-pta_sus_admin.php:1476 classes/class-pta_sus_public.php:581
+#: classes/class-pta_sus_admin.php:1476 classes/class-pta_sus_public.php:565
 #: classes/list-table.php:160
 msgid "Ongoing"
 msgstr ""
@@ -1268,8 +1268,8 @@ msgstr ""
 msgid "Volunteer Signup Reminders sent"
 msgstr ""
 
-#: classes/class-pta_sus_emails.php:445 pta-volunteer-sign-up-sheets.php:249
-#: pta-volunteer-sign-up-sheets.php:258
+#: classes/class-pta_sus_emails.php:445 pta-volunteer-sign-up-sheets.php:248
+#: pta-volunteer-sign-up-sheets.php:257
 msgid "Volunteer signup sheet CRON job has been completed."
 msgstr ""
 
@@ -2302,7 +2302,7 @@ msgstr ""
 #: classes/class-pta_sus_options.php:1281
 #: classes/class-pta_sus_options.php:1295
 #: classes/class-pta_sus_options.php:1309
-msgid "Available Template Tags: "
+msgid "Template Tags are allowed. Use the Template Tags helper in upper right."
 msgstr ""
 
 #: classes/class-pta_sus_options.php:1242
@@ -2374,11 +2374,13 @@ msgid ""
 msgstr ""
 
 #: classes/class-pta_sus_public.php:136
-#: classes/class-pta_sus_template_tags.php:71
-#: classes/class-pta_sus_template_tags.php:72
-#: classes/class-pta_sus_template_tags.php:73
-#: classes/class-pta_sus_template_tags.php:77
-#: classes/class-pta_sus_template_tags.php:82 classes/list-table.php:66
+#: classes/class-pta_sus_template_tags.php:55
+#: classes/class-pta_sus_template_tags.php:56
+#: classes/class-pta_sus_template_tags.php:84
+#: classes/class-pta_sus_template_tags.php:85
+#: classes/class-pta_sus_template_tags.php:111
+#: classes/class-pta_sus_template_tags.php:112
+#: classes/class-pta_sus_template_tags.php:119 classes/list-table.php:66
 #: classes/list-table.php:81
 msgid "N/A"
 msgstr ""
@@ -2412,324 +2414,344 @@ msgstr ""
 msgid "Hidden!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:165 classes/class-pta_sus_public.php:459
+#: classes/class-pta_sus_public.php:165 classes/class-pta_sus_public.php:446
 msgid "Sorry! Your security nonce did not verify!"
 msgstr ""
 
 #: classes/class-pta_sus_public.php:169
+#: classes/class-pta_sus_text_registry.php:18
 msgid "Your validation code has been cleared."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:187
+#: classes/class-pta_sus_public.php:186
+#: classes/class-pta_sus_text_registry.php:12
 msgid "Invalid or Expired Code"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:196
+#: classes/class-pta_sus_public.php:194
+#: classes/class-pta_sus_text_registry.php:24
 msgid "User Validation successful."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:203
+#: classes/class-pta_sus_public.php:200
+#: classes/class-pta_sus_text_registry.php:30
 msgid "Missing Signup ID."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:210
+#: classes/class-pta_sus_public.php:206
+#: classes/class-pta_sus_text_registry.php:36
 msgid "Signup not found."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:217
+#: classes/class-pta_sus_public.php:212
+#: classes/class-pta_sus_text_registry.php:42
 msgid "Signup validated."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:223 classes/class-pta_sus_public.php:419
+#: classes/class-pta_sus_public.php:217 classes/class-pta_sus_public.php:406
 msgid "ERROR SENDING EMAIL"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:228
+#: classes/class-pta_sus_public.php:221
+#: classes/class-pta_sus_text_registry.php:48
 msgid "Signup validation failed."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:232
+#: classes/class-pta_sus_public.php:224
+#: classes/class-pta_sus_text_registry.php:54
 msgid "Signup info does not match validation code info."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:244
+#: classes/class-pta_sus_public.php:235
+#: classes/class-pta_sus_text_registry.php:60
 msgid "Form Validation Failed!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:248 classes/class-pta_sus_public.php:314
+#: classes/class-pta_sus_public.php:239 classes/class-pta_sus_public.php:303
 msgid "Please complete all required fields."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:259
+#: classes/class-pta_sus_public.php:249
+#: classes/class-pta_sus_text_registry.php:66
 msgid "Validation email sent."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:276
+#: classes/class-pta_sus_public.php:265
+#: classes/class-pta_sus_text_registry.php:72
 msgid "Validation email failed to send."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:300 classes/class-pta_sus_public.php:1602
+#: classes/class-pta_sus_public.php:289 classes/class-pta_sus_public.php:1579
 msgid "All spots have already been filled."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:321
+#: classes/class-pta_sus_public.php:310
 msgid "Invalid Characters in First Name!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:326
+#: classes/class-pta_sus_public.php:315
 msgid "Invalid Characters in Last Name!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:331
+#: classes/class-pta_sus_public.php:320
 msgid "Invalid Email!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:336
+#: classes/class-pta_sus_public.php:325
 msgid "Email and Confirmation Email do not match!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:341
+#: classes/class-pta_sus_public.php:330
 msgid "Invalid Characters in Phone Number!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:346
+#: classes/class-pta_sus_public.php:335
 msgid "Invalid Characters in Signup Item!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:351
+#: classes/class-pta_sus_public.php:340
 #, php-format
 msgid "Please enter a number between 1 and %d for Item QTY!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:356
+#: classes/class-pta_sus_public.php:345
 msgid "Hidden signup date field is invalid!  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:365
+#: classes/class-pta_sus_public.php:354
 msgid "You are already signed up for this task!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:370 classes/class-pta_sus_public.php:374
+#: classes/class-pta_sus_public.php:359 classes/class-pta_sus_public.php:363
 msgid "You are already signed up for another task in this time frame!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:393
+#: classes/class-pta_sus_public.php:382
 msgid "Error adding signup record.  Please try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:409
+#: classes/class-pta_sus_public.php:397
+#: classes/class-pta_sus_text_registry.php:78
 msgid "Signup Validation email sent."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:413
+#: classes/class-pta_sus_public.php:400
+#: classes/class-pta_sus_text_registry.php:84
 msgid "Signup Validation email failed to send."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:416
+#: classes/class-pta_sus_public.php:403
 msgid "You have been signed up!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:465
+#: classes/class-pta_sus_public.php:452
 msgid ""
 "Oops! You filled in the spambot field. Please leave it blank and try again."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:495
+#: classes/class-pta_sus_public.php:481
+#: classes/class-pta_sus_text_registry.php:109
 msgid "Security check failed!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:499
+#: classes/class-pta_sus_public.php:484
+#: classes/class-pta_sus_text_registry.php:115
 msgid "You need to be validated first!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:505
+#: classes/class-pta_sus_public.php:490
 msgid "Not a valid signup!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:508
+#: classes/class-pta_sus_public.php:492
+#: classes/class-pta_sus_text_registry.php:121
 msgid "You are not allowed to do that!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:518
+#: classes/class-pta_sus_public.php:502
 msgid "Signup Cleared"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:527
+#: classes/class-pta_sus_public.php:511
 msgid "ERROR clearing signup!"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:582
+#: classes/class-pta_sus_public.php:566
 msgid "View &amp; sign-up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:583 classes/class-pta_sus_public.php:1242
-#: classes/class-pta_sus_public.php:1283
+#: classes/class-pta_sus_public.php:567 classes/class-pta_sus_public.php:1219
+#: classes/class-pta_sus_public.php:1260
 msgid "Filled"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:587
+#: classes/class-pta_sus_public.php:571
 msgid "View Event &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:645
+#: classes/class-pta_sus_public.php:629
 msgid "Sign-up sheet not found."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:650 classes/class-pta_sus_public.php:1156
-#: classes/class-pta_sus_public.php:1612
+#: classes/class-pta_sus_public.php:634 classes/class-pta_sus_public.php:1134
+#: classes/class-pta_sus_public.php:1589
 msgid "You don't have permission to view this page."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:675
+#: classes/class-pta_sus_public.php:659
 msgid "&laquo; View all Sign-up Sheets"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:706
+#: classes/class-pta_sus_public.php:690
 msgid "Event Chairs:"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:708
+#: classes/class-pta_sus_public.php:692
 msgid "Event Chair:"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:727
+#: classes/class-pta_sus_public.php:711
 msgid "This sheet is currently hidden from the public."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:747
+#: classes/class-pta_sus_public.php:731
 msgid "DETAILS:"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:752
+#: classes/class-pta_sus_public.php:736
 msgid "Sign up below..."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:754
+#: classes/class-pta_sus_public.php:738
 msgid "All spots have been filled."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:782 classes/class-pta_sus_public.php:1017
-#: classes/class-pta_sus_public.php:1211
+#: classes/class-pta_sus_public.php:765 classes/class-pta_sus_public.php:997
+#: classes/class-pta_sus_public.php:1188
 #, php-format
 msgid ""
 "User Validation email has been sent. Please check your email. If you did not "
 "receive the email, you can return and submit the form again after %d minutes."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:800
+#: classes/class-pta_sus_public.php:783
 msgid "You have signed up for the following"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:801
+#: classes/class-pta_sus_public.php:784
 msgid "Click on Clear to remove yourself from a signup."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:884 classes/class-pta_sus_public.php:1254
+#: classes/class-pta_sus_public.php:867 classes/class-pta_sus_public.php:1231
 msgid "Clear"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:983
+#: classes/class-pta_sus_public.php:965
+#: classes/class-pta_sus_text_registry.php:127
 msgid "You do not have any current signups"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:994
+#: classes/class-pta_sus_public.php:975
+#: classes/class-pta_sus_text_registry.php:97
 msgid "User Validation is currently disabled."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1023
+#: classes/class-pta_sus_public.php:1002
+#: classes/class-pta_sus_text_registry.php:103
 msgid "You are already validated."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1041
+#: classes/class-pta_sus_public.php:1020
 msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1053
+#: classes/class-pta_sus_public.php:1031
+#: classes/class-pta_sus_text_registry.php:133
 msgid "Login"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1074 classes/class-pta_sus_public.php:1101
+#: classes/class-pta_sus_public.php:1052 classes/class-pta_sus_public.php:1079
 msgid "Current Volunteer Sign-up Sheets"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1194
+#: classes/class-pta_sus_public.php:1172
 msgid "No sheets currently available at this time."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1205
+#: classes/class-pta_sus_public.php:1183
 msgid "Please login to view and edit your volunteer sign ups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1281
+#: classes/class-pta_sus_public.php:1258
 #, php-format
 msgid "%d Filled"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1285 classes/class-pta_sus_public.php:1429
+#: classes/class-pta_sus_public.php:1262 classes/class-pta_sus_public.php:1406
 #, php-format
 msgid "%d remaining: &nbsp;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1290 classes/class-pta_sus_public.php:1399
+#: classes/class-pta_sus_public.php:1267 classes/class-pta_sus_public.php:1376
 msgid "Sign up &raquo;"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1449
+#: classes/class-pta_sus_public.php:1426
 msgid "No tasks were found for "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1495
+#: classes/class-pta_sus_public.php:1472
 msgid "Available Spots"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1502
+#: classes/class-pta_sus_public.php:1479
 msgid "Email"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1603 classes/class-pta_sus_public.php:1606
-#: classes/class-pta_sus_public.php:1780
+#: classes/class-pta_sus_public.php:1580 classes/class-pta_sus_public.php:1583
+#: classes/class-pta_sus_public.php:1756
 msgid "&laquo; go back to the Sign-Up Sheet"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1624
+#: classes/class-pta_sus_public.php:1601
 msgid "Sign Up"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1625
+#: classes/class-pta_sus_public.php:1602
 msgid "You are signing up for... "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1642
+#: classes/class-pta_sus_public.php:1618
 #: views/admin-add-edit-signup-form.php:67 views/public-validation-form.php:5
 msgid "First Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1643
+#: classes/class-pta_sus_public.php:1619
 #: views/admin-add-edit-signup-form.php:68 views/public-validation-form.php:6
 msgid "Last Name"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1645
+#: classes/class-pta_sus_public.php:1621
 msgid "Confirm E-mail"
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1709
+#: classes/class-pta_sus_public.php:1685
 msgid ""
 "If you have an account, it is strongly recommended that you <strong>login "
 "before you sign up</strong> so that you can view and edit all your signups."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1756
+#: classes/class-pta_sus_public.php:1732
 #: views/admin-add-edit-signup-form.php:159
 #, php-format
 msgid "Item QTY (1 - %d): "
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1759
+#: classes/class-pta_sus_public.php:1735
 msgid "Only 1 remaining! Your quantity will be set to 1."
 msgstr ""
 
-#: classes/class-pta_sus_public.php:1779
+#: classes/class-pta_sus_public.php:1755
 msgid "Sign me up!"
 msgstr ""
 
@@ -2738,87 +2760,255 @@ msgid "Sheet Title"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:21
-msgid "Sheet - Program/Event Details"
+msgid "The First date of a sheet"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:26
-msgid "Sheet Chair/Contact Email(s)"
+msgid "The Last date of a sheet"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:31
-msgid "Sheet Chair/Contact Name(s)"
+msgid "Sheet - Program/Event Details"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:36
-msgid "Task Title"
+msgid "The number of filled spots for a sheet"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:41
+msgid "The number of open spots for a sheet"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:46
-msgid "Task/Signup Date"
+msgid ""
+"Links to Volunteer Page set in main settings, with URL argument to show the "
+"specific sheet."
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:51
-msgid "Task Start Time"
+msgid "Sheet Chair/Contact Email(s)"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:56
-msgid "Task End Time"
+msgid "Sheet Chair/Contact Name(s)"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:61
-msgid "Task/Item Details"
-msgstr ""
-
-#: classes/class-pta_sus_template_tags_helper.php:66
-msgid "Signup First Name"
+msgid "Task Title"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:71
-msgid "Signup Last Name"
+msgid "Task/Signup Date"
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:76 classes/data.php:780
-msgid "Signup Email"
+#: classes/class-pta_sus_template_tags_helper.php:76
+msgid "Task Start Time"
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:81 classes/data.php:784
-msgid "Signup Phone"
+#: classes/class-pta_sus_template_tags_helper.php:81
+msgid "Task End Time"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:86
-msgid "Signup Task/Item Details"
+msgid "Task/Item Details"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:91
-msgid "Signup Task/Item Quantity"
+msgid "The number of filled spots for a task"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:96
-msgid "Site Name"
+msgid "The number of open spots for a task"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:101
-msgid "Signup URL"
+msgid "Signup First Name"
 msgstr ""
 
 #: classes/class-pta_sus_template_tags_helper.php:106
+msgid "Signup Last Name"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:111 classes/data.php:780
+msgid "Signup Email"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:116 classes/data.php:784
+msgid "Signup Phone"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:121
+msgid "Signup Task/Item Details"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:126
+msgid "Signup Task/Item Quantity"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:131
+msgid "Site Name"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:136
+msgid "Signup URL"
+msgstr ""
+
+#: classes/class-pta_sus_template_tags_helper.php:141
 msgid "Signup Expiration Hours - Signup Validation"
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:111
+#: classes/class-pta_sus_template_tags_helper.php:146
 msgid "Validation Code Expiration Hours - Site Validation"
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:119
+#: classes/class-pta_sus_template_tags_helper.php:154
 msgid "Template Tags"
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:125
+#: classes/class-pta_sus_template_tags_helper.php:160
 msgid "Search template tags..."
 msgstr ""
 
-#: classes/class-pta_sus_template_tags_helper.php:127
+#: classes/class-pta_sus_template_tags_helper.php:162
 msgid "Click on a tag to copy to your clipboard."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:14
+msgid "Error message for invalid/expired validation code"
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:20
+msgid "Message shown after clearing validation code/cookie."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:26
+msgid "Message shown after successful user validation."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:32
+msgid "Error message shown for signup validation if the signup ID is missing."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:38
+msgid ""
+"Error message shown for signup validation if the no matching signup found "
+"for the signup ID."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:44
+msgid "Success message shown for signup validation."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:50
+msgid "Error message shown when signup validation fails (database error)."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:56
+msgid ""
+"Error message shown when signup validation info does not match the user info "
+"in the database for the validation code."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:62
+msgid ""
+"Error message shown when the validation form security nonce is invalid, or "
+"has been tampered with."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:68
+msgid ""
+"Message shown after validation form submission and validation email has been "
+"sent."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:74
+msgid ""
+"Error message shown after validation form submission if the wp_mail function "
+"returns false indicating there was an error sending the validation email."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:80
+msgid ""
+"Message shown after a non-validated user signs up when signup validation is "
+"enabled, and the signup validation email has been successfully sent."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:86
+msgid ""
+"Error message shown after a non-validated user signs up when signup "
+"validation is enabled, but the wp_mail function returns false indicating "
+"that there was an error sending the signup validation email."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:90
+msgid ""
+"User Validation email has been sent. Please check your email. If you did not "
+"receive the email, you can return and submit the form again after XXXX "
+"minutes."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:92
+msgid ""
+"Message shown instead of validation form if the form sent cookie has been "
+"set and not expired yet."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:93
+msgid "Number of minutes to wait before submitting the form again."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:99
+msgid ""
+"Message shown instead of validation form if the validation system is "
+"disabled."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:105
+msgid ""
+"Message shown instead of validation form if the user is already validated."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:111
+msgid ""
+"Error message shown if the security nonce is invalid, or tampered with, when "
+"the user clicks on a Clear link."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:117
+msgid "Error message shown if a non-validated user clicks on a clear link."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:123
+msgid ""
+"Error message shown if a user clicks on a clear link for a signup that is "
+"not theirs, or manipulates the URL arguments to try to clear a signup from "
+"someone else."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:129
+msgid ""
+"Message shown in place of the User Signups List if they are not signed up "
+"for anything"
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:135
+msgid ""
+"Text for the login link on the main sheets page if login is required to view "
+"the sheets and the user is not logged in."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:139
+msgid "on XXXX"
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:141
+msgid ""
+"The \"on {DATE} part of the display on the signup form after the \"You are "
+"signing up for...\" text."
+msgstr ""
+
+#: classes/class-pta_sus_text_registry.php:142
+msgid "The date of the task/item the user is signing up for."
 msgstr ""
 
 #: classes/data.php:720
@@ -3073,41 +3263,41 @@ msgstr ""
 msgid "CSS Class for ul list of signups"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:232
+#: pta-volunteer-sign-up-sheets.php:231
 msgid "Beginning hourly CRON job"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:241
+#: pta-volunteer-sign-up-sheets.php:240
 msgid "Volunteer Signup Housekeeping Completed!"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:250
+#: pta-volunteer-sign-up-sheets.php:249
 #, php-format
 msgid "%d expired sheets were deleted."
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:259
+#: pta-volunteer-sign-up-sheets.php:258
 #, php-format
 msgid "%d expired signups were deleted."
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:284
+#: pta-volunteer-sign-up-sheets.php:283
 msgid "Finished hourly CRON job"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:860
+#: pta-volunteer-sign-up-sheets.php:861
 msgid "Extensions"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:862
+#: pta-volunteer-sign-up-sheets.php:863
 msgid "Docs"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:880 pta-volunteer-sign-up-sheets.php:918
+#: pta-volunteer-sign-up-sheets.php:881 pta-volunteer-sign-up-sheets.php:919
 msgid "Volunteer Sign Up Data"
 msgstr ""
 
-#: pta-volunteer-sign-up-sheets.php:948
+#: pta-volunteer-sign-up-sheets.php:949
 msgid "Your Volunteer Sign Up Info was unable to be removed at this time."
 msgstr ""
 

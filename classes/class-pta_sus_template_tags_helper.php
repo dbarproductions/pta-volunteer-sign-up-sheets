@@ -17,8 +17,33 @@ class PTA_SUS_Template_Tags_Helper {
 			'Sheet'
 		);
 		self::register_template_tag(
+			'{sheet_first_date}',
+			__('The First date of a sheet','pta-volunteer-sign-up-sheets'),
+			'Sheet'
+		);
+		self::register_template_tag(
+			'{sheet_last_date}',
+			__('The Last date of a sheet','pta-volunteer-sign-up-sheets'),
+			'Sheet'
+		);
+		self::register_template_tag(
 			'{sheet_details}',
 			__('Sheet - Program/Event Details','pta-volunteer-sign-up-sheets'),
+			'Sheet'
+		);
+		self::register_template_tag(
+			'{sheet_filled_spots}',
+			__('The number of filled spots for a sheet','pta-volunteer-sign-up-sheets'),
+			'Sheet'
+		);
+		self::register_template_tag(
+			'{sheet_open_spots}',
+			__('The number of open spots for a sheet','pta-volunteer-sign-up-sheets'),
+			'Sheet'
+		);
+		self::register_template_tag(
+			'{sheet_url}',
+			__('Links to Volunteer Page set in main settings, with URL argument to show the specific sheet.','pta-volunteer-sign-up-sheets'),
 			'Sheet'
 		);
 		self::register_template_tag(
@@ -59,6 +84,16 @@ class PTA_SUS_Template_Tags_Helper {
 		self::register_template_tag(
 			'{details_text}',
 			__('Task/Item Details','pta-volunteer-sign-up-sheets'),
+			'Task'
+		);
+		self::register_template_tag(
+			'{task_filled_spots}',
+			__('The number of filled spots for a task','pta-volunteer-sign-up-sheets'),
+			'Task'
+		);
+		self::register_template_tag(
+			'{task_open_spots}',
+			__('The number of open spots for a task','pta-volunteer-sign-up-sheets'),
 			'Task'
 		);
 		self::register_template_tag(

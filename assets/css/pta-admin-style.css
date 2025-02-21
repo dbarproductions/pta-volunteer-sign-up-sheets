@@ -156,3 +156,25 @@ span.pta-message-close {
     padding: 2px 5px;
     border-radius: 3px;
 }
+
+.pta-helper-close {
+    cursor: pointer;
+}
+
+/* Notice styling */
+.notice.notice-success {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    min-width: 300px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Close button positioning */
+.pta-helper-close {
+    cursor: pointer;
+    float: right;
+    margin-left: auto;
+}

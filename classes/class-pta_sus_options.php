@@ -1228,7 +1228,7 @@ class PTA_SUS_Options {
         }
 
         echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+        echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
     }
 
     public function reminder_email_template_textarea_input() {
@@ -1240,7 +1240,7 @@ class PTA_SUS_Options {
 		    echo '</textarea>';
 	    }
         echo '<br />' . __('Reminder email sent to volunteers.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
     }
 	
 	public function reminder2_email_template_textarea_input() {
@@ -1253,7 +1253,7 @@ class PTA_SUS_Options {
 		}
 
 		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta-volunteer-sign-up-sheets');
-		echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+		echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
 	}
 
     public function reschedule_email_template_textarea_input() {
@@ -1266,7 +1266,7 @@ class PTA_SUS_Options {
 	    }
         echo '<br />' . __('Reschedule email sent to volunteers. Template tags will show the new dates and times.', 'pta-volunteer-sign-up-sheets');
         echo '<br />' . __('Reschedule emails will be sent hourly via the same CRON job and limits set for reminder emails.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
     }
 
     public function clear_email_template_textarea_input() {
@@ -1278,7 +1278,7 @@ class PTA_SUS_Options {
 		    echo '</textarea>';
 	    }
         echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '{sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url}';
+	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
     }
 
     public function signup_validation_email_template_textarea() {
@@ -1292,7 +1292,7 @@ class PTA_SUS_Options {
 	    echo '<br />' . __('Signup Validation email sent to volunteers when a non-validated user signs up for something.', 'pta-volunteer-sign-up-sheets');
         echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
 	    echo '<br />'.__('You can also use {signup_expiration_hours} to show how much time they have to validate the signup before it is deleted.', 'pta-volunteer-sign-up-sheets');
-	    echo '<br /><strong>' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '</strong><br/> {validation_link} {signup_expiration_hours} <br/> {sheet_title} {sheet_details} {task_title} {task_description} {date} {start_time} {end_time} {details_text} {item_details} {item_qty} {firstname} {lastname} {phone} {email} {contact_emails} {contact_names} {site_name} {site_url} ';
+	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
     }
 
 	public function user_validation_email_template_textarea() {
@@ -1306,7 +1306,7 @@ class PTA_SUS_Options {
 		echo '<br />' . __('User Validation email sent to a non-validated user when they fill out the validation form.', 'pta-volunteer-sign-up-sheets');
 		echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
 		echo '<br />'.__('You can also use {validation_code_expiration_hours} to show how much time they have to validate themselves before the code expires.', 'pta-volunteer-sign-up-sheets');
-		echo '<br /><strong>' . __('Available Template Tags: ', 'pta-volunteer-sign-up-sheets') . '</strong><br/> {validation_link} {validation_code_expiration_hours} <br/> {firstname} {lastname} {email} {site_name} {site_url} ';
+		echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
 	}
 
 	public function validation_form_header_textarea() {
