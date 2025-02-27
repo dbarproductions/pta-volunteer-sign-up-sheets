@@ -1532,7 +1532,7 @@ class PTA_SUS_Public {
 				ob_start();
 				include(PTA_VOLUNTEER_SUS_DIR.'views/task-view-table-rows-html.php');
 				$return .= ob_get_clean();
-				$return .= '</body></table>'; // close body and table
+				$return .= '</tbody></table>'; // close body and table
 			}
 
 			$return .= apply_filters( 'pta_sus_after_single_task_list', '', $task, $date );

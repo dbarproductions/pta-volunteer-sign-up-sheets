@@ -162,6 +162,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.5.1**
+*   Fixed typo in the closing "tbody" tag in the signup sheet tables template that could affect the display of Multi-day or Recurring sheets with some themes.
+*   Tested with PHP 8.4.2 and WordPress 6.7.2
+
 **Version 5.5.0**
 *   Added new template tags for emails.
 *   Refactored template tag class to use separate functions for signup, task, and sheet tags, making it easier for extensions to utilize for specific objects.
