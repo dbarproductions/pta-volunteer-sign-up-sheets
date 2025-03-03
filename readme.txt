@@ -162,6 +162,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.5.2**
+*   Update for the data class add_signup function to work better with the Waitlists extension.
+*   Tested with PHP 8.4.2 and WordPress 6.7.2
+
 **Version 5.5.1**
 *   Fixed typo in the closing "tbody" tag in the signup sheet tables template that could affect the display of Multi-day or Recurring sheets with some themes.
 *   Tested with PHP 8.4.2 and WordPress 6.7.2
