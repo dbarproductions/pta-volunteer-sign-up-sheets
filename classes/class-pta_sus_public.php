@@ -841,9 +841,7 @@ class PTA_SUS_Public {
 			    $return .= '</tr>';
 		    }
 
-		    if($this->use_divs) {
-			    $return .= '</div>';
-		    } else {
+		    if(!$this->use_divs) {
 			    $return .= '</thead><tbody>';
 		    }
 		    
