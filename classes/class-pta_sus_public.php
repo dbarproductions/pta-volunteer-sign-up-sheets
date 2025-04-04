@@ -370,7 +370,7 @@ class PTA_SUS_Public {
 		return $this->validate_signup_form_fields($posted);
 	}
 
-	public function add_signup($posted, $signup_task_id) {
+	public function add_signup($posted, $signup_task_id, $redirect = true) {
 		$validate_signups =  $this->validation_enabled && isset($this->validation_options['enable_signup_validation']) && $this->validation_options['enable_signup_validation'];
 		$posted['signup_validated'] = $validate_signups ? $this->volunteer->is_validated() : 1;
 		$needs_validation = ($this->validation_enabled && $validate_signups && !$this->volunteer->is_validated());
@@ -408,7 +408,9 @@ class PTA_SUS_Public {
 				}
 
 				// only redirect if not doing ajax - so we don't break calendar popup signups
-				if(!defined('DOING_AJAX')) {
+				// allow extension to bypass redirect
+				$redirect = apply_filters('pta_sus_public_redirect_after_signup', $redirect, $posted, $signup_task_id);
+				if($redirect && !defined('DOING_AJAX')) {
 					pta_clean_redirect();
 				} else {
 					return $signup_id;
