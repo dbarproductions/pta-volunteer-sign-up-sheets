@@ -19,8 +19,8 @@ class PTA_SUS_Admin {
 	private $show_settings;
 
 	public function __construct() {
-		global $pta_sus_sheet_page_suffix;
-		$this->data = new PTA_SUS_Data();
+		global $pta_sus_sheet_page_suffix, $pta_sus;
+		$this->data = $pta_sus->data;
 		$this->options_page = new PTA_SUS_Options();
 
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );

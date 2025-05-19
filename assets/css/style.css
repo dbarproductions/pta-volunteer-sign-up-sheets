@@ -82,7 +82,7 @@ div.pta-sus.task-info-header {
     margin-top: 2em;
 }
 
-div.pta-sus-sheets-row, div.pta-sus-tasks-row {
+div.pta-sus-sheets-row, div.pta-sus-tasks-row, div.pta-sus-header-row {
     display: table-row;
 }
 
@@ -90,7 +90,7 @@ div.pta-sus-sheets-row.filled, div.pta-sus-tasks-row.filled {
     background: #eee;
 }
 
-div.pta-sus-tasks-row  > div, div.pta-sus-sheets-row > div {
+div.pta-sus-tasks-row  > div, div.pta-sus-sheets-row > div, div.pta-sus-header-row > div {
     display: table-cell;
     padding:1em;
     border: #f0f0f0 1px solid;

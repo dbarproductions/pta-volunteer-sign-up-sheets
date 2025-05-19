@@ -18,7 +18,8 @@ class PTA_SUS_Widget extends WP_Widget
 			'PTA Volunteer Sign-up Sheet List', // Name
 			array( 'description' => __( 'PTA Volunteer Sign-up Sheet list Widget.', 'pta-volunteer-sign-up-sheets' ), ) // Args
 		);
-		$this->data = new PTA_SUS_Data();
+        global $pta_sus;
+		$this->data = $pta_sus->data;
 		$this->main_options = get_option('pta_volunteer_sus_main_options');
 	}
 
@@ -88,7 +89,7 @@ class PTA_SUS_Widget extends WP_Widget
 		}
 		echo '<ul';
 		if (!empty($list_class)) {
-			echo 'class="'.$list_class.'"';
+			echo 'class="'.esc_attr($list_class).'"';
 		} 
 		echo '>';
 		$single = false;
@@ -194,7 +195,7 @@ class PTA_SUS_Widget extends WP_Widget
 		$instance = array();
 		$instance['title'] = ( !empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['num_items'] = ( !empty( $new_instance['num_items'] ) ) ? (int)strip_tags( $new_instance['num_items'] ) : '';
-		$instance['list_class'] = ( !empty( $new_instance['list_class'] ) ) ? strip_tags( $new_instance['list_class'] ) : '';
+		$instance['list_class'] = ( !empty( $new_instance['list_class'] ) ) ? sanitize_text_field( $new_instance['list_class'] ) : '';
 		$instance['show_what'] = ( !empty( $new_instance['show_what'] ) ) ? sanitize_key( $new_instance['show_what'] ) : 'both';
 		$instance['sort_by'] = ( !empty( $new_instance['sort_by'] ) && in_array($new_instance['sort_by'], array('first_date', 'last_date', 'title', 'id')) ) ?$new_instance['sort_by'] : 'first_date';
 		$instance['order'] = ( !empty( $new_instance['order'] ) && in_array($new_instance['order'], array('ASC', 'DESC')) ) ? $new_instance['order'] : 'ASC';

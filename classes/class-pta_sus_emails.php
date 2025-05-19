@@ -16,10 +16,9 @@ class PTA_SUS_Emails {
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 		$this->validation_options = get_option( 'pta_volunteer_sus_validation_options' );
-		$this->data = new PTA_SUS_Data();
+		$this->data =new PTA_SUS_Data();
 
 	} // Construct
-
 
 	private function get_email_headers($from, $replyto, $use_html = false) {
 		$headers = array();

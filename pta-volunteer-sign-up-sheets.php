@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.5.4
+Version: 5.5.5
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -14,13 +14,25 @@ Requires PHP: 7.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+require 'plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$ptaSUS_UpdateChecker = PucFactory::buildUpdateChecker(
+	'https://github.com/dbarproductions/pta-volunteer-sign-up-sheets/',
+	__FILE__,
+	'pta-volunteer-sign-up-sheets'
+);
+
+// Use GitHub releases for updates
+$ptaSUS_UpdateChecker->getVcsApi()->enableReleaseAssets();
+
 
 // Save version # in database for future upgrades
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.5.4');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.5.5');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -63,6 +75,7 @@ class PTA_Sign_Up_Sheet {
 
 	    add_action('init', array($this, 'init'));
 	    add_action('plugins_loaded', array($this, 'public_init' ));
+	    add_action('plugins_loaded', array($this, 'setup_translation' ));
 
 	    add_action( 'init', array($this, 'block_assets' ));
 
@@ -82,6 +95,9 @@ class PTA_Sign_Up_Sheet {
 	    }
 	    if (!class_exists('PTA_SUS_Public')) {
 		    include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
+			$this->public = new PTA_SUS_Public();
+		    add_action('init', array($this->public, 'init'));
+		    add_action('wp_enqueue_scripts', array($this->public, 'add_css_and_js_to_frontend'));
 	    }
     }
 
@@ -310,12 +326,16 @@ class PTA_Sign_Up_Sheet {
     	if(!is_admin() || wp_doing_ajax()) {
 		    if($this->public === null) {
 			    $this->public = new PTA_SUS_Public();
+				$this->public->init();
 		    }
 	    }
     }
 
+	public function setup_translation() {
+		load_plugin_textdomain( 'pta-volunteer-sign-up-sheets', false, dirname(plugin_basename( __FILE__ )) . '/languages/' );
+	}
+
     public function init() {
-        load_plugin_textdomain( 'pta-volunteer-sign-up-sheets', false, dirname(plugin_basename( __FILE__ )) . '/languages/' );
         // Check our database version and run the activate function if needed
         $current = get_option( "pta_sus_db_version" );
         if ($current < $this->db_version) {
@@ -808,12 +828,12 @@ Please click on, or copy and paste, the link below to validate yourself:
 		);
 
 		$instance = array(
-			'title' => $attributes['title'] ?? 'Current Volunteer Opportunities',
-			'num_items' => $attributes['num_items'] ?? 10,
-			'show_what' => $attributes['show_what'] ?? 'both',
-			'sort_by' => $attributes['sort_by'] ?? 'first_date',
-			'order' => $attributes['order'] ?? 'ASC',
-			'list_class' => $attributes['list_class'] ?? ''
+			'title' => sanitize_text_field($attributes['title']) ?? 'Current Volunteer Opportunities',
+			'num_items' => absint($attributes['num_items']) ?? 10,
+			'show_what' => sanitize_key($attributes['show_what']) ?? 'both',
+			'sort_by' => sanitize_key($attributes['sort_by']) ?? 'first_date',
+			'order' => sanitize_text_field($attributes['order']) ?? 'ASC',
+			'list_class' => sanitize_text_field($attributes['list_class']) ?? ''
 		);
 
 		ob_start();
@@ -840,18 +860,33 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 }
 
-require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_messages.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags_helper.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
-require_once(dirname(__FILE__).'/classes/class-pta_sus_text_registry.php');
+function pta_sus_load_plugin_components() {
+	// Load global functions first (if they don't use translations)
+	require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
+
+	// Now load classes that might use translations
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_messages.php');
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags_helper.php');
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
+	require_once(dirname(__FILE__).'/classes/class-pta_sus_text_registry.php');
+
+	// Initialize template tags after translations are loaded
+	PTA_SUS_Template_Tags_Helper::setup();
+	PTA_SUS_Text_Registry::setup();
+}
+add_action('plugins_loaded', 'pta_sus_load_plugin_components', 5); // Priority 5 to run before other plugins_loaded hooks
 
 global $pta_sus;
 $pta_sus = new PTA_Sign_Up_Sheet();
-$pta_sus->init_hooks();
-require_once(dirname(__FILE__).'/classes/class-pta-sus-ajax.php');
+// Hook initialization to plugins_loaded with a later priority
+add_action('plugins_loaded', array($pta_sus, 'init_hooks'), 10); // After components are loaded
+
+// Move the AJAX class loading to plugins_loaded too
+add_action('plugins_loaded', function() {
+	require_once(dirname(__FILE__).'/classes/class-pta-sus-ajax.php');
+}, 15);
 
 endif; // class exists
 

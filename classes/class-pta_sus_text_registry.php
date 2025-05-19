@@ -1,8 +1,18 @@
 <?php
 class PTA_SUS_Text_Registry {
 
+	private static $initialized = false;
+
 	public static function init() {
 		add_action('pta_sus_customizer_init', array(__CLASS__, 'register_text_filters'));
+	}
+
+	public static function setup() {
+		// Only hook init once
+		if (!self::$initialized) {
+			add_action('init', array(__CLASS__, 'init'), 5);
+			self::$initialized = true;
+		}
 	}
 
 	public static function register_text_filters() {
@@ -149,4 +159,3 @@ class PTA_SUS_Text_Registry {
 		}
 	}
 }
-PTA_SUS_Text_Registry::init();

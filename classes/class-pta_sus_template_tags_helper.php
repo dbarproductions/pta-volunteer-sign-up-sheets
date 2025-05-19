@@ -1,12 +1,21 @@
 <?php
 class PTA_SUS_Template_Tags_Helper {
 	private static $template_tags_registry = array();
+	private static $initialized = false;
 
 	public static function register_template_tag($tag, $description, $category = 'general') {
 		self::$template_tags_registry[$category][] = array(
 			'tag' => $tag,
 			'description' => $description
 		);
+	}
+
+	public static function setup() {
+		// Only hook init once
+		if (!self::$initialized) {
+			add_action('init', array(__CLASS__, 'init'), 5);
+			self::$initialized = true;
+		}
 	}
 
 	public static function init() {
@@ -174,4 +183,4 @@ class PTA_SUS_Template_Tags_Helper {
 		echo '</div></div>';
 	}
 }
-PTA_SUS_Template_Tags_Helper::init();
+// The init will be called later after translations are loaded

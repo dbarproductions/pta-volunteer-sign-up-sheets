@@ -64,7 +64,8 @@ class PTA_SUS_Public {
 	private $processed = false;
     
     public function __construct() {
-        $this->data = new PTA_SUS_Data();
+		global $pta_sus;
+        $this->data = $pta_sus->data;
 
         $this->all_sheets_uri = add_query_arg(array('sheet_id' => false, 'date' => false, 'signup_id' => false, 'task_id' => false));
 
@@ -73,10 +74,6 @@ class PTA_SUS_Public {
 	    $this->integration_options = get_option( 'pta_volunteer_sus_integration_options' );
 	    $this->validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 		$this->validation_enabled = isset($this->validation_options['enable_validation']) && $this->validation_options['enable_validation'];
-        
-        add_action('wp_enqueue_scripts', array($this, 'add_css_and_js_to_frontend'));
-
-        add_action('init', array($this, 'init'));
         
         $this->phone_required = $this->main_options['phone_required'] ?? true;
 	    $this->use_divs = $this->main_options['use_divs'] ?? false;
@@ -296,7 +293,7 @@ class PTA_SUS_Public {
 			|| empty($posted['signup_email'])
 			|| empty($posted['signup_validate_email'])
 			|| ( ! $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)
-			|| ("YES" == $task->need_details && $details_required && empty($posted['signup_item']) )
+			|| ("YES" == $task->need_details && $details_required && '' === sanitize_text_field($posted['signup_item']) )
 			|| ("YES" == $task->enable_quantities && !isset($posted['signup_item_qty']))
 		) {
 			$this->err++;

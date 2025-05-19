@@ -1,17 +1,36 @@
-=== Volunteer Sign Up Sheets ===
-Contributors: DBAR Productions
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
-Tags: Volunteer, Volunteers, Sign Up, Signup, Events
-Requires at least: 6.0
-Requires PHP: 7.4
-Tested up to: 6.8.1
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.5.5
+# Volunteer Sign Up Sheets
+**Contributors:** DBAR Productions
+
+**Donate link:** https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
+
+**Tags:** Volunteer, Volunteers, Sign Up, Signup, Events
+
+**Requires at least:** 6.0
+
+**Requires PHP: 7.4**
+
+**Tested up to: 6.8.1**
+
+**License:** GPLv2 or later
+
+**License URI**: https://www.gnu.org/licenses/gpl-2.0.html
+
+**Stable tag: 5.5.5**
+
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
-== Description ==
+# Important Announcement: Plugin Updates Moving to GitHub
+**The Volunteer Sign-Up Sheets plugin is now being maintained on GitHub. WordPress.org will no longer receive updates.**
+
+## Future Updates
+The plugin now includes an automatic update checker that will notify you of new versions directly in your WordPress dashboard. Simply install this version to receive future update notifications.
+
+## Why the Change?
+This move allows us to better maintain the plugin and provide more frequent updates while still keeping the core plugin free and open source.
+
+Thank you for your continued support!
+## Description ##
 
 **PLEASE DO NOT USE THE SUPPORT FORUM FOR FEATURE REQUESTS!!**
 You may submit new features here:
@@ -104,11 +123,25 @@ Much more! Read the documentation for all the current features.
 *   [Volunteer Sign Up Sheets Mailchimp](https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-mailchimp/) - Connects to your Mailchimp mailing list and adds a checkbox to the sign-up form where they can opt-in/opt-out of your mailing list.
 *   [Volunteer Sign Up Sheets Automated and Conditional Emails](https://stephensherrardplugins.com/plugins/volunteer-sign-up-sheets-automated-and-conditional-emails/) - Allows you to set up triggers and conditions to automatically send out emails to predefined lists. Can be used for things like a weekly summary of upcoming events. Can also be used to replace most of the built-in emails with custom HTML formatted emails.
 
-== Installation ==
+## Installation ##
 
 Extract the zip file and just drop the contents in the wp-content/plugins/ directory of your WordPress installation and then activate the Plugin from Plugins page.
 
-== Frequently Asked Questions ==
+## Development
+
+### Setup
+```bash
+git clone https://github.com/dbarproductions/pta-volunteer-sign-up-sheets.git
+cd pta-volunteer-sign-up-sheets
+```
+### Contributing
+1. Fork the repository
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
+5. Submit a pull request
+
+## Frequently Asked Questions ##
 
 **Can this plugin do (insert a feature request here)?**
 **Can you add (insert a feature request here)?**
@@ -161,7 +194,7 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
-== Changelog ==
+## Changelog ##
 **Version 5.5.5**
 *   Properly sanitize/escape values in the Upcoming Events widget.
 *   Rework the loading of classes to prevent PHP notices of the translation text domains being loaded too early
