@@ -42,13 +42,17 @@ class PTA_SUS_Options {
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=email_options" class="nav-tab <?php echo $active_tab == 'email_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Email Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=validation_options" class="nav-tab <?php echo $active_tab == 'validation_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Validation Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <a href="?page=<?php echo $this->settings_page_slug?>&tab=integration_options" class="nav-tab <?php echo $active_tab == 'integration_options' ? 'nav-tab-active' : ''; ?>"><?php _e('Integration Settings', 'pta-volunteer-sign-up-sheets'); ?></a>
+                <a href="?page=<?php echo $this->settings_page_slug?>&tab=license" class="nav-tab <?php echo $active_tab == 'license' ? 'nav-tab-active' : ''; ?>"><?php _e('License', 'pta-volunteer-sign-up-sheets'); ?></a>
                 <?php do_action('pta_sus_settings_nav_tabs', $active_tab); ?>
             </h2>
 	        <?php
             if('email_options' == $active_tab ) {
 	            PTA_SUS_Template_Tags_Helper::render_helper_panel();
             }
-	        ?>
+	        if('license' === $active_tab) {
+                $this->maybe_process_license_form();
+		        include( PTA_VOLUNTEER_SUS_DIR . 'views/html-admin-license-form.php' );
+	        } else { ?>
             <form action="options.php" method="post">
                 <?php 
 
@@ -68,10 +72,10 @@ class PTA_SUS_Options {
                     // Allow extensions to create their own tabs
                     do_action('pta_sus_extensions_settings_tabs', $active_tab);
                 }
-                       
                 submit_button();
                 ?>
             </form>
+            <?php } ?>
             <?php if ('main_options' == $active_tab && !$this->main_options['hide_donation_button']): ?>
                 <h5><?php _e('Please help support continued development of this plugin! Any amount helps!', 'pta-volunteer-sign-up-sheets'); ?></h5>
                 <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
@@ -1318,6 +1322,150 @@ class PTA_SUS_Options {
 		wp_editor(wpautop($this->validation_options['clear_validation_message']),'clear_validation_message',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 5,'textarea_name' => 'pta_volunteer_sus_validation_options[clear_validation_message]'));
 		echo '<br />' . __('Info to display above the user clear validation link (when enabled). HTML is allowed. You can leave it blank for no message.', 'pta-volunteer-sign-up-sheets');
 	}
+
+    public function maybe_process_license_form() {
+        $deactivated = $saved = false;
+	    if (($activated = isset($_POST['pta_vol_sus_activate_mode']) && 'activated' == $_POST['pta_vol_sus_activate_mode'])
+	        || ($deactivated = isset($_POST['pta_vol_sus_deactivate_mode']) && 'deactivated' == $_POST['pta_vol_sus_deactivate_mode'])
+            || ($saved = isset($_POST['pta_sus_license_save_mode']) && 'submitted' === $_POST['pta_sus_license_save_mode'])) {
+		    if ( ! wp_verify_nonce( $_POST['pta_vol_sus_license_nonce'], 'pta_vol_sus_license' ) ) {
+			    PTA_SUS_Messages::add_error( __( 'Invalid Referrer!', 'pta-volunteer-sign-up-sheets' ) );
+		    } elseif ( $activated || $saved ) {
+			    // retrieve the license from the posted data
+			    $license = trim( $_POST['pta_vol_sus_license_key'] );
+			    $old     = get_option( 'pta_vol_sus_license_key' );
+			    if ( $old && $old != $license ) {
+				    delete_option( 'pta_vol_sus_license_status' ); // new license has been entered, so must reactivate
+			    }
+			    // data to send in our API request
+			    $api_params = array(
+				    'edd_action' => 'activate_license',
+				    'license'    => $license,
+				    'item_id'    => SS_PLUGINS_PTA_VOLUNTEER_SUS_ID,    // ID of this plugin
+				    'url'        => home_url()
+			    );
+			    // Call the custom API.
+			    $response = wp_remote_post( SS_PLUGINS_URL, array(
+				    'timeout'   => 15,
+				    'sslverify' => false,
+				    'body'      => $api_params
+			    ) );
+			    // make sure the response came back okay
+			    if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+
+				    if ( is_wp_error( $response ) ) {
+					    $message = $response->get_error_message();
+				    } else {
+					    $message = __( 'License Site Communication Error! Please try again in a few minutes.', 'pta-volunteer-sign-up-sheets' );
+				    }
+				    PTA_SUS_Messages::add_message($message);
+
+			    } else {
+
+				    $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+
+				    if ( false === $license_data->success ) {
+
+					    switch ( $license_data->error ) {
+
+						    case 'expired' :
+
+							    $message = sprintf(
+								    __( 'Your license key expired on %s.', 'pta-volunteer-sign-up-sheets' ),
+								    date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
+							    );
+							    break;
+
+						    case 'revoked' :
+						    case 'disabled':
+
+							    $message = __( 'Your license key has been disabled.', 'pta-volunteer-sign-up-sheets' );
+							    break;
+
+						    case 'missing' :
+
+							    $message = __( 'Invalid license.', 'pta-volunteer-sign-up-sheets' );
+							    break;
+
+						    case 'invalid' :
+						    case 'site_inactive' :
+
+							    $message = __( 'Your license is not active for this URL.', 'pta-volunteer-sign-up-sheets' );
+							    break;
+
+						    case 'item_name_mismatch' :
+
+							    $message = __( 'This appears to be an invalid license key', 'pta-volunteer-sign-up-sheets' );
+							    break;
+
+						    case 'no_activations_left':
+
+							    $message = __( 'Your license key has reached its activation limit.', 'pta-volunteer-sign-up-sheets' );
+							    break;
+
+						    default :
+
+							    $message = __( 'License Site Communication Error! Please try again in a few minutes.', 'pta-volunteer-sign-up-sheets' );
+							    break;
+					    }
+
+					    PTA_SUS_Messages::add_error($message);
+
+				    } else {
+					    update_option( 'pta_vol_sus_license_status', $license_data->license );
+					    // update the license key
+					    update_option( 'pta_vol_sus_license_key', $license );
+					    if ( 'valid' == $license_data->license ) {
+						    PTA_SUS_Messages::add_message( __( 'License Updated!', 'pta-volunteer-sign-up-sheets' ) );
+					    } else {
+						    PTA_SUS_Messages::add_error(__( 'Not A Valid License!', 'pta-volunteer-sign-up-sheets' ) );
+					    }
+				    }
+
+			    }
+
+		    } elseif ( $deactivated ) {
+			    // retrieve the license from the posted data
+			    $license = trim( $_POST['pta_vol_sus_license_key'] );
+			    // data to send in our API request
+			    $api_params = array(
+				    'edd_action' => 'deactivate_license',
+				    'license'    => $license,
+				    'item_id'    => SS_PLUGINS_PTA_VOLUNTEER_SUS_ID,    // ID of this plugin
+				    'url'        => home_url()
+			    );
+			    // Call the custom API.
+			    $response = wp_remote_post( SS_PLUGINS_URL, array(
+				    'timeout'   => 15,
+				    'sslverify' => false,
+				    'body'      => $api_params
+			    ) );
+			    // make sure the response came back okay
+			    if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+
+				    if ( is_wp_error( $response ) ) {
+					    $message = $response->get_error_message();
+				    } else {
+					    $message = __( 'License Site Communication Error! Please try again in a few minutes.', 'pta-volunteer-sign-up-sheets' );
+				    }
+
+				    PTA_SUS_Messages::add_error($message);
+
+			    } else {
+				    // decode the license data
+				    $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+				    // $license_data->license will be either "deactivated" or "failed"
+				    if ( $license_data->license == 'deactivated' ) {
+					    delete_option( 'pta_vol_sus_license_status' );
+					    delete_option( 'pta_vol_sus_license_key' );
+					    PTA_SUS_Messages::add_message(  __( 'License Deactivated!', 'pta-volunteer-sign-up-sheets' ) );
+				    } elseif ( $license_data->license == 'failed' ) {
+					    PTA_SUS_Messages::add_error(__( 'Deactivation Failed!  Please try again in a few minutes.', 'pta-volunteer-sign-up-sheets' ) );
+				    }
+			    }
+		    }
+	    }
+    }
 
 } // End Class
 /* EOF */

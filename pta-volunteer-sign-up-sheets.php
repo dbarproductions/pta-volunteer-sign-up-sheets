@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.5.5
+Version: 5.6.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -14,25 +14,13 @@ Requires PHP: 7.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-require 'plugin-update-checker/plugin-update-checker.php';
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
-$ptaSUS_UpdateChecker = PucFactory::buildUpdateChecker(
-	'https://github.com/dbarproductions/pta-volunteer-sign-up-sheets/',
-	__FILE__,
-	'pta-volunteer-sign-up-sheets'
-);
-
-// Use GitHub releases for updates
-$ptaSUS_UpdateChecker->getVcsApi()->enableReleaseAssets();
-
 
 // Save version # in database for future upgrades
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.5.5');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.6.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -40,7 +28,37 @@ if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 if (!defined('PTA_VOLUNTEER_SUS_URL'))
 	define('PTA_VOLUNTEER_SUS_URL', plugin_dir_url( __FILE__ ) );
 
+if ( !defined('SS_PLUGINS_PTA_VOLUNTEER_SUS_ID') )
+	define( 'SS_PLUGINS_PTA_VOLUNTEER_SUS_ID', 15066 );
+
 add_option(PTA_VOLUNTEER_SUS_VERSION_KEY, PTA_VOLUNTEER_SUS_VERSION_NUM);
+
+if( !class_exists( 'PTA_Plugin_Updater' ) ) {
+	// load our custom updater
+	include( dirname( __FILE__ ) . '/PTA_Plugin_Updater.php' );
+}
+
+function pta_vol_sus_updater() {
+	// To support auto-updates, this needs to run during the wp_version_check cron job for privileged users.
+	$doing_cron = defined( 'DOING_CRON' ) && DOING_CRON;
+	if ( ! current_user_can( 'manage_options' ) && ! $doing_cron ) {
+		return;
+	}
+
+	// retrieve our license key from the DB
+	$license_key = trim( get_option( 'pta_vol_sus_license_key' ) );
+
+	// setup the updater
+	$edd_updater = new PTA_Plugin_Updater( SS_PLUGINS_URL, __FILE__, array(
+			'version' 	=> PTA_VOLUNTEER_SUS_VERSION_NUM, 				// current version number
+			'license' 	=> $license_key, 		// license key (used get_option above to retrieve from DB)
+			'item_id' => SS_PLUGINS_PTA_VOLUNTEER_SUS_ID, 	// ID of this plugin
+			'author' 	=> 'Stephen Sherrard',  // author of this plugin
+			'beta' => false
+		)
+	);
+}
+add_action( 'admin_init', 'pta_vol_sus_updater' );
 
 if (!class_exists('PTA_SUS_Data')) require_once 'classes/data.php';
 if (!class_exists('PTA_SUS_List_Table')) require_once 'classes/list-table.php';
