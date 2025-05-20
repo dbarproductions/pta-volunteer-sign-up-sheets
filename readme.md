@@ -1,7 +1,7 @@
 # Volunteer Sign Up Sheets
-## Please wait for version 5.6.0 to become available as I'm still working out automatic updater issues
+## Please obtain version 5.6+ from my site
 This plugin is being moved to my own server and will use the same licensing and updater software as my paid extensions, but this plugin will remain free.
-When version 5.6.0 becomes available, please "purchase" the free plugin from my site at:
+Please "purchase" the free plugin from my site at:
 https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/
 so that my system can generate a license code for you. If you already have a license for the Complete Bundle, you can use that license to activate this plugin to enable automatic updates.
 
@@ -201,6 +201,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.6.1**
+*   Removed the failed github updater code and replaced it with the same software licensing system and updater that the paid extensions use. Licenses will be required for automatic updates, but are free.
+*   Tested with PHP 8.4.7 and WordPress 6.8.1
+
 **Version 5.5.5**
 *   Properly sanitize/escape values in the Upcoming Events widget.
 *   Rework the loading of classes to prevent PHP notices of the translation text domains being loaded too early
