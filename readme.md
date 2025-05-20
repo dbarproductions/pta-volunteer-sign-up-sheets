@@ -1,4 +1,10 @@
 # Volunteer Sign Up Sheets
+## Please wait for version 5.6.0 to become available as I'm still working out automatic updater issues
+This plugin is being moved to my own server and will use the same licensing and updater software as my paid extensions, but this plugin will remain free.
+When version 5.6.0 becomes available, please "purchase" the free plugin from my site at:
+https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/
+so that my system can generate a license code for you. If you already have a license for the Complete Bundle, you can use that license to activate this plugin to enable automatic updates.
+
 **Contributors:** DBAR Productions
 
 **Donate link:** https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R4HF689YQ9DEE
