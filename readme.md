@@ -201,6 +201,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.6.4**
+*   Fixed security check bug when clearing a signup from the admin view signups page.
+*   Fix admin side signup form validation to allow the number zero ("0") to be entered in item details field when the field is required.
+*   Tested with PHP 8.4.7 and WordPress 6.8.1
+
 **Version 5.6.3**
 *   Version bump
 *   Tested with PHP 8.4.7 and WordPress 6.8.1

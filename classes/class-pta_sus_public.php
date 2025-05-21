@@ -429,6 +429,7 @@ class PTA_SUS_Public {
 	}
 
     public function process_signup_form() {
+		if(is_admin() && !wp_doing_ajax()) return;
         
         $this->submitted = (isset($_POST['pta_sus_form_mode']) && $_POST['pta_sus_form_mode'] == 'submitted');
         $this->err = 0;

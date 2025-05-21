@@ -440,7 +440,7 @@ class PTA_SUS_Admin {
 		$required = $this->get_required_signup_fields( $task_id);
 		$error = false;
 		foreach($required as $field_key) {
-			if(empty($form_data[$field_key])) {
+			if('0' !== $form_data[$field_key] && empty($form_data[$field_key])) {
 				$error = true;
 				break;
 			}
