@@ -646,7 +646,6 @@ class PTA_SUS_Admin {
                 if(!empty($new_tasks)) {
                     $this->queue_reschedule_emails($new_tasks);
                 }
-	            do_action( 'pta_sus_sheet_copied', $new_sheet_id);
             }
         }
 
@@ -674,7 +673,6 @@ class PTA_SUS_Admin {
                     if(!empty($new_tasks)) {
                         $this->queue_reschedule_emails($new_tasks);
                     }
-	                do_action( 'pta_sus_sheet_copied', $new_sheet_id);
                 }
             }
         }

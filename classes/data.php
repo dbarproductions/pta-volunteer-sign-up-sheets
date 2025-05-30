@@ -1256,6 +1256,9 @@ class PTA_SUS_Data
         foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
             if ('title' == $field) {
                 $new_fields['sheet_title'] = $sheet['title'] . ' Copy';
+            } elseif('visible' == $field) {
+				// make copied sheets hidden until admin can edit them
+				$new_fields['sheet_visible'] = false;
             } else {
                 $new_fields['sheet_'.$field] = $sheet[$field];
             }
@@ -1319,6 +1322,9 @@ class PTA_SUS_Data
                 $new_fields['sheet_first_date'] = $first_date;
             } elseif('last_date' == $field) {
                 $new_fields['sheet_last_date'] = $last_date;
+            } elseif('visible' == $field) {
+	            // make copied sheets hidden until admin can edit them
+	            $new_fields['sheet_visible'] = false;
             } else {
                 $new_fields['sheet_'.$field] = $sheet[$field];
             }
