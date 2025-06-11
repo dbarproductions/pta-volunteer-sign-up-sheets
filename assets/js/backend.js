@@ -115,8 +115,17 @@
 
     if ($('.tasks LI').length) {
         const getNextRowKey = () => {
-            const lastId = $(".tasks LI").last().attr('id');
-            return parseInt(lastId.split('-')[1]) + 1;
+            let highestId = 0;
+            $(".tasks LI").each(function() {
+                const id = $(this).attr('id');
+                if (id) {
+                    const numericId = parseInt(id.split('-')[1]);
+                    if (!isNaN(numericId) && numericId > highestId) {
+                        highestId = numericId;
+                    }
+                }
+            });
+            return highestId + 1;
         };
 
         const resetInputValue = ($element, rowKey) => {

@@ -201,6 +201,12 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.6.6**
+*   Move the {date} template tag to the Signup category in the template tag helper, as that tag only works with the signup date.
+*   Added a {task_date} template tag that will show the date, or list of dates (for Recurring Sheets), of the task.
+*   Updated javascript on admin add/edit tasks page to make sure the ID for new rows is unique by scanning the IDs in all rows and adding 1 to the highest ID. Previously, if you didn't click on the last row to add a new row, you could get duplicate IDs and cause issues with timepicker/datepicker inputs and other data.
+*   Tested with PHP 8.4.7 and WordPress 6.8.1
+
 **Version 5.6.5**
 *   Modified the admin copy sheet functions (including multi-copy) to set the new copied sheets to hidden, to allow admin time to edit the copies before making them visible to the public
 *   Tested with PHP 8.4.7 and WordPress 6.8.1

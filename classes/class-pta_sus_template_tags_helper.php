@@ -76,9 +76,14 @@ class PTA_SUS_Template_Tags_Helper {
 			'Task'
 		);
 		self::register_template_tag(
-			'{date}',
-			__('Task/Signup Date','pta-volunteer-sign-up-sheets'),
+			'{task_date}',
+			__('Task date, or list of dates for Recurring Sheets where tasks have more than one date.','pta-volunteer-sign-up-sheets'),
 			'Task'
+		);
+		self::register_template_tag(
+			'{date}',
+			__('Signup Date','pta-volunteer-sign-up-sheets'),
+			'Signup'
 		);
 		self::register_template_tag(
 			'{start_time}',

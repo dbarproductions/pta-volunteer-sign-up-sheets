@@ -76,7 +76,7 @@ class PTA_SUS_Template_Tags {
 		);
 	}
 
-	public static function get_task_tags($task) {
+	public static function get_task_tags($task, $date='') {
 		if(empty($task)) {
 			return array();
 		}
@@ -88,6 +88,17 @@ class PTA_SUS_Template_Tags {
 		$task_open_spots = $pta_sus->data->get_available_qty($task->id, '', $task->qty);
 		$task_filled_spots = $task->qty - $task_open_spots;
 
+		// try to get the task date if not passed in
+		if(empty($date)) {
+			$dates = explode(',', $task->dates);
+			foreach($dates as $task_date) {
+				if(!empty($date)) {
+					$date .= ', ';
+				}
+				$date .= pta_datetime(get_option('date_format'), strtotime($task_date));
+			}
+		}
+
 		return array(
 			'{task_title}' => $task->title,
 			'{task_description}' => $task->description,
@@ -97,7 +108,8 @@ class PTA_SUS_Template_Tags {
 			'{task_start_time}' => $start_time,
 			'{end_time}' => $end_time,
 			'{task_end_time}' => $end_time,
-			'{details_text}' => $task->details_text
+			'{details_text}' => $task->details_text,
+			'{task_date}' => $date,
 		);
 	}
 
@@ -170,7 +182,7 @@ class PTA_SUS_Template_Tags {
 			// Get associated task and its tags
 			$task = $pta_sus->get_task($signup->task_id);
 			if(!empty($task)) {
-				self::$tags = array_merge(self::$tags, self::get_task_tags($task));
+				self::$tags = array_merge(self::$tags, self::get_task_tags($task,$signup->date));
 
 				// Get associated sheet and its tags
 				$sheet = $pta_sus->get_sheet($task->sheet_id);
