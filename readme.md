@@ -21,7 +21,7 @@ so that my system can generate a license code for you. If you already have a lic
 
 **License URI**: https://www.gnu.org/licenses/gpl-2.0.html
 
-**Stable tag: 5.6.5**
+**Stable tag: 5.6.7**
 
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -201,6 +201,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.6.7**
+*   Compatibility fix for Member Directory & Contact Form plugin. Contact Emails template tag was not pulling emails from the Member Directory plugin.
+*   Minimized version of the autocomplete listener script was missing for the frontend autocomplete function for signups by admin.
+*   Tested with PHP 8.4.7 and WordPress 6.8.1
+
 **Version 5.6.6**
 *   Move the {date} template tag to the Signup category in the template tag helper, as that tag only works with the signup date.
 *   Added a {task_date} template tag that will show the date, or list of dates (for Recurring Sheets), of the task.

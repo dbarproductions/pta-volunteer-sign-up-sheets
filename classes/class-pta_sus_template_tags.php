@@ -47,6 +47,20 @@ class PTA_SUS_Template_Tags {
 		return $names;
 	}
 
+	public static function get_member_directory_emails($group='') {
+		$args = array( 'post_type' => 'member', 'member_category' => $group );
+		$members = get_posts( $args );
+		if(!$members) return false;
+		$emails = array();
+		foreach ($members as $member) {
+			if (is_email( esc_html( $email = get_post_meta( $member->ID, '_pta_member_directory_email', true ) ) )) {
+				$emails[] = $email;
+			}
+		}
+		if(0 == count($emails)) return false;
+		return $emails;
+	}
+
 	public static function get_signup_tags($signup) {
 		if(empty($signup)) {
 			return array();
@@ -127,7 +141,12 @@ class PTA_SUS_Template_Tags {
 		$sheet_filled_spots = $pta_sus->data->get_sheet_signup_count($sheet->id);
 		$sheet_open_spots = $sheet_total_spots - $sheet_filled_spots;
 
-		$chair_emails = !empty($sheet->chair_email) ? explode(',', $sheet->chair_email) : array();
+
+		if (isset($sheet->position) && '' != $sheet->position) {
+			$chair_emails = self::get_member_directory_emails($sheet->position);
+		} else {
+			$chair_emails = !empty($sheet->chair_email) ? explode(',', $sheet->chair_email) : array();
+		}
 		$contact_emails = !empty($chair_emails) ? implode("\r\n", $chair_emails) : __('N/A', 'pta-volunteer-sign-up-sheets');
 
 		$chair_names = '';

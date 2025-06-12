@@ -136,7 +136,7 @@ class PTA_SUS_Emails {
 
         // Get Chair emails
 	    if (isset($sheet->position) && '' != $sheet->position) {
-		    $chair_emails = $this->get_member_directory_emails($sheet->position);
+		    $chair_emails = PTA_SUS_Template_Tags::get_member_directory_emails($sheet->position);
 	    } else {
 		    if('' == $sheet->chair_email) {
 			    $chair_emails = false;
@@ -326,20 +326,6 @@ Please click on, or copy and paste, the link below to validate yourself:
 			return true;
 		}
 	}
-
-    public function get_member_directory_emails($group='') {
-        $args = array( 'post_type' => 'member', 'member_category' => $group );
-        $members = get_posts( $args );
-        if(!$members) return false;
-        $emails = array();
-        foreach ($members as $member) {
-            if (is_email( esc_html( $email = get_post_meta( $member->ID, '_pta_member_directory_email', true ) ) )) {
-                $emails[] = $email;
-            }             
-        }
-        if(0 == count($emails)) return false;
-        return $emails;
-    }
 
     public function send_reminders() {
     	$limit = false;

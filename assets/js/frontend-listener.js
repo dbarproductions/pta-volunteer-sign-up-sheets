@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ajaxUrl: ptaSUS.ajaxurl,
         extraData: {
             action: 'pta_sus_live_search',
-            security: ptaSUS.ptanonce
+            security: ptaSUS.ptanonce,
         }
     });
 });
