@@ -201,6 +201,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.6.8**
+*   Updated the new get_detailed_signups function to allow empty arguments to retrieve all signups without any filters.
+*   Tested with PHP 8.4.11 and WordPress 6.8.2
+* 
 **Version 5.6.7**
 *   Compatibility fix for Member Directory & Contact Form plugin. Contact Emails template tag was not pulling emails from the Member Directory plugin.
 *   Minimized version of the autocomplete listener script was missing for the frontend autocomplete function for signups by admin.

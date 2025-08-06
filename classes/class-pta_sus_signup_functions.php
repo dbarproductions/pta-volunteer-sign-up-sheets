@@ -44,10 +44,6 @@ class PTA_SUS_Signup_Functions {
 	}
 
 	public static function get_detailed_signups($where=array(), $show_expired = false) {
-		$signups = array();
-		if(empty($where)) {
-			return $signups;
-		}
 		global $wpdb;
 		$signup_table = self::$signup_table;
 		$task_table = self::$task_table;
