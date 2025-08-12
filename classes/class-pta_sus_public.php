@@ -1264,7 +1264,12 @@ class PTA_SUS_Public {
 			if( ! $this->main_options['login_required_signup'] || $this->volunteer->is_validated() ) {
 				$display_consolidated .= esc_html($separator . $remaining_text).'<a class="pta-sus-link signup" href="'.esc_url($task_url).'">'.apply_filters( 'pta_sus_public_output', __('Sign up &raquo;', 'pta-volunteer-sign-up-sheets'), 'task_sign_up_link_text' ) . '</a>';
 			} else {
-				$display_consolidated .= ' - ' . esc_html($this->main_options['login_signup_message']);
+				if ( isset( $this->main_options['show_login_link'] ) && true === $this->main_options['show_login_link'] ) {
+					$signup_message = '<a class="pta-sus-link login" href="' . wp_login_url( get_permalink() ) . '" title="Login">' . esc_html( $this->main_options['login_signup_message'] ) . '</a>';
+				} else {
+					$signup_message = esc_html( $this->main_options['login_signup_message'] );
+				}
+				$display_consolidated .= ' - ' . $signup_message;
 			}
 		}
 		$row_data['column-available-spots'] = $display_consolidated;

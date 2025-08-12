@@ -414,7 +414,8 @@ class PTA_SUS_Admin {
 
 	private function process_signup_form() {
 		if(!wp_verify_nonce( $_POST['pta_sus_admin_signup_nonce'], 'pta_sus_admin_signup')) {
-			echo '<div class="error"><p>'. __('Invalid Referrer', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Invalid Referrer', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
 		$fields = array(
@@ -446,7 +447,8 @@ class PTA_SUS_Admin {
 			}
 		}
 		if($error) {
-			echo '<div class="error"><p>'. __('Please fill out all required fields.', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Please fill out all required fields.', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
 		foreach ($fields as $key) {
@@ -462,7 +464,8 @@ class PTA_SUS_Admin {
 		}
 		// Validate email -- everything else is text, so no validating
 		if(!is_email($form_data['email'])) {
-			echo '<div class="error"><p>'. __('Invalid Email address.', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Invalid Email address.', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
 		if($edit) {
@@ -471,7 +474,8 @@ class PTA_SUS_Admin {
 			$result = $this->data->add_signup( $posted, $task_id);
 		}
 		if(false === $result) {
-			echo '<div class="error"><p>'. __('There was an error saving the signup.', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('There was an error saving the signup.', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
 		if(!$edit) {
@@ -483,7 +487,8 @@ class PTA_SUS_Admin {
 			$emails = new PTA_SUS_Emails();
 			$emails->send_mail($signup_id, false, false);
 		}
-		echo '<div class="updated"><p>'.__('Signup Saved', 'pta-volunteer-sign-up-sheets').'</p></div>';
+		PTA_SUS_Messages::add_message(__('Signup Saved', 'pta-volunteer-sign-up-sheets'));
+		PTA_SUS_Messages::show_messages(true, 'admin');
 		return true;
 	}
 
@@ -506,23 +511,27 @@ class PTA_SUS_Admin {
 
     private function process_reschedule_form() {
         if(!wp_verify_nonce( $_POST['pta_sus_admin_reschedule_nonce'], 'pta_sus_admin_reschedule')) {
-            echo '<div class="error"><p>'. __('Invalid Referrer', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Referrer', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
 
         $sheet_id = isset($_POST['sheet_id']) ? absint($_POST['sheet_id']) : 0;
         if($sheet_id < 1) {
-            echo '<div class="error"><p>'. __('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
         $sheet = $this->data->get_sheet($sheet_id);
         if(!$sheet) {
-            echo '<div class="error"><p>'. __('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
         $tasks = $this->data->get_tasks($sheet_id);
         if(empty($tasks)) {
-            echo '<div class="error"><p>'. __('No Tasks found for that Sheet ID', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('No Tasks found for that Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
         $new_date = '';
@@ -530,12 +539,14 @@ class PTA_SUS_Admin {
         $new_dates = $new_start_times = $new_end_times = array();
         $method = isset($_POST['method']) && in_array($_POST['method'], array('copy', 'multi-copy','reschedule')) ? $_POST['method'] : false;
         if(!$method) {
-            echo '<div class="error"><p>'. __('Please select a method', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Please select a method', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
         if('Single' === $sheet->type && 'multi-copy' !== $method) {
             if(empty($_POST['new_date'])) {
-                echo '<div class="error"><p>'. __('You Must Select a Date', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+                PTA_SUS_Messages::add_error(__('You Must Select a Date', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
             $new_date = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_date'])));
@@ -543,7 +554,8 @@ class PTA_SUS_Admin {
             foreach($tasks as $task) {
                 $id = absint($task->id);
                 if(empty($_POST['new_task_date'][$id])) {
-                    echo '<div class="error"><p>'. __('Task Dates are Required!', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+                    PTA_SUS_Messages::add_error(__('Task Dates are Required!', 'pta-volunteer-sign-up-sheets'));
+                    PTA_SUS_Messages::show_messages(true, 'admin');
                     return false;
                 }
                 $new_dates[$id] = pta_datetime('Y-m-d', strtotime(sanitize_text_field($_POST['new_task_date'][$id])));
@@ -551,15 +563,18 @@ class PTA_SUS_Admin {
         }
         if('multi-copy' === $method) {
             if(empty($_POST['interval']) || empty($_POST['copies'])) {
-                echo '<div class="error"><p>'. __('Offset Interval and Number of Copies are required', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+                PTA_SUS_Messages::add_error(__('Offset Interval and Number of Copies are required', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
             if(intval($_POST['interval']) < 1) {
-                echo '<div class="error"><p>'. __('Offset Interval must be greater than 0', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+                PTA_SUS_Messages::add_error(__('Offset Interval must be greater than 0', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
             if(intval($_POST['copies']) < 1) {
-                echo '<div class="error"><p>'. __('Number of Copies must be greater than 0', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+                PTA_SUS_Messages::add_error(__('Number of Copies must be greater than 0', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
             $interval = absint($_POST['interval']);
@@ -682,18 +697,21 @@ class PTA_SUS_Admin {
 
 	private function process_move_signup_form() {
         if(!wp_verify_nonce( $_POST['pta_sus_admin_move_nonce'], 'pta_sus_admin_move')) {
-            echo '<div class="error"><p>'. __('Invalid Referrer', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Referrer', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
 
         $old_signup_id = isset($_POST['old_signup_id']) ? absint($_POST['old_signup_id']) : 0;
         if($old_signup_id < 1) {
-            echo '<div class="error"><p>'. __('Invalid Signup ID', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Signup ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
 		$old_task_id = isset($_POST['old_task_id']) ? absint($_POST['old_task_id']) : 0;
         if($old_task_id < 1) {
-            echo '<div class="error"><p>'. __('Invalid Task ID', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+            PTA_SUS_Messages::add_error(__('Invalid Task ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
 		$new_task_and_date = isset($_POST['pta_task_id']) ? sanitize_text_field($_POST['pta_task_id']) : false;
@@ -705,19 +723,22 @@ class PTA_SUS_Admin {
 			$new_task_id = $new_date = false;
 		}
 		if(!$new_task_id || !$new_date) {
-			echo '<div class="error"><p>'. __('Invalid New Task ID or Date', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Invalid New Task ID or Date', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
 		}
 		// Verify available qty
 		$new_task = $this->data->get_task($new_task_id);
 		if(!$new_task) {
-			echo '<div class="error"><p>'. __('Invalid Task', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Invalid Task', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
 		}
         $available = $this->data->get_available_qty($new_task_id, $new_date, $new_task->qty);
 		$qty = isset($_POST['signup_qty']) ? absint($_POST['signup_qty']) : 1;
 		if(!$available || $qty > $available) {
-			echo '<div class="error"><p>'. __('Not Enough Open Slots', 'pta-volunteer-sign-up-sheets') .'</p></div>';
+			PTA_SUS_Messages::add_error(__('Not Enough Open Slots', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
 		}
 
@@ -753,9 +774,9 @@ class PTA_SUS_Admin {
 			$signup = $this->data->get_signup($_GET['signup_id']);
 			if(!empty($signup)) {
 				if (($result = $this->data->delete_signup($_GET['signup_id'])) === false) {
-					echo '<div class="error"><p>'.sprintf( __('Error clearing spot (ID # %s)', 'pta-volunteer-sign-up-sheets'), esc_attr($_GET['signup_id']) ).'</p></div>';
+					PTA_SUS_Messages::add_error(sprintf( __('Error clearing spot (ID # %s)', 'pta-volunteer-sign-up-sheets'), esc_attr($_GET['signup_id']) ));
 				} else {
-					if ($result > 0) echo '<div class="updated"><p>'.__('Spot has been cleared.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+					if ($result > 0) PTA_SUS_Messages::add_message(__('Spot has been cleared.', 'pta-volunteer-sign-up-sheets'));
 					do_action('pta_sus_admin_clear_signup', $signup);
 				}
 			}
@@ -816,47 +837,50 @@ class PTA_SUS_Admin {
 
 		if ($untrash) {
 			if (($result = $this->data->update_sheet(array('sheet_trash'=>0), $sheet_id)) === false) {
-				echo '<div class="error"><p>'.__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_error(__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets'));
 			} elseif ($result > 0) {
-				echo '<div class="updated"><p>'.__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_message(__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets'));
 			}
 		} elseif ($trash) {
 			if (($result = $this->data->update_sheet(array('sheet_trash'=>true), $sheet_id)) === false) {
-				echo '<div class="error"><p>'.__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_error(__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets'));
 			} elseif ($result > 0) {
-				echo '<div class="updated"><p>'.__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_message(__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets'));
 			}
 		} elseif ($delete) {
 			do_action('pta_sus_sheet_before_deleted', $sheet_id);
 			if (($result = $this->data->delete_sheet($sheet_id)) === false) {
-				echo '<div class="error"><p>'.__('Error permanently deleting sheet.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_error(__('Error permanently deleting sheet.', 'pta-volunteer-sign-up-sheets'));
 			} elseif ($result > 0) {
-				echo '<div class="updated"><p>'.__('Sheet has been permanently deleted.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_message(__('Sheet has been permanently deleted.', 'pta-volunteer-sign-up-sheets'));
 				do_action('pta_sus_sheet_deleted', $sheet_id);
 			}
 		} elseif ($copy) {
 			if (($new_id = $this->data->copy_sheet($sheet_id)) === false) {
-				echo '<div class="error"><p>'.__('Error copying sheet.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_error(__('Error copying sheet.', 'pta-volunteer-sign-up-sheets'));
 			} else {
-				echo '<div class="updated"><p>'.__('Sheet has been copied to new sheet ID #', 'pta-volunteer-sign-up-sheets').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta-volunteer-sign-up-sheets').'</a>).</p></div>';
+				PTA_SUS_Messages::add_message(__('Sheet has been copied to new sheet ID #', 'pta-volunteer-sign-up-sheets').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta-volunteer-sign-up-sheets').'</a>).');
 			}
 		} elseif ($toggle_visibility) {
 			if (false === $this->data->toggle_visibility($sheet_id)) {
-				echo '<div class="error"><p>'.__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+				PTA_SUS_Messages::add_error(__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets'));
 			}
 		} elseif ($view_all) {
             echo '<h2><span id="sheet_title">'.__('All Signup Data', 'pta-volunteer-sign-up-sheets').'</span></h2>';
+			PTA_SUS_Messages::show_messages(true, 'admin');
             include('admin-view-all-signups-html.php');
             return;
         } elseif ($reschedule) {
             if (!($sheet = $this->data->get_sheet($sheet_id))) {
-                echo '<p class="error">'.__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets').'</p>';
+                PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
                 return;
             }
             $tasks = $this->data->get_tasks($sheet_id);
             if (empty($tasks)) {
-                echo '<p>'.__('No tasks were found.', 'pta-volunteer-sign-up-sheets').'</p>';
+                PTA_SUS_Messages::add_error(__('No tasks were found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
                 return;
             }
@@ -868,19 +892,22 @@ class PTA_SUS_Admin {
 			return;
 		} elseif ($move) {
             if (!($sheet = $this->data->get_sheet($sheet_id))) {
-                echo '<p class="error">'.__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets').'</p>';
+                PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
                 return;
             }
 			$signup_id = isset($_REQUEST['signup_id']) ? absint($_REQUEST['signup_id']) : 0;
 			if (!($signup = $this->data->get_signup($signup_id))) {
-                echo '<p class="error">'.__('No sign-up found.', 'pta-volunteer-sign-up-sheets').'</p>';
+                PTA_SUS_Messages::add_error(__('No sign-up found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
                 return;
             }
             $task = $this->data->get_task($signup->task_id);
             if (empty($task)) {
-                echo '<p>'.__('No task found.', 'pta-volunteer-sign-up-sheets').'</p>';
+                PTA_SUS_Messages::add_error(__('No task found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
                 return;
             }
@@ -893,7 +920,8 @@ class PTA_SUS_Admin {
 		} elseif ($edit || $view_signups) {
 			// View Single Sheet
 			if (!($sheet = $this->data->get_sheet($sheet_id))) {
-				echo '<p class="error">'.__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets').'</p>';
+				PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
+				PTA_SUS_Messages::show_messages(true, 'admin');
 			} else {
 				echo '
 					<h2><span id="sheet_title">'.esc_html($sheet->title).'</span></h2>
@@ -904,8 +932,10 @@ class PTA_SUS_Admin {
 				// Tasks
 				$tasks = $this->data->get_tasks($sheet_id);
 				if (empty($tasks)) {
-					echo '<p>'.__('No tasks were found.', 'pta-volunteer-sign-up-sheets').'</p>';
+					PTA_SUS_Messages::add_error(__('No tasks were found.', 'pta-volunteer-sign-up-sheets'));
+					PTA_SUS_Messages::show_messages(true, 'admin');
 				} else {
+					PTA_SUS_Messages::show_messages(true, 'admin');
 					include('admin-view-signups-html.php');
 				}
 
@@ -914,6 +944,8 @@ class PTA_SUS_Admin {
 			return;
 		}
 
+		// Show any action messages
+		PTA_SUS_Messages::show_messages(true, 'admin');
 		//View All
 		$show_trash = isset($_REQUEST['sheet_status']) && $_REQUEST['sheet_status'] == 'trash';
 		$show_all = !$show_trash;
@@ -976,12 +1008,12 @@ class PTA_SUS_Admin {
 			$sheet_id = intval($_POST['sheet_id']);
 			$new_sheet_id = intval($_POST['new_sheet_id']);
 			if($new_sheet_id < 1)  {
-				echo '<div class="error"><p><strong>'.__('You must select a sheet to move the tasks to!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+				PTA_SUS_Messages::add_error(__('You must select a sheet to move the tasks to!', 'pta-volunteer-sign-up-sheets'));
 			} else {
 				$move_results = $this->data->move_tasks($sheet_id,$new_sheet_id);
 				if($move_results > 0) {
-					echo '<div class="updated"><strong>'.__('Tasks Successfully Moved!', 'pta-volunteer-sign-up-sheets').'</strong></div>';
-					echo '<div class="error"><p><strong>'.__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_message(__('Tasks Successfully Moved!', 'pta-volunteer-sign-up-sheets'));
+					PTA_SUS_Messages::add_error(__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta-volunteer-sign-up-sheets'));
 					$moved = true;
 				}
 			}
@@ -1016,22 +1048,22 @@ class PTA_SUS_Admin {
 			if( "Single" == $_POST['sheet_type'] ) {
 				if(empty($_POST['single_date'])) {
 					$task_err++;
-					echo '<div class="error"><p><strong>'.__('You must enter a date!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('You must enter a date!', 'pta-volunteer-sign-up-sheets'));
 				} elseif (false === $this->data->check_date($_POST['single_date'])) {
 					$task_err++;
-					echo '<div class="error"><p><strong>'.__('Invalid date!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('Invalid date!', 'pta-volunteer-sign-up-sheets'));
 				} else {
 					$dates[] = $_POST['single_date'];
 				}
 			} elseif ( "Recurring" == $_POST['sheet_type'] ) {
 				if(empty($_POST['recurring_dates'])) {
 					$task_err++;
-					echo '<div class="error"><p><strong>'.__('You must enter at least two dates for a Recurring event!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('You must enter at least two dates for a Recurring event!', 'pta-volunteer-sign-up-sheets'));
 				} else {
 					$dates = $this->data->get_sanitized_dates($_POST['recurring_dates']);
 					if (count($dates) < 2) {
 						$task_err++;
-						echo '<div class="error"><p><strong>'.__('Invalid dates!  Enter at least 2 valid dates.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+						PTA_SUS_Messages::add_error(__('Invalid dates!  Enter at least 2 valid dates.', 'pta-volunteer-sign-up-sheets'));
 					}
 				}
 			} elseif ( "Ongoing" == $_POST['sheet_type'] ) {
@@ -1064,12 +1096,12 @@ class PTA_SUS_Admin {
 				$results = $this->data->validate_post($task, 'task');
 				if(!empty($results['errors'])) {
 					$task_err++;
-					echo '<div class="error"><p><strong>'.$results['message'].'</strong></p></div>';
+					PTA_SUS_Messages::add_error($results['message']);
 				} elseif ("Multi-Day" == $_POST['sheet_type'] && -1 != $task['task_id']) {
 					// Make sure a date was entered
 					if(empty($task['task_dates'])) {
 						$task_err++;
-						echo '<div class="error"><p><strong>'.__('Task date is a required field', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+						PTA_SUS_Messages::add_error(__('Task date is a required field', 'pta-volunteer-sign-up-sheets'));
 					}
 					// If the date changed, check for signups on the old date
 					$old_task = $this->data->get_task($task['task_id']);
@@ -1080,7 +1112,7 @@ class PTA_SUS_Admin {
 						if ($signup_count > 0) {
 							$task_err++;
 							$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
-							echo '<div class="error"><p><strong>'.sprintf(__('The task "%1$s" cannot be changed to a new date because it has %2$d %3$s signed up.  Please clear all spots first before changing this task date.', 'pta-volunteer-sign-up-sheets'), esc_html($old_task->title), (int)$signup_count, $people) .'</strong></p></div>';
+							PTA_SUS_Messages::add_error(sprintf(__('The task "%1$s" cannot be changed to a new date because it has %2$d %3$s signed up.  Please clear all spots first before changing this task date.', 'pta-volunteer-sign-up-sheets'), esc_html($old_task->title), (int)$signup_count, $people) );
 						} else {
 							$dates[] = $task['task_dates']; // build our array of valid dates
 						}
@@ -1116,9 +1148,9 @@ class PTA_SUS_Admin {
 						}
 						if($signups) {
 							$task_err++;
-							echo '<div class="error"><p><strong>'.__('You are trying to remove '._n('a date', 'dates', count($removed_dates), 'pta-volunteer-sign-up-sheets').' that people have already signed up for!<br/>
-									Please clear those signups first if you wish to remove '._n('that date', 'those dates', count($removed_dates), 'pta-volunteer-sign-up-sheets'), 'pta-volunteer-sign-up-sheets').'</strong></p>';
-							echo '<p>'.__('Please check '._n('this date', 'these dates', count($removed_dates), 'pta-volunteer-sign-up-sheets' ).' for existing signups:', 'pta-volunteer-sign-up-sheets').'<br/>'.esc_html(implode(', ', $removed_dates)).'</p></div>';
+							PTA_SUS_Messages::add_error(__('You are trying to remove '._n('a date', 'dates', count($removed_dates), 'pta-volunteer-sign-up-sheets').' that people have already signed up for!<br/>
+									Please clear those signups first if you wish to remove '._n('that date', 'those dates', count($removed_dates), 'pta-volunteer-sign-up-sheets'), 'pta-volunteer-sign-up-sheets').'<br/>'.
+								__('Please check '._n('this date', 'these dates', count($removed_dates), 'pta-volunteer-sign-up-sheets' ).' for existing signups:', 'pta-volunteer-sign-up-sheets').'<br/>'.esc_html(implode(', ', $removed_dates)));
 						}
 					}
 				}
@@ -1132,8 +1164,7 @@ class PTA_SUS_Admin {
 					if (empty($_POST['task_title'][$i])) {
 						if (!empty($_POST['task_id'][$i])) {
 							$tasks_to_delete[] = $_POST['task_id'][$i];
-						}                            
-						continue;
+						}
 					} else {
 						$tasks_to_update[] = (int)$_POST['task_id'][$i];
 
@@ -1148,9 +1179,7 @@ class PTA_SUS_Admin {
 								if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
 									$task_err++;
 									$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
-									echo '<div class="error"><p><strong>';
-									printf(__('The number of spots for task "%1$s" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task.', 'pta-volunteer-sign-up-sheets'), esc_attr($_POST['task_title'][$i]), (int)$signup_count, $people);
-									echo '</strong></p></div>';
+									PTA_SUS_Messages::add_error(sprintf(__('The number of spots for task "%1$s" cannot be set below %2$d because it currently has %2$d %3$s signed up.  Please clear some spots first before updating this task.', 'pta-volunteer-sign-up-sheets'), esc_attr($_POST['task_title'][$i]), (int)$signup_count, $people));
 								}
 							}
 						}
@@ -1159,7 +1188,7 @@ class PTA_SUS_Admin {
 
 				if( 0 === count($tasks_to_update) ) {
 					$task_err++;
-					echo '<div class="error"><p><strong>'.__('You must enter at least one task!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('You must enter at least one task!', 'pta-volunteer-sign-up-sheets'));
 				}
 				// Queue for removal: tasks that are no longer in the list
 				foreach ($tasks AS $task) {
@@ -1174,10 +1203,8 @@ class PTA_SUS_Admin {
 						if ($signup_count > 0) {
 							$task_err++;
 							$task = $this->data->get_task($task_id);
-							echo '<div class="error"><p><strong>';
 							$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
-							printf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta-volunteer-sign-up-sheets'), esc_html($task->title), (int)$signup_count, $people);
-							echo '</strong></p></div>';
+							PTA_SUS_Messages::add_error(sprintf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta-volunteer-sign-up-sheets'), esc_html($task->title), (int)$signup_count, $people));
 						}
 					}
 				}
@@ -1232,9 +1259,7 @@ class PTA_SUS_Admin {
 					}
 
 					if (!empty($task_err)) {
-						echo '<div class="error"><p><strong>';
-						printf(__('Error saving %d '. _n('task.', 'tasks.', $task_err), 'pta-volunteer-sign-up-sheets'), (int)$task_err);
-						echo '</strong></p></div>';
+						PTA_SUS_Messages::add_error(sprintf(__('Error saving %d '. _n('task.', 'tasks.', $task_err), 'pta-volunteer-sign-up-sheets'), (int)$task_err));
 					} else {
 						// Tasks updated successfully
 
@@ -1258,7 +1283,7 @@ class PTA_SUS_Admin {
 							$result = $this->data->update_sheet($sheet_fields, (int)$_POST['sheet_id']);
 							if(false === $result) {
 								$task_err++;
-								echo '<div class="error"><p><strong>'.__('Error updating sheet.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+								PTA_SUS_Messages::add_error(__('Error updating sheet.', 'pta-volunteer-sign-up-sheets'));
 							}
 						}
 						if(empty($task_err)) {
@@ -1270,7 +1295,7 @@ class PTA_SUS_Admin {
 					// Delete unused tasks
 					foreach ($tasks_to_delete AS $task_id) {
 						if ($this->data->delete_task($task_id) === false) {
-							echo '<div class="error"><p><strong>'.__('Error removing a task.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+							PTA_SUS_Messages::add_error(__('Error removing a task.', 'pta-volunteer-sign-up-sheets'));
 						} else {
 							do_action('pta_sus_delete_task', $task_id);
 						}
@@ -1290,19 +1315,19 @@ class PTA_SUS_Admin {
 			// Validate the posted fields
 			if ((isset($_POST['sheet_position']) && '' != $_POST['sheet_position'] ) && !empty($_POST['sheet_chair_name'])) {
 				$sheet_err++;
-				echo '<div class="error"><p><strong>'.__('Please select a Position OR manually enter Chair contact info. NOT Both!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+				PTA_SUS_Messages::add_error(__('Please select a Position OR manually enter Chair contact info. NOT Both!', 'pta-volunteer-sign-up-sheets'));
 			} elseif ( (!empty($_POST['sheet_chair_name']) && empty($_POST['sheet_chair_email'])) || (empty($_POST['sheet_chair_name']) && !empty($_POST['sheet_chair_email']))) {
 				$sheet_err++;
-				echo '<div class="error"><p><strong>'.__('Please enter Chair Name(s) AND Email(s)!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+				PTA_SUS_Messages::add_error(__('Please enter Chair Name(s) AND Email(s)!', 'pta-volunteer-sign-up-sheets'));
 			} elseif ((isset($_POST['sheet_position']) && '' == $_POST['sheet_position']) && (empty($_POST['sheet_chair_name']) || empty($_POST['sheet_chair_email']))) {
 				$sheet_err++;
-				echo '<div class="error"><p><strong>'.__('Please either select a position or type in the chair contact info!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+				PTA_SUS_Messages::add_error(__('Please either select a position or type in the chair contact info!', 'pta-volunteer-sign-up-sheets'));
 			}
 			$results = $this->data->validate_post($_POST, 'sheet');
 			// Give extensions a chance to validate any custom fields
 			$results = apply_filters( 'pta_sus_validate_sheet_post', $results );
 			if(!empty($results['errors'])) {
-				echo '<div class="error"><p><strong>'.wp_kses($results['message'], array('br' => array())).'</strong></p></div>';
+				PTA_SUS_Messages::add_error($results['message']);
 			} elseif (!$sheet_err) {
 				// Passed Validation
 				$sheet_fields = $_POST;
@@ -1347,7 +1372,8 @@ class PTA_SUS_Admin {
 					$sheet_fields['sheet_signup_emails'] = 'default';
 				}
 				if ($duplicates && $add) {
-					echo '<div class="error"><p><strong>'.__('A Sheet with the same name already exists!', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('A Sheet with the same name already exists!', 'pta-volunteer-sign-up-sheets'));
+					PTA_SUS_Messages::show_messages(true,'admin');
 					return;
 				}
 				// Add/Update Sheet
@@ -1355,7 +1381,7 @@ class PTA_SUS_Admin {
 					$added = $this->data->add_sheet($sheet_fields);
 					if(!$added) {
 						$sheet_err++;
-						echo '<div class="error"><p><strong>'.__('Error adding sheet.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+						PTA_SUS_Messages::add_error(__('Error adding sheet.', 'pta-volunteer-sign-up-sheets'));
 						$sheet_fields['sheet_id'] = 0;
 					} else {
 						$sheet_fields['sheet_id'] = $this->data->wpdb->insert_id;
@@ -1365,7 +1391,7 @@ class PTA_SUS_Admin {
 					$sheet_fields['sheet_id'] = (int)$_GET['sheet_id'];
 					if(false === $updated) {
 						$sheet_err++;
-						echo '<div class="error"><p><strong>'.__('Error updating sheet.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+						PTA_SUS_Messages::add_error(__('Error updating sheet.', 'pta-volunteer-sign-up-sheets'));
 					}
 				}
 
@@ -1378,6 +1404,9 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
+		// display and reset any messages up to this point
+		PTA_SUS_Messages::show_messages(true, 'admin');
+		PTA_SUS_Messages::clear_messages();
 
 		// Set field values for form
 		$fields = array();
@@ -1417,13 +1446,15 @@ class PTA_SUS_Admin {
 			}
 			echo '</div>';
 		} elseif ($tasks_success) {
-			echo '<div class="wrap pta_sus"><h2>'.($edit_tasks ? __('Edit', 'pta-volunteer-sign-up-sheets') : __('ADD', 'pta-volunteer-sign-up-sheets')) . ' '.__('Tasks', 'pta-volunteer-sign-up-sheets').'</h2>
-				<div class="updated"><strong>'.__('Tasks Successfully Updated!', 'pta-volunteer-sign-up-sheets').'</strong></div>';
+			echo '<div class="wrap pta_sus"><h2>'.($edit_tasks ? __('Edit', 'pta-volunteer-sign-up-sheets') : __('ADD', 'pta-volunteer-sign-up-sheets')) . ' '.__('Tasks', 'pta-volunteer-sign-up-sheets').'</h2>';
+			PTA_SUS_Messages::add_message(__('Tasks Successfully Updated!', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true,'admin');
 			$this->display_tasks_form($fields);
 			echo '</div>';
 		} elseif ($sheet_success && $edit_sheet) {
-			echo '<div class="wrap pta_sus"><h2>'.__('Edit Sheet', 'pta-volunteer-sign-up-sheets').'</h2>
-				<div class="updated"><strong>'.__('Sheet Updated!', 'pta-volunteer-sign-up-sheets').'</strong></div>';
+			echo '<div class="wrap pta_sus"><h2>'.__('Edit Sheet', 'pta-volunteer-sign-up-sheets').'</h2>';
+			PTA_SUS_Messages::add_message(__('Sheet Updated!', 'pta-volunteer-sign-up-sheets'));
+			PTA_SUS_Messages::show_messages(true,'admin');
 			$edit_tasks_url = add_query_arg(array("action"=>"edit_tasks", "sheet_id"=>$_GET['sheet_id']));
 			echo '<a href="'.esc_url($edit_tasks_url).'" class="button-secondary">'.__('Edit Tasks', 'pta-volunteer-sign-up-sheets').'</a>
 				</div>';
@@ -1691,11 +1722,10 @@ class PTA_SUS_Admin {
 	} // Display Tasks Form
 
 	public function email_volunteers_page() {
-		$messages = ''; // messages passed to the html form
 		// check if form submitted, and send emails, if needed
 		if(isset($_POST['email_volunteers_mode']) && 'submitted' === $_POST['email_volunteers_mode']) {
 			check_admin_referer( 'pta_sus_email_volunteers', 'pta_sus_email_volunteers_nonce' );
-			$messages = $this->send_volunteer_emails();
+			$this->send_volunteer_emails();
 		}
 
 		include('admin-email-volunteers-html.php');
@@ -1706,7 +1736,6 @@ class PTA_SUS_Admin {
 	}
 
 	public function send_volunteer_emails() {
-		$messages = '';
 		$errors = 0;
 		$sheet_id = 0;
 		$from_name = $subject = $message = '';
@@ -1717,31 +1746,31 @@ class PTA_SUS_Admin {
 			}
 		} else {
 			$errors++;
-			$messages .= '<div class="error"><p><strong>'.__('Invalid sheet selection', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+			PTA_SUS_Messages::add_error(__('Invalid sheet selection', 'pta-volunteer-sign-up-sheets'));
 		}
 		if(isset($_POST['from_name']) && '' !== $_POST['from_name']) {
 			$from_name = sanitize_text_field($_POST['from_name']);
 		} else {
 			$errors++;
-			$messages .= '<div class="error"><p><strong>'.__('Please enter a From Name', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+			PTA_SUS_Messages::add_error(__('Please enter a From Name', 'pta-volunteer-sign-up-sheets'));
 		}
 		if(isset($_POST['reply_to']) && is_email($_POST['reply_to']) && '' !== $_POST['reply_to']) {
 			$reply_to = sanitize_text_field($_POST['reply_to']);
 		} else {
 			$errors++;
-			$messages .= '<div class="error"><p><strong>'.__('Please enter a valid reply to email, or leave blank for none.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+			PTA_SUS_Messages::add_error(__('Please enter a valid reply to email, or leave blank for none.', 'pta-volunteer-sign-up-sheets'));
 		}
 		if(isset($_POST['subject']) && '' !== sanitize_text_field($_POST['subject'])) {
 			$subject = stripslashes(sanitize_text_field($_POST['subject']));
 		} else {
 			$errors++;
-			$messages .= '<div class="error"><p><strong>'.__('Please enter a subject', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+			PTA_SUS_Messages::add_error(__('Please enter a subject', 'pta-volunteer-sign-up-sheets'));
 		}
 		if(isset($_POST['message']) && '' !== wp_kses_post(trim($_POST['message']))) {
 			$message = stripslashes(sanitize_textarea_field($_POST['message']));
 		} else {
 			$errors++;
-			$messages .= '<div class="error"><p><strong>'.__('Please enter a message', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+			PTA_SUS_Messages::add_error(__('Please enter a message', 'pta-volunteer-sign-up-sheets'));
 		}
 		$individually = (isset($_POST['individually']) && 1 == absint($_POST['individually']));
 
@@ -1761,7 +1790,7 @@ class PTA_SUS_Admin {
 			}
 
 			if(empty($emails)) {
-				$messages .= '<div class="error"><p><strong>'.__('No signups found for that sheet', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+				PTA_SUS_Messages::add_error(__('No signups found for that sheet', 'pta-volunteer-sign-up-sheets'));
 			} else {
 				// Send some emails!
 				$from_email = isset($_POST['from_email']) ? sanitize_email($_POST['from_email']) : get_option('admin_email');
@@ -1803,15 +1832,14 @@ class PTA_SUS_Admin {
 				if($sent) {
 					$count = count($sent_to);
 					$emails = implode(', ', $sent_to);
-					$messages .= '<div class="updated"><strong>'.sprintf(__('%s Emails Sent!', 'pta-volunteer-sign-up-sheets'), $count).'</strong></div>';
-					$messages .= '<div class="updated">'.sprintf(__('Emails sent to: %s', 'pta-volunteer-sign-up-sheets'), esc_html($emails)).'</div>';
+					PTA_SUS_Messages::add_message(sprintf(__('%s Emails Sent!', 'pta-volunteer-sign-up-sheets'), $count));
+					PTA_SUS_Messages::add_message(sprintf(__('Emails sent to: %s', 'pta-volunteer-sign-up-sheets'), esc_html($emails)));
 				} else {
-					$messages .= '<div class="error"><p><strong>'.__('The WordPress Mail function reported a problem sending one or more emails.', 'pta-volunteer-sign-up-sheets').'</strong></p></div>';
+					PTA_SUS_Messages::add_error(__('The WordPress Mail function reported a problem sending one or more emails.', 'pta-volunteer-sign-up-sheets'));
 				}
 			}
 		}
 
-		return $messages;
 	}
 
 } // End of Class

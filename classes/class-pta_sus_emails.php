@@ -455,7 +455,9 @@ Please click on, or copy and paste, the link below to validate yourself:
         $limit = false;
         $now = current_time( 'timestamp' );
         $reschedule_queue = get_option('pta_sus_rescheduled_signup_ids', array());
-        if(empty($reschedule_queue)) return false;
+        if(empty($reschedule_queue)) {
+			return false;
+        };
         // This function is used to check if we need to send out reminder emails or not
         if(isset($this->email_options['reminder_email_limit']) && '' != $this->email_options['reminder_email_limit'] && 0 < $this->email_options['reminder_email_limit']) {
             $limit = (int)$this->email_options['reminder_email_limit'];

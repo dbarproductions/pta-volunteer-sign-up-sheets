@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.6.8
+Stable tag: 5.7.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -40,7 +40,7 @@ Read the documentation here:
 *   You can optionally enter a description for each task (in addition to the main content area for the whole sheet) that will be shown above the task signup table for each task (when not empty)
 *	The ability to allow duplicate signups on a per task basis, changing the label for the item details form field on a per task/item basis, as well as allowing volunteers to specify quantities on a per task/item basis.
 *   Easily create volunteer sign-up sheets with multiple tasks/items for each
-*	Supports Single, Recurring, Ongoing or Multi-Day Events
+*	Supports Single, Recurring, Ongoing, or Multi-Day Events
 *  	All Sheets can be hidden from the public (visible only to logged in users)
 *   No volunteer contact info is shown to the public (emails and phone are always hidden). Default public view shows only first name and last name for filled spots, but you can optionally show the full name, and there is also an option to simply show "Filled" for filled spots.
 *   Hidden spambot field helps prevent automatic spambot form submissions
@@ -76,7 +76,7 @@ Use the Sign Up Sheets block, or the [pta_sign_up_sheet] shortcode, for a main s
 
 There is an Upcoming Event block, and sidebar widget, to show upcoming volunteer events and how many spots still need to be filled for each, linked to each individual sign-up sheet. You can choose whether to show Ongoing type events in the widget, and if they should be at the top or bottom of the list (since they don't have dates associated with them).
 
-Admin users can view sign-ups for each sheet, and add, edit, or clear any spots with a simple link. Each sheet can also be exported to Excel, CSV, PDF or Print formats. Admin side signups are displayed using the jQuery DataTables plugin, which allows sorting, filtering, searching, and showing/hiding columns, so you can arrange the data anyway you want before exporting or printing.
+Admin users can view sign-ups for each sheet, and add, edit, or clear any spots with a simple link. Each sheet can also be exported to Excel, CSV, PDF, or Print formats. Admin side signups are displayed using the jQuery DataTables plugin, which allows sorting, filtering, searching, and showing/hiding columns, so you can arrange the data anyway you want before exporting or printing.
 
 Committee/Event contact info can be entered for each sheet, or, if you are using the PTA Member Directory plugin, you can select one of the positions from the directory as the contact. When a user signs up, a confirmation email is sent to the user as well as a notification email to the contacts for that event (can be optionally disabled).
 
@@ -162,6 +162,13 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.7.0**
+*   Added login link to the Login to Signup message on consolidated row when login to signup is required and remaining slots are consolidated.
+*   Refactored messages shown in admin pages to use the messages class functions for consistency
+*   Updated the messages class to allow HTML in messages/errors, and sanitized with wp_kses_post for security.
+*   Refactor, deprecate, and move some signup database functions from the DATA class to the newer Signups Functions class.
+*   Tested with PHP 8.4.11 and WordPress 6.8.2
+
 **Version 5.6.8**
 *   Updated the new get_detailed_signups function to allow empty arguments to retrieve all signups without any filters.
 *   Tested with PHP 8.4.11 and WordPress 6.8.2

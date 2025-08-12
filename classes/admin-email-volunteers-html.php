@@ -15,7 +15,7 @@ $checked = isset($_POST['individually']) ? absint($_POST['individually']) : 0;
 ?>
 <div class="wrap pta_sus">
 	<h2><?php _e('Email Volunteers', 'pta-volunteer-sign-up-sheets'); ?></h2>
-	<?php echo $messages; ?>
+	<?php PTA_SUS_Messages::show_messages(true, 'admin'); ?>
 	<p><?php _e('Compose and send a message to all volunteers currently in the sign-ups database table, or select a specific sheet to send an email to all volunteers signed up for that specific sheet.','pta-volunteer-sign-up-sheets'); ?></p>
 	<form id="email_volunteers" method="post" action="">
 		<table class="form-table">

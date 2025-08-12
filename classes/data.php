@@ -256,13 +256,18 @@ class PTA_SUS_Data
         if($task_end < $task_start) {
 	        $task_end = strtotime('01-02-2015 '. $task->time_end);
         }
-
+		$where = array(
+			'firstname' => $firstname,
+			'lastname' => $lastname,
+			'date' => $signup_date,
+		);
 	    if($check_all) {
         	// Gets all user signups for all sheets
-		    $signups = $this->get_all_signups_by_user_name($firstname, $lastname, $signup_date);
+		    $signups = PTA_SUS_Signup_Functions::get_detailed_signups($where);
 	    } else {
 		    // Gets all signup data by user name for sheet and signup date
-		    $signups = $this->get_sheet_signups_by_user_name($firstname, $lastname, $sheet->id, $signup_date);
+		    $where['sheet_id'] = $sheet->id;
+		    $signups = PTA_SUS_Signup_Functions::get_detailed_signups($where);
 	    }
      
 	    $duplicate = false;
@@ -816,25 +821,23 @@ class PTA_SUS_Data
     }
 
 	public function get_all_signups_for_sheet($sheet_id, $date='') {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
 		if(is_object($sheet_id)) {
-			$sheet_id = absint($sheet_id->id);
+			$sheet_id = $sheet_id->id;
 		}
-		$sql = "SELECT $signup_table.* FROM $signup_table INNER JOIN $task_table ON $signup_table.task_id = $task_table.id WHERE $task_table.sheet_id = %d";
-
-		if (!empty($date)) {
-			$sql .= " AND $signup_table.date = %s";
-			$sql = $this->wpdb->prepare($sql, $sheet_id, $date);
-		} else {
-			$sql = $this->wpdb->prepare($sql, $sheet_id);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '5.7.0', 'PTA_SUS_Signup_Functions::get_signups() '.sprintf('Called from %s line %s', $file, $line) );
+		$where = array('sheet_id' => absint($sheet_id));
+		if(!empty($date)) {
+			$where['date'] = $date;
 		}
-
-		return $this->wpdb->get_results($sql);
+		return PTA_SUS_Signup_Functions::get_signups($where);
 	}
 
     /**
-     * Get all the signups for a given user id
+     * Get all the signups for a given user id - currently only used by ALOSB extension
      * Return info on what they signed up for
      * @param  int $user_id WordPress uer id
      * @return Array    Returns an array of objects with the user's signup info
@@ -843,78 +846,26 @@ class PTA_SUS_Data
 		if($user_id < 1) {
 			return array();
 		}
-        $signup_table = $this->tables['signup']['name'];
-        $task_table = $this->tables['task']['name'];
-        $sheet_table = $this->tables['sheet']['name'];
-        $sql = "SELECT
-            $signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-            $sheet_table.title AS title,
-            $sheet_table.id AS sheet_id,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $signup_table.user_id = %d AND $sheet_table.trash = 0";
-        if(!$show_expired) {
-        	$sql .= " AND (ADDDATE($signup_table.date, 1) >= %s OR $signup_table.date = '0000-00-00')";
-        }
-        $sql .= " ORDER BY signup_date, time_start";
-	    if(!$show_expired) {
-		    $safe_sql = $this->wpdb->prepare($sql, $user_id, $this->now);
-	    } else {
-		    $safe_sql = $this->wpdb->prepare($sql, $user_id);
-	    }
-        $results = $this->wpdb->get_results($safe_sql);
-
-	    return stripslashes_deep($results);
+	    $trace = debug_backtrace();
+	    $caller = $trace[1] ?? array();
+	    $file = $caller['file'] ?? '';
+	    $line = $caller['line'] ?? '';
+	    _deprecated_function( __FUNCTION__, '5.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() '.sprintf('Called from %s line %s', $file, $line) );
+	    $where = array('user_id' => absint($user_id));
+	    return PTA_SUS_Signup_Functions::get_detailed_signups($where);
     }
 
 	public function get_sheet_signups_by_user_name($firstname, $lastname, $sheet_id, $date = false ) {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
-		$sheet_table = $this->tables['sheet']['name'];
-		$sql = "SELECT
-			$signup_table.id AS id,
-            $signup_table.task_id AS task_id,
-            $signup_table.user_id AS user_id,
-            $signup_table.date AS signup_date,
-            $signup_table.item AS item,
-            $signup_table.item_qty AS item_qty,
-            $task_table.title AS task_title,
-            $task_table.time_start AS time_start,
-            $task_table.time_end AS time_end,
-            $sheet_table.title AS title,
-            $sheet_table.id AS sheet_id,
-            $sheet_table.clear AS clear,
-            $sheet_table.clear_days AS clear_days,
-            $task_table.dates AS task_dates
-            FROM  $signup_table
-            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-            WHERE $signup_table.firstname = %s AND $signup_table.lastname = %s
-            AND $sheet_table.trash = 0 AND $sheet_table.id = %d";
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '5.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() '.sprintf('Called from %s line %s', $file, $line) );
+		$where = array('firstname' => sanitize_text_field($firstname), 'lastname' => sanitize_text_field($lastname), 'sheet_id' => absint($sheet_id));
 		if($date) {
-			$sql .= "  AND $signup_table.date = %s";
+			$where['date'] = $date;
 		}
-		$sql .= " ORDER BY signup_date, time_start";
-		if($date) {
-			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id, $date);
-		} else {
-			$safe_sql = $this->wpdb->prepare($sql, $firstname, $lastname, $sheet_id);
-		}
-		$results = $this->wpdb->get_results($safe_sql);
-
-		return stripslashes_deep($results);
+		return PTA_SUS_Signup_Functions::get_detailed_signups($where);
 	}
 	
 	public function get_all_signups_by_user_name($firstname, $lastname, $date = false ) {
@@ -956,7 +907,11 @@ class PTA_SUS_Data
 	 * @return Object Array    Returns an array of objects with signup info
 	 */
 	public function get_all_signups($show_expired = false) {
-		_deprecated_function( __FUNCTION__, '4.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups()' );
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '4.7.0', 'PTA_SUS_Signup_Functions::get_detailed_signups()'.sprintf('Called from %s line %s', $file, $line) );
 		$where = array();
 		return PTA_SUS_Signup_Functions::get_detailed_signups($where,$show_expired);
 	}
