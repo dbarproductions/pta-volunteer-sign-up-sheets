@@ -6,17 +6,15 @@
      * @var object $task
      * @var object $signup
      * @var PTA_SUS_Admin $this
-     * @var bool $success
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 $view_url = sprintf('?page=%s&action=view_signup&sheet_id=%s', $_REQUEST['page'], $_REQUEST['sheet_id']);
 $return = wp_nonce_url( $view_url, 'view_signup', '_sus_nonce' );
-if($success) {
+if($this->success) {
+    PTA_SUS_Messages::add_message( __( 'Move Signup was processed successfully.', 'pta-volunteer-sign-up-sheets' ));
+    PTA_SUS_Messages::show_messages(true, 'admin');
     ?>
-    <div class="notice notice-success is-dismissible">
-        <p><?php _e( 'Move Signup was processed successfully.', 'pta-volunteer-sign-up-sheets' ); ?></p>
-    </div>
     <p class="submit">
         <span class="pta-sus admin return-link"><a class="button-secondary" href="<?php echo esc_url($return); ?>"><?php _e('RETURN', 'pta-volunteer-sign-up-sheets'); ?></a></span>
     </p>
@@ -31,7 +29,7 @@ foreach($available_sheets as $i => $available_sheet) {
     }
 }
 ?>
-<p><strong><?php _e('Use this move a signup to the selected Sheet, Task, and Date.', 'pta-volunteer-sign-up-sheets'); ?></strong></p>
+<p><strong><?php _e('Use this to move a signup to the selected Sheet, Task, and Date.', 'pta-volunteer-sign-up-sheets'); ?></strong></p>
 <h3><?php _e('NOTE!! This function will only change the Task ID and DATE of the existing signup database entry!', 'pta-volunteer-sign-up-sheets'); ?></h3>
 <p><?php _e('Item Details will remain the same and might not match with the new Task you move the signup to, and may need to be edited. In addition, if you are using the Custom Fields extension with different signup template fields for the new Sheet and Task you select, those values will be empty and you will need to manually edit the new signup to add them.', 'pta-volunteer-sign-up-sheets'); ?></p>
 <hr/>

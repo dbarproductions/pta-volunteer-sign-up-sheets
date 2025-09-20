@@ -4,15 +4,14 @@
      * @var object $sheet
      * @var PTA_SUS_Admin $this
      * @var array $tasks
-     * @var bool $success
+     * @var PTA_SUS_Admin $this
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 $return = add_query_arg(array('action' => false, 'sheet_id' => false, '_sus_nonce' => false ));
-if($success) {
+if($this->success) {
+    PTA_SUS_Messages::add_message( __( 'Reschedule/Copy was processed successfully.', 'pta-volunteer-sign-up-sheets' ));
+    PTA_SUS_Messages::show_messages(true, 'admin');
     ?>
-    <div class="notice notice-success is-dismissible">
-        <p><?php _e( 'Reschedule/Copy was processed successfully.', 'pta-volunteer-sign-up-sheets' ); ?></p>
-    </div>
     <p class="submit">
         <span class="pta-sus admin return-link"><a class="button-secondary" href="<?php echo esc_url($return); ?>"><?php _e('RETURN', 'pta-volunteer-sign-up-sheets'); ?></a></span>
     </p>

@@ -1,11 +1,11 @@
 <?php
 /**
- * @var bool $success
+ * @var PTA_SUS_Admin $this
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 $view_url = sprintf('?page=%s&action=view_signup&sheet_id=%s', $_REQUEST['page'], $_REQUEST['sheet_id']);
 $nonced_view_url = wp_nonce_url( $view_url, 'view_signup', '_sus_nonce' );
-if($success) {
+if($this->success) {
 	?>
 <div class="pta-sus admin return-link"><a class="button-primary" href="<?php echo esc_url($nonced_view_url); ?>"><?php _e('RETURN TO SIGNUPS LIST', 'pta-volunteer-sign-up-sheets'); ?></a></div>
 	<?php
@@ -15,7 +15,8 @@ $edit = false;
 if($signup_id > 0) {
 	$signup=$this->data->get_signup($signup_id);
 	if(empty($signup)) {
-		echo '<div class="error"><p>'.__('Invalid Signup', 'pta-volunteer-sign-up-sheets').'</p></div>';
+		PTA_SUS_Messages::add_error(__('Invalid Signup', 'pta-volunteer-sign-up-sheets'));
+        PTA_SUS_Messages::show_messages(true, 'admin');
 		return;
 	}
 	$edit = true;
@@ -35,7 +36,8 @@ if($edit) {
 	$date = isset($_REQUEST['date']) ? sanitize_text_field($_REQUEST['date']) : 0;
 }
 if(0 === $task_id || 0 === $date) {
-	echo '<div class="error"><p>'.__('Invalid Data', 'pta-volunteer-sign-up-sheets').'</p></div>';
+    PTA_SUS_Messages::add_error(__('Invalid Data', 'pta-volunteer-sign-up-sheets'));
+    PTA_SUS_Messages::show_messages(true, 'admin');
 	return;
 }
 $task = apply_filters( 'pta_sus_admin_signup_get_task', $this->data->get_task($task_id), $task_id);

@@ -93,27 +93,8 @@ class PTA_SUS_Public {
 		}
 
 
-		// Get any messages save in cookies if we did a redirect
-		if(isset($_COOKIE['pta_sus_messages'])) {
-			$messages = json_decode(stripslashes($_COOKIE['pta_sus_messages']), true);
-			if($messages) {
-				foreach($messages as $msg) {
-					PTA_SUS_Messages::add_message($msg);
-				}
-			}
-			setcookie('pta_sus_messages', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
-		}
-
-		if(isset($_COOKIE['pta_sus_errors'])) {
-			$errors = json_decode(stripslashes($_COOKIE['pta_sus_errors']), true);
-			if($errors) {
-				foreach($errors as $error) {
-					PTA_SUS_Messages::add_error($error);
-				}
-			}
-			setcookie('pta_sus_errors', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
-		}
-
+		// Get any messages saved in cookies if we did a redirect
+		pta_get_messages_from_cookie();
 
 		add_shortcode('pta_sign_up_sheet', array($this, 'display_sheet'));
 		add_shortcode('pta_user_signups', array($this, 'process_user_signups_shortcode'));

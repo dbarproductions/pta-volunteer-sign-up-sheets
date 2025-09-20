@@ -381,6 +381,28 @@ function pta_get_email_options() {
 	return get_option('pta_volunteer_sus_email_options', array());
 }
 
+function pta_get_messages_from_cookie() {
+	if(isset($_COOKIE['pta_sus_messages'])) {
+		$messages = json_decode(stripslashes($_COOKIE['pta_sus_messages']), true);
+		if($messages) {
+			foreach($messages as $msg) {
+				PTA_SUS_Messages::add_message($msg);
+			}
+		}
+		setcookie('pta_sus_messages', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+	}
+
+	if(isset($_COOKIE['pta_sus_errors'])) {
+		$errors = json_decode(stripslashes($_COOKIE['pta_sus_errors']), true);
+		if($errors) {
+			foreach($errors as $error) {
+				PTA_SUS_Messages::add_error($error);
+			}
+		}
+		setcookie('pta_sus_errors', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+	}
+}
+
 function pta_clean_redirect() {
 	// Store current messages in cookies
 	setcookie(

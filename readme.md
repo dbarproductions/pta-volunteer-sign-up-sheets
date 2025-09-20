@@ -1,6 +1,6 @@
 # Volunteer Sign Up Sheets
 ## Please obtain version 5.6+ from my site
-This plugin is being moved to my own server and will use the same licensing and updater software as my paid extensions, but this plugin will remain free.
+This plugin is now hosted on my own server and will use the same licensing and updater software as my paid extensions, but this plugin will remain free.
 Please "purchase" the free plugin from my site at:
 https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/
 so that my system can generate a license code for you. If you already have a license for the Complete Bundle, you can use that license to activate this plugin to enable automatic updates.
@@ -21,21 +21,11 @@ so that my system can generate a license code for you. If you already have a lic
 
 **License URI**: https://www.gnu.org/licenses/gpl-2.0.html
 
-**Stable tag: 5.7.0**
+**Stable tag: 5.8.0**
 
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
-# Important Announcement: Plugin Updates Moving to GitHub
-**The Volunteer Sign-Up Sheets plugin is now being maintained on GitHub. WordPress.org will no longer receive updates.**
-
-## Future Updates
-The plugin now includes an automatic update checker that will notify you of new versions directly in your WordPress dashboard. Simply install this version to receive future update notifications.
-
-## Why the Change?
-This move allows us to better maintain the plugin and provide more frequent updates while still keeping the core plugin free and open source.
-
-Thank you for your continued support!
 ## Description ##
 
 **PLEASE DO NOT USE THE SUPPORT FORUM FOR FEATURE REQUESTS!!**
@@ -201,6 +191,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 ## Changelog ##
+**Version 5.8.0**
+*   Reworked action processing on admin sheets list table page to process any actions earlier and then redirect to a clean URL removing the action arguments to avoid duplicate actions if the page is reloaded.
+*   Tested with PHP 8.4.11 and WordPress 6.8.2
+
 **Version 5.7.0**
 *   Added login link to the Login to Signup message on consolidated row when login to signup is required and remaining slots are consolidated.
 *   Refactored messages shown in admin pages to use the messages class functions for consistency

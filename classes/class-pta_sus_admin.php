@@ -18,6 +18,9 @@ class PTA_SUS_Admin {
 	public $table;
 	private $show_settings;
 
+	private $success;
+	private $action;
+
 	public function __construct() {
 		global $pta_sus_sheet_page_suffix, $pta_sus;
 		$this->data = $pta_sus->data;
@@ -34,6 +37,7 @@ class PTA_SUS_Admin {
 		add_action( 'wp_ajax_pta_sus_get_user_data', array($this, 'get_user_data' ) );
 		add_action( 'wp_ajax_pta_sus_user_search', array($this, 'user_search' ) );
 		add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
 	}
 
 	public function set_screen($status, $option, $value) {
@@ -101,6 +105,10 @@ class PTA_SUS_Admin {
 			}
 		}
 		wp_send_json( $response);
+	}
+
+	public function admin_init() {
+		$this->maybe_process_list_table_actions();
 	}
 
 	public function admin_menu() {
@@ -488,7 +496,6 @@ class PTA_SUS_Admin {
 			$emails->send_mail($signup_id, false, false);
 		}
 		PTA_SUS_Messages::add_message(__('Signup Saved', 'pta-volunteer-sign-up-sheets'));
-		PTA_SUS_Messages::show_messages(true, 'admin');
 		return true;
 	}
 
@@ -751,21 +758,50 @@ class PTA_SUS_Admin {
         return $this->data->update_signup($fields, $old_signup_id);
     }
 
-	/**
-	 * Admin Page: Sheets
-	 */
-	public function admin_sheet_page() {
-		if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
-			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
-		}
+	private function admin_sheet_page_redirect() {
+		// Store current messages in cookies
+		setcookie(
+			'pta_sus_messages',
+			json_encode(PTA_SUS_Messages::get_messages()),
+			time() + 300,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
+		);
 
+		setcookie(
+			'pta_sus_errors',
+			json_encode(PTA_SUS_Messages::get_errors()),
+			time() + 300,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
+		);
+		$redirect_url = remove_query_arg( ['action', 'sheet_id','_sus_nonce'] );
+		wp_redirect( esc_url_raw( $redirect_url ) );
+		exit; // Always exit after a redirect.
+	}
+
+	private function maybe_process_list_table_actions() {
+		$page = $_REQUEST['page'] ?? '';
+			if ( ! ( 'pta-sus-settings_sheets' === $page ) ) {
+			return; // Exit if not on the correct page.
+		}
 		// SECURITY CHECK
 		// Checks nonces for ALL actions
 		if (isset($_GET['action'])) {
 			check_admin_referer( $_GET['action'], '_sus_nonce');
+		} else {
+			return; // no action
 		}
-		// Remove signup record
-		if (isset($_GET['action']) && $_GET['action'] == 'clear') {
+		// Get any messages saved in cookies if there was a redirect
+		pta_get_messages_from_cookie();
+		$this->action = sanitize_text_field($_GET['action']);
+
+		// Clear signup
+		if ('clear' === $this->action ) {
 			if($this->email_options['admin_clear_emails']) {
 				$emails = new PTA_SUS_Emails();
 				$emails->send_mail($_GET['signup_id'], false, true);
@@ -780,26 +816,82 @@ class PTA_SUS_Admin {
 					do_action('pta_sus_admin_clear_signup', $signup);
 				}
 			}
-
 		}
 
 		// Add/Edit Signup form submitted
-		$success = false;
+		$this->success = false;
 		if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode']) {
-			$success = $this->process_signup_form();
+			$this->success = $this->process_signup_form();
 		}
 
-        if(isset($_POST['pta_admin_reschedule_form_mode']) && 'submitted' === $_POST['pta_admin_reschedule_form_mode']) {
-            $success = $this->process_reschedule_form();
-        }
+		if(isset($_POST['pta_admin_reschedule_form_mode']) && 'submitted' === $_POST['pta_admin_reschedule_form_mode']) {
+			$this->success = $this->process_reschedule_form();
+		}
 
 		if(isset($_POST['pta_admin_move_form_mode']) && 'submitted' === $_POST['pta_admin_move_form_mode']) {
-            $success = $this->process_move_signup_form();
-        }
+			$this->success = $this->process_move_signup_form();
+		}
+
+		$sheet_id = isset($_GET['sheet_id']) ? intval($_GET['sheet_id']) : 0;
+
+		if ('untrash' === $this->action && $sheet_id > 0) {
+			if (($result = $this->data->update_sheet(array('sheet_trash'=>0), $sheet_id)) === false) {
+				PTA_SUS_Messages::add_error(__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets'));
+			} elseif ($result > 0) {
+				PTA_SUS_Messages::add_message(__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets'));
+			}
+			$this->admin_sheet_page_redirect();
+		}
+		if ('trash' === $this->action && $sheet_id > 0) {
+			if (($result = $this->data->update_sheet(array('sheet_trash'=>true), $sheet_id)) === false) {
+				PTA_SUS_Messages::add_error(__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets'));
+			} elseif ($result > 0) {
+				PTA_SUS_Messages::add_message(__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets'));
+			}
+			$this->admin_sheet_page_redirect();
+		}
+		if ('delete' === $this->action && $sheet_id > 0) {
+			do_action('pta_sus_sheet_before_deleted', $sheet_id);
+			if (($result = $this->data->delete_sheet($sheet_id)) === false) {
+				PTA_SUS_Messages::add_error(__('Error permanently deleting sheet.', 'pta-volunteer-sign-up-sheets'));
+			} elseif ($result > 0) {
+				PTA_SUS_Messages::add_message(__('Sheet has been permanently deleted.', 'pta-volunteer-sign-up-sheets'));
+				do_action('pta_sus_sheet_deleted', $sheet_id);
+			}
+			$this->admin_sheet_page_redirect();
+		}
+		if ('copy' === $this->action && $sheet_id > 0) {
+			if (($new_id = $this->data->copy_sheet($sheet_id)) === false) {
+				PTA_SUS_Messages::add_error(__('Error copying sheet.', 'pta-volunteer-sign-up-sheets'));
+			} else {
+				PTA_SUS_Messages::add_message(__('Sheet has been copied to new sheet ID #', 'pta-volunteer-sign-up-sheets').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta-volunteer-sign-up-sheets').'</a>).');
+			}
+			$this->admin_sheet_page_redirect();
+		}
+		if ('toggle_visibility' === $this->action && $sheet_id > 0) {
+			if (false === $this->data->toggle_visibility($sheet_id)) {
+				PTA_SUS_Messages::add_error(__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets'));
+			}
+			$this->admin_sheet_page_redirect();
+		}
+
+
+	}
+
+	/**
+	 * Admin Page: Sheets
+	 */
+	public function admin_sheet_page() {
+		if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
+		}
+
+		echo '<div class="wrap pta_sus">';
 
 		// Edit Signup
-		if (isset($_GET['action']) && 'edit_signup' == $_GET['action'] && !$success) {
+		if ('edit_signup' == $this->action && !$this->success) {
 			include(PTA_VOLUNTEER_SUS_DIR.'views/admin-add-edit-signup-form.php');
+			echo '</div>';
 			return;
 		}
 
@@ -807,25 +899,16 @@ class PTA_SUS_Admin {
 		$filter = isset($_REQUEST['pta-filter-submit']) && (isset($_REQUEST['pta-visible-filter']) || isset($_REQUEST['pta-type-filter']));
 		$search = isset($_REQUEST['s']) && '' !== $_REQUEST['s'];
 		if($filter || $search) {
-			$trash = $untrash = $delete = $copy = $toggle_visibility = $view_signups = $view_all = $edit = $reschedule = $move = false;
+			$view_signups = $edit = false;
 		} else {
-			$trash             = ( ! empty( $_GET['action'] ) && 'trash' === $_GET['action']);
-			$untrash           = ( ! empty( $_GET['action'] ) && 'untrash' === $_GET['action']);
-			$delete            = ( ! empty( $_GET['action'] ) && 'delete' === $_GET['action']);
-			$copy              = ( ! empty( $_GET['action'] ) && 'copy' === $_GET['action']);
-			$reschedule        = ( ! empty( $_GET['action'] ) && 'reschedule' === $_GET['action']);
-			$move              = ( ! empty( $_GET['action'] ) && 'move_signup' === $_GET['action'] );
-			$view_signups      = ( ! empty( $_GET['action'] ) && 'view_signups' === $_GET['action']);
-			$toggle_visibility = ( ! empty( $_GET['action'] ) && 'toggle_visibility'  === $_GET['action']);
-			$view_all          = ( ! empty( $_GET['action'] ) && 'view_all' === $_GET['action']);
-			$edit = (!$trash && !$untrash && !$delete && !$copy && !$toggle_visibility && !$view_all && !empty($_GET['sheet_id']));
+			$edit = (!empty($_GET['sheet_id']) && !in_array($this->action, array('trash', 'untrash', 'delete', 'copy', 'toggle_visibility', 'view_all')));
+			$view_signups = !empty($_GET['sheet_id']) && $this->action === 'view_signup';
 		}
 
 		$view_all_url = add_query_arg(array('page' => 'pta-sus-settings_sheets','action' => 'view_all', 'sheet_id' => false));
 		$nonced_view_all_url = wp_nonce_url($view_all_url, 'view_all', '_sus_nonce');
 
-		echo '<div class="wrap pta_sus">';
-		if(!$view_all && !$reschedule && !$move) {
+		if(!in_array($this->action, array('view_all','reschedule','move'))) {
 			echo ($edit || $view_signups) ? '<h2>'.__('Sheet Details', 'pta-volunteer-sign-up-sheets').'</h2>' : '<h2>'.__('Sign-up Sheets ', 'pta-volunteer-sign-up-sheets').'
 			<a href="?page='.$this->admin_settings_slug.'_modify_sheet" class="add-new-h2">'.__('Add New', 'pta-volunteer-sign-up-sheets').'</a>
 			<a href="'.esc_url($nonced_view_all_url).'" class="button-primary">'.__('View/Export ALL Data', 'pta-volunteer-sign-up-sheets').'</a>
@@ -835,42 +918,13 @@ class PTA_SUS_Admin {
 
 		$sheet_id = isset($_GET['sheet_id']) ? intval($_GET['sheet_id']) : 0;
 
-		if ($untrash) {
-			if (($result = $this->data->update_sheet(array('sheet_trash'=>0), $sheet_id)) === false) {
-				PTA_SUS_Messages::add_error(__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
-				PTA_SUS_Messages::add_message(__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets'));
-			}
-		} elseif ($trash) {
-			if (($result = $this->data->update_sheet(array('sheet_trash'=>true), $sheet_id)) === false) {
-				PTA_SUS_Messages::add_error(__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
-				PTA_SUS_Messages::add_message(__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets'));
-			}
-		} elseif ($delete) {
-			do_action('pta_sus_sheet_before_deleted', $sheet_id);
-			if (($result = $this->data->delete_sheet($sheet_id)) === false) {
-				PTA_SUS_Messages::add_error(__('Error permanently deleting sheet.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
-				PTA_SUS_Messages::add_message(__('Sheet has been permanently deleted.', 'pta-volunteer-sign-up-sheets'));
-				do_action('pta_sus_sheet_deleted', $sheet_id);
-			}
-		} elseif ($copy) {
-			if (($new_id = $this->data->copy_sheet($sheet_id)) === false) {
-				PTA_SUS_Messages::add_error(__('Error copying sheet.', 'pta-volunteer-sign-up-sheets'));
-			} else {
-				PTA_SUS_Messages::add_message(__('Sheet has been copied to new sheet ID #', 'pta-volunteer-sign-up-sheets').$new_id.' (<a href="?page='.$this->admin_settings_slug.'_modify_sheet&amp;action=edit_sheet&amp;sheet_id='.$new_id.'">'.__('Edit', 'pta-volunteer-sign-up-sheets').'</a>).');
-			}
-		} elseif ($toggle_visibility) {
-			if (false === $this->data->toggle_visibility($sheet_id)) {
-				PTA_SUS_Messages::add_error(__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets'));
-			}
-		} elseif ($view_all) {
+		if ('view_all' === $this->action) {
             echo '<h2><span id="sheet_title">'.__('All Signup Data', 'pta-volunteer-sign-up-sheets').'</span></h2>';
 			PTA_SUS_Messages::show_messages(true, 'admin');
             include('admin-view-all-signups-html.php');
+			echo '</div>';
             return;
-        } elseif ($reschedule) {
+        } elseif ('reschedule' === $this->action) {
             if (!($sheet = $this->data->get_sheet($sheet_id))) {
                 PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
@@ -890,7 +944,7 @@ class PTA_SUS_Admin {
 
             echo '</div>';
 			return;
-		} elseif ($move) {
+		} elseif ('move_signup' === $this->action) {
             if (!($sheet = $this->data->get_sheet($sheet_id))) {
                 PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
@@ -914,7 +968,6 @@ class PTA_SUS_Admin {
 
             echo '<h2><span id="sheet_title">'.sprintf(__('Move Signup for: %s', 'pta-volunteer-sign-up-sheets'), esc_html($signup->firstname . ' ' . $signup->lastname . ' - ' . $task->title)).'</span></h2>';
             include('admin-move-html.php');
-
             echo '</div>';
 			return;
 		} elseif ($edit || $view_signups) {
