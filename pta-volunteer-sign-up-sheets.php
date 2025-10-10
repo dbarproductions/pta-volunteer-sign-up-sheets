@@ -68,6 +68,12 @@ if (!class_exists('PTA_SUS_List_Table')) require_once 'classes/list-table.php';
 if (!class_exists('PTA_SUS_Widget')) require_once 'classes/widget.php';
 if (!class_exists('PTA_SUS_Emails')) require_once 'classes/class-pta_sus_emails.php';
 
+// Load new model classes
+if (!class_exists('PTA_SUS_Base_Object')) require_once 'classes/models/class-pta-sus-base-object.php';
+if (!class_exists('PTA_SUS_Sheet')) require_once 'classes/models/class-pta-sus-sheet.php';
+if (!class_exists('PTA_SUS_Task')) require_once 'classes/models/class-pta-sus-task.php';
+if (!class_exists('PTA_SUS_Signup')) require_once 'classes/models/class-pta-sus-signup.php';
+
 if(!class_exists('PTA_Sign_Up_Sheet')):
 
 class PTA_Sign_Up_Sheet {

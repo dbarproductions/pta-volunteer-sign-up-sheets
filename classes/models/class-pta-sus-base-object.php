@@ -1,0 +1,562 @@
+<?php
+/**
+ * Abstract Base Object Class
+ * 
+ * Provides base functionality for Sheet, Task, and Signup objects
+ * Handles CRUD operations, property management, and database interactions
+ * 
+ * @package PTA_Volunteer_Sign_Up_Sheets
+ * @since 6.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+abstract class PTA_SUS_Base_Object {
+	
+	/**
+	 * Object ID
+	 *
+	 * @var int
+	 */
+	protected $id = 0;
+	
+	/**
+	 * Object data - stores all properties
+	 *
+	 * @var array
+	 */
+	protected $data = array();
+	
+	/**
+	 * Database table name (without prefix)
+	 *
+	 * @var string
+	 */
+	protected $table_name = '';
+	
+	/**
+	 * WordPress database object
+	 *
+	 * @var wpdb
+	 */
+	protected $wpdb;
+	
+	/**
+	 * Whether this is a new object (not yet saved to database)
+	 *
+	 * @var bool
+	 */
+	protected $is_new = true;
+	
+	/**
+	 * Constructor
+	 *
+	 * @param int|object|array $data Object ID, stdClass object, or array of properties
+	 */
+	public function __construct( $data = null ) {
+		global $wpdb;
+		$this->wpdb = $wpdb;
+		
+		// Initialize properties with defaults
+		$this->init_properties();
+		
+		// Load data if provided
+		if ( ! empty( $data ) ) {
+			if ( is_numeric( $data ) ) {
+				// Load from database by ID
+				$this->load( $data );
+			} elseif ( is_object( $data ) || is_array( $data ) ) {
+				// Populate from existing data
+				$this->populate( $data );
+			}
+		}
+	}
+	
+	/**
+	 * Initialize properties with default values
+	 * Sets up the data array with defaults based on property definitions
+	 */
+	protected function init_properties() {
+		$properties = $this->get_properties();
+		$defaults = $this->get_property_defaults();
+		
+		foreach ( $properties as $property => $type ) {
+			$this->data[$property] = isset( $defaults[$property] ) ? $defaults[$property] : null;
+		}
+		
+		// ID is always initialized to 0 for new objects
+		$this->data['id'] = 0;
+	}
+	
+	/**
+	 * Get property definitions
+	 * Returns an associative array of property_name => type
+	 * Must be implemented by child classes
+	 *
+	 * @return array
+	 */
+	abstract protected function get_property_definitions();
+	
+	/**
+	 * Get property defaults
+	 * Returns an associative array of property_name => default_value
+	 * Must be implemented by child classes
+	 *
+	 * @return array
+	 */
+	abstract protected function get_property_defaults();
+	
+	/**
+	 * Get the database table name (without prefix)
+	 * Must be implemented by child classes
+	 *
+	 * @return string
+	 */
+	abstract protected function get_table_name();
+	
+	/**
+	 * Get required fields
+	 * Returns an array of required field names
+	 * Can be overridden by child classes
+	 *
+	 * @return array
+	 */
+	protected function get_required_fields() {
+		return array();
+	}
+	
+	/**
+	 * Get properties (with filter applied)
+	 * Allows extensions to add custom properties
+	 *
+	 * @return array
+	 */
+	public function get_properties() {
+		$properties = $this->get_property_definitions();
+		$object_type = $this->get_object_type();
+		
+		/**
+		 * Filter the property definitions for this object type
+		 *
+		 * @param array $properties Array of property_name => type
+		 * @param PTA_SUS_Base_Object $this The object instance
+		 */
+		return apply_filters( "pta_sus_{$object_type}_properties", $properties, $this );
+	}
+	
+	/**
+	 * Get the object type (sheet, task, signup)
+	 * Used for filters and hooks
+	 *
+	 * @return string
+	 */
+	protected function get_object_type() {
+		// Default implementation - get from class name
+		$class_name = get_class( $this );
+		$parts = explode( '_', $class_name );
+		return strtolower( end( $parts ) );
+	}
+	
+	/**
+	 * Get property type for a specific property
+	 *
+	 * @param string $property Property name
+	 * @return string|false Property type or false if not found
+	 */
+	public function get_property_type( $property ) {
+		$properties = $this->get_properties();
+		return isset( $properties[$property] ) ? $properties[$property] : false;
+	}
+	
+	/**
+	 * Magic getter for properties
+	 * Provides backward compatibility with stdClass object access
+	 *
+	 * @param string $property Property name
+	 * @return mixed Property value or null if not found
+	 */
+	public function __get( $property ) {
+		if ( array_key_exists( $property, $this->data ) ) {
+			return $this->data[$property];
+		}
+		return null;
+	}
+	
+	/**
+	 * Magic setter for properties
+	 * Provides backward compatibility with stdClass object access
+	 *
+	 * @param string $property Property name
+	 * @param mixed $value Property value
+	 */
+	public function __set( $property, $value ) {
+		$this->data[$property] = $value;
+	}
+	
+	/**
+	 * Magic isset for properties
+	 *
+	 * @param string $property Property name
+	 * @return bool
+	 */
+	public function __isset( $property ) {
+		return isset( $this->data[$property] );
+	}
+	
+	/**
+	 * Magic unset for properties
+	 *
+	 * @param string $property Property name
+	 */
+	public function __unset( $property ) {
+		if ( isset( $this->data[$property] ) ) {
+			unset( $this->data[$property] );
+		}
+	}
+	
+	/**
+	 * Load object from database by ID
+	 *
+	 * @param int $id Object ID
+	 * @return bool True if loaded successfully, false otherwise
+	 */
+	public function load( $id ) {
+		$id = absint( $id );
+		if ( empty( $id ) ) {
+			return false;
+		}
+		
+		$table_name = $this->wpdb->prefix . $this->get_table_name();
+		$row = $this->wpdb->get_row( 
+			$this->wpdb->prepare( 
+				"SELECT * FROM {$table_name} WHERE id = %d", 
+				$id 
+			),
+			ARRAY_A
+		);
+		
+		if ( empty( $row ) ) {
+			return false;
+		}
+		
+		// Populate object with data
+		$this->populate( $row );
+		$this->is_new = false;
+		
+		return true;
+	}
+	
+	/**
+	 * Populate object with data
+	 *
+	 * @param object|array $data Object data
+	 */
+	protected function populate( $data ) {
+		// Convert object to array if needed
+		if ( is_object( $data ) ) {
+			$data = get_object_vars( $data );
+		}
+		
+		// Apply stripslashes
+		$data = stripslashes_deep( $data );
+		
+		// Set properties
+		$properties = $this->get_properties();
+		foreach ( $data as $key => $value ) {
+			// Only set if it's a defined property or if it's 'id'
+			if ( isset( $properties[$key] ) || $key === 'id' ) {
+				$this->data[$key] = $value;
+			}
+		}
+		
+		// Set ID separately
+		if ( isset( $data['id'] ) ) {
+			$this->id = absint( $data['id'] );
+			$this->data['id'] = $this->id;
+			$this->is_new = false;
+		}
+	}
+	
+	/**
+	 * Save object to database
+	 * Performs INSERT or UPDATE depending on whether object is new
+	 *
+	 * @return int|false Object ID on success, false on failure
+	 */
+	public function save() {
+		$object_type = $this->get_object_type();
+		
+		/**
+		 * Action before saving object
+		 *
+		 * @param PTA_SUS_Base_Object $this The object instance
+		 */
+		do_action( "pta_sus_before_save_{$object_type}", $this );
+		
+		// Validate required fields
+		if ( ! $this->validate() ) {
+			return false;
+		}
+		
+		// Prepare data for database
+		$db_data = $this->prepare_for_save();
+		
+		// Get table name
+		$table_name = $this->wpdb->prefix . $this->get_table_name();
+		
+		// Get format array for wpdb
+		$formats = $this->get_wpdb_formats( $db_data );
+		
+		if ( $this->is_new || empty( $this->id ) ) {
+			// INSERT
+			$result = $this->wpdb->insert( $table_name, $db_data, $formats );
+			if ( $result ) {
+				$this->id = $this->wpdb->insert_id;
+				$this->data['id'] = $this->id;
+				$this->is_new = false;
+				
+				/**
+				 * Action after creating new object
+				 *
+				 * @param int $id Object ID
+				 * @param PTA_SUS_Base_Object $this The object instance
+				 */
+				do_action( "pta_sus_created_{$object_type}", $this->id, $this );
+				
+				return $this->id;
+			}
+		} else {
+			// UPDATE
+			$result = $this->wpdb->update( 
+				$table_name, 
+				$db_data, 
+				array( 'id' => $this->id ),
+				$formats,
+				array( '%d' )
+			);
+			if ( false !== $result ) {
+				/**
+				 * Action after updating object
+				 *
+				 * @param int $id Object ID
+				 * @param PTA_SUS_Base_Object $this The object instance
+				 */
+				do_action( "pta_sus_updated_{$object_type}", $this->id, $this );
+				
+				return $this->id;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Prepare data for saving to database
+	 * Sanitizes values and removes ID field
+	 *
+	 * @return array
+	 */
+	protected function prepare_for_save() {
+		$db_data = array();
+		$properties = $this->get_properties();
+		
+		foreach ( $properties as $property => $type ) {
+			if ( isset( $this->data[$property] ) ) {
+				// Sanitize value based on type
+				$db_data[$property] = $this->sanitize_value( $this->data[$property], $type );
+			}
+		}
+		
+		// Remove ID if it's 0 (for new objects)
+		if ( isset( $db_data['id'] ) && empty( $db_data['id'] ) ) {
+			unset( $db_data['id'] );
+		}
+		
+		return $db_data;
+	}
+	
+	/**
+	 * Sanitize a value based on its type
+	 * Uses the global pta_sanitize_value function if available
+	 *
+	 * @param mixed $value Value to sanitize
+	 * @param string $type Value type
+	 * @return mixed Sanitized value
+	 */
+	protected function sanitize_value( $value, $type ) {
+		// Use global function if available
+		if ( function_exists( 'pta_sanitize_value' ) ) {
+			return pta_sanitize_value( $value, $type );
+		}
+		
+		// Fallback sanitization
+		switch ( $type ) {
+			case 'int':
+				return absint( $value );
+			case 'bool':
+				return (bool) $value;
+			case 'email':
+				return sanitize_email( $value );
+			case 'textarea':
+				return sanitize_textarea_field( $value );
+			case 'date':
+			case 'time':
+			case 'text':
+			default:
+				return sanitize_text_field( $value );
+		}
+	}
+	
+	/**
+	 * Get wpdb format array for data
+	 * Returns array of %d, %s, etc. for wpdb insert/update
+	 *
+	 * @param array $data Data to get formats for
+	 * @return array
+	 */
+	protected function get_wpdb_formats( $data ) {
+		$formats = array();
+		$properties = $this->get_properties();
+		
+		foreach ( $data as $key => $value ) {
+			$type = isset( $properties[$key] ) ? $properties[$key] : 'text';
+			$formats[] = $this->get_wpdb_format( $type );
+		}
+		
+		return $formats;
+	}
+	
+	/**
+	 * Get wpdb format string for a property type
+	 *
+	 * @param string $type Property type
+	 * @return string wpdb format (%d, %s, %f)
+	 */
+	protected function get_wpdb_format( $type ) {
+		// Integer types
+		if ( in_array( $type, array( 'int', 'bool' ) ) ) {
+			return '%d';
+		}
+		
+		// Float types
+		if ( in_array( $type, array( 'float', 'decimal' ) ) ) {
+			return '%f';
+		}
+		
+		// Everything else is a string
+		return '%s';
+	}
+	
+	/**
+	 * Validate object data
+	 * Checks that required fields are present and not empty
+	 *
+	 * @return bool True if valid, false otherwise
+	 */
+	protected function validate() {
+		$required = $this->get_required_fields();
+		
+		foreach ( $required as $field => $label ) {
+			if ( empty( $this->data[$field] ) ) {
+				// Required field is missing or empty
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Delete object from database
+	 *
+	 * @return bool True on success, false on failure
+	 */
+	public function delete() {
+		if ( empty( $this->id ) ) {
+			return false;
+		}
+		
+		$object_type = $this->get_object_type();
+		
+		/**
+		 * Action before deleting object
+		 *
+		 * @param int $id Object ID
+		 * @param PTA_SUS_Base_Object $this The object instance
+		 */
+		do_action( "pta_sus_before_delete_{$object_type}", $this->id, $this );
+		
+		$table_name = $this->wpdb->prefix . $this->get_table_name();
+		$result = $this->wpdb->delete( 
+			$table_name, 
+			array( 'id' => $this->id ),
+			array( '%d' )
+		);
+		
+		if ( $result ) {
+			/**
+			 * Action after deleting object
+			 *
+			 * @param int $id Object ID
+			 */
+			do_action( "pta_sus_deleted_{$object_type}", $this->id );
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Get object ID
+	 *
+	 * @return int
+	 */
+	public function get_id() {
+		return $this->id;
+	}
+	
+	/**
+	 * Check if object exists in database
+	 *
+	 * @return bool
+	 */
+	public function exists() {
+		return ! $this->is_new && ! empty( $this->id );
+	}
+	
+	/**
+	 * Convert object to stdClass
+	 * For backward compatibility with existing code
+	 *
+	 * @return stdClass
+	 */
+	public function to_stdclass() {
+		return (object) $this->data;
+	}
+	
+	/**
+	 * Convert object to array
+	 *
+	 * @return array
+	 */
+	public function to_array() {
+		return $this->data;
+	}
+	
+	/**
+	 * Static method to get object by ID
+	 * Returns a new instance of the class with data loaded
+	 *
+	 * @param int $id Object ID
+	 * @return static|false Object instance or false if not found
+	 */
+	public static function get_by_id( $id ) {
+		$object = new static();
+		if ( $object->load( $id ) ) {
+			return $object;
+		}
+		return false;
+	}
+}
+
