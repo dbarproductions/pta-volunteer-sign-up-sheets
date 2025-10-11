@@ -49,6 +49,15 @@ abstract class PTA_SUS_Base_Object {
 	protected $is_new = true;
 	
 	/**
+	 * Static cache for object instances
+	 * Prevents duplicate queries and ensures data consistency across extensions
+	 * Format: 'ClassName:ID' => object_instance
+	 *
+	 * @var array
+	 */
+	protected static $instance_cache = array();
+	
+	/**
 	 * Constructor
 	 *
 	 * @param int|object|array $data Object ID, stdClass object, or array of properties
@@ -63,11 +72,36 @@ abstract class PTA_SUS_Base_Object {
 		// Load data if provided
 		if ( ! empty( $data ) ) {
 			if ( is_numeric( $data ) ) {
+				// Check cache first
+				$class = get_class( $this );
+				$cache_key = $class . ':' . absint( $data );
+				
+				if ( isset( self::$instance_cache[$cache_key] ) ) {
+					// Populate from cached instance
+					$cached = self::$instance_cache[$cache_key];
+					$this->data = $cached->data;
+					$this->id = $cached->id;
+					$this->is_new = $cached->is_new;
+					return;
+				}
+				
 				// Load from database by ID
 				$this->load( $data );
+				
+				// Cache it if successfully loaded
+				if ( ! $this->is_new && ! empty( $this->id ) ) {
+					self::$instance_cache[$cache_key] = $this;
+				}
 			} elseif ( is_object( $data ) || is_array( $data ) ) {
 				// Populate from existing data
 				$this->populate( $data );
+				
+				// Cache it if it has an ID
+				if ( ! $this->is_new && ! empty( $this->id ) ) {
+					$class = get_class( $this );
+					$cache_key = $class . ':' . $this->id;
+					self::$instance_cache[$cache_key] = $this;
+				}
 			}
 		}
 	}
@@ -315,6 +349,10 @@ abstract class PTA_SUS_Base_Object {
 				$this->data['id'] = $this->id;
 				$this->is_new = false;
 				
+				// Add to cache
+				$cache_key = get_class( $this ) . ':' . $this->id;
+				self::$instance_cache[$cache_key] = $this;
+				
 				/**
 				 * Action after creating new object
 				 *
@@ -335,6 +373,10 @@ abstract class PTA_SUS_Base_Object {
 				array( '%d' )
 			);
 			if ( false !== $result ) {
+				// Update cache with current instance
+				$cache_key = get_class( $this ) . ':' . $this->id;
+				self::$instance_cache[$cache_key] = $this;
+				
 				/**
 				 * Action after updating object
 				 *
@@ -494,6 +536,10 @@ abstract class PTA_SUS_Base_Object {
 		);
 		
 		if ( $result ) {
+			// Remove from cache
+			$cache_key = get_class( $this ) . ':' . $this->id;
+			unset( self::$instance_cache[$cache_key] );
+			
 			/**
 			 * Action after deleting object
 			 *
@@ -545,18 +591,58 @@ abstract class PTA_SUS_Base_Object {
 	}
 	
 	/**
-	 * Static method to get object by ID
-	 * Returns a new instance of the class with data loaded
+	 * Static method to get object by ID with caching
+	 * Returns cached instance if available, otherwise loads from database
 	 *
 	 * @param int $id Object ID
 	 * @return static|false Object instance or false if not found
 	 */
 	public static function get_by_id( $id ) {
+		$id = absint( $id );
+		if ( empty( $id ) ) {
+			return false;
+		}
+		
+		$class = get_called_class(); // Gets the actual child class name
+		$cache_key = $class . ':' . $id;
+		
+		// Return cached instance if exists
+		if ( isset( self::$instance_cache[$cache_key] ) ) {
+			return self::$instance_cache[$cache_key];
+		}
+		
+		// Load from database
 		$object = new static();
 		if ( $object->load( $id ) ) {
+			// Store in cache
+			self::$instance_cache[$cache_key] = $object;
 			return $object;
 		}
+		
 		return false;
+	}
+	
+	/**
+	 * Clear object cache
+	 * Useful for testing or when external database changes occur
+	 *
+	 * @param int|null $id Specific ID to clear, or null to clear all instances of this class
+	 */
+	public static function clear_cache( $id = null ) {
+		$class = get_called_class();
+		
+		if ( $id !== null ) {
+			// Clear specific instance
+			$cache_key = $class . ':' . absint( $id );
+			unset( self::$instance_cache[$cache_key] );
+		} else {
+			// Clear all instances of this class
+			foreach ( self::$instance_cache as $key => $value ) {
+				if ( strpos( $key, $class . ':' ) === 0 ) {
+					unset( self::$instance_cache[$key] );
+				}
+			}
+		}
 	}
 }
 
