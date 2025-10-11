@@ -93,56 +93,23 @@ class PTA_SUS_Data
         );
 
     }
-     
+
     /**
      * Get all Sheets
-     * 
-     * @param     bool     get just trash
-     * @param     bool     get only active sheets or those without a set date
-     * @return    mixed    array of sheets
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::get_sheets() instead
+     * @param bool $trash Get just trash
+     * @param bool $active_only Get only active sheets
+     * @return mixed Array of sheets
      */
     public function get_sheets($trash=false, $active_only=false, $show_hidden=false, $order_by='first_date', $order = 'ASC') {
-    	$order_by = sanitize_key($order_by);
-    	if(!in_array($order_by, array('first_date', 'last_date', 'title', 'id'))) {
-		    $order_by='first_date';
-	    }
-	    $order = sanitize_text_field(strtoupper($order));
-    	if(!in_array($order, array('ASC', 'DESC'))) {
-    		$order = 'ASC';
-	    }
-        $SQL = "
-            SELECT * 
-            FROM ".$this->tables['sheet']['name']." 
-            WHERE trash = %d
-            ";
-        if ( $active_only ) {
-            $SQL .= " AND (ADDDATE(last_date,1) >= %s OR last_date = 0000-00-00)";
-        }
-        if ( !$show_hidden ) {
-            $SQL .= " AND visible = 1";
-        }
-        $SQL .= "
-            ORDER BY $order_by $order, id DESC
-        ";
-        if($active_only) {
-	        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash, $this->now));
-        } else {
-	        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $trash));
-        }
-        
-        $results = stripslashes_deep($results);
-        // Hide incomplete sheets (no tasks) from public
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_sheets() ' . sprintf('Called from %s line %s', $file, $line) );
 
-        if (!is_admin()) {
-            foreach($results as $key => $result) {
-                $tasks = $this->get_tasks($result->id);
-                if(empty($tasks)) {
-                    unset($results[$key]);
-                }
-            }
-        }
-
-        return $results;
+        return PTA_SUS_Sheet_Functions::get_sheets($trash, $active_only, $show_hidden, $order_by, $order);
     }
 
     public function get_all_sheet_ids_and_titles($trash = false, $active_only = false, $show_hidden = false) {
@@ -163,18 +130,12 @@ class PTA_SUS_Data
 	 * @return    mixed
 	 */
     public function get_sheet($id) {
-	    if(is_object($id)) {
-		    if(empty($id->id)) {
-			    return false;
-		    }
-		    $id = $id->id;
-	    }
-        $row = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['sheet']['name']." WHERE id = %d" , $id));
-	    if(!empty($row) ) {
-		    return stripslashes_deep($row);
-	    } else {
-		    return false;
-	    }
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_sheet($id);
     }
 
 	/**
@@ -190,9 +151,8 @@ class PTA_SUS_Data
             SELECT COUNT(*) FROM ".$this->tables['sheet']['name']." WHERE trash = %d", $trash));
 	    if(!empty($count) ) {
 		    return $count;
-	    } else {
-		    return false;
 	    }
+        return false;
     }
     
     /**
@@ -205,9 +165,9 @@ class PTA_SUS_Data
             SELECT COUNT(*) FROM ".$this->tables['sheet']['name']." WHERE title = %s AND trash = 0", $title));
 	    if(!empty($count)) {
 		    return $count;
-	    } else {
-		    return false;
 	    }
+
+        return false;
     }
 
 	/**
@@ -355,18 +315,12 @@ class PTA_SUS_Data
      * @return    mixed    single task object
      */
     public function get_task($id) {
-		if(is_object($id)) {
-			if(empty($id->id)) {
-				return false;
-			}
-			$id = $id->id;
-		}
-        $task = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['task']['name']." WHERE id = %d" , $id));
-	    if(!empty($task)) {
-		    return stripslashes_deep($task);
-	    } else {
-		    return false;
-	    }
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_task() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_task($id);
     }
 
 	public function get_all_task_dates_for_sheet($sheet_id) {
@@ -486,13 +440,13 @@ class PTA_SUS_Data
 	    return stripslashes_deep($results);
     }
     
-    public function get_signup($id)
-    {
-        $results = $this->wpdb->get_row($this->wpdb->prepare("SELECT * FROM ".$this->tables['signup']['name']." WHERE id = %d" , $id));
-        if(!empty($results)) {
-        	$results = stripslashes_deep($results);
-        }
-        return $results;
+    public function get_signup($id) {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_signup($id);
     }
 	
 	/**
@@ -532,10 +486,10 @@ class PTA_SUS_Data
 		$results = $this->wpdb->get_results($safe_sql);
 		if(!empty($results) && isset($results[0])) {
 			return stripslashes_deep($results[0]);
-		} else {
-			return false;
 		}
-	}
+
+        return false;
+    }
     
     /**
      * Get all data -- Right now this is only used for CRON remider emails, so can probably get rid of a lot of the select fields
@@ -606,9 +560,9 @@ class PTA_SUS_Data
             }
             sort($dates);
             return $dates;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public function get_available_qty($task_id, $date, $task_qty) {
@@ -620,9 +574,9 @@ class PTA_SUS_Data
         $available = $task_qty - $count;
         if ($available > 0) {
             return $available;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
 
@@ -698,7 +652,7 @@ class PTA_SUS_Data
                         continue;
                     }
                 }
-                if( (strtotime($tdate) >= ($this->time - (24*60*60))) || "0000-00-00" == $tdate ) {
+                if( "0000-00-00" === $tdate || (strtotime($tdate) >= ($this->time - (24*60*60))) ) {
                     ++$good_dates;
                 }
             }
@@ -767,7 +721,7 @@ class PTA_SUS_Data
 			    $item_id = "pta-volunteer-signup-sheets-{$signup->id}";
 			    $data = array();
 			    $value = esc_html($signup->title. ' - ' . $signup->task_title);
-			    if('0000-00-00' != $signup->signup_date) {
+			    if('0000-00-00' !== $signup->signup_date) {
 			    	$value .= ' - '. pta_datetime(get_option("date_format"), strtotime($signup->signup_date));
 			    }
 			    if(!empty($signup->item)) {
@@ -986,7 +940,7 @@ class PTA_SUS_Data
         if (empty($clean_fields['user_id']) && is_user_logged_in() && !current_user_can('manage_signup_sheets')) {
             $clean_fields['user_id'] = get_current_user_id();
         }
-        if (!isset($clean_fields['user_id']) || empty($clean_fields['user_id'])) {
+        if (empty($clean_fields['user_id'])) {
             if (is_user_logged_in()) {
                  $clean_fields['user_id'] = get_current_user_id();
             } elseif ($user = get_user_by( 'email', $clean_fields['email'] )) {
@@ -994,15 +948,15 @@ class PTA_SUS_Data
             }           
         }
         // If we have a user_id, check to see if their meta fields are empty and update them so they can be pre-filled for future signups
-        if (isset($clean_fields['user_id']) && !empty($clean_fields['user_id'])) {
+        if (!empty($clean_fields['user_id'])) {
             if (!isset($user)) {
                 $user = get_user_by( 'id', $clean_fields['user_id'] );
             }
             if($user) {
-            	if ( !isset($user->first_name) || empty($user->first_name) ) {
+            	if (empty($user->first_name)) {
                     update_user_meta( $user->ID, 'first_name', $clean_fields['firstname'] );
 	            }
-	            if ( !isset($user->last_name) || empty($user->last_name) ) {
+	            if (empty($user->last_name)) {
 	                update_user_meta( $user->ID, 'last_name', $clean_fields['lastname'] );
 	            }
 	            $phone = get_user_meta( $user->ID, 'billing_phone', true );
@@ -1013,9 +967,9 @@ class PTA_SUS_Data
         }
         
         // Check if signup spots are filled
-        $task = $this->get_task($task_id);
+        $task = pta_sus_get_task($task_id);
         $signups = $this->get_signups($task_id, $clean_fields['date']);
-        if ($task->enable_quantities == 'YES') {
+        if ($task->enable_quantities === 'YES') {
             // Take item quantities into account when calculating # of items
             $count = 0;
             foreach ($signups as $signup) {
@@ -1206,7 +1160,7 @@ class PTA_SUS_Data
     public function copy_sheet($id) {
         $new_fields = array();
         
-        $sheet = $this->get_sheet($id);
+        $sheet = pta_sus_get_sheet($id);
         $sheet = (array)$sheet;
         foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
             if ('title' == $field) {
@@ -1269,15 +1223,15 @@ class PTA_SUS_Data
 
         $first_date = min($task_dates);
         $last_date = max($task_dates);
-        $sheet = $this->get_sheet($id);
+        $sheet = pta_sus_get_sheet($id);
         if(!$sheet) return false;
         $sheet = (array)$sheet;
         foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
-            if('first_date' == $field) {
+            if('first_date' === $field) {
                 $new_fields['sheet_first_date'] = $first_date;
-            } elseif('last_date' == $field) {
+            } elseif('last_date' === $field) {
                 $new_fields['sheet_last_date'] = $last_date;
-            } elseif('visible' == $field) {
+            } elseif('visible' === $field) {
 	            // make copied sheets hidden until admin can edit them
 	            $new_fields['sheet_visible'] = false;
             } else {

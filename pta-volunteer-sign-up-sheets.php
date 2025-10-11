@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 5.8.0
+Version: 6.0.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '5.8.0');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.0.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -38,7 +38,7 @@ if ( !defined('SS_PLUGINS_URL') )
 
 if( !class_exists( 'PTA_Plugin_Updater' ) ) {
 	// load our custom updater
-	include( dirname( __FILE__ ) . '/PTA_Plugin_Updater.php' );
+	include( __DIR__ . '/PTA_Plugin_Updater.php' );
 }
 
 function pta_vol_sus_updater() {
@@ -73,6 +73,10 @@ if (!class_exists('PTA_SUS_Base_Object')) require_once 'classes/models/class-pta
 if (!class_exists('PTA_SUS_Sheet')) require_once 'classes/models/class-pta-sus-sheet.php';
 if (!class_exists('PTA_SUS_Task')) require_once 'classes/models/class-pta-sus-task.php';
 if (!class_exists('PTA_SUS_Signup')) require_once 'classes/models/class-pta-sus-signup.php';
+
+// Load helper function classes
+if (!class_exists('PTA_SUS_Sheet_Functions')) require_once 'classes/class-pta_sus_sheet_functions.php';
+if (!class_exists('PTA_SUS_Signup_Functions')) require_once 'classes/class-pta_sus_signup_functions.php';
 
 if(!class_exists('PTA_Sign_Up_Sheet')):
 
@@ -115,13 +119,13 @@ class PTA_Sign_Up_Sheet {
 
 	    if(is_admin()) {
 		    if (!class_exists('PTA_SUS_Admin')) {
-			    include_once(dirname(__FILE__).'/classes/class-pta_sus_admin.php');
+			    include_once(__DIR__ .'/classes/class-pta_sus_admin.php');
 			    $this->admin = new PTA_SUS_Admin();
 				add_action('init', array($this->admin, 'init_admin_hooks'));
 		    }
 	    }
 	    if (!class_exists('PTA_SUS_Public')) {
-		    include_once(dirname(__FILE__).'/classes/class-pta_sus_public.php');
+		    include_once(__DIR__ .'/classes/class-pta_sus_public.php');
 			$this->public = new PTA_SUS_Public();
 		    add_action('init', array($this->public, 'init'));
 		    add_action('wp_enqueue_scripts', array($this->public, 'add_css_and_js_to_frontend'));
@@ -154,7 +158,12 @@ class PTA_Sign_Up_Sheet {
 	 * @return    object    the sheet
 	 */
 	public function get_sheet($id = false) {
-		return $this->data->get_sheet($id);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_sheet($id);
 	}
 
 	/**
@@ -186,7 +195,12 @@ class PTA_Sign_Up_Sheet {
 	 * @return    object    task
 	 */
 	public function get_task($task_id) {
-		return $this->data->get_task($task_id);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_task() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_task($task_id);
 	}
 	
 	/**
@@ -196,7 +210,12 @@ class PTA_Sign_Up_Sheet {
 	 * @return    object    signup
 	 */
 	public function get_signup($signup_id) {
-		return $this->data->get_signup($signup_id);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
+        return pta_sus_get_signup($signup_id);
 	}
 	
 	/**
@@ -889,15 +908,14 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 function pta_sus_load_plugin_components() {
 	// Load global functions first (if they don't use translations)
-	require_once(dirname(__FILE__).'/pta-sus-global-functions.php');
+	require_once(__DIR__ .'/pta-sus-global-functions.php');
 
 	// Now load classes that might use translations
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_messages.php');
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags.php');
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_template_tags_helper.php');
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_volunteer.php');
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_signup_functions.php');
-	require_once(dirname(__FILE__).'/classes/class-pta_sus_text_registry.php');
+	require_once(__DIR__ .'/classes/class-pta_sus_messages.php');
+	require_once(__DIR__ .'/classes/class-pta_sus_template_tags.php');
+	require_once(__DIR__ .'/classes/class-pta_sus_template_tags_helper.php');
+	require_once(__DIR__ .'/classes/class-pta_sus_volunteer.php');
+	require_once(__DIR__ .'/classes/class-pta_sus_text_registry.php');
 
 	// Initialize template tags after translations are loaded
 	PTA_SUS_Template_Tags_Helper::setup();

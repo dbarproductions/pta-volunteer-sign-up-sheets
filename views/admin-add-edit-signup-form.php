@@ -40,7 +40,7 @@ if(0 === $task_id || 0 === $date) {
     PTA_SUS_Messages::show_messages(true, 'admin');
 	return;
 }
-$task = apply_filters( 'pta_sus_admin_signup_get_task', $this->data->get_task($task_id), $task_id);
+$task = apply_filters( 'pta_sus_admin_signup_get_task', pta_sus_get_task($task_id), $task_id);
 do_action( 'pta_sus_admin_before_signup_form', $task, $date );
 
 if ("0000-00-00" == $date) {

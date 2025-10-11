@@ -10,6 +10,112 @@ if(!function_exists( 'pta_datetime')) {
 		return apply_filters('pta_sus_datetime', $datetime, $format, $timestamp);
 	}
 }
+/**
+ * Get a sheet by ID
+ * Uses class-level caching automatically
+ *
+ * @param int|object $id Sheet ID or sheet object
+ * @return PTA_SUS_Sheet|false
+ */
+function pta_sus_get_sheet($id) {
+    // Defensive code for backward compatibility
+    if (is_object($id)) {
+        // Add deprecation notice to help track down the source
+        if (WP_DEBUG) {
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $caller = $trace[1] ?? array();
+            $file = $caller['file'] ?? 'unknown';
+            $line = $caller['line'] ?? 'unknown';
+
+            trigger_error(
+                sprintf(
+                    'pta_sus_get_sheet() expects an integer ID, object passed. Called from %s on line %s',
+                    $file,
+                    $line
+                ),
+                E_USER_DEPRECATED
+            );
+        }
+
+        // Extract ID from object
+        if (empty($id->id)) {
+            return false;
+        }
+        $id = $id->id;
+    }
+
+    return PTA_SUS_Sheet::get_by_id($id);
+}
+
+/**
+ * Get a task by ID
+ * Uses class-level caching automatically
+ *
+ * @param int|object $id Task ID or task object
+ * @return PTA_SUS_Task|false
+ */
+function pta_sus_get_task($id) {
+    // Defensive code for backward compatibility
+    if (is_object($id)) {
+        if (WP_DEBUG) {
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $caller = $trace[1] ?? array();
+            $file = $caller['file'] ?? 'unknown';
+            $line = $caller['line'] ?? 'unknown';
+
+            trigger_error(
+                sprintf(
+                    'pta_sus_get_task() expects an integer ID, object passed. Called from %s on line %s',
+                    $file,
+                    $line
+                ),
+                E_USER_DEPRECATED
+            );
+        }
+
+        if (empty($id->id)) {
+            return false;
+        }
+        $id = $id->id;
+    }
+
+    return PTA_SUS_Task::get_by_id($id);
+}
+
+/**
+ * Get a signup by ID
+ * Uses class-level caching automatically
+ *
+ * @param int|object $id Signup ID or signup object
+ * @return PTA_SUS_Signup|false
+ */
+function pta_sus_get_signup($id) {
+    // Defensive code for backward compatibility
+    if (is_object($id)) {
+        if (WP_DEBUG) {
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $caller = $trace[1] ?? array();
+            $file = $caller['file'] ?? 'unknown';
+            $line = $caller['line'] ?? 'unknown';
+
+            trigger_error(
+                sprintf(
+                    'pta_sus_get_signup() expects an integer ID, object passed. Called from %s on line %s',
+                    $file,
+                    $line
+                ),
+                E_USER_DEPRECATED
+            );
+        }
+
+        if (empty($id->id)) {
+            return false;
+        }
+        $id = $id->id;
+    }
+
+    return PTA_SUS_Signup::get_by_id($id);
+}
 
 function pta_sanitize_value($value, $type) {
 	$sanitized_value = $value;

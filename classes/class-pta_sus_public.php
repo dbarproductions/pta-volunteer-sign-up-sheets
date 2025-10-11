@@ -251,8 +251,8 @@ class PTA_SUS_Public {
 		$signup_task_id = $posted['signup_task_id'];
 		do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
 
-		$task = $this->data->get_task(intval($posted['signup_task_id']));
-		$sheet = $this->data->get_sheet(intval($task->sheet_id));
+		$task = pta_sus_get_task(intval($posted['signup_task_id']));
+		$sheet = pta_sus_get_sheet(intval($task->sheet_id));
 
 		$details_required = isset($task->details_required) && "YES" == $task->details_required;
 
@@ -362,7 +362,7 @@ class PTA_SUS_Public {
 			} else {
 				do_action( 'pta_sus_after_add_signup', $posted,$posted['signup_task_id'], $signup_id);
 				if(!class_exists('PTA_SUS_Emails')) {
-					include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
+					include_once(__DIR__ .'/class-pta_sus_emails.php');
 				}
 				if(empty($this->emails)) {
 					$this->emails = new PTA_SUS_Emails();
@@ -439,8 +439,8 @@ class PTA_SUS_Public {
 
 	        $this->validate_signup_form_fields($posted);
 			$signup_task_id = $posted['signup_task_id'];
-	        $task = $this->data->get_task(intval($posted['signup_task_id']));
-	        $sheet = $this->data->get_sheet(intval($task->sheet_id));
+	        $task = pta_sus_get_task((int)$posted['signup_task_id']);
+	        $sheet = pta_sus_get_sheet((int)$task->sheet_id);
 
             // Allow other plugins to validate
 	        $this->err = apply_filters('pta_sus_signup_form_error_count' , $this->err, $posted, $task, $sheet);
@@ -605,7 +605,7 @@ class PTA_SUS_Public {
     public function get_single_sheet($id) {
     	$return = '';
 	    // Display Individual Sheet
-	    $sheet = apply_filters( 'pta_sus_display_individual_sheet', $this->data->get_sheet($id), $id );
+	    $sheet = apply_filters( 'pta_sus_display_individual_sheet', pta_sus_get_sheet($id), $id );
 	    if ($sheet === false) {
 		    $return .= '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("Sign-up sheet not found.", 'pta-volunteer-sign-up-sheets'), 'sheet_not_found_error_message' ).'</p>';
 		    return $return;
@@ -834,7 +834,7 @@ class PTA_SUS_Public {
 				}
 				if($url && $signup->sheet_id) {
 					$sheet_args = array('sheet_id' => $signup->sheet_id, 'date' => false, 'signup_id' => false, 'task_id' => false);
-					$sheet = $this->data->get_sheet($signup->sheet_id);
+					$sheet = pta_sus_get_sheet($signup->sheet_id);
 					$url = apply_filters('pta_sus_view_sheet_url', add_query_arg($sheet_args,$url), $sheet);
 
 				}
@@ -1420,7 +1420,7 @@ class PTA_SUS_Public {
 			$show_names = false;
 		}
 
-		$sheet = $this->data->get_sheet($sheet_id);
+		$sheet = pta_sus_get_sheet($sheet_id);
 		$show_date = true;
 		if('single' === strtolower($sheet->type) && isset($this->main_options['hide_single_date_header']) && $this->main_options['hide_single_date_header']) {
 			$show_date = false;
@@ -1549,7 +1549,7 @@ class PTA_SUS_Public {
 			return '';
 		}
 
-        $task = apply_filters( 'pta_sus_public_signup_get_task', $this->data->get_task($task_id), $task_id);
+        $task = apply_filters( 'pta_sus_public_signup_get_task', pta_sus_get_task($task_id), $task_id);
         do_action( 'pta_sus_before_signup_form', $task, $date );
 
 		$go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $task->sheet_id);

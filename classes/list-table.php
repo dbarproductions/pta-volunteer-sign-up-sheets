@@ -310,60 +310,63 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
     /**
-    * Get data and prepare for use
-    * 
-    */
+     * Get data and prepare for use
+     */
     function prepare_items() {
         $this->process_bulk_action();
-        $rows = (array)$this->data->get_sheets($this->show_trash, $active_only = false, $show_hidden = true);
-        foreach ($rows AS $k=>$v) {
-        	// if search is set, skip any that title doesn't match search string
-	        if(isset($_REQUEST['s']) && '' !== $_REQUEST['s']) {
-	        	if(false === stripos($v->title, $_REQUEST['s'])) {
-	        		continue;
-		        }
-	        }
-	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-visible-filter']) && in_array($_REQUEST['pta-visible-filter'], array('visible','hidden'))) {
-	            $compare = 'visible' === $_REQUEST['pta-visible-filter'] ? "1" : "0";
-	            if($compare != $v->visible) {
-	                continue;
+        $rows = PTA_SUS_Sheet_Functions::get_sheets($this->show_trash, $active_only = false, $show_hidden = true);
+
+        foreach ($rows AS $k => $v) {
+            // if search is set, skip any that title doesn't match search string
+            if (isset($_REQUEST['s']) && '' !== $_REQUEST['s']) {
+                if (false === stripos($v->title, $_REQUEST['s'])) {
+                    continue;
                 }
             }
-	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring','Ongoing'))) {
-		        if($_REQUEST['pta-type-filter'] !== $v->type) {
-			        continue;
-		        }
-	        }
-            $this->rows[$k] = (array)$v;
+
+            if (isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-visible-filter']) && in_array($_REQUEST['pta-visible-filter'], array('visible','hidden'))) {
+                $compare = 'visible' === $_REQUEST['pta-visible-filter'] ? "1" : "0";
+                if ($compare != $v->visible) {
+                    continue;
+                }
+            }
+
+            if (isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring','Ongoing'))) {
+                if ($_REQUEST['pta-type-filter'] !== $v->type) {
+                    continue;
+                }
+            }
+
+            // Use to_array() method instead of casting
+            $this->rows[$k] = $v->to_array();
         }
-	    $this->rows = apply_filters( 'pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
-        $per_page     = $this->get_items_per_page( 'sheets_per_page', 20 );
+
+        $this->rows = apply_filters('pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
+        $per_page = $this->get_items_per_page('sheets_per_page', 20);
 
         $this->_column_headers = $this->get_column_info();
 
         // Sort Data
-        function usort_reorder($a,$b)
-        {
-            $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title'; // If no sort, default to title
-            $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc'; // If no order, default to asc
-            $result = strcmp($a[$orderby], $b[$orderby]); // Determine sort order
-            // Allow extensions to do custom sorting
-            $result = apply_filters( 'pta_sus_list_table_usort', $result, $a, $b, $orderby );
-            return ($order === 'asc') ? $result : -$result; // Send final sort direction to usort
+        function usort_reorder($a, $b) {
+            $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title';
+            $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
+            $result = strcmp($a[$orderby], $b[$orderby]);
+            $result = apply_filters('pta_sus_list_table_usort', $result, $a, $b, $orderby);
+            return ($order === 'asc') ? $result : -$result;
         }
         usort($this->rows, 'usort_reorder');
-        
+
         $current_page = $this->get_pagenum();
         $total_items = count($this->rows);
-        $this->rows = array_slice($this->rows,(($current_page-1)*$per_page),$per_page);
+        $this->rows = array_slice($this->rows, (($current_page - 1) * $per_page), $per_page);
         $this->items = $this->rows;
-        
+
         // Register pagination calculations
-        $this->set_pagination_args( array(
-            'total_items'   => $total_items,
-            'per_page'      => $per_page,
-            'total_pages'   => ceil($total_items/$per_page)
-        ) );
+        $this->set_pagination_args(array(
+                'total_items' => $total_items,
+                'per_page' => $per_page,
+                'total_pages' => ceil($total_items / $per_page)
+        ));
     }
 
 	function extra_tablenav( $which ) {

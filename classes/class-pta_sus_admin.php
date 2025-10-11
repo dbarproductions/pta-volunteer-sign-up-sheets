@@ -413,7 +413,7 @@ class PTA_SUS_Admin {
 			$required[] = 'phone';
 		}
 		// get task so can check if details are required
-		$task = $this->data->get_task( $task_id );
+		$task = pta_sus_get_task( $task_id );
 		if($task && 'YES' === $task->details_required && 'YES' === $task->need_details) {
 			$required[] = 'item';
 		}
@@ -529,7 +529,7 @@ class PTA_SUS_Admin {
             PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
         }
-        $sheet = $this->data->get_sheet($sheet_id);
+        $sheet = pta_sus_get_sheet($sheet_id);
         if(!$sheet) {
             PTA_SUS_Messages::add_error(__('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets'));
             PTA_SUS_Messages::show_messages(true, 'admin');
@@ -735,7 +735,7 @@ class PTA_SUS_Admin {
             return false;
 		}
 		// Verify available qty
-		$new_task = $this->data->get_task($new_task_id);
+		$new_task = pta_sus_get_task($new_task_id);
 		if(!$new_task) {
 			PTA_SUS_Messages::add_error(__('Invalid Task', 'pta-volunteer-sign-up-sheets'));
             PTA_SUS_Messages::show_messages(true, 'admin');
@@ -925,7 +925,7 @@ class PTA_SUS_Admin {
 			echo '</div>';
             return;
         } elseif ('reschedule' === $this->action) {
-            if (!($sheet = $this->data->get_sheet($sheet_id))) {
+            if (!($sheet = pta_sus_get_sheet($sheet_id))) {
                 PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
@@ -945,7 +945,7 @@ class PTA_SUS_Admin {
             echo '</div>';
 			return;
 		} elseif ('move_signup' === $this->action) {
-            if (!($sheet = $this->data->get_sheet($sheet_id))) {
+            if (!($sheet = pta_sus_get_sheet($sheet_id))) {
                 PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
                 echo '</div>';
@@ -958,7 +958,7 @@ class PTA_SUS_Admin {
                 echo '</div>';
                 return;
             }
-            $task = $this->data->get_task($signup->task_id);
+            $task = pta_sus_get_task($signup->task_id);
             if (empty($task)) {
                 PTA_SUS_Messages::add_error(__('No task found.', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
@@ -972,7 +972,7 @@ class PTA_SUS_Admin {
 			return;
 		} elseif ($edit || $view_signups) {
 			// View Single Sheet
-			if (!($sheet = $this->data->get_sheet($sheet_id))) {
+			if (!($sheet = pta_sus_get_sheet($sheet_id))) {
 				PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
 				PTA_SUS_Messages::show_messages(true, 'admin');
 			} else {
@@ -1157,7 +1157,7 @@ class PTA_SUS_Admin {
 						PTA_SUS_Messages::add_error(__('Task date is a required field', 'pta-volunteer-sign-up-sheets'));
 					}
 					// If the date changed, check for signups on the old date
-					$old_task = $this->data->get_task($task['task_id']);
+					$old_task = pta_sus_get_task($task['task_id']);
 					if ($old_task && $old_task->dates !== $task['task_dates']) {
 						// Date has changed - check if there were signups
 						$signups = $this->data->get_signups($old_task->id, $old_task->dates);
@@ -1255,7 +1255,7 @@ class PTA_SUS_Admin {
 						$signup_count = count($this->data->get_signups($task_id));
 						if ($signup_count > 0) {
 							$task_err++;
-							$task = $this->data->get_task($task_id);
+							$task = pta_sus_get_task($task_id);
 							$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
 							PTA_SUS_Messages::add_error(sprintf(__('The task "%1$s" cannot be removed because it has %2$d %3$s signed up.  Please clear all spots first before removing this task.', 'pta-volunteer-sign-up-sheets'), esc_html($task->title), (int)$signup_count, $people));
 						}
@@ -1317,7 +1317,7 @@ class PTA_SUS_Admin {
 						// Tasks updated successfully
 
 						// Update sheet with first and last dates
-						if ($sheet = $this->data->get_sheet((int)$_POST['sheet_id'])) {
+						if ($sheet = pta_sus_get_sheet((int)$_POST['sheet_id'])) {
 							$sheet_fields = array();
 							foreach($sheet AS $k=>$v) $sheet_fields['sheet_'.$k] = $v;
 						}
@@ -1517,7 +1517,7 @@ class PTA_SUS_Admin {
 	private function get_fields($id='') {
 		if('' == $id) return false;
 		$sheet_fields = array();
-		if ($sheet = $this->data->get_sheet($id)) {
+		if ($sheet = pta_sus_get_sheet($id)) {
 			foreach($sheet AS $k=>$v) $sheet_fields['sheet_'.$k] = $v;
 		}
 		$task_fields = array();

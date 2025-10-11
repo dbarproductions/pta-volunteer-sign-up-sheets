@@ -47,10 +47,10 @@ class PTA_SUS_Emails {
     * @return   bool true if success or email does not need to be sent. False on sending failure
     */
     public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false, $action='') {
-	    $signup = $this->data->get_signup($signup_id);
+	    $signup = pta_sus_get_signup($signup_id);
 	    if(!$signup) return false;
-	    $task = $this->data->get_task($signup->task_id);
-	    $sheet = $this->data->get_sheet($task->sheet_id);
+	    $task = pta_sus_get_task($signup->task_id);
+	    $sheet = pta_sus_get_sheet($task->sheet_id);
 
 		$confirmation = !($reminder || $clear || $reschedule) && empty($action);
 

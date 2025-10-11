@@ -89,13 +89,13 @@ class PTA_SUS_Signup_Functions {
 		$sql = '';
 		foreach ( $where as $key => $value ) {
 			$key = pta_create_slug( $key );
-			if ( in_array( $key, array_keys(self::$signup_properties) ) ) {
+			if (array_key_exists($key, self::$signup_properties)) {
 				$table_prefix = $signup_table;
 				$field_type = self::$signup_properties[$key];
-			} elseif ( in_array( $key, array_keys(self::$task_properties) ) ) {
+			} elseif (array_key_exists($key, self::$task_properties)) {
 				$table_prefix = $task_table;
 				$field_type = self::$task_properties[$key];
-			} elseif ( in_array( $key, array_keys(self::$sheet_properties) ) ) {
+			} elseif (array_key_exists($key, self::$sheet_properties)) {
 				$table_prefix = $sheet_table;
 				$field_type = self::$sheet_properties[$key];
 			} else {
@@ -132,7 +132,14 @@ class PTA_SUS_Signup_Functions {
 
 		$results = $wpdb->get_results($sql);
 
-		return stripslashes_deep($results);
+        // Convert to class objects
+        $signups = array();
+        foreach ($results as $row) {
+            $signup = new PTA_SUS_Signup($row); // Pass data to constructor
+            $signups[] = $signup;
+        }
+
+        return $signups;
 	}
 
 	public static function get_detailed_signups($where=array(), $show_expired = false) {
