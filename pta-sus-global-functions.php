@@ -117,7 +117,27 @@ function pta_sus_get_signup($id) {
     return PTA_SUS_Signup::get_by_id($id);
 }
 
-// In pta-sus-global-functions.php
+/**
+ * Check if text contains only allowed characters
+ * Validates by comparing against WordPress sanitized version
+ *
+ * @param string $text Text to check
+ * @return bool True if text is clean, false if contains invalid characters
+ */
+function pta_sus_check_allowed_text($text) {
+    // Empty is allowed
+    if (empty($text)) {
+        return true;
+    }
+
+    // Normalize spaces before comparison
+    $text = preg_replace('/\s+/', ' ', trim($text));
+
+    // Compare against sanitized version
+    $sanitized = sanitize_text_field($text);
+
+    return $text === $sanitized;
+}
 
 /**
  * Check if a date is valid in yyyy-mm-dd format
@@ -142,6 +162,27 @@ function pta_sus_check_date($date) {
     }
 
     return checkdate($bits[2], $bits[3], $bits[1]);
+}
+
+/**
+ * Check if string contains only numeric digits
+ * Used for validating quantity fields and other numeric inputs
+ *
+ * @param string $string String to check
+ * @param bool $allow_empty Whether to allow empty strings (default: false)
+ * @return bool True if only digits (0-9), false otherwise
+ */
+function pta_sus_check_numbers($string, $allow_empty = false) {
+    $string = stripslashes($string);
+
+    // Handle empty strings
+    if ('' === $string || null === $string) {
+        return $allow_empty;
+    }
+
+    // Use ctype_digit for performance
+    // Note: Only accepts strings, returns false for actual integers
+    return ctype_digit((string) $string);
 }
 
 /**
@@ -221,33 +262,33 @@ function pta_sanitize_value($value, $type) {
 		case 'float':
 			$sanitized_value = null === $value ? null : floatval($value);
 			break;
-	case 'bool':
-		// Convert to 1 or 0 for database storage
-		$sanitized_value = $value ? 1 : 0;
-		break;
-	case 'array':
-		// Handle array - could be already serialized or an array
-		if (is_array($value)) {
-			// If it's an array, sanitize and serialize for database
-			$array = stripslashes_deep($value);
-			$sanitized_value = maybe_serialize(pta_sanitize_array($array));
-		} else {
-			// If it's already serialized, just ensure it's clean
-			$sanitized_value = $value;
-		}
-		break;
-	case 'yesno':
-		// YES/NO values (uppercase) used by task fields
-		$value_upper = strtoupper($value);
-		if ($value_upper === 'YES' || $value === 'yes') {
-			$sanitized_value = 'YES';
-		} else {
-			$sanitized_value = 'NO';
-		}
-		break;
-		default:
-			$sanitized_value = apply_filters('pta_sanitize_value', wp_kses_post(stripslashes($value)), $type);
-			break;
+        case 'bool':
+            // Convert to 1 or 0 for database storage
+            $sanitized_value = $value ? 1 : 0;
+            break;
+        case 'array':
+            // Handle array - could be already serialized or an array
+            if (is_array($value)) {
+                // If it's an array, sanitize and serialize for database
+                $array = stripslashes_deep($value);
+                $sanitized_value = maybe_serialize(pta_sanitize_array($array));
+            } else {
+                // If it's already serialized, just ensure it's clean
+                $sanitized_value = $value;
+            }
+            break;
+        case 'yesno':
+            // YES/NO values (uppercase) used by task fields
+            $value_upper = strtoupper($value);
+            if ($value_upper === 'YES' || $value === 'yes') {
+                $sanitized_value = 'YES';
+            } else {
+                $sanitized_value = 'NO';
+            }
+            break;
+            default:
+                $sanitized_value = apply_filters('pta_sanitize_value', wp_kses_post(stripslashes($value)), $type);
+                break;
 	}
 	return $sanitized_value;
 }

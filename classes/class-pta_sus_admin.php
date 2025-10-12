@@ -506,7 +506,7 @@ class PTA_SUS_Admin {
         $reschedule_queue = get_option('pta_sus_rescheduled_signup_ids', array());
         foreach ($tasks AS $task) {
             $id = absint($task->id);
-            $signups = $this->data->get_signups($id);
+            $signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
             if(empty($signups)) continue;
             foreach($signups as $signup) {
                 $signup_id = absint($signup->id);
@@ -628,7 +628,7 @@ class PTA_SUS_Admin {
                     } else {
                         $date = $new_dates[$id];
                     }
-                    $signups = $this->data->get_signups($id);
+                    $signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
                     if(empty($signups)) continue;
                     foreach($signups as $signup) {
                         $fields = array('signup_date' => $date, 'signup_reminder1_sent' => false, 'signup_reminder2_sent' => false);
@@ -1102,7 +1102,7 @@ class PTA_SUS_Admin {
 				if(empty($_POST['single_date'])) {
 					$task_err++;
 					PTA_SUS_Messages::add_error(__('You must enter a date!', 'pta-volunteer-sign-up-sheets'));
-				} elseif (false === $this->data->check_date($_POST['single_date'])) {
+				} elseif (false === pta_sus_check_date($_POST['single_date'])) {
 					$task_err++;
 					PTA_SUS_Messages::add_error(__('Invalid date!', 'pta-volunteer-sign-up-sheets'));
 				} else {
@@ -1160,7 +1160,7 @@ class PTA_SUS_Admin {
 					$old_task = pta_sus_get_task($task['task_id']);
 					if ($old_task && $old_task->dates !== $task['task_dates']) {
 						// Date has changed - check if there were signups
-						$signups = $this->data->get_signups($old_task->id, $old_task->dates);
+						$signups = PTA_SUS_Signup_Functions::get_signups_for_task($old_task->id, $old_task->dates);
 						$signup_count = count($signups);
 						if ($signup_count > 0) {
 							$task_err++;
@@ -1193,7 +1193,7 @@ class PTA_SUS_Admin {
 					if(!empty($removed_dates)) {
 						foreach ($removed_dates as $removed_date) {
 							foreach ($tasks as $task) {
-								if(count($this->data->get_signups($task->id, $removed_date)) > 0) {
+								if(count(PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $removed_date)) > 0) {
 									$signups = true;
 									break 2; // break out of both foreach loops
 								}
@@ -1228,7 +1228,7 @@ class PTA_SUS_Admin {
 								$check_dates = pta_sus_sanitize_dates($_POST['task_dates'][$i]);
 							}
 							foreach ($check_dates as $key => $cdate) {
-								$signup_count = count($this->data->get_signups((int)$_POST['task_id'][$i], $cdate));
+								$signup_count = count(PTA_SUS_Signup_Functions::get_signups_for_task((int)$_POST['task_id'][$i], $cdate));
 								if ($signup_count > 0 && isset($_POST['task_qty']) && $signup_count > $_POST['task_qty'][$i]) {
 									$task_err++;
 									$people = _n('person', 'people', $signup_count, 'pta-volunteer-sign-up-sheets');
@@ -1252,7 +1252,7 @@ class PTA_SUS_Admin {
 
 				if(!$skip_signups_check) {
 					foreach ($tasks_to_delete as $task_id) {
-						$signup_count = count($this->data->get_signups($task_id));
+						$signup_count = count(PTA_SUS_Signup_Functions::get_signups_for_task($task_id));
 						if ($signup_count > 0) {
 							$task_err++;
 							$task = pta_sus_get_task($task_id);

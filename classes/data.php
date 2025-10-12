@@ -171,7 +171,7 @@ class PTA_SUS_Data
 
 	/**
 	 * Return # of signups that have matching task_id, and signup names
-	 *
+	 * @deprecated 6.0.0 PTA_SUS_Signup_Functions::check_duplicate_signup()
 	 * @param $task_id INT
 	 * @param $signup_date string
 	 * @param $firstname string
@@ -180,20 +180,17 @@ class PTA_SUS_Data
 	 * @return mixed
 	 */
     public function check_duplicate_signup($task_id, $signup_date, $firstname, $lastname) {
-        $count = $this->wpdb->get_var($this->wpdb->prepare("
-            SELECT COUNT(*) FROM ".$this->tables['signup']['name']." 
-            WHERE task_id = %d AND date = %s AND firstname = %s AND lastname = %s
-        ", $task_id, $signup_date, $firstname, $lastname));
-	    if(!empty($count)) {
-		    return $count;
-	    } else {
-		    return false;
-	    }
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::check_duplicate_signup() '.sprintf('Called from %s line %s', $file, $line) );
+        return PTA_SUS_Signup_Functions::check_duplicate_signup($task_id, $signup_date, $firstname, $lastname);
     }
 
 	/**
 	 * Check if there is a signup with overlapping time for same volunteer info
-	 *
+	 * @deprecated 6.0.0 PTA_SUS_Signup_Functions::check_duplicate_time_signup()
 	 * @param $sheet object
 	 * @param $task object
 	 * @param $signup_date string
@@ -205,55 +202,12 @@ class PTA_SUS_Data
 	 */
     public function check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname, $check_all = false) {
 
-	    if( '' === $task->time_start || '' === $task->time_end ) {
-		    // don't check if the task doesn't have both start and end time
-		    return false;
-	    }
-	    // Only the time matters, so use any date to create timestamp to compare times
-	    $task_start = strtotime('01-01-2015 '. $task->time_start);
-	    $task_end = strtotime('01-01-2015 '. $task->time_end);
-        if($task_end < $task_start) {
-	        $task_end = strtotime('01-02-2015 '. $task->time_end);
-        }
-		$where = array(
-			'firstname' => $firstname,
-			'lastname' => $lastname,
-			'date' => $signup_date,
-		);
-	    if($check_all) {
-        	// Gets all user signups for all sheets
-		    $signups = PTA_SUS_Signup_Functions::get_detailed_signups($where);
-	    } else {
-		    // Gets all signup data by user name for sheet and signup date
-		    $where['sheet_id'] = $sheet->id;
-		    $signups = PTA_SUS_Signup_Functions::get_detailed_signups($where);
-	    }
-     
-	    $duplicate = false;
-
-	    foreach($signups as $signup) {
-		    if( '' === $signup->time_start || '' === $signup->time_end ) {
-			    // don't check if the signup doesn't have both start and end time
-			    continue;
-		    }
-		    if($signup->task_id == $task->id) {
-			    // don't check if it's the same task - we already have another allow duplicates for that
-			    continue;
-		    }
-		    $signup_start = strtotime('01-01-2015 '. $signup->time_start);
-		    $signup_end = strtotime('01-01-2015 '. $signup->time_end);
-		    if($signup_end < $signup_start) {
-			    $signup_end = strtotime('01-02-2015 '. $signup->time_end);
-		    }
-		    // check if time range overlaps
-		    if( ($task_start < $signup_end) && ($task_end > $signup_start) ) {
-			    // Overlap
-			    $duplicate = true;
-			    break;
-		    }
-	    }
-
-	    return $duplicate;
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::check_duplicate_time_signup() '.sprintf('Called from %s line %s', $file, $line) );
+        return PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname, $check_all = false);
     }
 
     public function toggle_visibility($id) {
@@ -1303,7 +1257,7 @@ class PTA_SUS_Data
             'errors' => 0,
             'message' => '',
             );
-        $prefix = ( 'sheet' == $post_type ) ? 'sheet_' : 'task_';
+        $prefix = ( 'sheet' === $post_type ) ? 'sheet_' : 'task_';
         $clean_fields = $this->clean_array($fields, $prefix);
         // Check Required Fields first
         foreach ( $this->tables[$post_type]['required_fields'] as $required_field => $label ) {
@@ -1318,7 +1272,7 @@ class PTA_SUS_Data
                 switch ($type) {
                     case 'text':
                     case 'names':
-                        if (!$this->check_allowed_text($clean_fields[$field])) {
+                        if (!pta_sus_check_allowed_text($clean_fields[$field])) {
                             $results['errors']++;
                             $results['message'] .= sprintf( __('Invalid characters in %s field.', 'pta-volunteer-sign-up-sheets'), $field ) .'<br/>';
                         }
@@ -1346,7 +1300,7 @@ class PTA_SUS_Data
                         break;
 
                     case 'date':
-                        if (!$this->check_date( $clean_fields[$field] )) {
+                        if (!pta_sus_check_date( $clean_fields[$field] )) {
                             $results['errors']++;
                             $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
                         }
@@ -1360,7 +1314,7 @@ class PTA_SUS_Data
                         // Then, separate out the dates into a simple data array, using comma as separator
                         $dates = explode(',', $dates_field);
                         foreach ($dates as $date) {
-                            if (!$this->check_date( $date )) {
+                            if (!pta_sus_check_date( $date )) {
                                 $results['errors']++;
                                 $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
                             }
@@ -1507,21 +1461,12 @@ class PTA_SUS_Data
     }
 
     public function check_allowed_text($text) {
-        // For titles and names, allow letters, numbers, and common punctuation
-        // Returns true if good or false if bad
-        // return !preg_match( "/[^A-Za-z0-9\p{L}\p{Z}\p{N}\-\.\,\!\&\(\)\'\/\?\ ]+$/", stripslashes($text) );
-        
-        // New method to allow all good text... check against wordpress santized version
-	    if(!empty($text)) {
-		    $text = preg_replace('/\s+/', ' ', trim($text)); // strip out extra spaces before compare
-		    $sanitized = sanitize_text_field( $text );
-		    if ( $text === $sanitized ) {
-			    return true;
-		    } else {
-			    return false;
-		    }
-	    }
-        return true; // empty allowed
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_check_allowed_text() ' . sprintf('Called from %s line %s', $file, $line));
+        return pta_sus_check_allowed_text($text);
     }
 
     public function check_date($date) {
@@ -1534,8 +1479,12 @@ class PTA_SUS_Data
     }
 
     public function check_numbers($string) {
-        // Returns true if string contains only numbers
-        return !preg_match("/[^0-9]/", stripslashes($string));
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_check_numbers() ' . sprintf('Called from %s line %s', $file, $line));
+        return pta_sus_check_numbers($string);
     }
 
     public function get_sanitized_dates($dates) {

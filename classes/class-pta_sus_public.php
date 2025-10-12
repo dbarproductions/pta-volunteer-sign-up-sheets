@@ -251,12 +251,12 @@ class PTA_SUS_Public {
 		$signup_task_id = $posted['signup_task_id'];
 		do_action( 'pta_sus_before_add_signup', $posted, $signup_task_id);
 
-		$task = pta_sus_get_task(intval($posted['signup_task_id']));
-		$sheet = pta_sus_get_sheet(intval($task->sheet_id));
+		$task = pta_sus_get_task((int)$posted['signup_task_id']);
+		$sheet = pta_sus_get_sheet((int)$task->sheet_id);
 
-		$details_required = isset($task->details_required) && "YES" == $task->details_required;
+		$details_required = isset($task->details_required) && "YES" === $task->details_required;
 
-		$available = $this->data->get_available_qty($task->id, $posted['signup_date'], $task->qty);
+		$available = $task->get_available_spots( $posted['signup_date']);
 
 		// Allow extensions to modify available slots - e.g. allow waitlist extension to add extra available spots so signup can be processed
 		$available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
@@ -274,20 +274,20 @@ class PTA_SUS_Public {
 			|| empty($posted['signup_email'])
 			|| empty($posted['signup_validate_email'])
 			|| ( ! $this->main_options['no_phone'] && empty($posted['signup_phone']) && $this->phone_required)
-			|| ("YES" == $task->need_details && $details_required && '' === sanitize_text_field($posted['signup_item']) )
-			|| ("YES" == $task->enable_quantities && !isset($posted['signup_item_qty']))
+			|| ("YES" === $task->need_details && $details_required && '' === sanitize_text_field($posted['signup_item']) )
+			|| ("YES" === $task->enable_quantities && !isset($posted['signup_item_qty']))
 		) {
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Please complete all required fields.', 'pta-volunteer-sign-up-sheets'), 'required_fields_error_message' ));
 		}
 
 		// Check for non-allowed characters
-		elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_firstname'])))
+		elseif (! pta_sus_check_allowed_text(stripslashes($posted['signup_firstname'])))
 		{
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in First Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'firstname_error_message' ));
 		}
-		elseif (! $this->data->check_allowed_text(stripslashes($posted['signup_lastname'])))
+		elseif (! pta_sus_check_allowed_text(stripslashes($posted['signup_lastname'])))
 		{
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Last Name!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'lastname_error_message' ));
@@ -307,17 +307,17 @@ class PTA_SUS_Public {
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Phone Number!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'phone_error_message' ));
 		}
-		elseif ( "YES" == $task->need_details && ! $this->data->check_allowed_text(stripslashes($posted['signup_item'])))
+		elseif ( "YES" === $task->need_details && ! pta_sus_check_allowed_text(stripslashes($posted['signup_item'])))
 		{
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Invalid Characters in Signup Item!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'item_details_error_message' ));
 		}
-		elseif ( "YES" == $task->enable_quantities && (! $this->data->check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $available ) )
+		elseif ( "YES" === $task->enable_quantities && (! pta_sus_check_numbers($posted['signup_item_qty']) || (int)$posted['signup_item_qty'] < 1 || (int)$posted['signup_item_qty'] > $available ) )
 		{
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', sprintf(__('Please enter a number between 1 and %d for Item QTY!', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_error_message', $available ));
 		}
-		elseif (!$this->data->check_date($posted['signup_date']))
+		elseif (!pta_sus_check_date($posted['signup_date']))
 		{
 			$this->err++;
 			PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Hidden signup date field is invalid!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'signup_date_error_message' ));
@@ -326,17 +326,17 @@ class PTA_SUS_Public {
 		$perform_duplicate_checks = apply_filters('pta_sus_perform_duplicate_checks', true, $task, $sheet);
 		if($perform_duplicate_checks) {
 			// If no errors so far, Check for duplicate signups if not allowed
-			if (!$this->err && 'NO' == $task->allow_duplicates) {
-				if( $this->data->check_duplicate_signup( $posted['signup_task_id'], $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname']) ) {
+			if (!$this->err && 'NO' === $task->allow_duplicates) {
+				if( PTA_SUS_Signup_Functions::check_duplicate_signup( $posted['signup_task_id'], $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname']) ) {
 					$this->err++;
 					PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for this task!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_error_message' ));
 				}
 			}
-			if (!$sheet->duplicate_times && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
+			if (!$sheet->duplicate_times && !$this->err && PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
 				$this->err++;
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ));
 			}
-			if ($this->no_global_overlap && !$this->err && $this->data->check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
+			if ($this->no_global_overlap && !$this->err && PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
 				$this->err++;
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message' ));
 			}
@@ -1287,7 +1287,7 @@ class PTA_SUS_Public {
 		$show_details = false;
 
 		if ( isset( $this->main_options['hide_details_qty'] ) && ! $this->main_options['hide_details_qty'] ) {
-			if ( 'YES' == $task->need_details ) {
+			if ( 'YES' === $task->need_details ) {
 				$show_details = true;
 			}
 		}
@@ -1302,7 +1302,7 @@ class PTA_SUS_Public {
 		$allow_signups = apply_filters( 'pta_sus_allow_signups', true, $task, $sheet_id, $date );
 		$task_qty      = $no_signups ? 1 : absint( $task->qty );
 		if(empty($signups)) {
-			$signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups( $task->id, $date ), $task->id, $date );
+			$signups = apply_filters( 'pta_sus_task_get_signups', PTA_SUS_Signup_Functions::get_signups_for_task( $task->id, $date ), $task->id, $date );
 		}
 
 		$one_row = false;
@@ -1439,10 +1439,10 @@ class PTA_SUS_Public {
 			$show_details = false;
 			$show_qty = false;
 			if( isset($this->main_options['hide_details_qty']) && ! $this->main_options['hide_details_qty'] ) {
-				if ( 'YES' == $task->need_details ) {
+				if ( 'YES' === $task->need_details ) {
 					$show_details = true;
 				}
-				if ( 'YES' == $task->enable_quantities && ( $show_names || $show_all_slots || $show_details ) ) {
+				if ( 'YES' === $task->enable_quantities && ( $show_names || $show_all_slots || $show_details ) ) {
 					$show_qty = true;
 				}
 			}
@@ -1476,7 +1476,7 @@ class PTA_SUS_Public {
 			}
 
 			$i=1;
-			$signups = apply_filters( 'pta_sus_task_get_signups', $this->data->get_signups($task->id, $date), $task->id, $date);
+			$signups = apply_filters( 'pta_sus_task_get_signups', PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $date), $task->id, $date);
 
 			// Set qty to one for no_signups sheets
 			$task_qty = $no_signups ? 1 : absint($task->qty);
@@ -1555,7 +1555,7 @@ class PTA_SUS_Public {
 		$go_back_args = array('task_id' => false, 'date' => false, 'sheet_id' => $task->sheet_id);
 		$go_back_url = apply_filters( 'pta_sus_signup_goback_url', add_query_arg($go_back_args) );
 
-		$available = $this->data->get_available_qty($task->id, $date, $task->qty);
+		$available = $task->get_available_spots($date);
 		if(!$skip_filled_check) {
 			// Check if nothing available before showing the sign-up form, or if it was filled before they submitted the form
 			if($available < 1 && !$this->filled) {
@@ -1572,13 +1572,13 @@ class PTA_SUS_Public {
 		if( ! apply_filters( 'pta_sus_can_signup', true, $task, $date ) ) {
 			return '<p class="pta-sus error">'.apply_filters( 'pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message' ).'</p>';
 		}
-        if ("0000-00-00" == $date) {
+        if ("0000-00-00" === $date) {
             $show_date = false;
         } else {
             $show_date = pta_datetime(get_option('date_format'), strtotime($date));
         }
         $phone_required = $this->phone_required ? 'required' : '';
-		$details_required = isset($task->details_required) && "YES" == $task->details_required ? 'required' : '';
+		$details_required = isset($task->details_required) && "YES" === $task->details_required ? 'required' : '';
 		
         $form = '<div class="pta-sus-sheets signup-form">';
         $form .= apply_filters( 'pta_sus_signup_page_before_form_title', '', $task, $date );
@@ -1710,7 +1710,7 @@ class PTA_SUS_Public {
         }
         if ($task->enable_quantities == "YES") {
             $form .= '<p>';
-            $available = $this->data->get_available_qty($task_id, $date, $task->qty);
+            $available = $task->get_available_spots($date);
 			$available = apply_filters('pta_sus_signup_form_available_qty', $available, $task, $date);
             if ($available > 1) {
                 $form .= '<label class="required" for="signup_item_qty">'.esc_html( apply_filters( 'pta_sus_public_output', sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available), 'item_quantity_input_label', (int)$available ) ).'</label>
