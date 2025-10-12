@@ -220,23 +220,30 @@ function pta_sanitize_value($value, $type) {
 		case 'float':
 			$sanitized_value = null === $value ? null : floatval($value);
 			break;
-		case 'bool':
-			$sanitized_value = true == $value;
-			break;
-		case 'array':
-			$array = maybe_unserialize($value);
-			if(is_array($array)) {
-				$array = stripslashes_deep($array);
-				$sanitized_value = pta_sanitize_array($array);
-			}
-			break;
-		case 'yesno':
-			if ($value === 'yes') {
-				$sanitized_value = 'yes';
-			} else {
-				$sanitized_value = 'no';
-			}
-			break;
+	case 'bool':
+		// Convert to 1 or 0 for database storage
+		$sanitized_value = $value ? 1 : 0;
+		break;
+	case 'array':
+		// Handle array - could be already serialized or an array
+		if (is_array($value)) {
+			// If it's an array, sanitize and serialize for database
+			$array = stripslashes_deep($value);
+			$sanitized_value = maybe_serialize(pta_sanitize_array($array));
+		} else {
+			// If it's already serialized, just ensure it's clean
+			$sanitized_value = $value;
+		}
+		break;
+	case 'yesno':
+		// YES/NO values (uppercase) used by task fields
+		$value_upper = strtoupper($value);
+		if ($value_upper === 'YES' || $value === 'yes') {
+			$sanitized_value = 'YES';
+		} else {
+			$sanitized_value = 'NO';
+		}
+		break;
 		default:
 			$sanitized_value = apply_filters('pta_sanitize_value', wp_kses_post(stripslashes($value)), $type);
 			break;
