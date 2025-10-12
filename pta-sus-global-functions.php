@@ -199,16 +199,17 @@ function pta_sanitize_value($value, $type) {
         case 'dates': // NEW - for comma-separated dates
             $sanitized = pta_sus_sanitize_dates($value);
             return implode(',', $sanitized);
-		case 'time':
-			// Sanitize one time and convert to SQL format, which should be 24 hour format H:i:s
-			// First, do basic sanitizing
-			$time = sanitize_text_field($value);
-			if(!empty($time)) {
-				$sanitized_value = date('H:i:s', strtotime($time));
-			} else {
-				$sanitized_value = null;
-			}
-			break;
+	case 'time':
+		// Sanitize time - keep in HH:MM AM/PM format as stored in database
+		// Tasks use 12-hour format with AM/PM, not 24-hour SQL format
+		$time = sanitize_text_field($value);
+		if(!empty($time)) {
+			// Just sanitize, don't convert format
+			$sanitized_value = trim($time);
+		} else {
+			$sanitized_value = null;
+		}
+		break;
 		case 'int':
 			// Make the value into absolute integer
 			$sanitized_value = null === $value ? null : absint($value);
