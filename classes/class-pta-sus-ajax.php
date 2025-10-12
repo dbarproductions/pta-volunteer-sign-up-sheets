@@ -116,7 +116,7 @@ class PTA_SUS_AJAX {
 						$time = sprintf(__(' - starting at: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime( get_option('time_format'), strtotime($sheet_task->time_start)));
 					}
 
-					$task_dates = $pta_sus->data->get_sanitized_dates($sheet_task->dates);
+					$task_dates = pta_sus_sanitize_dates($sheet_task->dates);
 					$check_date = false;
 					if($old_task_id == $sheet_task->id && count($task_dates) > 1) {
 						$old_signup = pta_sus_get_signup($old_signup_id);

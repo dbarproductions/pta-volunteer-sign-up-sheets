@@ -1113,7 +1113,7 @@ class PTA_SUS_Admin {
 					$task_err++;
 					PTA_SUS_Messages::add_error(__('You must enter at least two dates for a Recurring event!', 'pta-volunteer-sign-up-sheets'));
 				} else {
-					$dates = $this->data->get_sanitized_dates($_POST['recurring_dates']);
+					$dates = pta_sus_sanitize_dates($_POST['recurring_dates']);
 					if (count($dates) < 2) {
 						$task_err++;
 						PTA_SUS_Messages::add_error(__('Invalid dates!  Enter at least 2 valid dates.', 'pta-volunteer-sign-up-sheets'));
@@ -1225,7 +1225,7 @@ class PTA_SUS_Admin {
 							if("Single" === $_POST['sheet_type'] || "Recurring" === $_POST['sheet_type'] || "Ongoing" === $_POST['sheet_type']) {
 								$check_dates = $dates;
 							} else {
-								$check_dates = $this->data->get_sanitized_dates($_POST['task_dates'][$i]);
+								$check_dates = pta_sus_sanitize_dates($_POST['task_dates'][$i]);
 							}
 							foreach ($check_dates as $key => $cdate) {
 								$signup_count = count($this->data->get_signups((int)$_POST['task_id'][$i], $cdate));

@@ -539,7 +539,7 @@ class PTA_SUS_Data
             $dates = array();
             foreach ($tasks AS $task) {
                 // Build an array of all unique dates from all tasks for this sheet
-                $task_dates = $this->get_sanitized_dates($task->dates);
+                $task_dates = pta_sus_sanitize_dates($task->dates);
                 foreach ($task_dates as $date) {
                     if(!in_array($date, $dates)) {
                         $dates[] = $date;
@@ -1543,7 +1543,7 @@ class PTA_SUS_Data
         $caller = $trace[1] ?? array();
         $file = $caller['file'] ?? '';
         $line = $caller['line'] ?? '';
-        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_sanitize_value($dates,"dates") ' . sprintf('Called from %s line %s', $file, $line));
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_sanitize_dates ' . sprintf('Called from %s line %s', $file, $line));
         return pta_sanitize_value($dates,'dates');
     }
     

@@ -141,13 +141,12 @@ class PTA_SUS_Sheet_Functions {
             return false;
         }
 
-        // Get sheet data and modify for copy
+        // Create new sheet from array data
         $sheet_data = $original_sheet->to_array();
-        unset($sheet_data['id']); // Remove ID so new one is created
-        $sheet_data['title'] .= ' Copy';
+        $sheet_data['id'] = 0; // Explicitly set to 0 instead of unsetting
+        $sheet_data['title'] = $original_sheet->title . ' Copy';
         $sheet_data['visible'] = false;
 
-        // Create and save new sheet
         $new_sheet = new PTA_SUS_Sheet($sheet_data);
         $new_sheet_id = $new_sheet->save();
         if (!$new_sheet_id) {
@@ -159,12 +158,11 @@ class PTA_SUS_Sheet_Functions {
         $new_tasks = array();
 
         foreach ($tasks as $original_task) {
-            // Get task data and modify for copy
+            // Create new task from array data
             $task_data = $original_task->to_array();
-            unset($task_data['id']); // Remove ID
-            $task_data['sheet_id'] = $new_sheet_id; // Link to new sheet
+            $task_data['id'] = 0; // Explicitly set to 0
+            $task_data['sheet_id'] = $new_sheet_id;
 
-            // Create and save new task
             $new_task = new PTA_SUS_Task($task_data);
             $new_task_id = $new_task->save();
 

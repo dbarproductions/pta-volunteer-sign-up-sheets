@@ -91,22 +91,13 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 	 *
 	 * @return PTA_SUS_Sheet|false Sheet object or false if not found
 	 */
-	public function get_sheet() {
-		if ( empty( $this->sheet_id ) ) {
-			return false;
-		}
-		
-		// Once Sheet class is fully integrated, use:
-		// return PTA_SUS_Sheet::get_by_id( $this->sheet_id );
-		
-		// For now, use the old method if available
-		global $pta_sus;
-		if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_sheet' ) ) {
-			return $pta_sus->data->get_sheet( $this->sheet_id );
-		}
-		
-		return false;
-	}
+    public function get_sheet() {
+        if ( empty( $this->sheet_id ) ) {
+            return false;
+        }
+
+        return pta_sus_get_sheet( $this->sheet_id );
+    }
 
     /**
      * Get all signups for this task
