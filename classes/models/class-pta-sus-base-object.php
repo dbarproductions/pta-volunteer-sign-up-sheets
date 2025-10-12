@@ -299,6 +299,14 @@ abstract class PTA_SUS_Base_Object {
 		foreach ( $data as $key => $value ) {
 			// Only set if it's a defined property or if it's 'id'
 			if ( isset( $properties[$key] ) || $key === 'id' ) {
+				// Unserialize array types from database
+				if ( isset( $properties[$key] ) && $properties[$key] === 'array' ) {
+					$value = maybe_unserialize( $value );
+				}
+				// Convert boolean values from database (1/0) to true/false
+				if ( isset( $properties[$key] ) && $properties[$key] === 'bool' ) {
+					$value = (bool) $value;
+				}
 				$this->data[$key] = $value;
 			}
 		}
@@ -436,7 +444,19 @@ abstract class PTA_SUS_Base_Object {
 			case 'int':
 				return absint( $value );
 			case 'bool':
-				return (bool) $value;
+				// Convert boolean to 1 or 0 for database
+				return $value ? 1 : 0;
+			case 'yesno':
+				// YES/NO values - ensure uppercase
+				$value = strtoupper( sanitize_text_field( $value ) );
+				return in_array( $value, array( 'YES', 'NO' ) ) ? $value : 'NO';
+			case 'array':
+				// Handle array types - serialize for database storage
+				if ( is_array( $value ) ) {
+					// If it's a simple array, maybe_serialize will handle it
+					return maybe_serialize( $value );
+				}
+				return $value;
 			case 'email':
 				return sanitize_email( $value );
 			case 'textarea':
