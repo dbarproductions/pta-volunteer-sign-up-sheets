@@ -108,19 +108,12 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 	 *
 	 * @return array Array of task objects
 	 */
-	public function get_tasks() {
+	public function get_tasks($date='') {
 		if ( empty( $this->id ) ) {
 			return array();
 		}
 		
-		// This will be implemented once we have the Task class
-		// For now, use the old method if available
-		global $pta_sus;
-		if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_tasks' ) ) {
-			return $pta_sus->data->get_tasks( $this->id );
-		}
-		
-		return array();
+		return PTA_SUS_Task_Functions::get_tasks( $this->id, $date );
 	}
 	
 	/**

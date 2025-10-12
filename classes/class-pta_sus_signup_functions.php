@@ -192,6 +192,45 @@ class PTA_SUS_Signup_Functions {
 		$sql .= " ORDER BY signup_date, time_start";
 		return $wpdb->get_col( $sql );
 	}
+
+    /**
+     * Get signups for a specific task
+     * Simple query without joins - faster for single task lookups
+     *
+     * @param int    $task_id Task ID
+     * @param string $date    Optional specific date to filter by
+     * @return array Array of PTA_SUS_Signup objects
+     */
+    public static function get_signups_for_task($task_id, $date = '') {
+        global $wpdb;
+
+        $task_id = absint($task_id);
+        if (empty($task_id)) {
+            return array();
+        }
+
+        $sql = "SELECT * FROM " . self::$signup_table . " WHERE task_id = %d";
+        $params = array($task_id);
+
+        if ('' !== $date) {
+            $sql .= " AND date = %s";
+            $params[] = sanitize_text_field($date);
+        }
+
+        $sql .= " ORDER BY id";
+
+        // Get results as arrays
+        $results = $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A);
+
+        // Convert to PTA_SUS_Signup objects
+        $signups = array();
+        foreach ($results as $row) {
+            $signups[] = new PTA_SUS_Signup($row);
+        }
+
+        return $signups;
+    }
+
 	public static function validate_signup($signup_id) {
 		global $wpdb;
 		$data = array('validated' => 1);

@@ -117,6 +117,54 @@ function pta_sus_get_signup($id) {
     return PTA_SUS_Signup::get_by_id($id);
 }
 
+// In pta-sus-global-functions.php
+
+/**
+ * Check if a date is valid in yyyy-mm-dd format
+ *
+ * @param string $date Date to check
+ * @return bool True if valid, false if not
+ */
+function pta_sus_check_date($date) {
+    if ($date === "0000-00-00") {
+        return true;
+    }
+
+    $date = str_replace(array(' ', '/', '--'), '-', $date);
+
+    if (empty($date)) {
+        return false;
+    }
+
+    preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $bits);
+    if (count($bits) < 4) {
+        return false;
+    }
+
+    return checkdate($bits[2], $bits[3], $bits[1]);
+}
+
+/**
+ * Sanitize comma-separated dates
+ * Used for validating user input before saving
+ *
+ * @param string $dates Comma-separated dates
+ * @return array Array of valid dates in yyyy-mm-dd format
+ */
+function pta_sus_sanitize_dates($dates) {
+    $dates = str_replace(' ', '', $dates);
+    $dates = explode(',', $dates);
+    $valid_dates = array();
+
+    foreach ($dates as $date) {
+        if (pta_sus_check_date($date)) {
+            $valid_dates[] = $date;
+        }
+    }
+
+    return $valid_dates;
+}
+
 function pta_sanitize_value($value, $type) {
 	$sanitized_value = $value;
 	switch ($type) {
@@ -148,6 +196,9 @@ function pta_sanitize_value($value, $type) {
 				$sanitized_value = null;
 			}
 			break;
+        case 'dates': // NEW - for comma-separated dates
+            $sanitized = pta_sus_sanitize_dates($value);
+            return implode(',', $sanitized);
 		case 'time':
 			// Sanitize one time and convert to SQL format, which should be 24 hour format H:i:s
 			// First, do basic sanitizing

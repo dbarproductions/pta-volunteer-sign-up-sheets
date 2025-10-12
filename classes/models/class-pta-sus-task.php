@@ -107,28 +107,21 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 		
 		return false;
 	}
-	
-	/**
-	 * Get all signups for this task
-	 * Convenience method to get related signups
-	 *
-	 * @param string|null $date Optional specific date to get signups for
-	 * @return array Array of signup objects
-	 */
-	public function get_signups( $date = null ) {
-		if ( empty( $this->id ) ) {
-			return array();
-		}
-		
-		// This will be implemented once we have proper methods
-		// For now, use the old method if available
-		global $pta_sus;
-		if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_signups' ) ) {
-			return $pta_sus->data->get_signups( $this->id, $date );
-		}
-		
-		return array();
-	}
+
+    /**
+     * Get all signups for this task
+     * Convenience method to get related signups
+     *
+     * @param string|null $date Optional specific date to get signups for
+     * @return array Array of PTA_SUS_Signup objects
+     */
+    public function get_signups($date = null) {
+        if (empty($this->id)) {
+            return array();
+        }
+
+        return PTA_SUS_Signup_Functions::get_signups_for_task($this->id, $date);
+    }
 	
 	/**
 	 * Get dates as array

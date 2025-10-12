@@ -77,6 +77,7 @@ if (!class_exists('PTA_SUS_Signup')) require_once 'classes/models/class-pta-sus-
 // Load helper function classes
 if (!class_exists('PTA_SUS_Sheet_Functions')) require_once 'classes/class-pta_sus_sheet_functions.php';
 if (!class_exists('PTA_SUS_Signup_Functions')) require_once 'classes/class-pta_sus_signup_functions.php';
+if (!class_exists('PTA_SUS_Task_Functions')) require_once 'classes/class-pta_sus_task_functions.php';
 
 if(!class_exists('PTA_Sign_Up_Sheet')):
 
@@ -162,7 +163,7 @@ class PTA_Sign_Up_Sheet {
         $caller = $trace[1] ?? array();
         $file = $caller['file'] ?? '';
         $line = $caller['line'] ?? '';
-        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
+        _deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_sheet($id);
 	}
 
@@ -175,7 +176,12 @@ class PTA_Sign_Up_Sheet {
 	 * @return    mixed    array of sheets
 	 */
 	public function get_sheets($trash=false, $active_only=false, $show_hidden=false,$order_by='first_date', $order = 'ASC') {
-		return $this->data->get_sheets($trash, $active_only, $show_hidden,$order_by,$order);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_sheets() '.sprintf('Called from %s line %s', $file, $line) );
+		return PTA_SUS_Sheet_Functions::get_sheets($trash, $active_only, $show_hidden,$order_by,$order);
 	}
 
 	/**
@@ -185,7 +191,12 @@ class PTA_Sign_Up_Sheet {
 	 * @return    mixed    array of tasks
 	 */
 	public function get_tasks($sheet_id, $date = '') {
-		return $this->data->get_tasks($sheet_id, $date);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task_Functions::get_tasks() '.sprintf('Called from %s line %s', $file, $line) );
+		return PTA_SUS_Task_Functions::get_tasks($sheet_id, $date);
 	}
 	
 	/**
@@ -916,6 +927,7 @@ function pta_sus_load_plugin_components() {
 	require_once(__DIR__ .'/classes/class-pta_sus_template_tags_helper.php');
 	require_once(__DIR__ .'/classes/class-pta_sus_volunteer.php');
 	require_once(__DIR__ .'/classes/class-pta_sus_text_registry.php');
+    require_once(__DIR__ .'/classes/class-pta_sus_validator.php');
 
 	// Initialize template tags after translations are loaded
 	PTA_SUS_Template_Tags_Helper::setup();

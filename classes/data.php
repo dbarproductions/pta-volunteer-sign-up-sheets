@@ -113,17 +113,17 @@ class PTA_SUS_Data
     }
 
     public function get_all_sheet_ids_and_titles($trash = false, $active_only = false, $show_hidden = false) {
-	    // return an array with sheet ids as array key, and sheet titles as value
-	    $return_array = array();
-	    $sheets = $this->get_sheets($trash, $active_only, $show_hidden);
-	    foreach($sheets as $sheet) {
-		    $return_array[$sheet->id] = $sheet->title;
-	    }
-	    return $return_array;
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_sheet_ids_and_titles() ' . sprintf('Called from %s line %s', $file, $line) );
+        return PTA_SUS_Sheet_Functions::get_sheet_ids_and_titles($trash, $active_only, $show_hidden);
     }
 
 	/**
 	 * Get single sheet
+     * @deprecated 6.0.0 use pta_sus_get_sheet() instead
 	 *
 	 * @param $id INT
 	 *
@@ -134,7 +134,7 @@ class PTA_SUS_Data
         $caller = $trace[1] ?? array();
         $file = $caller['file'] ?? '';
         $line = $caller['line'] ?? '';
-        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
+        _deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_sheet() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_sheet($id);
     }
 
@@ -145,14 +145,13 @@ class PTA_SUS_Data
 	 *
 	 * @return false
 	 */
-    public function get_sheet_count($trash=false)
-    { 
-        $count = $this->wpdb->get_var($this->wpdb->prepare("
-            SELECT COUNT(*) FROM ".$this->tables['sheet']['name']." WHERE trash = %d", $trash));
-	    if(!empty($count) ) {
-		    return $count;
-	    }
-        return false;
+    public function get_sheet_count($trash=false) {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_sheet_count() ' . sprintf('Called from %s line %s', $file, $line) );
+        return PTA_SUS_Sheet_Functions::get_sheet_count($trash);
     }
     
     /**
@@ -266,6 +265,7 @@ class PTA_SUS_Data
 
 	/**
 	 * Get tasks by sheet
+     * @deprecated 6.0.0 use PTA_SUS_Task_Functions::get_tasks() instead
 	 *
 	 * @param int        id of sheet
 	 * @param string $date
@@ -273,21 +273,18 @@ class PTA_SUS_Data
 	 * @return    mixed    array of tasks
 	 */
     public function get_tasks($sheet_id, $date = '') {
-        $SQL = "SELECT * FROM ".$this->tables['task']['name']." WHERE sheet_id = %d ";
-        if ('' != $date ) {
-            $SQL .= "AND INSTR(`dates`, %s) > 0 ";
-        }
-        $SQL .= "ORDER BY position, id";
-	    if ('' != $date ) {
-		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id, $date));
-	    } else {
-		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL, $sheet_id));
-	    }
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task_Functions::get_tasks() or $sheet->get_tasks() '.sprintf('Called from %s line %s', $file, $line) );
 
-	    return stripslashes_deep($results);
+	    return PTA_SUS_Task_Functions::get_tasks($sheet_id, $date);
     }
 
 	/**
+     * Get task IDs by sheet ID and optionally a date
+     * @deprecated 6.0.0 use PTA_SUS_Task_Functions::get_task_ids() instead
 	 * @param int $sheet_id
 	 * @param string $date
 	 *
@@ -295,11 +292,11 @@ class PTA_SUS_Data
 	 */
     public function get_task_ids($sheet_id, $date = '') {
 		$SQL = "SELECT id FROM ".$this->tables['task']['name']." WHERE sheet_id = %d ";
-		if ('' != $date ) {
+		if ('' !== $date ) {
 			$SQL .= "AND INSTR(`dates`, %s) > 0 ";
 		}
 		$SQL .= "ORDER BY position, id";
-		if ('' != $date ) {
+		if ('' !== $date ) {
 			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id, $date));
 		} else {
 			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id));
@@ -319,7 +316,7 @@ class PTA_SUS_Data
         $caller = $trace[1] ?? array();
         $file = $caller['file'] ?? '';
         $line = $caller['line'] ?? '';
-        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_task() '.sprintf('Called from %s line %s', $file, $line) );
+        _deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_task() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_task($id);
     }
 
@@ -357,32 +354,23 @@ class PTA_SUS_Data
         $SQL = "UPDATE ".$this->tables['task']['name']." SET sheet_id = %d WHERE sheet_id = %d";
         return $this->wpdb->query($this->wpdb->prepare($SQL, $new_sheet_id, $sheet_id));
     }
-    
+
     /**
      * Get signups by task & date
-     * 
-     * @param    int        id of task
-     * @return    mixed    array of signups
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::get_signups_for_task() instead
+     * @param int $task_id ID of task
+     * @param string $date Optional date filter
+     * @return mixed Array of signups
      */
-    public function get_signups($task_id, $date='') {
-	    if(is_object($task_id)) {
-		    if(empty($task_id->id)) {
-			    return false;
-		    }
-		    $task_id = $task_id->id;
-	    }
-        $SQL = "SELECT * FROM ".$this->tables['signup']['name']." WHERE task_id = %d ";
-        if ('' != $date) {
-            $SQL .= "AND date = %s";
-        }
-        $SQL .= " ORDER by id";
-	    if ('' != $date) {
-		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id, $date));
-	    } else {
-		    $results = $this->wpdb->get_results($this->wpdb->prepare($SQL , $task_id));
-	    }
+    public function get_signups($task_id, $date = '') {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::get_signups_for_task() ' . sprintf('Called from %s line %s', $file, $line));
 
-	    return stripslashes_deep($results);
+        return PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
     }
 
     public function get_signups2($search='')
@@ -445,7 +433,7 @@ class PTA_SUS_Data
         $caller = $trace[1] ?? array();
         $file = $caller['file'] ?? '';
         $line = $caller['line'] ?? '';
-        _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
+        _deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_signup($id);
     }
 	
@@ -547,7 +535,7 @@ class PTA_SUS_Data
      * @return mixed   array of all unique dates for a sheet
      */
     public function get_all_task_dates($id) {
-        if ($tasks = $this->get_tasks($id)) {
+        if ($tasks = PTA_SUS_Task_Functions::get_tasks($id)) {
             $dates = array();
             foreach ($tasks AS $task) {
                 // Build an array of all unique dates from all tasks for this sheet
@@ -566,7 +554,7 @@ class PTA_SUS_Data
     }
 
     public function get_available_qty($task_id, $date, $task_qty) {
-        $signups = $this->get_signups($task_id, $date);
+        $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
         $count = 0;
         foreach ($signups as $signup) {
             $count += (int)$signup->item_qty;
@@ -641,7 +629,7 @@ class PTA_SUS_Data
     */
     public function get_sheet_total_spots($id, $date='') {
         $total_spots = 0;
-        $tasks = $this->get_tasks($id, $date);
+        $tasks = PTA_SUS_Task_Functions::get_tasks($id, $date);
         
         foreach ($tasks as $task) {
             $task_dates = explode(',', $task->dates);
@@ -968,7 +956,7 @@ class PTA_SUS_Data
         
         // Check if signup spots are filled
         $task = pta_sus_get_task($task_id);
-        $signups = $this->get_signups($task_id, $clean_fields['date']);
+        $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $clean_fields['date']);
         if ($task->enable_quantities === 'YES') {
             // Take item quantities into account when calculating # of items
             $count = 0;
@@ -1050,7 +1038,7 @@ class PTA_SUS_Data
 	 * @return bool
 	 */
     public function delete_sheet($id) {
-        $tasks = $this->get_tasks($id);
+        $tasks = PTA_SUS_Task_Functions::get_tasks($id);
         $where_format = array('%d');
         foreach ($tasks AS $task) {
             // Delete Signups
@@ -1158,54 +1146,13 @@ class PTA_SUS_Data
      * @return mixed
     */
     public function copy_sheet($id) {
-        $new_fields = array();
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::copy_sheet() '.sprintf('Called from %s line %s', $file, $line) );
         
-        $sheet = pta_sus_get_sheet($id);
-        $sheet = (array)$sheet;
-        foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
-            if ('title' == $field) {
-                $new_fields['sheet_title'] = $sheet['title'] . ' Copy';
-            } elseif('visible' == $field) {
-				// make copied sheets hidden until admin can edit them
-				$new_fields['sheet_visible'] = false;
-            } else {
-                $new_fields['sheet_'.$field] = $sheet[$field];
-            }
-            
-        }
-        if ( false === $this->add_sheet($new_fields) ) {
-            return false;
-        }
-        
-        $new_sheet_id = $this->wpdb->insert_id;
-        
-        $new_tasks = array();
-        
-        $tasks = $this->get_tasks($id);
-        foreach ($tasks AS $task) {
-            $new_fields = array();
-            $task = (array)$task;
-            foreach ($this->tables['task']['allowed_fields'] AS $field=>$nothing) {
-                $new_fields['task_'.$field] = $task[$field];
-            }
-            if (false === $this->add_task($new_fields, $new_sheet_id) ) {
-                return false;
-            }
-            $new_task_id = $this->wpdb->insert_id;
-            $old_task_id = $task['id'];
-            do_action('pta_sus_task_copied', $old_task_id, $new_task_id);
-            $new_tasks[$old_task_id] = $new_task_id;
-        }
-        
-        if(!empty($new_tasks)) {
-        	$data = array('sheet_id' => $id, 'tasks' => $new_tasks);
-        	// store array of copied tasks to temporary option for possible use in other extensions
-	        update_option('pta_sus_copied_tasks', $data);
-        }
-
-        do_action('pta_sus_sheet_copied', $id, $new_sheet_id);
-        
-        return $new_sheet_id;
+        return PTA_SUS_Sheet_Functions::copy_sheet($id);
     }
 
     /**
@@ -1246,7 +1193,7 @@ class PTA_SUS_Data
 
         $new_tasks = array();
 
-        $tasks = $this->get_tasks($id);
+        $tasks = PTA_SUS_Task_Functions::get_tasks($id);
         if(empty($tasks)) return false;
         foreach ($tasks AS $task) {
             $new_fields = array();
@@ -1276,7 +1223,7 @@ class PTA_SUS_Data
 
             // Maybe copy signups
             if($copy_signups) {
-                $signups = $this->get_signups($old_task_id);
+                $signups = PTA_SUS_Signup_Functions::get_signups_for_task($old_task_id);
                 if(!empty($signups)) {
                     $date = $task_dates[$old_task_id];
                     foreach($signups as $signup) {
@@ -1578,17 +1525,12 @@ class PTA_SUS_Data
     }
 
     public function check_date($date) {
-        // Our dates should be in yyyy-mm-dd format.  Convert/Reject if not
-        // Checks to see if it's a valid date
-        // Returns true if good, false if bad
-        if ($date == "0000-00-00") return true;
-        $date = str_replace(' ', '-', $date);
-        $date = str_replace('/', '-', $date);
-        $date = str_replace('--', '-', $date);
-        if ( empty($date) ) return false;
-        preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $date, $xadBits);
-        if (count($xadBits) < 3) return false;
-        return checkdate($xadBits[2], $xadBits[3], $xadBits[1]);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_check_date() ' . sprintf('Called from %s line %s', $file, $line));
+        return pta_sus_check_date($date);
     }
 
     public function check_numbers($string) {
@@ -1597,19 +1539,12 @@ class PTA_SUS_Data
     }
 
     public function get_sanitized_dates($dates) {
-        // Sanitize one or more dates that will be separated by commas
-        // Format for each date should be yyyy-mm-dd
-        // First, get rid of any spaces
-        $dates = str_replace(' ', '', $dates);
-        // Then, separate out the dates into a simple data array, using comma as separator
-        $dates = explode(',', $dates);
-        $valid_dates = array();
-        foreach ($dates as $date) {
-            if ($this->check_date( $date )) {
-                $valid_dates[] = $date;
-            }
-        }
-        return $valid_dates;
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_sanitize_value($dates,"dates") ' . sprintf('Called from %s line %s', $file, $line));
+        return pta_sanitize_value($dates,'dates');
     }
     
     private function initials_arr($nwords) {

@@ -81,7 +81,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                     return __("N/A", 'pta-volunteer-sign-up-sheets');
                 }
             case 'task_num':
-                return count($this->data->get_tasks($item['id']));
+                return count(PTA_SUS_Task_Functions::get_tasks($item['id']));
             case 'spot_num':
                 return (int)$this->data->get_sheet_total_spots($item['id'], '');
             case 'filled_spot_num':

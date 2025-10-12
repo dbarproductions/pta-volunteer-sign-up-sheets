@@ -1130,13 +1130,13 @@ class PTA_SUS_Public {
 	        $title_header =  '<h2 class="pta-sus-list-title">'.apply_filters( 'pta_sus_public_output', esc_html($list_title), 'sheet_list_title' ).'</h2>';
 			$title_header = apply_filters('pta_sus_sheet_list_title_header_html', $title_header, $list_title);
             $return .= $title_header;
-            $sheets = $this->data->get_sheets(false, true, $this->show_hidden, $order_by, $order);
+            $sheets = PTA_SUS_Sheet_Functions::get_sheets(false, true, $this->show_hidden, $order_by, $order);
 
             // Move ongoing sheets to bottom of list if that setting is checked
             if ($this->main_options['show_ongoing_last']) {
                 // Move ongoing events to end of our sheets array
                 foreach ($sheets as $key => $sheet) {
-                    if ('Ongoing' == $sheet->type) {
+                    if ('Ongoing' === $sheet->type) {
                         $move_me = $sheet;
                         unset($sheets[$key]);
                         $sheets[] = $move_me;
@@ -1162,7 +1162,7 @@ class PTA_SUS_Public {
 	                    $return .= '<p>'. apply_filters( 'pta_sus_public_output', __('Please login to view and edit your volunteer sign ups.', 'pta-volunteer-sign-up-sheets'), 'user_not_loggedin_signups_list_message' ).'</p>';
 	                }
 					if($this->validation_enabled && isset($this->validation_options['enable_user_validation_form']) && $this->validation_options['enable_user_validation_form']) {
-						if ( (isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared']) || $this->validation_sent) ) {
+						if ( ((isset($_COOKIE['pta_sus_validation_form_submitted']) && empty($_COOKIE['pta_sus_validation_cleared'])) || $this->validation_sent) ) {
 							$minutes = $this->validation_options['validation_form_resubmission_minutes'] ?? 1;
 							$return .= '<p>'.apply_filters( 'pta_sus_public_output', sprintf(__('User Validation email has been sent. Please check your email. If you did not receive the email, you can return and submit the form again after %d minutes.', 'pta-volunteer-sign-up-sheets'),$minutes),'validation_form_already_submitted_message', absint($minutes)).'</p>';
 						} else {
@@ -1404,7 +1404,7 @@ class PTA_SUS_Public {
 	public function display_task_list($sheet_id, $date, $no_signups=false) {
 		// Tasks
 
-		$tasks = apply_filters('pta_sus_public_sheet_get_tasks', $this->data->get_tasks($sheet_id, $date), $sheet_id, $date);
+		$tasks = apply_filters('pta_sus_public_sheet_get_tasks', PTA_SUS_Task_Functions::get_tasks($sheet_id, $date), $sheet_id, $date);
 
 		if (!$tasks ) {
 			return '<p>'.apply_filters( 'pta_sus_public_output', __('No tasks were found for ', 'pta-volunteer-sign-up-sheets'), 'no_tasks_found_for_date' ) . mysql2date( get_option('date_format'), $date, $translate = true ).'</p>';

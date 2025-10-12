@@ -127,6 +127,65 @@ class PTA_SUS_Sheet_Functions {
 
         return absint( $count );
     }
+
+    /**
+     * Copy a sheet and all its tasks to a new sheet
+     *
+     * @param int $sheet_id Sheet ID to copy
+     * @return int|false New sheet ID on success, false on failure
+     */
+    public static function copy_sheet($sheet_id) {
+        // Load original sheet
+        $original_sheet = pta_sus_get_sheet($sheet_id);
+        if (!$original_sheet) {
+            return false;
+        }
+
+        // Get sheet data and modify for copy
+        $sheet_data = $original_sheet->to_array();
+        unset($sheet_data['id']); // Remove ID so new one is created
+        $sheet_data['title'] .= ' Copy';
+        $sheet_data['visible'] = false;
+
+        // Create and save new sheet
+        $new_sheet = new PTA_SUS_Sheet($sheet_data);
+        $new_sheet_id = $new_sheet->save();
+        if (!$new_sheet_id) {
+            return false;
+        }
+
+        // Copy all tasks
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
+        $new_tasks = array();
+
+        foreach ($tasks as $original_task) {
+            // Get task data and modify for copy
+            $task_data = $original_task->to_array();
+            unset($task_data['id']); // Remove ID
+            $task_data['sheet_id'] = $new_sheet_id; // Link to new sheet
+
+            // Create and save new task
+            $new_task = new PTA_SUS_Task($task_data);
+            $new_task_id = $new_task->save();
+
+            if ($new_task_id) {
+                $new_tasks[$original_task->id] = $new_task_id;
+                do_action('pta_sus_task_copied', $original_task->id, $new_task_id);
+            }
+        }
+
+        // Store task mapping
+        if (!empty($new_tasks)) {
+            update_option('pta_sus_copied_tasks', array(
+                'sheet_id' => $sheet_id,
+                'tasks' => $new_tasks
+            ));
+        }
+
+        do_action('pta_sus_sheet_copied', $sheet_id, $new_sheet_id);
+
+        return $new_sheet_id;
+    }
 }
 
 // Initialize the class

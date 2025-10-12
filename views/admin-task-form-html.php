@@ -9,14 +9,14 @@ do_action( 'pta_sus_tasks_form_start', $f, $count );
 if ($count < 3) $count = 3;
 ?>
 <form name="add_tasks" id="pta-sus-modify-tasks" method="post" action="">
-<?php if ( "Single" == $f['sheet_type'] ): ?>
+<?php if ( "Single" === $f['sheet_type'] ): ?>
 	<h2><?php echo __('Select the date for ', 'pta-volunteer-sign-up-sheets'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
 		<label for="single_date"><strong><?php _e('Date:', 'pta-volunteer-sign-up-sheets'); ?></strong></label>
 		<input type="text" class="singlePicker" id="single_date" name="single_date" value="<?php echo ((isset($f['single_date']) ? esc_attr($f['single_date']) : '')); ?>" size="12" />
 		<em><?php _e('Select a date for the event.  All tasks will then be assigned to this date.', 'pta-volunteer-sign-up-sheets'); ?></em>
 	</p>
-<?php elseif ( "Recurring" == $f['sheet_type']): ?>
+<?php elseif ( "Recurring" === $f['sheet_type']): ?>
 	<h2><?php echo __('Select ALL the dates for ', 'pta-volunteer-sign-up-sheets'). stripslashes(esc_attr($f['sheet_title'])); ?></h2>
 	<p>
 		<label for="recurring_dates"><strong><?php _e('Dates:', 'pta-volunteer-sign-up-sheets'); ?></strong></label>
@@ -34,7 +34,7 @@ if ($count < 3) $count = 3;
 	do_action( 'pta_sus_tasks_form_task_loop_start', $f, $i ); ?>
 	<li id="task-<?php echo $i; ?>">
 	<?php _e('Task/Item:', 'pta-volunteer-sign-up-sheets'); ?> <input type="text" name="task_title[<?php echo $i; ?>]" id="task_title[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_title'][$i]) ? esc_attr($f['task_title'][$i]) : '')); ?>" size="40" />&nbsp;&nbsp;
-	<?php if ( "Multi-Day" == $f['sheet_type'] ) : ?>
+	<?php if ( "Multi-Day" === $f['sheet_type'] ) : ?>
 		<?php _e('Date:','pta-volunteer-sign-up-sheets'); ?> <input type="text" class="singlePicker" name="task_dates[<?php echo $i; ?>]" id="singlePicker[<?php echo $i; ?>]" value="<?php echo ((isset($f['task_dates'][$i]) ? esc_attr($f['task_dates'][$i]) : '')); ?>" size="10" />&nbsp;&nbsp;
 	<?php endif; ?>
 	<?php if (!$no_signups) : ?>
@@ -114,7 +114,7 @@ do_action( 'pta_sus_tasks_form_after_tasks', $f ); ?>
 </form>
 <?php
 // tasks move
-$rows = $this->data->get_sheets(false, false, true);
+$rows = PTA_SUS_Sheet_Functions::get_sheets(false, false, true);
 if (count($rows)>1) : ?>
 	<h2><?php _e('Move tasks ', 'pta-volunteer-sign-up-sheets'); ?></h2>
 	<form name="move_tasks" id="pta-sus-move-tasks" method="post" action="">
@@ -125,7 +125,7 @@ if (count($rows)>1) : ?>
 	<select id="new_sheet_id" name="new_sheet_id" required>
         <option value=""><?php _e("Please Select a Sheet", "pta_volunteer_sus"); ?></option>
 	<?php foreach ($rows as $row) :
-		if ($row->id == $f["sheet_id"]) continue; ?>
+		if ($row->id === $f["sheet_id"]) continue; ?>
 		<option value=<?php echo esc_attr($row->id); ?>><?php echo esc_html($row->title); ?></option>
 	<?php endforeach; ?>
 	</select>

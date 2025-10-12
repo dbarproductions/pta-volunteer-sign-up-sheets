@@ -92,10 +92,10 @@ class PTA_SUS_AJAX {
 		$old_signup_id = isset($_POST['old_signup_id']) ? absint($_POST['old_signup_id']) : 0;
 		$qty = isset($_POST['qty']) ? absint( $_POST['qty']) : 1;
 		global $pta_sus;
-		$sheet = $pta_sus->get_sheet($sheet_id);
+		$sheet = pta_sus_get_sheet($sheet_id);
 		if($sheet) {
 
-			$sheet_tasks = $pta_sus->get_tasks($sheet_id);
+			$sheet_tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
 			$available_task_ids = array();
 
 
@@ -104,7 +104,7 @@ class PTA_SUS_AJAX {
 				foreach ($sheet_tasks as $sheet_task) {
 					if($old_task_id == $sheet_task->id) {
 						// if task IDs are the same, don't use if not recurring type sheet (can't move to same task unless it has more than 1 date)
-		                $sheet = $pta_sus->get_sheet($sheet_task->sheet_id);
+		                $sheet = pta_sus_get_sheet($sheet_task->sheet_id);
 		                if($sheet && 'Recurring' !== $sheet->type) {
 		                    continue; // skip so can't select same task
 		                }
@@ -119,7 +119,7 @@ class PTA_SUS_AJAX {
 					$task_dates = $pta_sus->data->get_sanitized_dates($sheet_task->dates);
 					$check_date = false;
 					if($old_task_id == $sheet_task->id && count($task_dates) > 1) {
-						$old_signup = $pta_sus->get_signup($old_signup_id);
+						$old_signup = pta_sus_get_signup($old_signup_id);
 						if($old_signup) {
 							$check_date = $old_signup->date;
 						}
@@ -131,7 +131,7 @@ class PTA_SUS_AJAX {
 		            		continue;
 			            }
 						// Check available qty
-			            $available = $pta_sus->data->get_available_qty($sheet_task->id, $date, $sheet_task->qty);
+			            $available = $sheet_task->get_available_spots($date);
 						if(!$available || $qty > $available) {
 							continue; // not enough left
 						}
