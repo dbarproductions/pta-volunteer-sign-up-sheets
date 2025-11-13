@@ -210,11 +210,25 @@ class PTA_SUS_Data
         return PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $signup_date, $firstname, $lastname, $check_all = false);
     }
 
+    /**
+     * Toggle sheet visibility
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet::toggle_visibility() method instead
+     * @param int $id Sheet ID
+     * @return mixed
+     */
     public function toggle_visibility($id) {
-        $SQL = "UPDATE ".$this->tables['sheet']['name']." 
-                SET visible = IF(visible, 0, 1) 
-                WHERE id = %d";
-        return $this->wpdb->query($this->wpdb->prepare($SQL, $id));
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Sheet::toggle_visibility() method ' . sprintf('Called from %s line %s', $file, $line));
+
+        $sheet = pta_sus_get_sheet($id);
+        if ($sheet) {
+            return $sheet->toggle_visibility();
+        }
+        return false;
     }
 
 	/**
@@ -245,18 +259,13 @@ class PTA_SUS_Data
 	 * @return array an array of task IDs
 	 */
     public function get_task_ids($sheet_id, $date = '') {
-		$SQL = "SELECT id FROM ".$this->tables['task']['name']." WHERE sheet_id = %d ";
-		if ('' !== $date ) {
-			$SQL .= "AND INSTR(`dates`, %s) > 0 ";
-		}
-		$SQL .= "ORDER BY position, id";
-		if ('' !== $date ) {
-			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id, $date));
-		} else {
-			$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id));
-		}
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task_Functions::get_task_ids() '.sprintf('Called from %s line %s', $file, $line) );
 
-		return $results;
+        return PTA_SUS_Task_Functions::get_task_ids($sheet_id, $date);
 	}
 
     /**
@@ -274,26 +283,22 @@ class PTA_SUS_Data
         return pta_sus_get_task($id);
     }
 
-	public function get_all_task_dates_for_sheet($sheet_id) {
-		$SQL = "SELECT DISTINCT dates FROM ".$this->tables['task']['name']." WHERE sheet_id = %d";
-		$results = $this->wpdb->get_col($this->wpdb->prepare($SQL, $sheet_id));
-		$dates = array();
-		if(empty($results)) {
-			return $dates;
-		}
-		foreach($results as $result) {
-			// split out individual dates
-			$task_dates = explode(',', $result);
-			foreach($task_dates as $task_date) {
-				$task_date = trim($task_date);
-				if(!empty($task_date) && !in_array($task_date, $dates)) {
-					$dates[] = $task_date;
-				}
-			}
-			$dates[] = $result;
-		}
-		return $dates;
-	}
+    /**
+     * Get all task dates for a sheet
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() instead
+     * @param int $sheet_id Sheet ID
+     * @return array Array of dates
+     */
+    public function get_all_task_dates_for_sheet($sheet_id) {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() ' . sprintf('Called from %s line %s', $file, $line));
+
+        return PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
+    }
 
 	/**
 	 * Move tasks

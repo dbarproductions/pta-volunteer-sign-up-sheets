@@ -136,6 +136,20 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 		
 		return 0;
 	}
+
+    /**
+     * Get all unique dates from all tasks for this sheet
+     * Convenience method to get all dates across all tasks
+     *
+     * @return array Array of unique date strings
+     */
+    public function get_all_task_dates() {
+        if (empty($this->id)) {
+            return array();
+        }
+
+        return PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($this->id);
+    }
 	
 	/**
 	 * Check if sheet is active (not expired)
@@ -170,6 +184,24 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 	public function is_visible() {
 		return (bool) $this->visible;
 	}
+
+    /**
+     * Toggle visibility of this sheet
+     * Flips the visible property and saves to database
+     *
+     * @return bool|int False on failure, sheet ID on success
+     */
+    public function toggle_visibility() {
+        if (empty($this->id)) {
+            return false;
+        }
+
+        // Toggle the visible property
+        $this->visible = !$this->visible;
+
+        // Save the change
+        return $this->save();
+    }
 	
 	/**
 	 * Move sheet to trash

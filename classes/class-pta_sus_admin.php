@@ -832,7 +832,7 @@ class PTA_SUS_Admin {
 			$this->success = $this->process_move_signup_form();
 		}
 
-		$sheet_id = isset($_GET['sheet_id']) ? intval($_GET['sheet_id']) : 0;
+		$sheet_id = isset($_GET['sheet_id']) ? (int)$_GET['sheet_id'] : 0;
 
 		if ('untrash' === $this->action && $sheet_id > 0) {
 			if (($result = $this->data->update_sheet(array('sheet_trash'=>0), $sheet_id)) === false) {
@@ -869,9 +869,12 @@ class PTA_SUS_Admin {
 			$this->admin_sheet_page_redirect();
 		}
 		if ('toggle_visibility' === $this->action && $sheet_id > 0) {
-			if (false === $this->data->toggle_visibility($sheet_id)) {
-				PTA_SUS_Messages::add_error(__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets'));
-			}
+
+            $sheet = pta_sus_get_sheet($sheet_id);
+            if ($sheet && false === $sheet->toggle_visibility()) {
+                PTA_SUS_Messages::add_error(__('Error toggling sheet visibility.', 'pta-volunteer-sign-up-sheets'));
+            }
+
 			$this->admin_sheet_page_redirect();
 		}
 

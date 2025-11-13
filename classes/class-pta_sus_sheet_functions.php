@@ -184,6 +184,49 @@ class PTA_SUS_Sheet_Functions {
 
         return $new_sheet_id;
     }
+
+    /**
+     * Get all unique dates from all tasks for a sheet
+     * Handles comma-separated dates in task dates field
+     *
+     * @param int $sheet_id Sheet ID
+     * @return array Array of unique date strings (yyyy-mm-dd format)
+     */
+    public static function get_all_task_dates_for_sheet($sheet_id) {
+        global $wpdb;
+
+        $sheet_id = absint($sheet_id);
+        if (empty($sheet_id)) {
+            return array();
+        }
+
+        // Get all dates fields from tasks for this sheet
+        $sql = "SELECT DISTINCT dates FROM " . $wpdb->prefix . "pta_sus_tasks WHERE sheet_id = %d";
+        $results = $wpdb->get_col($wpdb->prepare($sql, $sheet_id));
+
+        $dates = array();
+
+        if (empty($results)) {
+            return $dates;
+        }
+
+        // Process each task's dates (may be comma-separated)
+        foreach ($results as $result) {
+            // Split out individual dates
+            $task_dates = explode(',', $result);
+
+            foreach ($task_dates as $task_date) {
+                $task_date = trim($task_date);
+
+                // Add to array if not empty and not already present
+                if (!empty($task_date) && !in_array($task_date, $dates)) {
+                    $dates[] = $task_date;
+                }
+            }
+        }
+
+        return $dates;
+    }
 }
 
 // Initialize the class
