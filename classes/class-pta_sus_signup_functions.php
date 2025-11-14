@@ -231,6 +231,39 @@ class PTA_SUS_Signup_Functions {
         return $signups;
     }
 
+    /**
+     * Search signups by firstname or lastname
+     * Used for live search functionality in admin and frontend
+     *
+     * @param string $search Search term (searches both firstname and lastname)
+     * @return array Array of PTA_SUS_Signup objects (grouped by name)
+     */
+    public static function search_signups_by_name($search = '') {
+        global $wpdb;
+
+        if (empty($search)) {
+            return array();
+        }
+
+        $search = sanitize_text_field($search);
+        $search_pattern = '%' . $wpdb->esc_like($search) . '%';
+
+        $sql = "SELECT * FROM " . self::$signup_table . " 
+            WHERE lastname LIKE %s OR firstname LIKE %s 
+            GROUP BY firstname, lastname 
+            ORDER BY lastname, firstname";
+
+        $results = $wpdb->get_results($wpdb->prepare($sql, $search_pattern, $search_pattern), ARRAY_A);
+
+        // Convert to PTA_SUS_Signup objects
+        $signups = array();
+        foreach ($results as $row) {
+            $signups[] = new PTA_SUS_Signup($row);
+        }
+
+        return $signups;
+    }
+
 	public static function validate_signup($signup_id) {
 		global $wpdb;
 		$data = array('validated' => 1);

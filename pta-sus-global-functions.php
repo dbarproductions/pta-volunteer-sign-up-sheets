@@ -664,6 +664,49 @@ function pta_sus_show_clear($sheet, $date, $time='') {
 	return false;
 }
 
+/**
+ * Search WordPress users by name or email
+ * Used for live search functionality
+ *
+ * @param string $search Search term
+ * @return array Array of WP_User objects
+ */
+function pta_sus_search_users($search = '') {
+    if (empty($search)) {
+        return array();
+    }
+
+    $search = sanitize_text_field($search);
+
+    // Use search_columns for email (more efficient than meta_query)
+    // Meta query for first_name and last_name
+    $meta_query = array(
+        'relation' => 'OR',
+        array(
+            'key'     => 'first_name',
+            'value'   => $search,
+            'compare' => 'LIKE'
+        ),
+        array(
+            'key'     => 'last_name',
+            'value'   => $search,
+            'compare' => 'LIKE'
+        )
+    );
+
+    $args = array(
+        'meta_query'   => $meta_query,
+        'search'       => '*' . esc_attr($search) . '*', // Search email via search_columns
+        'search_columns' => array('user_email'), // More efficient than meta_query for email
+        'orderby'      => 'display_name',
+        'order'        => 'ASC',
+        'count_total'  => false,
+        'fields'       => array('ID', 'user_email', 'display_name'),
+    );
+
+    return get_users($args);
+}
+
 function pta_logToFile($msg, $filename='')	{
 	if(empty($filename)) {
 		$filename = 'pta_debug.log';

@@ -300,18 +300,22 @@ class PTA_SUS_Data
         return PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
     }
 
-	/**
-	 * Move tasks
-	 *
-	 * @param int      sheet id
-	 * @param int      new sheet id
-	 *
-	 * @return bool|int
-	 */
-    public function move_tasks($sheet_id,$new_sheet_id)
-    {
-        $SQL = "UPDATE ".$this->tables['task']['name']." SET sheet_id = %d WHERE sheet_id = %d";
-        return $this->wpdb->query($this->wpdb->prepare($SQL, $new_sheet_id, $sheet_id));
+    /**
+     * Move tasks between sheets
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Task_Functions::move_tasks() instead
+     * @param int $sheet_id Old sheet ID
+     * @param int $new_sheet_id New sheet ID
+     * @return mixed
+     */
+    public function move_tasks($sheet_id, $new_sheet_id) {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Task_Functions::move_tasks() ' . sprintf('Called from %s line %s', $file, $line));
+
+        return PTA_SUS_Task_Functions::move_tasks($sheet_id, $new_sheet_id);
     }
 
     /**
@@ -332,41 +336,38 @@ class PTA_SUS_Data
         return PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
     }
 
-    public function get_signups2($search='')
-    {
-        $SQL = "SELECT * FROM ".$this->tables['signup']['name']." WHERE lastname like '%s' OR firstname like '%s' GROUP BY firstname, lastname";
-        $results = $this->wpdb->get_results($this->wpdb->prepare($SQL,'%'.$search.'%','%'.$search.'%'));
+    /**
+     * Search signups by name
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::search_signups_by_name() instead
+     * @param string $search Search term
+     * @return mixed
+     */
+    public function get_signups2($search = '') {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::search_signups_by_name() ' . sprintf('Called from %s line %s', $file, $line));
 
-	    return stripslashes_deep($results);
+        return PTA_SUS_Signup_Functions::search_signups_by_name($search);
     }
 
-    public function get_users($search='') {
-	    $meta_query = array(
-		    'relation' => 'OR',
-		    array(
-		    'key'     => 'first_name',
-		    'value'   => $search,
-		    'compare' => 'LIKE'
-	        ),
-		    array(
-			    'key'     => 'last_name',
-			    'value'   => $search,
-			    'compare' => 'LIKE'
-		    ),
-		    array(
-			    'key'     => 'user_email',
-			    'value'   => $search,
-			    'compare' => 'LIKE'
-		    )
-	    );
-	    $args = array(
-		    'meta_query'   =>$meta_query,
-		    'orderby'      => 'ID',
-		    'order'        => 'ASC',
-		    'count_total'  => false,
-		    'fields'       => array('ID', 'user_email'),
-	    );
-	    return get_users($args);
+    /**
+     * Search WordPress users by name or email
+     *
+     * @deprecated 6.0.0 Use pta_sus_search_users() instead
+     * @param string $search Search term
+     * @return mixed
+     */
+    public function get_users($search = '') {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(__FUNCTION__, '6.0.0', 'pta_sus_search_users() ' . sprintf('Called from %s line %s', $file, $line));
+
+        return pta_sus_search_users($search);
     }
 
     public function get_volunteer_emails($sheet_id = 0) {
@@ -1328,7 +1329,7 @@ class PTA_SUS_Data
 
                     case 'int':
                         // Validate input is only numbers
-                        if (!$this->check_numbers($clean_fields[$field])) {
+                        if (!pta_sus_check_numbers($clean_fields[$field])) {
                             $results['errors']++;
                             $results['message'] .= sprintf(__('Numbers only for %s please!', 'pta-volunteer-sign-up-sheets'), $field ) . '<br/>';
                         }

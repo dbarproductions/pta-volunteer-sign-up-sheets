@@ -33,55 +33,81 @@ class PTA_SUS_AJAX {
 		}
 	}
 
-	public static function live_search() {
-		if (isset($_POST['pta_pub_action']) && $_POST['pta_pub_action']=='autocomplete_volunteer' && current_user_can('manage_signup_sheets')) {
-			check_ajax_referer( 'ajax-pta-nonce', 'security' );
-			$main_options = get_option( 'pta_volunteer_sus_main_options' );
-			$return=array();
-			if (!$main_options['enable_signup_search'] || !isset($_POST["q"])) {
-			  wp_send_json($return);
-			  exit;
-			}
+    public static function live_search() {
+        // Verify action and capability
+        if (!isset($_POST['pta_pub_action']) || $_POST['pta_pub_action'] !== 'autocomplete_volunteer' || !current_user_can('manage_signup_sheets')) {
+            wp_send_json_error(array('message' => __('Unauthorized request.', 'pta-volunteer-sign-up-sheets')));
+            return;
+        }
 
-			$tables = $main_options['signup_search_tables'];
+        check_ajax_referer('ajax-pta-nonce', 'security');
 
-			$user_ids = array();
-			global $pta_sus;
-			$search = sanitize_text_field( $_POST["q"]);
-			if('signups' === $tables || 'both' === $tables) {
-				$results = $pta_sus->data->get_signups2($search);
-				foreach($results as $item) {
-					$record = array();
-					$record['user_id'] = $user_ids[]  = absint($item->user_id);
-					$record['lastname']  = esc_html($item->lastname);
-					$record['firstname'] = esc_html($item->firstname);
-					$record['email']     = esc_html($item->email);
-					$record['phone']     = esc_html($item->phone);
-					$record = apply_filters('pta_sus_signups_table_search_record', $record);
-					$return[]  = $record;
-				}
-			}
+        $main_options = get_option('pta_volunteer_sus_main_options');
+        $return = array();
 
-			if('users' === $tables || 'both' === $tables) {
-				$users = $pta_sus->data->get_users($search);
-				foreach($users as $user) {
-					if(!in_array($user->ID, $user_ids)) {
-						$record = array();
-						$record['user_id'] = absint($user->ID);
-						$record['lastname']  = esc_html(get_user_meta($user->ID, 'last_name', true));
-						$record['firstname'] = esc_html(get_user_meta($user->ID, 'first_name', true));
-						$record['email']     = esc_html($user->user_email);
-						$record['phone']     = esc_html(get_user_meta($user->ID, 'billing_phone', true));
-						// get additional user meta
-						$record = apply_filters('pta_sus_users_table_search_record', $record);
-						$return[]  = $record;
-					}
-				}
-			}
+        // Check if search is enabled and query exists
+        if (empty($main_options['enable_signup_search']) || !isset($_POST['q'])) {
+            wp_send_json_success($return);
+            return;
+        }
 
-			wp_send_json($return);
-			exit;
-		}
+        $search = sanitize_text_field($_POST['q']);
+
+        // Don't search if query is too short (optional - prevents excessive queries)
+        if (strlen($search) < 2) {
+            wp_send_json_success($return);
+            return;
+        }
+
+        $tables = $main_options['signup_search_tables'] ?? 'both';
+        $user_ids = array();
+
+        // Search signups table
+        if ('signups' === $tables || 'both' === $tables) {
+            $results = PTA_SUS_Signup_Functions::search_signups_by_name($search);
+
+            foreach ($results as $signup) {
+                // Fix: Properly track user_ids to avoid duplicates
+                $user_id = absint($signup->user_id);
+                if ($user_id > 0 && !in_array($user_id, $user_ids)) {
+                    $user_ids[] = $user_id;
+                }
+
+                $record = array();
+                $record['user_id'] = $user_id;
+                $record['lastname'] = esc_html($signup->lastname);
+                $record['firstname'] = esc_html($signup->firstname);
+                $record['email'] = esc_html($signup->email);
+                $record['phone'] = esc_html($signup->phone);
+                $record = apply_filters('pta_sus_signups_table_search_record', $record, $signup);
+                $return[] = $record;
+            }
+        }
+
+        // Search WordPress users table
+        if ('users' === $tables || 'both' === $tables) {
+            $users = pta_sus_search_users($search);
+
+            foreach ($users as $user) {
+                // Skip if already found in signups
+                if (in_array($user->ID, $user_ids)) {
+                    continue;
+                }
+
+                $record = array();
+                $record['user_id'] = absint($user->ID);
+                $record['lastname'] = esc_html(get_user_meta($user->ID, 'last_name', true));
+                $record['firstname'] = esc_html(get_user_meta($user->ID, 'first_name', true));
+                $record['email'] = esc_html($user->user_email);
+                $record['phone'] = esc_html(get_user_meta($user->ID, 'billing_phone', true));
+
+                // Get additional user meta
+                $record = apply_filters('pta_sus_users_table_search_record', $record, $user);
+                $return[] = $record;
+            }
+        }
+
+        wp_send_json_success($return);
     }
 
 	public static function get_tasks_for_sheet() {

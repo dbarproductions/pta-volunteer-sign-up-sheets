@@ -75,6 +75,82 @@ class PTA_SUS_Task_Functions {
         return $results;
     }
 
+    /**
+     * Move all tasks from one sheet to another
+     * WARNING: Does not check for existing signups or sheet type compatibility
+     *
+     * @param int $old_sheet_id Source sheet ID
+     * @param int $new_sheet_id Destination sheet ID
+     * @return int|false Number of tasks moved, or false on failure
+     */
+    public static function move_tasks($old_sheet_id, $new_sheet_id) {
+        global $wpdb;
+
+        $old_sheet_id = absint($old_sheet_id);
+        $new_sheet_id = absint($new_sheet_id);
+
+        if (empty($old_sheet_id) || empty($new_sheet_id) || $old_sheet_id === $new_sheet_id) {
+            PTA_SUS_Messages::add_error(__('Invalid sheet IDs provided.', 'pta-volunteer-sign-up-sheets'));
+            return false;
+        }
+
+        // Get tasks to be moved
+        $tasks = self::get_tasks($old_sheet_id);
+        if (empty($tasks)) {
+            PTA_SUS_Messages::add_error(__('No tasks found to move.', 'pta-volunteer-sign-up-sheets'));
+            return false;
+        }
+
+        // Check for existing signups
+        $has_signups = false;
+        foreach ($tasks as $task) {
+            $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task->id);
+            if (!empty($signups)) {
+                $has_signups = true;
+                break;
+            }
+        }
+
+        // Get sheet info for type checking
+        $old_sheet = pta_sus_get_sheet($old_sheet_id);
+        $new_sheet = pta_sus_get_sheet($new_sheet_id);
+
+        if (!$old_sheet || !$new_sheet) {
+            PTA_SUS_Messages::add_error(__('One or both sheets not found.', 'pta-volunteer-sign-up-sheets'));
+            return false;
+        }
+
+        // Add warnings if needed
+        if ($has_signups) {
+            PTA_SUS_Messages::add_error(__('WARNING: Tasks being moved have existing signups. Signups will remain associated with moved tasks.', 'pta-volunteer-sign-up-sheets'));
+        }
+        if ($old_sheet->type !== $new_sheet->type) {
+            PTA_SUS_Messages::add_error(sprintf(__('WARNING: Sheet types differ (%s → %s). This may cause issues with date handling.', 'pta-volunteer-sign-up-sheets'), $old_sheet->type, $new_sheet->type));
+        }
+
+        // Perform the move
+        $sql = "UPDATE " . self::$task_table . " SET sheet_id = %d WHERE sheet_id = %d";
+        $result = $wpdb->query($wpdb->prepare($sql, $new_sheet_id, $old_sheet_id));
+
+        if ($result === false) {
+            PTA_SUS_Messages::add_error(__('Failed to move tasks.', 'pta-volunteer-sign-up-sheets'));
+            return false;
+        }
+
+        if ($result > 0) {
+            /**
+             * Action after tasks are moved
+             *
+             * @param int $old_sheet_id Original sheet ID
+             * @param int $new_sheet_id New sheet ID
+             * @param int $moved_count Number of tasks moved
+             */
+            do_action('pta_sus_tasks_moved', $old_sheet_id, $new_sheet_id, $result);
+        }
+
+        return $result;
+    }
+
 
 }
 

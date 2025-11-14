@@ -1046,11 +1046,11 @@ class PTA_SUS_Admin {
 		// Set mode vars
 		$edit = ! empty( $_GET['sheet_id'] );
 		$add = ! $edit;
-		$sheet_submitted = (isset($_POST['sheet_mode']) && $_POST['sheet_mode'] == 'submitted');
-		$tasks_submitted = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] == 'submitted');
-		$tasks_move = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] == 'move_tasks');
-		$edit_tasks = (isset($_GET['action']) && 'edit_tasks' == $_GET['action']);
-		$edit_sheet = (isset($_GET['action']) && 'edit_sheet' == $_GET['action']);
+		$sheet_submitted = (isset($_POST['sheet_mode']) && $_POST['sheet_mode'] === 'submitted');
+		$tasks_submitted = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] === 'submitted');
+		$tasks_move = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] === 'move_tasks');
+		$edit_tasks = (isset($_GET['action']) && 'edit_tasks' === $_GET['action']);
+		$edit_sheet = (isset($_GET['action']) && 'edit_sheet' === $_GET['action']);
 		$sheet_success = false;
 		$tasks_success = false;
 		$add_tasks = false;
@@ -1058,23 +1058,26 @@ class PTA_SUS_Admin {
 		$sheet_fields = array();
 		$new_sheet_id = 0;
 
-		if ($tasks_move) {
-			// Nonce check
-			check_admin_referer( 'pta_sus_move_tasks', 'pta_sus_move_tasks_nonce' );
-			$sheet_id = intval($_POST['sheet_id']);
-			$new_sheet_id = intval($_POST['new_sheet_id']);
-			if($new_sheet_id < 1)  {
-				PTA_SUS_Messages::add_error(__('You must select a sheet to move the tasks to!', 'pta-volunteer-sign-up-sheets'));
-			} else {
-				$move_results = $this->data->move_tasks($sheet_id,$new_sheet_id);
-				if($move_results > 0) {
-					PTA_SUS_Messages::add_message(__('Tasks Successfully Moved!', 'pta-volunteer-sign-up-sheets'));
-					PTA_SUS_Messages::add_error(__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta-volunteer-sign-up-sheets'));
-					$moved = true;
-				}
-			}
+        if ($tasks_move) {
+            // Nonce check
+            check_admin_referer('pta_sus_move_tasks', 'pta_sus_move_tasks_nonce');
 
-		} elseif ($tasks_submitted) {
+            $sheet_id = (int)$_POST['sheet_id'];
+            $new_sheet_id = (int)$_POST['new_sheet_id'];
+
+            if ($new_sheet_id < 1) {
+                PTA_SUS_Messages::add_error(__('You must select a sheet to move the tasks to!', 'pta-volunteer-sign-up-sheets'));
+            } else {
+                $move_results = PTA_SUS_Task_Functions::move_tasks($sheet_id, $new_sheet_id);
+
+                if ($move_results > 0) {
+                    PTA_SUS_Messages::add_message(sprintf(_n('%d task successfully moved!', '%d tasks successfully moved!', $move_results, 'pta-volunteer-sign-up-sheets'), $move_results));
+                    PTA_SUS_Messages::add_error(__('For changes to show, and for new task dates to be updated, please adjust tasks as needed and hit save.', 'pta-volunteer-sign-up-sheets'));
+                    $moved = true;
+                }
+                // Errors are already added by move_tasks() if it fails
+            }
+        } elseif ($tasks_submitted) {
 			// Tasks
 			// Nonce check
 			check_admin_referer( 'pta_sus_add_tasks', 'pta_sus_add_tasks_nonce' );
