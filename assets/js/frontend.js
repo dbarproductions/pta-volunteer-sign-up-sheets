@@ -119,22 +119,6 @@ window.ptaVolunteer = {
             ul = document.createElement('ul');
             ul.className = 'autocomplete-results';
             input.parentNode.appendChild(ul);
-
-            // Add click handler once (not on every render)
-            ul.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const link = e.target.closest('a[data-volunteer]');
-                if (link) {
-                    try {
-                        const volunteerData = JSON.parse(link.dataset.volunteer);
-                        this.populateFields(volunteerData);
-                        this.clearAutocomplete(input);
-                    } catch (error) {
-                        // Invalid JSON, ignore
-                    }
-                }
-            });
         }
 
         // If no data or invalid response, clear and hide results
@@ -144,23 +128,22 @@ window.ptaVolunteer = {
             return;
         }
 
+        // Store data in a closure for lookup (more reliable than data attributes)
+        if (!ul._volunteerData) {
+            ul._volunteerData = [];
+        }
+        ul._volunteerData = data;
+
         // Show and populate results
         ul.style.display = 'block';
-        ul.innerHTML = data.map(item => {
+        ul.innerHTML = data.map((item, index) => {
             const firstname = this.htmlDecode(item.firstname || '');
             const lastname = this.htmlDecode(item.lastname || '');
             const email = this.htmlDecode(item.email || '');
-            // Escape JSON for HTML data attribute
-            // JSON.stringify already escapes quotes, so we just need to escape HTML entities
-            // Must escape & first to avoid double-escaping
-            const jsonData = JSON.stringify(item)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
 
             return `
                 <li>
-                    <a href="#" data-volunteer="${jsonData}">
+                    <a href="#" data-index="${index}">
                         <strong>${firstname} ${lastname}</strong>
                         <br>
                         <small>${email}</small>
@@ -168,6 +151,22 @@ window.ptaVolunteer = {
                 </li>
             `;
         }).join('');
+
+        // Update click handler to use stored data
+        ul.removeEventListener('click', ul._clickHandler);
+        ul._clickHandler = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const link = e.target.closest('a[data-index]');
+            if (link && ul._volunteerData) {
+                const index = parseInt(link.getAttribute('data-index'), 10);
+                if (!isNaN(index) && ul._volunteerData[index]) {
+                    this.populateFields(ul._volunteerData[index]);
+                    this.clearAutocomplete(input);
+                }
+            }
+        };
+        ul.addEventListener('click', ul._clickHandler);
     },
 
     clearAutocomplete(input) {
@@ -175,6 +174,14 @@ window.ptaVolunteer = {
         if (ul) {
             ul.innerHTML = '';
             ul.style.display = 'none';
+            // Clean up stored data and event handler
+            if (ul._volunteerData) {
+                ul._volunteerData = null;
+            }
+            if (ul._clickHandler) {
+                ul.removeEventListener('click', ul._clickHandler);
+                ul._clickHandler = null;
+            }
         }
     },
 
