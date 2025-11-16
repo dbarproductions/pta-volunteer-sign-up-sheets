@@ -15,13 +15,13 @@ so that my system can generate a license code for you. If you already have a lic
 
 **Requires PHP: 7.4**
 
-**Tested up to: 6.8.2**
+**Tested up to: 6.8.3**
 
 **License:** GPLv2 or later
 
 **License URI**: https://www.gnu.org/licenses/gpl-2.0.html
 
-**Stable tag: 5.8.0**
+**Stable tag: 5.8.1**
 
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
@@ -193,6 +193,7 @@ If your site is going to be affected by GDPR, then you should contact a lawyer t
 ## Changelog ##
 **Version 5.8.1**
 *   Fix for date format passed to the output function on the View/Export All Data admin page that could cause issues with the displayed date for languages other than English.
+*   Fixed: Updated the registration of the Text Registry action hook to match changes in the Customizer so that Validation text filters and other newer text filters will show up in the Customizer now.
 *   Tested with PHP 8.4.13 and WordPress 6.8.3
 
 **Version 5.8.0**

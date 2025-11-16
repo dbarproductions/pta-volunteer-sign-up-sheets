@@ -7,13 +7,15 @@ class PTA_SUS_Text_Registry {
 		add_action('pta_sus_customizer_init', array(__CLASS__, 'register_text_filters'));
 	}
 
-	public static function setup() {
-		// Only hook init once
-		if (!self::$initialized) {
-			add_action('init', array(__CLASS__, 'init'), 5);
-			self::$initialized = true;
-		}
-	}
+    public static function setup() {
+        // Only hook init once
+        // Hook to plugins_loaded instead of init to ensure it runs before Customizer's init()
+        // which fires on plugins_loaded priority 20
+        if (!self::$initialized) {
+            add_action('plugins_loaded', array(__CLASS__, 'init'), 10);
+            self::$initialized = true;
+        }
+    }
 
 	public static function register_text_filters() {
 		$filters = array(
