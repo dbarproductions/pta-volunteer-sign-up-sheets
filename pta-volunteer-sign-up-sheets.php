@@ -145,7 +145,7 @@ class PTA_Sign_Up_Sheet {
 	    wp_register_script('pta-select2', 'https://cdn.jsdelivr.net/npm/select2/dist/js/select2.min.js', array('jquery'));
 		// Autocomplete - shared by Calendar extension
 	    wp_register_style('pta-sus-autocomplete', plugins_url('assets/css/jquery.autocomplete.min.css', __FILE__));
-	    wp_register_script('pta-sus-autocomplete', plugins_url('assets/js/frontend.min.js', __FILE__), array(), false, true);
+        wp_register_script('pta-sus-autocomplete', plugins_url('assets/js/livesearch.min.js', __FILE__), array(), false, true);
 	    wp_localize_script('pta-sus-autocomplete', 'ptaSUS', array(
 		    'ajaxurl' => admin_url('admin-ajax.php'),
 		    'ptanonce' => wp_create_nonce('ajax-pta-nonce')

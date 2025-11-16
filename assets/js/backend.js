@@ -55,41 +55,73 @@
         });
     });
 
-    let userSearch = $('#firstname');
-    userSearch.autocomplete({
-        source: function(request, response){
+    // Admin live search - uses shared ptaVolunteer code
+    // Wait for both jQuery and ptaVolunteer to be available
+    (function() {
+        function initAdminLiveSearch() {
+            const firstnameField = document.querySelector('#firstname');
 
-            $.ajax({
-                type: 'POST',
-                url: ajaxurl,
-                data: {
-                action: 'pta_sus_user_search',
-                keyword: userSearch.val(),
-                security: PTASUS.ptaNonce
-                },
-                success:function(data) {
-                    //console.log(data);
-                    response(data);
-                },
-                error: function(errorThrown){
-                    console.log(errorThrown);
-                }
-            });
-        },
-    });
-
-    userSearch.on( "autocompleteselect", function( event, ui ) {
-        let userID = ui.item.user_id;
-        $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
-        $.each(ui.item, function(key,value){
-            if('label' !== key && 'value' !== key && 'user_id' !== key) {
-                let input = $('input[name='+key+']');
-                if(input.length) {
-                    input.val(value);
-                }
+            // Check if we're on a signup form page and field exists
+            if (!firstnameField) {
+                return; // Not on signup form page
             }
-        });
-    });
+
+            // Check if ptaVolunteer is available
+            if (typeof ptaVolunteer === 'undefined') {
+                console.warn('ptaVolunteer not available for admin live search');
+                return;
+            }
+
+            // Get ajaxurl - try multiple sources
+            let ajaxUrl = '';
+            if (typeof ptaSUS !== 'undefined' && ptaSUS.ajaxurl) {
+                ajaxUrl = ptaSUS.ajaxurl;
+            } else if (typeof ajaxurl !== 'undefined') {
+                ajaxUrl = ajaxurl; // WordPress admin global
+            } else {
+                ajaxUrl = admin_url('admin-ajax.php'); // Fallback
+            }
+
+            // Get nonce - try multiple sources
+            let nonce = '';
+            if (typeof ptaSUS !== 'undefined' && ptaSUS.ptaNonce) {
+                nonce = ptaSUS.ptaNonce;
+            } else if (typeof ptaSUS !== 'undefined' && ptaSUS.ptanonce) {
+                nonce = ptaSUS.ptanonce; // lowercase version
+            } else if (typeof PTASUS !== 'undefined' && PTASUS.ptaNonce) {
+                nonce = PTASUS.ptaNonce; // Backend script version
+            } else {
+                console.warn('Nonce not found for admin live search');
+                return;
+            }
+
+            // Initialize live search for admin
+            ptaVolunteer.init({
+                ajaxUrl: ajaxUrl,
+                extraData: {
+                    action: 'pta_sus_live_search',
+                    security: nonce,
+                },
+                fieldPrefix: '', // No prefix for admin fields
+                updateUserDropdown: true // Also update user_id dropdown when selecting
+            });
+        }
+
+        // Try to initialize when ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAdminLiveSearch);
+        } else {
+            // DOM already loaded, wait a bit for scripts
+            setTimeout(function() {
+                if (typeof ptaVolunteer !== 'undefined') {
+                    initAdminLiveSearch();
+                } else {
+                    // Try again after a short delay
+                    setTimeout(initAdminLiveSearch, 200);
+                }
+            }, 100);
+        }
+    })();
 
     // Open details_text for checked values on page load
     $('input.details_checkbox', 'li').each(function() {

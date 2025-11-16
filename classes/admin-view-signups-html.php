@@ -49,9 +49,9 @@ $num_cols = count($columns);
 	<?php foreach ($all_task_dates as $tdate):
 		// check if we want to show expired tasks and Skip any task whose date has already passed
 		if ( !$this->main_options['show_expired_tasks']) {
-			if ($tdate < date("Y-m-d") && "0000-00-00" != $tdate) continue;
+			if ($tdate < date("Y-m-d") && "0000-00-00" !== $tdate) continue;
 		}
-		if ("0000-00-00" == $tdate) {
+		if ("0000-00-00" === $tdate) {
 			$show_date = '';
 		} else {
 			$show_date = mysql2date( get_option('date_format'), $tdate, $translate = true );

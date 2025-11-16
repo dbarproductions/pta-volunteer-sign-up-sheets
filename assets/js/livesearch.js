@@ -10,10 +10,12 @@ window.ptaVolunteer = {
     init(userConfig = {}) {
         this.config = {
             ...this.config,
-            ...userConfig
+            ...userConfig,
+            fieldPrefix: userConfig.fieldPrefix !== undefined ? userConfig.fieldPrefix : 'signup_', // Default to 'signup_' for frontend
+            updateUserDropdown: userConfig.updateUserDropdown || false // Admin can set to true
         };
 
-        if (document.querySelector('input[name="signup_firstname"], input[name="signup_lastname"]')) {
+        if (document.querySelector('input[name="signup_firstname"], input[name="signup_lastname"], input[name="firstname"], input[name="lastname"]')) {
             this.setupAutocomplete();
         }
     },
@@ -26,7 +28,11 @@ window.ptaVolunteer = {
     },
 
     setupAutocomplete() {
-        const inputs = document.querySelectorAll('input[name="signup_firstname"], input[name="signup_lastname"], input[name="signup_email"]');
+        // Support both frontend (signup_*) and admin (*) field names
+        const inputs = document.querySelectorAll(
+            'input[name="signup_firstname"], input[name="signup_lastname"], input[name="signup_email"], ' +
+            'input[name="firstname"], input[name="lastname"], input[name="email"]'
+        );
         inputs.forEach(input => {
             let debounceTimer;
             let currentController;
@@ -190,17 +196,57 @@ window.ptaVolunteer = {
             return;
         }
 
+        const prefix = this.config.fieldPrefix || 'signup_';
+
         Object.keys(data).forEach(key => {
-            const input = document.querySelector(`input[name="signup_${key}"]`) ||
+            // Skip user_id - handled separately
+            if (key === 'user_id') {
+                return;
+            }
+
+            // Try with prefix first (frontend), then without (admin)
+            let input = document.querySelector(`input[name="${prefix}${key}"]`) ||
                 document.querySelector(`input[name="${key}"]`);
+
             if (input) {
                 input.value = this.htmlDecode(data[key]);
             }
         });
 
-        const validateEmail = document.querySelector('input[name="signup_validate_email"]');
-        if (validateEmail) {
-            validateEmail.value = this.htmlDecode(data.email || '');
+        // Handle email validation field (frontend only)
+        if (prefix === 'signup_') {
+            const validateEmail = document.querySelector('input[name="signup_validate_email"]');
+            if (validateEmail) {
+                validateEmail.value = this.htmlDecode(data.email || '');
+            }
+        }
+
+        // Update user_id dropdown if configured (admin only)
+        if (this.config.updateUserDropdown) {
+            const userDropdown = document.querySelector('select[name="user_id"]');
+            if (userDropdown) {
+                // Get user_id from data, default to 0 if not present or invalid
+                const user_id = parseInt(data.user_id || 0, 10);
+
+                // Only update dropdown if we have a valid user_id (> 0)
+                if (user_id > 0) {
+                    // Check if this user_id exists in the dropdown
+                    const option = userDropdown.querySelector(`option[value="${user_id}"]`);
+                    if (option) {
+                        // Valid option exists, set it
+                        userDropdown.value = user_id;
+                    } else {
+                        // User ID doesn't exist in dropdown, set to "None"
+                        userDropdown.value = '0';
+                    }
+                } else {
+                    // No user_id or user_id is 0, explicitly set to "None"
+                    userDropdown.value = '0';
+                }
+
+                // DO NOT trigger change event - we already have all the data from signup
+                // The change event would overwrite with user data, which we don't want
+            }
         }
     }
 };

@@ -13,7 +13,7 @@ if($this->success) {
 $signup_id = isset($_REQUEST['signup_id']) ? absint($_REQUEST['signup_id']) : 0;
 $edit = false;
 if($signup_id > 0) {
-	$signup=$this->data->get_signup($signup_id);
+	$signup=pta_sus_get_signup($signup_id);
 	if(empty($signup)) {
 		PTA_SUS_Messages::add_error(__('Invalid Signup', 'pta-volunteer-sign-up-sheets'));
         PTA_SUS_Messages::show_messages(true, 'admin');
@@ -43,7 +43,7 @@ if(0 === $task_id || 0 === $date) {
 $task = apply_filters( 'pta_sus_admin_signup_get_task', pta_sus_get_task($task_id), $task_id);
 do_action( 'pta_sus_admin_before_signup_form', $task, $date );
 
-if ("0000-00-00" == $date) {
+if ("0000-00-00" === $date) {
 	$show_date = false;
 } else {
 	$show_date = pta_datetime(get_option('date_format'), strtotime($date));
@@ -156,7 +156,7 @@ $required_fields = $this->get_required_signup_fields($task_id);
                         // add back in the signup qty so can edit up to max available
                         $available += absint( $signup->item_qty);
                     }
-                    if ($task->enable_quantities == "YES") { ?>
+                    if ($task->enable_quantities === "YES") { ?>
                         <tr>
                             <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available) ); ?></label></th>
                             <td><input type="number" id="item_qty" name="item_qty" value="<?php echo esc_attr($saved_values[$key]); ?>" min="1" max="<?php echo absint($available); ?>"/></td>

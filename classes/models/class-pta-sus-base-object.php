@@ -110,17 +110,21 @@ abstract class PTA_SUS_Base_Object {
 	 * Initialize properties with default values
 	 * Sets up the data array with defaults based on property definitions
 	 */
-	protected function init_properties() {
-		$properties = $this->get_properties();
-		$defaults = $this->get_property_defaults();
-		
-		foreach ( $properties as $property => $type ) {
-			$this->data[$property] = isset( $defaults[$property] ) ? $defaults[$property] : null;
-		}
-		
-		// ID is always initialized to 0 for new objects
-		$this->data['id'] = 0;
-	}
+    protected function init_properties() {
+        $properties = $this->get_properties();
+        $defaults = $this->get_property_defaults();
+
+        // Apply filter to allow extensions to add defaults
+        $object_type = $this->get_object_type();
+        $defaults = apply_filters( "pta_sus_{$object_type}_property_defaults", $defaults, $this );
+
+        foreach ( $properties as $property => $type ) {
+            $this->data[$property] = isset( $defaults[$property] ) ? $defaults[$property] : null;
+        }
+
+        // ID is always initialized to 0 for new objects
+        $this->data['id'] = 0;
+    }
 	
 	/**
 	 * Get property definitions
@@ -285,39 +289,40 @@ abstract class PTA_SUS_Base_Object {
 	 *
 	 * @param object|array $data Object data
 	 */
-	protected function populate( $data ) {
-		// Convert object to array if needed
-		if ( is_object( $data ) ) {
-			$data = get_object_vars( $data );
-		}
-		
-		// Apply stripslashes
-		$data = stripslashes_deep( $data );
-		
-		// Set properties
-		$properties = $this->get_properties();
-		foreach ( $data as $key => $value ) {
-			// Only set if it's a defined property or if it's 'id'
-			if ( isset( $properties[$key] ) || $key === 'id' ) {
-				// Unserialize array types from database
-				if ( isset( $properties[$key] ) && $properties[$key] === 'array' ) {
-					$value = maybe_unserialize( $value );
-				}
-				// Convert boolean values from database (1/0) to true/false
-				if ( isset( $properties[$key] ) && $properties[$key] === 'bool' ) {
-					$value = (bool) $value;
-				}
-				$this->data[$key] = $value;
-			}
-		}
-		
-		// Set ID separately
-		if ( isset( $data['id'] ) ) {
-			$this->id = absint( $data['id'] );
-			$this->data['id'] = $this->id;
-			$this->is_new = false;
-		}
-	}
+    protected function populate( $data ) {
+        // Convert object to array if needed
+        if ( is_object( $data ) ) {
+            $data = get_object_vars( $data );
+        }
+
+        // Apply stripslashes
+        $data = stripslashes_deep( $data );
+
+        // Set properties
+        $properties = $this->get_properties(); // This includes filtered properties
+        foreach ( $data as $key => $value ) {
+            // Only set if it's a defined property or if it's 'id'
+            // Extension properties will be included via the filter
+            if ( isset( $properties[$key] ) || $key === 'id' ) {
+                // Unserialize array types from database
+                if ( isset( $properties[$key] ) && $properties[$key] === 'array' ) {
+                    $value = maybe_unserialize( $value );
+                }
+                // Convert boolean values from database (1/0) to true/false
+                if ( isset( $properties[$key] ) && $properties[$key] === 'bool' ) {
+                    $value = (bool) $value;
+                }
+                $this->data[$key] = $value;
+            }
+        }
+
+        // Set ID separately
+        if ( isset( $data['id'] ) ) {
+            $this->id = absint( $data['id'] );
+            $this->data['id'] = $this->id;
+            $this->is_new = false;
+        }
+    }
 	
 	/**
 	 * Save object to database

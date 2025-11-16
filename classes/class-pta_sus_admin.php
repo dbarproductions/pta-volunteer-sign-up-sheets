@@ -172,7 +172,17 @@ class PTA_SUS_Admin {
 			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
+            // Enqueue live search script for admin signup forms
+            if (isset($this->main_options['enable_signup_search']) && $this->main_options['enable_signup_search']) {
+                wp_enqueue_style('pta-sus-autocomplete');
+                wp_enqueue_script('pta-sus-autocomplete');
+                wp_localize_script('pta-sus-autocomplete', 'ptaSUS', array(
+                    'ajaxurl' => admin_url('admin-ajax.php'),
+                    'ptaNonce' => wp_create_nonce('ajax-pta-nonce')
+                ));
+            }
 			$translation_array = array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
 				'default_text' => __('Item you are bringing', 'pta-volunteer-sign-up-sheets'),
 				'ptaNonce' => wp_create_nonce( 'ajax-pta-nonce' ),
 				'excelExport' => __('Export to Excel', 'pta-volunteer-sign-up-sheets'),
@@ -311,7 +321,7 @@ class PTA_SUS_Admin {
 		if(!is_object($signup) && in_array($slug, array('name','email','phone','details','qty','actions'))) {
 			return;
 		}
-		if ("0000-00-00" == $task_date) {
+		if ("0000-00-00" === $task_date) {
 			$show_date = '';
 		} else {
 			$show_date = mysql2date( get_option('date_format'), $task_date, $translate = true );
