@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.8.0
+Stable tag: 5.8.1
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -162,6 +162,11 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.8.1**
+*   Fix for date format passed to the output function on the View/Export All Data admin page that could cause issues with the displayed date for languages other than English.
+*   Fixed: Updated the registration of the Text Registry action hook to match changes in the Customizer so that Validation text filters and other newer text filters will show up in the Customizer now.
+*   Tested with PHP 8.4.13 and WordPress 6.8.3
+
 **Version 5.8.0**
 *   Reworked action processing on admin sheets list table page to process any actions earlier and then redirect to a clean URL removing the action arguments to avoid duplicate actions if the page is reloaded.
 *   Tested with PHP 8.4.12 and WordPress 6.8.2
