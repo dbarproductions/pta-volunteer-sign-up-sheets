@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.8.0
+Stable tag: 5.8.1
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
