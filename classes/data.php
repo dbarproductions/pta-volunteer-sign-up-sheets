@@ -371,21 +371,13 @@ class PTA_SUS_Data
     }
 
     public function get_volunteer_emails($sheet_id = 0) {
-	    $SQL = "SELECT DISTINCT email FROM ".$this->tables['signup']['name']." ";
-	    if ($sheet_id > 0) {
-			$TASKSQL = "SELECT id FROM ".$this->tables['task']['name']." WHERE sheet_id = %d";
-		    // get the array of matching task ids
-		    $task_ids = $this->wpdb->get_col($this->wpdb->prepare($TASKSQL , $sheet_id));
-		    $safe_ids = array_map('intval', $task_ids);
-		    if(empty($safe_ids)) {
-		    	// No valid tasks for the given sheet id, return empty array
-		    	return array();
-		    }
-		    $SQL .= "WHERE task_id IN(".implode(',',$safe_ids).")";
-	    }
-	    $results = $this->wpdb->get_col($SQL);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::get_volunteer_emails() ' . sprintf('Called from %s line %s', $file, $line) );
 
-	    return stripslashes_deep($results);
+        return PTA_SUS_Signup_Functions::get_volunteer_emails($sheet_id);
     }
     
     public function get_signup($id) {
@@ -396,135 +388,100 @@ class PTA_SUS_Data
         _deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_signup($id);
     }
-	
+
 	/**
 	 * Get detailed signup info for a specific signup ID
+     * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::get_detailed_signups() instead, but note it returns array instead of single signup
 	 * @param  int $signup_id
 	 * @return Mixed Object/false    Returns an object with the detailed signup info
 	 */
-	public function get_detailed_signup($signup_id) {
-		$signup_table = $this->tables['signup']['name'];
-		$task_table = $this->tables['task']['name'];
-		$sheet_table = $this->tables['sheet']['name'];
-		$safe_sql = $this->wpdb->prepare("SELECT
-        $signup_table.id AS id,
-        $signup_table.task_id AS task_id,
-        $signup_table.user_id AS user_id,
-        $signup_table.date AS signup_date,
-        $signup_table.item AS item,
-        $signup_table.item_qty AS item_qty,
-        $task_table.title AS task_title,
-        $task_table.time_start AS time_start,
-        $task_table.time_end AS time_end,
-        $task_table.qty AS task_qty,
-        $sheet_table.title AS title,
-        $sheet_table.id AS sheet_id,
-        $sheet_table.details AS sheet_details,
-        $sheet_table.chair_name AS chair_name,
-        $sheet_table.chair_email AS chair_email,
-        $sheet_table.clear AS clear,
-        $sheet_table.clear_days AS clear_days,
-        $task_table.dates AS task_dates
-        FROM  $signup_table
-        INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
-        INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
-        WHERE $signup_table.id = %d AND $sheet_table.trash = 0
-        ORDER BY signup_date, time_start
-        ", $signup_id);
-		$results = $this->wpdb->get_results($safe_sql);
-		if(!empty($results) && isset($results[0])) {
-			return stripslashes_deep($results[0]);
-		}
+    public function get_detailed_signup($signup_id) {
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() ' . sprintf('Called from %s line %s', $file, $line) );
+
+        $signup_id = absint($signup_id);
+        if (empty($signup_id)) {
+            return false;
+        }
+
+        $results = PTA_SUS_Signup_Functions::get_detailed_signups(array('id' => $signup_id));
+
+        if (!empty($results) && isset($results[0])) {
+            return $results[0];
+        }
 
         return false;
     }
-    
+
     /**
-     * Get all data -- Right now this is only used for CRON remider emails, so can probably get rid of a lot of the select fields
-     * 
-     * @return    mixed    array of siginups
+     * Get all data -- DEPRECATED: Only used for CRON reminder emails
+     * Replaced by PTA_SUS_Signup_Functions::get_signups_needing_reminders()
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::get_signups_needing_reminders() instead
+     * @return    mixed    array of signups
      */
     public function get_all_data()
     {
-        $results = $this->wpdb->get_results("
-            SELECT
-                sheet.id AS sheet_id
-                , sheet.title AS sheet_title
-                , sheet.type AS sheet_type
-                , sheet.details AS sheet_details
-                , sheet.chair_name AS sheet_chair_name
-                , sheet.chair_email AS sheet_chair_email
-                , sheet.trash AS sheet_trash
-                , sheet.reminder1_days AS reminder1_days
-                , signup.reminder1_sent AS reminder1_sent
-                , sheet.reminder2_days AS reminder2_days
-                , signup.reminder2_sent AS reminder2_sent
-                , task.id AS task_id
-                , task.title AS task_title
-                , task.dates AS task_dates
-                , task.time_start AS task_time_start
-                , task.time_end AS task_time_end
-                , task.qty AS task_qty
-                , task.need_details AS need_details
-                , task.details_required AS details_required
-                , task.details_text AS details_text
-                , task.enable_quantities AS enable_quantities
-                , task.position AS task_position
-                , signup.id AS signup_id
-                , signup.date AS signup_date
-                , signup.item_qty AS item_qty
-                , signup.user_id AS signup_user_id
-                , signup.validated AS signup_validated
-                , signup.ts AS signup_ts
-                , item
-                , firstname
-                , lastname
-                , email
-                , phone
-            FROM  ".$this->tables['sheet']['name']." sheet
-            INNER JOIN ".$this->tables['task']['name']." task ON sheet.id = task.sheet_id
-            INNER JOIN ".$this->tables['signup']['name']." signup ON task.id = signup.task_id
-        ");
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::get_signups_needing_reminders() ' . sprintf('Called from %s line %s', $file, $line) );
 
-	    return stripslashes_deep($results);
+        // Return empty array since this is no longer used
+        // The send_reminders() method now uses get_signups_needing_reminders() directly
+        return array();
     }
-    
+
     /**
      * Get all unique dates for tasks for the given sheet id
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() instead
      * @param  integer $id Sheet ID
      * @return mixed   array of all unique dates for a sheet
      */
     public function get_all_task_dates($id) {
-        if ($tasks = PTA_SUS_Task_Functions::get_tasks($id)) {
-            $dates = array();
-            foreach ($tasks AS $task) {
-                // Build an array of all unique dates from all tasks for this sheet
-                $task_dates = pta_sus_sanitize_dates($task->dates);
-                foreach ($task_dates as $date) {
-                    if(!in_array($date, $dates)) {
-                        $dates[] = $date;
-                    }
-                }
-            }
-            sort($dates);
-            return $dates;
-        }
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() ' . sprintf('Called from %s line %s', $file, $line) );
 
-        return false;
+        $result = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($id);
+
+        // Maintain backward compatibility - return false if empty (old behavior)
+        return !empty($result) ? $result : false;
     }
 
+    /**
+     * Get available quantity for a task on a specific date
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Task::get_available_spots() instead
+     * @param int $task_id Task ID
+     * @param string $date Date to check
+     * @param int $task_qty Task quantity (kept for backward compatibility, but retrieved from task object)
+     * @return int|false Available quantity, or false if none available
+     */
     public function get_available_qty($task_id, $date, $task_qty) {
-        $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
-        $count = 0;
-        foreach ($signups as $signup) {
-            $count += (int)$signup->item_qty;
-        }
-        $available = $task_qty - $count;
-        if ($available > 0) {
-            return $available;
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task::get_available_spots() ' . sprintf('Called from %s line %s', $file, $line) );
+
+        $task = pta_sus_get_task($task_id);
+        if (!$task) {
+            return false;
         }
 
-        return false;
+        // Use the new Task class method
+        $available = $task->get_available_spots($date);
+
+        // Maintain exact backward compatibility - return false if 0, otherwise return the number
+        return $available > 0 ? $available : false;
     }
 
 

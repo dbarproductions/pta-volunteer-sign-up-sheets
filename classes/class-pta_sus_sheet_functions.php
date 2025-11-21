@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PTA_SUS_Sheet_Functions {
 
     private static $sheet_table;
+    private static $task_table;
 
     /**
      * Initialize static properties
@@ -21,6 +22,7 @@ class PTA_SUS_Sheet_Functions {
     public static function init() {
         global $wpdb;
         self::$sheet_table = $wpdb->prefix . 'pta_sus_sheets';
+        self::$task_table = $wpdb->prefix . 'pta_sus_tasks';
     }
 
     /**
@@ -186,11 +188,11 @@ class PTA_SUS_Sheet_Functions {
     }
 
     /**
-     * Get all unique dates from all tasks for a sheet
-     * Handles comma-separated dates in task dates field
+     * Get all unique dates for tasks for a given sheet
+     * Optimized SQL query - only fetches dates field, not full task objects
      *
      * @param int $sheet_id Sheet ID
-     * @return array Array of unique date strings (yyyy-mm-dd format)
+     * @return array Array of unique, validated, sorted dates (or empty array if no tasks/dates)
      */
     public static function get_all_task_dates_for_sheet($sheet_id) {
         global $wpdb;
@@ -201,7 +203,7 @@ class PTA_SUS_Sheet_Functions {
         }
 
         // Get all dates fields from tasks for this sheet
-        $sql = "SELECT DISTINCT dates FROM " . $wpdb->prefix . "pta_sus_tasks WHERE sheet_id = %d";
+        $sql = "SELECT dates FROM " . self::$task_table . " WHERE sheet_id = %d";
         $results = $wpdb->get_col($wpdb->prepare($sql, $sheet_id));
 
         $dates = array();
@@ -212,18 +214,23 @@ class PTA_SUS_Sheet_Functions {
 
         // Process each task's dates (may be comma-separated)
         foreach ($results as $result) {
-            // Split out individual dates
-            $task_dates = explode(',', $result);
+            if (empty($result)) {
+                continue;
+            }
 
-            foreach ($task_dates as $task_date) {
-                $task_date = trim($task_date);
+            // Use the sanitize function to validate dates (same as old method)
+            $task_dates = pta_sus_sanitize_dates($result);
 
-                // Add to array if not empty and not already present
-                if (!empty($task_date) && !in_array($task_date, $dates)) {
-                    $dates[] = $task_date;
+            foreach ($task_dates as $date) {
+                // Add to array if not already present
+                if (!in_array($date, $dates)) {
+                    $dates[] = $date;
                 }
             }
         }
+
+        // Sort dates (same as old method)
+        sort($dates);
 
         return $dates;
     }

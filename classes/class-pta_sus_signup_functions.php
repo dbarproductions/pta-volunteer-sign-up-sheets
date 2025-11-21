@@ -368,5 +368,130 @@ class PTA_SUS_Signup_Functions {
         return false; // No conflicts
     }
 
+    /**
+     * Get distinct volunteer email addresses from signups
+     * Optionally filter by sheet_id to get emails only for that sheet's signups
+     *
+     * @param int $sheet_id Optional sheet ID to filter by (0 = all sheets)
+     * @return array Array of distinct email addresses
+     */
+    public static function get_volunteer_emails($sheet_id = 0) {
+        global $wpdb;
+
+        $sheet_id = absint($sheet_id);
+        $sql = "SELECT DISTINCT email FROM " . self::$signup_table;
+
+        if ($sheet_id > 0) {
+            // Get task IDs for this sheet
+            $task_sql = "SELECT id FROM " . self::$task_table . " WHERE sheet_id = %d";
+            $task_ids = $wpdb->get_col($wpdb->prepare($task_sql, $sheet_id));
+
+            if (empty($task_ids)) {
+                // No tasks for this sheet, return empty array
+                return array();
+            }
+
+            // Sanitize task IDs - all are already integers from database
+            $safe_ids = array_map('absint', $task_ids);
+            // Safe to use implode since all values are sanitized integers
+            $sql .= " WHERE task_id IN(" . implode(',', $safe_ids) . ")";
+        }
+
+        $results = $wpdb->get_col($sql);
+
+        return stripslashes_deep($results);
+    }
+
+    /**
+     * Get signups that need reminder emails
+     * Optimized query that only returns signups within reminder windows
+     * Excludes ongoing events (0000-00-00) as they don't need reminders
+     *
+     * @param int $current_timestamp Current timestamp for date calculations
+     * @return array Array of objects with signup data needed for reminders
+     */
+    public static function get_signups_needing_reminders($current_timestamp = null) {
+        global $wpdb;
+
+        if (null === $current_timestamp) {
+            $current_timestamp = current_time('timestamp');
+        }
+
+        $signup_table = self::$signup_table;
+        $task_table = self::$task_table;
+        $sheet_table = self::$sheet_table;
+
+        $current_date = date('Y-m-d', $current_timestamp);
+
+        // Build SQL to get signups that need reminders
+        // Exclude ongoing events (0000-00-00) - they don't get reminders
+        // Only get future events that are within the reminder window
+        $sql = "SELECT 
+        signup.id AS signup_id,
+        signup.email AS email,
+        signup.date AS signup_date,
+        sheet.reminder1_days AS reminder1_days,
+        signup.reminder1_sent AS reminder1_sent,
+        sheet.reminder2_days AS reminder2_days,
+        signup.reminder2_sent AS reminder2_sent
+    FROM {$signup_table} signup
+    INNER JOIN {$task_table} task ON signup.task_id = task.id
+    INNER JOIN {$sheet_table} sheet ON task.sheet_id = sheet.id
+    WHERE sheet.trash = 0
+        AND signup.validated = 1
+        AND signup.email != ''
+        AND signup.email IS NOT NULL
+        AND signup.date != '0000-00-00'
+        AND signup.date > '{$current_date}'
+        AND (
+            -- Reminder 1: event is X days away or closer, reminder not sent, reminder configured
+            (sheet.reminder1_days > 0 
+                AND signup.reminder1_sent = 0
+                AND DATE_SUB(signup.date, INTERVAL sheet.reminder1_days DAY) <= '{$current_date}')
+            OR
+            -- Reminder 2: event is X days away or closer, reminder not sent, reminder configured
+            (sheet.reminder2_days > 0 
+                AND signup.reminder2_sent = 0
+                AND DATE_SUB(signup.date, INTERVAL sheet.reminder2_days DAY) <= '{$current_date}')
+        )
+    ORDER BY signup.date, signup.id";
+
+        $results = $wpdb->get_results($sql);
+
+        // Process results to determine which reminder number each needs
+        // Priority: reminder1 first, then reminder2 only if reminder1 already sent or not configured
+        $reminder_signups = array();
+        foreach ($results as $row) {
+            $event_time = strtotime($row->signup_date);
+            $needs_reminder = false;
+            $reminder_num = 0;
+
+            // Check reminder 1 first (higher priority)
+            if ($row->reminder1_days > 0 && !$row->reminder1_sent) {
+                $reminder1_time = $row->reminder1_days * 24 * 60 * 60;
+                if (($event_time - $reminder1_time) <= $current_timestamp) {
+                    $needs_reminder = true;
+                    $reminder_num = 1;
+                }
+            }
+
+            // Check reminder 2 only if reminder 1 doesn't need to be sent
+            if (!$needs_reminder && $row->reminder2_days > 0 && !$row->reminder2_sent) {
+                $reminder2_time = $row->reminder2_days * 24 * 60 * 60;
+                if (($event_time - $reminder2_time) <= $current_timestamp) {
+                    $needs_reminder = true;
+                    $reminder_num = 2;
+                }
+            }
+
+            if ($needs_reminder) {
+                $row->reminder_num = $reminder_num;
+                $reminder_signups[] = $row;
+            }
+        }
+
+        return stripslashes_deep($reminder_signups);
+    }
+
 }
 PTA_SUS_Signup_Functions::init();

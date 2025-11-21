@@ -328,112 +328,83 @@ Please click on, or copy and paste, the link below to validate yourself:
 	}
 
     public function send_reminders() {
-    	$limit = false;
-    	$now = current_time( 'timestamp' );
-    	// This function is used to check if we need to send out reminder emails or not
-    	if(isset($this->email_options['reminder_email_limit']) && '' != $this->email_options['reminder_email_limit'] && 0 < $this->email_options['reminder_email_limit']) {
-    		$limit = (int)$this->email_options['reminder_email_limit'];
-    		if ( $last_batch = get_option( 'pta_sus_reminders_last_batch' ) ) {
-    			if( ( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] ) ) {
-    				// past our limit and less than an hour, so return
-    				return false;
-    			} elseif ( $now - $last_batch['time'] >= 60 * 60 ) {
-    				// more than an hour has passed, reset last batch
-    				$last_batch['num'] = 0;
-    				$last_batch['time'] = $now;
-    			}
-    		} else {
-    			// Option doesn't exist yet, set default
-    			$last_batch = array();
-    			$last_batch['num'] = 0;
-				$last_batch['time'] = $now;
-    		}
-    	}
-        
-        // Go through all sheets and check the dates, if they need reminders,
-        // if we are within the reminder date and the reminder hasn't been sent, and then build an array of 
-        // objects for which we need to send reminders -- Use our modified Get All function from DLS
-        $events = $this->data->get_all_data();       
-        $reminder_events = array();
-        foreach ($events as $event) {
-            if ($event->sheet_trash) continue; // skip trashed events
-	        if(!$event->signup_validated) continue; // no reminders for unvalidated signups
-            if (empty($event->email)) continue; // skip if nobody signed up
-            $event_time = strtotime($event->signup_date);
-            if($event_time < $now) continue; // skip old events that haven't been deleted
-            if ( $event->reminder1_days > 0 && !$event->reminder1_sent ) {
-                $reminder1_time = $event->reminder1_days * 24 * 60 * 60;
-                if (($event_time - $reminder1_time ) < $now) {
-                    $event->reminder_num = 1;
-                    $reminder_events[] = $event;
+        $limit = false;
+        $now = current_time('timestamp');
+
+        // Check reminder email limit
+        if(isset($this->email_options['reminder_email_limit']) && '' != $this->email_options['reminder_email_limit'] && 0 < $this->email_options['reminder_email_limit']) {
+            $limit = (int)$this->email_options['reminder_email_limit'];
+            if ( $last_batch = get_option( 'pta_sus_reminders_last_batch' ) ) {
+                if( ( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] ) ) {
+                    return false;
+                } elseif ( $now - $last_batch['time'] >= 60 * 60 ) {
+                    $last_batch['num'] = 0;
+                    $last_batch['time'] = $now;
                 }
-            } elseif ( $event->reminder2_days > 0 && !$event->reminder2_sent ) {
-                $reminder2_time = $event->reminder2_days * 24 * 60 * 60;
-                if (($event_time - $reminder2_time ) < $now) {
-                    $event->reminder_num = 2;
-                    $reminder_events[] = $event;
-                }
-            } 
+            } else {
+                $last_batch = array('num' => 0, 'time' => $now);
+            }
         }
+
+        // Get only signups that need reminders (optimized query)
+        $reminder_events = PTA_SUS_Signup_Functions::get_signups_needing_reminders($now);
 
         $reminder_count = 0;
 
         if (!empty($reminder_events)) {
-            // Next, go through each reminder event and prepare/send an email
-            // Each event object returned by get_all_data is actually an individual signup,
-            // so each one can be used to create a personalized email.  However, if there are
-            // no signups for a given task on a sheet, an event object for that task will still
-            // be created, so need to see if there is a valid email first before sending.
             $reminders_log = '';
             foreach ($reminder_events as $event) {
-                if(!is_email( $event->email)) continue; // skip any invalid emails
+                if(!is_email($event->email)) continue; // Final email validation
 
-                // Check if we have reached our hourly limit or not
+                // Check if we have reached our hourly limit
                 if ($limit && !empty($last_batch)) {
-                	if ( $limit <= ($last_batch['num'] + $reminder_count) ) {
-                		// limit reached, so break out of foreach loop
-                		break;
-                	}
+                    if ( $limit <= ($last_batch['num'] + $reminder_count) ) {
+                        break;
+                    }
                 }
-                
+
                 $reminder = $event->reminder_num;
 
                 if ( $this->send_mail( $event->signup_id, $reminder ) ) {
-                    // Keep track of # of reminders sent
-                    $reminder_count++; 
-                    // Add reminder message to reminders_log
+                    $reminder_count++;
                     $reminders_log .= $this->last_reminder;
-                    // Here we need to set the reminder_sent to true
+
+                    // Update reminder sent flag
                     $update = array();
                     if ( 1 === $event->reminder_num ) {
-                        $update['signup_reminder1_sent'] = TRUE;
+                        $update['reminder1_sent'] = 1;
                     }
                     if ( 2 === $event->reminder_num ) {
-                        $update['signup_reminder2_sent'] = TRUE;
+                        $update['reminder2_sent'] = 1;
                     }
-                    $this->data->update_signup($update, $event->signup_id);
-                    // allow other plugins to do something after reminder sent
-					do_action('pta_sus_reminder_sent', $event, $this );
+
+                    // Use new signup object to update
+                    $signup = pta_sus_get_signup($event->signup_id);
+                    if ($signup) {
+                        foreach ($update as $key => $value) {
+                            $signup->$key = $value;
+                        }
+                        $signup->save();
+                    }
+
+                    do_action('pta_sus_reminder_sent', $event, $this );
                 }
             }
 
             if($limit && !empty($last_batch)) {
-            	// increment our last batch num by number of reminders sent
-            	$last_batch['num'] += $reminder_count;
-            	update_option( 'pta_sus_reminders_last_batch', $last_batch );
+                $last_batch['num'] += $reminder_count;
+                update_option( 'pta_sus_reminders_last_batch', $last_batch );
             }
-            
+
             if ( 0 < $reminder_count && $this->main_options['enable_cron_notifications'] ) {
-                // Send site admin an email with number of reminders sent
                 $to = get_bloginfo( 'admin_email' );
                 $subject = __("Volunteer Signup Reminders sent", 'pta-volunteer-sign-up-sheets');
                 $message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\r\n\r\n";
                 $message .= sprintf( __("%d reminder emails were sent.", 'pta-volunteer-sign-up-sheets'), $reminder_count ) ."\r\n\r\n";
-                // If enabled, add details of all reminders sent to the admin notification email
                 if ($this->main_options['detailed_reminder_admin_emails']) {
                     $message .= "Messages Sent:\r\n\r\n";
                     $message .= $reminders_log;
-                }               
+                }
                 wp_mail($to, $subject, $message);
             }
         }
@@ -445,11 +416,11 @@ Please click on, or copy and paste, the link below to validate yourself:
         $sent['last'] = $now;
         if ( 0 < $reminder_count ) {
             $sent['time'] = $now;
-            $sent['num'] = $reminder_count;          
-        }  
-        update_option( 'pta_sus_last_reminders', $sent );   
+            $sent['num'] = $reminder_count;
+        }
+        update_option( 'pta_sus_last_reminders', $sent );
         return $reminder_count;
-    } // Send Reminders
+    }
 
     public function send_reschedule_emails() {
         $limit = false;
