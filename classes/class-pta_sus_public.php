@@ -412,7 +412,7 @@ class PTA_SUS_Public {
     public function process_signup_form() {
 		if(is_admin() && !wp_doing_ajax()) return;
         
-        $this->submitted = (isset($_POST['pta_sus_form_mode']) && $_POST['pta_sus_form_mode'] == 'submitted');
+        $this->submitted = (isset($_POST['pta_sus_form_mode']) && $_POST['pta_sus_form_mode'] === 'submitted');
         $this->err = 0;
         $this->success = false;
         $this->messages_displayed = false; // reset
@@ -466,19 +466,19 @@ class PTA_SUS_Public {
 			}
 
 		    // Make sure the signup exists first
-		    $signup=$this->data->get_signup((int)$_GET['signup_id']);
-		    if (null == $signup) {
+		    $signup=pta_sus_get_signup((int)$_GET['signup_id']);
+		    if (null === $signup) {
 			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Not a valid signup!', 'pta-volunteer-sign-up-sheets'), 'clear_invalid_signup_error_message' ));
 		    } elseif (!$this->volunteer->can_modify_signup($signup)) {
 			    PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('You are not allowed to do that!', 'pta-volunteer-sign-up-sheets'), 'clear_not_allowed_error_message' ));
 		    } else {
 			    // Send cleared emails
 			    if(!class_exists('PTA_SUS_Emails')) {
-				    include_once(dirname(__FILE__).'/class-pta_sus_emails.php');
+				    include_once(__DIR__ .'/class-pta_sus_emails.php');
 			    }
 			    $emails = new PTA_SUS_Emails();
 			    $emails->send_mail((int)$_GET['signup_id'], $reminder=false, $clear=true);
-			    $cleared = $this->data->delete_signup((int)$_GET['signup_id']);
+			    $cleared = $signup->delete();
 			    if ($cleared) {
 				    PTA_SUS_Messages::add_message(apply_filters( 'pta_sus_public_output', __('Signup Cleared', 'pta-volunteer-sign-up-sheets'), 'signup_cleared_message' ),true);
 				    $this->cleared = true;
@@ -530,7 +530,7 @@ class PTA_SUS_Public {
 			    if($this->date && $this->date != $sheet->first_date) continue;
 		    } else {
 			    // Recurring or Multi-day sheets
-			    $dates = $this->data->get_all_task_dates($sheet->id);
+			    $dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet->id);
 			    if($this->date && !in_array($this->date, $dates)) continue;
 		    }
 		    if ( '1' == $sheet->visible) {
@@ -622,7 +622,7 @@ class PTA_SUS_Public {
 			    $task_dates = array($this->date);
 			    $future_dates = true;
 		    } else {
-			    $task_dates = $this->data->get_all_task_dates($sheet->id);
+			    $task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet->id);
 			    foreach ($task_dates as $tdate) {
 				    if($tdate >= current_time('Y-m-d') || "0000-00-00" == $tdate) {
 					    $future_dates = true;
@@ -1097,7 +1097,7 @@ class PTA_SUS_Public {
 
         if ($this->date === false && !empty($_GET['date']) && !$this->success && !$this->cleared) {
             // Make sure it's a valid date in our format first - Security check
-            if ($this->data->check_date($_GET['date'])) {
+            if (pta_sus_check_date($_GET['date'])) {
                 $this->date = $_GET['date'];
             }
         }

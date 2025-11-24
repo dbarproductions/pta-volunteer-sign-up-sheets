@@ -65,7 +65,7 @@ class PTA_SUS_List_Table extends WP_List_Table
             case 'last_date':
                 return ($item[$column_name] == '0000-00-00') ? __("N/A", 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
             case 'num_dates':
-                $dates = $this->data->get_all_task_dates($item['id']);
+                $dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($item['id']);
                 if(!$dates) {
                     return '0';
                 }

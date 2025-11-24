@@ -11,7 +11,7 @@
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-$all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
+$all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet((int)$sheet->id);
 // Allow extensions to add columns
 $columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
 	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),

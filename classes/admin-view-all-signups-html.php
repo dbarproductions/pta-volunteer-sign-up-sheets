@@ -47,7 +47,7 @@ $num_cols = count($columns);
 	</thead>
 	<tbody>
     <?php foreach ($sheets as $sheet):
-        $all_task_dates = $this->data->get_all_task_dates((int)$sheet->id);
+        $all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet((int)$sheet->id);
         $tasks=PTA_SUS_Task_Functions::get_tasks($sheet->id);
         if(empty($all_task_dates)) continue;
         ?>

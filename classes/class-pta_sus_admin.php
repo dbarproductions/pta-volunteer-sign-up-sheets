@@ -751,7 +751,7 @@ class PTA_SUS_Admin {
             PTA_SUS_Messages::show_messages(true, 'admin');
             return false;
 		}
-        $available = $this->data->get_available_qty($new_task_id, $new_date, $new_task->qty);
+        $available = $new_task->get_available_spots($new_date);
 		$qty = isset($_POST['signup_qty']) ? absint($_POST['signup_qty']) : 1;
 		if(!$available || $qty > $available) {
 			PTA_SUS_Messages::add_error(__('Not Enough Open Slots', 'pta-volunteer-sign-up-sheets'));
@@ -1103,7 +1103,7 @@ class PTA_SUS_Admin {
 			$keys_to_process = array();
 			$count = 0;
 			$dates = array();
-			$old_dates = $this->data->get_all_task_dates($sheet_id);
+			$old_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
 
 			do_action( 'pta_sus_admin_process_tasks_start', $sheet_id, $tasks, $old_dates );
 
@@ -1541,7 +1541,7 @@ class PTA_SUS_Admin {
             }
 		}
 		$task_fields = array();
-		$dates = $this->data->get_all_task_dates($id);
+		$dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($id);
 		if ($tasks = PTA_SUS_Task_Functions::get_tasks($id)) {
 			foreach ($tasks AS $task) {
 				$task_fields['task_id'][] = $task->id;

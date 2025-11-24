@@ -151,7 +151,7 @@ $required_fields = $this->get_required_signup_fields($task_id);
                     </td></tr><?php
                     break;
                 case 'item_qty':
-                    $available = $this->data->get_available_qty($task_id, $date, $task->qty);
+                    $available = $task->get_available_spots($date);
                     if($edit) {
                         // add back in the signup qty so can edit up to max available
                         $available += absint( $signup->item_qty);

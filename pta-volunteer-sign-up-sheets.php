@@ -230,13 +230,30 @@ class PTA_Sign_Up_Sheet {
 	}
 	
 	/**
-	 * Get signup by id
-	 *
-	 * @param     int        id of signup
-	 * @return    object    signup with more details from joins
+	 * Get detailed signup by id
+	 * @deprecated 6.0.0 use PTA_SUS_Signup_Functions::get_detailed_signups instead
+	 * @param     int $signup_id       id of signup
+	 * @return    Mixed object/false    Returns an object with the detailed signup info
 	 */
 	public function get_detailed_signup($signup_id) {
-		return $this->data->get_detailed_signup($signup_id);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::get_detailed_signups() ' . sprintf('Called from %s line %s', $file, $line) );
+
+        $signup_id = absint($signup_id);
+        if (empty($signup_id)) {
+            return false;
+        }
+
+        $results = PTA_SUS_Signup_Functions::get_detailed_signups(array('id' => $signup_id));
+
+        if (!empty($results) && isset($results[0])) {
+            return $results[0];
+        }
+
+        return false;
 	}
 
 	/**

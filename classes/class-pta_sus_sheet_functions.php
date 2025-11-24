@@ -188,7 +188,7 @@ class PTA_SUS_Sheet_Functions {
     }
 
     /**
-     * Get all unique dates for tasks for a given sheet
+     * Get all unique dates for tasks for a given sheet ID
      * Optimized SQL query - only fetches dates field, not full task objects
      *
      * @param int $sheet_id Sheet ID

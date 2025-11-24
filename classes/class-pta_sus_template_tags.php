@@ -90,7 +90,12 @@ class PTA_SUS_Template_Tags {
 		);
 	}
 
-	public static function get_task_tags($task, $date='') {
+    /**
+     * @param $task PTA_SUS_Task
+     * @param $date string
+     * @return array
+     */
+    public static function get_task_tags($task, $date='') {
 		if(empty($task)) {
 			return array();
 		}
@@ -98,8 +103,7 @@ class PTA_SUS_Template_Tags {
 		$start_time = ($task->time_start === "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
 		$end_time = ($task->time_end === "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
 
-		global $pta_sus;
-		$task_open_spots = $pta_sus->data->get_available_qty($task->id, '', $task->qty);
+		$task_open_spots = $task->get_available_spots($date);
 		$task_filled_spots = $task->qty - $task_open_spots;
 
 		// try to get the task date if not passed in

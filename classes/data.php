@@ -999,9 +999,9 @@ class PTA_SUS_Data
     /**
     * Delete a signup
     * 
-    * @param    int     signup id
+    * @param    int     $id  Signup ID
      *
-     * @return mixed
+     * @return mixed int/false
     */
     public function delete_signup($id) {
     	$where = array('id' => $id);
