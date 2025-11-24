@@ -489,7 +489,7 @@ class PTA_SUS_Admin {
 		if($edit) {
 			$result = $this->data->update_signup( $posted, $signup_id);
 		} else {
-			$result = $this->data->add_signup( $posted, $task_id);
+			$result = pta_sus_add_signup($posted, $task_id);
 		}
 		if(false === $result) {
 			PTA_SUS_Messages::add_error(__('There was an error saving the signup.', 'pta-volunteer-sign-up-sheets'));
@@ -1309,11 +1309,10 @@ class PTA_SUS_Admin {
 							}
 							$task_data['task_sheet_id'] = $sheet_id;
 							if (empty($_POST['task_id'][$key])) {
-								if (($result = $this->data->add_task($task_data, $sheet_id, $no_signups)) === false) {
+								$task_id = pta_sus_add_task($task_data, $sheet_id, $no_signups);
+								if ($task_id === false) {
 									$task_err++;
 								} else {
-									global $wpdb;
-									$task_id = $wpdb->insert_id; // get the inserted task id
 									do_action('pta_sus_add_task', $task_data, $sheet_id, $task_id, $key);
 								}
 							} else {
@@ -1448,13 +1447,13 @@ class PTA_SUS_Admin {
 				}
 				// Add/Update Sheet
 				if ($add) {
-					$added = $this->data->add_sheet($sheet_fields);
-					if(!$added) {
+					$sheet_id = pta_sus_add_sheet($sheet_fields);
+					if(!$sheet_id) {
 						$sheet_err++;
 						PTA_SUS_Messages::add_error(__('Error adding sheet.', 'pta-volunteer-sign-up-sheets'));
 						$sheet_fields['sheet_id'] = 0;
 					} else {
-						$sheet_fields['sheet_id'] = $this->data->wpdb->insert_id;
+						$sheet_fields['sheet_id'] = $sheet_id;
 					}
 				} else {
 					$updated = $this->data->update_sheet($sheet_fields, (int)$_GET['sheet_id']);

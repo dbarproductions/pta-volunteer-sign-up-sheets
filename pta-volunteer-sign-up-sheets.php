@@ -1005,8 +1005,7 @@ add_filter( 'wp_privacy_personal_data_exporters', 'pta_sus_register_exporters');
  * @return array
  */
 function pta_sus_user_data_exporter($email_address, $page = 1) {
-	global $pta_sus;
-	$export_items = $pta_sus->data->get_gdpr_user_export_items($email_address);
+	$export_items = PTA_SUS_Signup_Functions::get_gdpr_user_export_items($email_address);
 
 	// Returns an array of exported items for this pass, but also a boolean whether this exporter is finished.
 	//If not it will be called again with $page increased by 1.
@@ -1052,8 +1051,7 @@ function pta_sus_user_data_eraser( $email_address, $page = 1 ) {
 	$messages = array();
 	$items_removed  = false;
 	$items_retained = false;
-	global $pta_sus;
-	$results = $pta_sus->data->gdpr_delete_user_data($email_address);
+	$results = PTA_SUS_Signup_Functions::gdpr_delete_user_data($email_address);
 	if ( false === $results ) {
 		$messages[] = __( 'Your Volunteer Sign Up Info was unable to be removed at this time.');
 		$items_retained = true;

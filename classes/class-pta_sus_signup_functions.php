@@ -493,5 +493,187 @@ class PTA_SUS_Signup_Functions {
         return stripslashes_deep($reminder_signups);
     }
 
+    /**
+     * Get GDPR export items for a user by email
+     * Formats signup data for WordPress GDPR export
+     *
+     * @param string $email User email address
+     * @return array Array of export items in WordPress GDPR format
+     */
+    public static function get_gdpr_user_export_items($email) {
+        global $wpdb;
+        
+        $export_items = array();
+        $user = get_user_by('email', $email);
+        $user_id = false;
+        if ($user && $user->ID) {
+            $user_id = $user->ID;
+        }
+
+        // Core group IDs include 'comments', 'posts', etc.
+        // But you can add your own group IDs as needed
+        $group_id = 'user-volunteer-signups';
+        // Optional group label. Core provides these for core groups.
+        // If you define your own group, the first exporter to
+        // include a label will be used as the group label in the
+        // final exported report
+        $group_label = __('User Volunteer Signup Data', 'pta-volunteer-sign-up-sheets');
+
+        $signup_table = self::$signup_table;
+        $task_table = self::$task_table;
+        $sheet_table = self::$sheet_table;
+        
+        $sql = "SELECT
+            $signup_table.id AS id,
+            $signup_table.date AS signup_date,
+            $signup_table.firstname AS firstname,
+            $signup_table.lastname AS lastname,
+            $signup_table.email AS email,
+            $signup_table.phone AS phone,
+            $signup_table.item AS item,
+            $signup_table.item_qty AS item_qty,
+            $task_table.title AS task_title,
+            $task_table.time_start AS time_start,
+            $task_table.time_end AS time_end,
+            $sheet_table.title AS title 
+            FROM  $signup_table
+            INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
+            INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id";
+        
+        if ($user_id > 0) {
+            $sql .= " WHERE ($signup_table.email = %s OR $signup_table.user_id = %d) AND $sheet_table.trash = 0";
+        } else {
+            $sql .= " WHERE $signup_table.email = %s AND $sheet_table.trash = 0";
+        }
+
+        $sql .= " ORDER BY signup_date, time_start";
+        
+        if ($user_id > 0) {
+            $safe_sql = $wpdb->prepare($sql, $email, $user_id);
+        } else {
+            $safe_sql = $wpdb->prepare($sql, $email);
+        }
+
+        $results = $wpdb->get_results($safe_sql);
+        if (!empty($results)) {
+            $results = stripslashes_deep($results);
+            foreach ($results as $signup) {
+                // Most item IDs should look like postType-postID
+                // If you don't have a post, comment or other ID to work with,
+                // use a unique value to avoid having this item's export
+                // combined in the final report with other items of the same id
+                $item_id = "pta-volunteer-signup-sheets-{$signup->id}";
+                $data = array();
+                $value = esc_html($signup->title . ' - ' . $signup->task_title);
+                if ('0000-00-00' !== $signup->signup_date) {
+                    $value .= ' - ' . pta_datetime(get_option("date_format"), strtotime($signup->signup_date));
+                }
+                if (!empty($signup->item)) {
+                    $value .= ' - ' . esc_html($signup->item);
+                }
+                $data[] = array(
+                    'name' => __('Signup Item', 'pta-volunteer-sign-up-sheets'),
+                    'value' => $value
+                );
+                $data[] = array(
+                    'name' => __('Signup Name', 'pta-volunteer-sign-up-sheets'),
+                    'value' => esc_html($signup->firstname . ' ' . $signup->lastname)
+                );
+                $data[] = array(
+                    'name' => __('Signup Email', 'pta-volunteer-sign-up-sheets'),
+                    'value' => esc_html($signup->email)
+                );
+                $data[] = array(
+                    'name' => __('Signup Phone', 'pta-volunteer-sign-up-sheets'),
+                    'value' => esc_html($signup->phone)
+                );
+                // Add this group of items to the exporters data array.
+                $export_items[] = array(
+                    'group_id'    => $group_id,
+                    'group_label' => $group_label,
+                    'item_id'     => $item_id,
+                    'data'        => $data,
+                );
+            }
+        }
+
+        return $export_items;
+    }
+
+    /**
+     * Delete user signup data for GDPR compliance
+     * Deletes all signups for a given email address or user ID
+     * Fires hooks for each signup before deletion to allow extensions to clean up related data
+     *
+     * @param string $email User email address
+     * @return int|false Number of rows deleted, or false on failure
+     */
+    public static function gdpr_delete_user_data($email) {
+        global $wpdb;
+        
+        $user_id = false;
+        $user = get_user_by('email', $email);
+        if ($user && $user->ID) {
+            $user_id = $user->ID;
+        }
+        
+        $signup_table = self::$signup_table;
+        
+        // Get all signup IDs that will be deleted (before deletion)
+        // This allows extensions to clean up related data via hooks
+        if ($user_id > 0) {
+            // Match by email OR user_id
+            $sql = $wpdb->prepare(
+                "SELECT id FROM {$signup_table} WHERE email = %s OR user_id = %d",
+                $email,
+                $user_id
+            );
+        } else {
+            // Match by email only
+            $sql = $wpdb->prepare(
+                "SELECT id FROM {$signup_table} WHERE email = %s",
+                $email
+            );
+        }
+        $signup_ids = $wpdb->get_col($sql);
+        
+        // Fire hook for each signup before deletion (allows extensions to clean up related data)
+        if (!empty($signup_ids)) {
+            foreach ($signup_ids as $signup_id) {
+                $signup = pta_sus_get_signup($signup_id);
+                if ($signup) {
+                    /**
+                     * Fires before a signup is deleted via GDPR data erasure
+                     * Reuses the existing admin clear signup hook so extensions don't need separate handlers
+                     * Allows extensions to clean up related data (e.g., custom fields, meta data)
+                     *
+                     * @param object $signup The signup object being deleted
+                     */
+                    do_action('pta_sus_admin_clear_signup', $signup);
+                }
+            }
+        }
+        
+        // Now delete the signups
+        // Note: $wpdb->delete() only supports AND conditions, so we use a custom query for OR logic
+        if ($user_id > 0) {
+            // Delete signups matching email OR user_id
+            $sql = $wpdb->prepare(
+                "DELETE FROM {$signup_table} WHERE email = %s OR user_id = %d",
+                $email,
+                $user_id
+            );
+        } else {
+            // Delete signups matching email only
+            $sql = $wpdb->prepare(
+                "DELETE FROM {$signup_table} WHERE email = %s",
+                $email
+            );
+        }
+        $result = $wpdb->query($sql);
+        
+        return $result !== false ? $result : false;
+    }
+
 }
 PTA_SUS_Signup_Functions::init();

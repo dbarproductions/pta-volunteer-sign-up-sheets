@@ -737,3 +737,270 @@ function pta_clear_log_file($filename='') {
 	}
 	return false;
 }
+
+/**
+ * Format chair names for HTML display
+ * Converts comma-separated names into formatted HTML with proper separators
+ * Example: "John, Jane, Bob" becomes "John, Jane and Bob"
+ *
+ * @param string $names_csv Comma-separated list of names
+ * @return string Formatted HTML string with names and separators
+ */
+function pta_sus_get_chair_names_html($names_csv) {
+	$html_names = '';
+	$i = 1;
+	$names = explode(',', sanitize_text_field($names_csv));
+	$count = count($names);
+	foreach ($names as $name) {
+		$name = trim($name); // Trim whitespace from each name
+		if (empty($name)) {
+			continue; // Skip empty names
+		}
+		if ($i > 1) {
+			if ($i < $count) {
+				$html_names .= _x(', ', 'contact name separating character', 'pta-volunteer-sign-up-sheets');
+			} else {
+				$html_names .= _x(' and ', 'separator before last contact name', 'pta-volunteer-sign-up-sheets');
+			}
+		}
+		$html_names .= $name;
+		$i++;
+	}
+	return $html_names;
+}
+
+/**
+ * Remove prefix from array keys
+ * Helper function to clean prefixed form fields (e.g., "sheet_title" -> "title")
+ *
+ * @param array $input Input array with prefixed keys
+ * @param string $prefix Prefix to remove (e.g., "sheet_", "task_")
+ * @return array|false Array with cleaned keys, or false if input is not an array
+ */
+function pta_sus_clean_prefixed_array($input = array(), $prefix = false) {
+	if (!is_array($input)) {
+		return false;
+	}
+	$clean_fields = array();
+	foreach ($input as $k => $v) {
+		if ($prefix === false || (substr($k, 0, strlen($prefix)) == $prefix)) {
+			$clean_fields[str_replace($prefix, '', $k)] = $v;
+		}
+	}
+	return $clean_fields;
+}
+
+/**
+ * Add a new sheet from prefixed form fields
+ * Handles cleaning of prefixed field names and creates a new sheet using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "sheet_" prefix (e.g., "sheet_title", "sheet_type")
+ * @return int|false New sheet ID on success, false on failure
+ */
+function pta_sus_add_sheet($prefixed_fields) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'sheet_');
+	if (false === $clean_fields) {
+		return false;
+	}
+	
+	// Create new sheet object
+	$sheet = new PTA_SUS_Sheet();
+	
+	// Set properties from cleaned fields
+	// The class will filter to only allowed properties and sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		$sheet->$key = $value;
+	}
+	
+	// Save and return ID
+	// Note: pta_sus_created_sheet hook is automatically fired by the class object
+	$sheet_id = $sheet->save();
+	
+	// Fire old-style hook for backward compatibility with extensions
+	// This hook fires after the new pta_sus_created_sheet hook
+	// We pass the original prefixed fields to match potential old hook signatures
+	if ($sheet_id) {
+		/**
+		 * Fires after a sheet is added (for backward compatibility)
+		 * New code should use pta_sus_created_sheet hook instead
+		 *
+		 * @param array $prefixed_fields The original sheet fields (with "sheet_" prefixes)
+		 * @param int $sheet_id The new sheet ID
+		 */
+		do_action('pta_sus_add_sheet', $prefixed_fields, $sheet_id);
+	}
+	
+	return $sheet_id;
+}
+
+/**
+ * Add a new task from prefixed form fields
+ * Handles cleaning of prefixed field names and creates a new task using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "task_" prefix (e.g., "task_title", "task_qty")
+ * @param int $sheet_id Parent sheet ID
+ * @param bool $no_signups Whether to allow task with 0 qty (default: false)
+ * @return int|false New task ID on success, false on failure
+ */
+function pta_sus_add_task($prefixed_fields, $sheet_id, $no_signups = false) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'task_');
+	if (false === $clean_fields) {
+		return false;
+	}
+	
+	// Set sheet_id
+	$clean_fields['sheet_id'] = absint($sheet_id);
+	
+	// Enforce minimum qty of 1 unless no_signups is true
+	if (!$no_signups && isset($clean_fields['qty']) && $clean_fields['qty'] < 2) {
+		$clean_fields['qty'] = 1;
+	}
+	
+	// Create new task object
+	$task = new PTA_SUS_Task();
+	
+	// Set properties from cleaned fields
+	// The class will filter to only allowed properties and sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		$task->$key = $value;
+	}
+	
+	// Save and return ID
+	// Note: pta_sus_created_task hook is automatically fired by the class object
+	// Note: pta_sus_add_task hook is fired by admin code with $key parameter for extensions
+	// We don't fire pta_sus_add_task here to avoid double-firing when called from admin
+	return $task->save();
+}
+
+/**
+ * Add a new signup from prefixed form fields
+ * Handles cleaning of prefixed field names, user ID logic, user meta updates, and availability checking
+ * Creates a new signup using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "signup_" prefix (e.g., "signup_firstname", "signup_email")
+ * @param int $task_id Parent task ID
+ * @param object|false $task Optional. Task object to avoid reloading (will use cache if not provided)
+ * @return int|false New signup ID on success, false on failure (including if spots are full)
+ */
+function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'signup_');
+	if (false === $clean_fields) {
+		return false;
+	}
+	
+	// Set task_id
+	$clean_fields['task_id'] = absint($task_id);
+	
+	// Ensure item_qty is set (defaults to 1 if not provided)
+	if (!isset($clean_fields['item_qty']) || empty($clean_fields['item_qty'])) {
+		$clean_fields['item_qty'] = 1;
+	}
+	
+	// Ensure validated is set as boolean (defaults to true if not provided)
+	if (!isset($clean_fields['validated'])) {
+		$clean_fields['validated'] = true;
+	} else {
+		// Convert to boolean (handles '1', 1, 'true', etc.)
+		$clean_fields['validated'] = (bool)$clean_fields['validated'];
+	}
+	
+	// Handle user_id logic
+	// Set user from email if they weren't logged in and if there is an account with that email
+	// if they were logged in and not manager, take the current wp id as value
+	if (empty($clean_fields['user_id']) && is_user_logged_in() && !current_user_can('manage_signup_sheets')) {
+		$clean_fields['user_id'] = get_current_user_id();
+	}
+	if (empty($clean_fields['user_id'])) {
+		if (is_user_logged_in()) {
+			$clean_fields['user_id'] = get_current_user_id();
+		} elseif (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
+			$clean_fields['user_id'] = $user->ID;
+		}
+	}
+	
+	// If we have a user_id, check to see if their meta fields are empty and update them so they can be pre-filled for future signups
+	$user = null;
+	if (!empty($clean_fields['user_id'])) {
+		$user = get_user_by('id', $clean_fields['user_id']);
+		if ($user) {
+			if (empty($user->first_name) && !empty($clean_fields['firstname'])) {
+				update_user_meta($user->ID, 'first_name', $clean_fields['firstname']);
+			}
+			if (empty($user->last_name) && !empty($clean_fields['lastname'])) {
+				update_user_meta($user->ID, 'last_name', $clean_fields['lastname']);
+			}
+			$phone = get_user_meta($user->ID, 'billing_phone', true);
+			if (empty($phone) && !empty($clean_fields['phone'])) {
+				update_user_meta($user->ID, 'billing_phone', $clean_fields['phone']);
+			}
+		}
+	}
+	
+	// Check if signup spots are filled
+	// Use provided task object if available, otherwise load from cache/DB
+	if (!$task || !is_object($task) || empty($task->id)) {
+		$task = pta_sus_get_task($task_id);
+		if (!$task) {
+			return false;
+		}
+	}
+	
+	// Ensure date is set (required for availability check)
+	if (empty($clean_fields['date'])) {
+		return false; // Date is required
+	}
+	
+	// Get task properties
+	$task_qty = (int)$task->qty;
+	$enable_quantities = isset($task->enable_quantities) ? $task->enable_quantities : 'NO';
+	
+	// Check availability
+	$signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $clean_fields['date']);
+	$count = 0;
+	if ($enable_quantities === 'YES') {
+		// Take item quantities into account when calculating # of items
+		foreach ($signups as $signup) {
+			$count += (int)$signup->item_qty;
+		}
+		$count += (int)($clean_fields['item_qty'] ?? 1);
+	} else {
+		$count = count($signups) + 1;
+	}
+	
+	if ($task_qty <= 0) {
+		return false; // Invalid task qty
+	}
+	
+	if ($count > $task_qty) {
+		return false; // Spots are full
+	}
+	
+	// Set timestamp
+	$clean_fields['ts'] = current_time('timestamp');
+	
+	// Create new signup object
+	$signup = new PTA_SUS_Signup();
+	
+	// Get allowed properties from the signup class
+	// We'll only set properties that are defined in the class
+	$allowed_properties = array(
+		'task_id', 'date', 'user_id', 'item', 'firstname', 'lastname', 
+		'email', 'phone', 'reminder1_sent', 'reminder2_sent', 
+		'item_qty', 'ts', 'validated'
+	);
+	
+	// Set properties from cleaned fields (only allowed properties)
+	// The class will sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		if (in_array($key, $allowed_properties)) {
+			$signup->$key = $value;
+		}
+	}
+	
+	// Save and return ID
+	// Note: pta_sus_created_signup hook is automatically fired by the class object
+	return $signup->save();
+}

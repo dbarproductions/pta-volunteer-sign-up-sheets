@@ -60,7 +60,7 @@ $num_cols = count($columns);
 			$task_dates = explode(',', $task->dates);
 			if(!in_array($tdate, $task_dates)) continue;
 			$i=0;
-			$signups = $this->data->get_signups($task->id, $tdate);
+			$signups = PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $tdate);
 		?>
 			
 			<?php foreach ($signups AS $signup): ?>

@@ -122,20 +122,12 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 	 *
 	 * @return int Number of signups
 	 */
-	public function get_signup_count() {
-		if ( empty( $this->id ) ) {
-			return 0;
-		}
-		
-		// This will be implemented once we have proper methods
-		// For now, use the old method if available
-		global $pta_sus;
-		if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_sheet_signup_count' ) ) {
-			return $pta_sus->data->get_sheet_signup_count( $this->id );
-		}
-		
-		return 0;
-	}
+    public function get_signup_count($date = '') {
+        if (empty($this->id)) {
+            return 0;
+        }
+        return PTA_SUS_Sheet_Functions::get_sheet_signup_count($this->id, $date);
+    }
 
     /**
      * Get all unique dates from all tasks for this sheet
@@ -149,6 +141,19 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
         }
 
         return PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($this->id);
+    }
+
+    /**
+     * Get the total number of spots for this sheet
+     *
+     * @param string $date
+     * @return array|int
+     */
+    public function get_total_spots($date = '') {
+        if (empty($this->id)) {
+            return array();
+        }
+        return PTA_SUS_Sheet_Functions::get_sheet_total_spots($this->id, $date);
     }
 	
 	/**

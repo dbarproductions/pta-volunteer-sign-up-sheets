@@ -141,8 +141,8 @@ class PTA_SUS_Template_Tags {
 		$sheet_first_date = ($sheet->first_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->first_date, $translate = true);
 		$sheet_last_date = ($sheet->last_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->last_date, $translate = true);
 
-		$sheet_total_spots = $pta_sus->data->get_sheet_total_spots($sheet->id);
-		$sheet_filled_spots = $pta_sus->data->get_sheet_signup_count($sheet->id);
+		$sheet_total_spots = PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id);
+		$sheet_filled_spots = PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id);
 		$sheet_open_spots = $sheet_total_spots - $sheet_filled_spots;
 
 
@@ -161,7 +161,7 @@ class PTA_SUS_Template_Tags {
 			}
 		}
 		if(!$chair_names) {
-			$chair_names = $pta_sus->data->get_chair_names_html($sheet->chair_name);
+			$chair_names = pta_sus_get_chair_names_html($sheet->chair_name);
 		}
 
 		$volunteer_page_id = isset($main_options['volunteer_page_id']) ? absint( $main_options['volunteer_page_id']) : 0;

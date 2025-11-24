@@ -348,13 +348,14 @@ class PTA_SUS_Public {
 		return $this->validate_signup_form_fields($posted);
 	}
 
-	public function add_signup($posted, $signup_task_id, $redirect = true) {
+	public function add_signup($posted, $signup_task_id, $redirect = true, $task = false, $sheet = false) {
 		$validate_signups =  $this->validation_enabled && isset($this->validation_options['enable_signup_validation']) && $this->validation_options['enable_signup_validation'];
 		$posted['signup_validated'] = $validate_signups ? $this->volunteer->is_validated() : 1;
 		$needs_validation = ($this->validation_enabled && $validate_signups && !$this->volunteer->is_validated());
 		// Allow extensions to bypass adding signup to main database
 		if( apply_filters( 'pta_sus_signup_add_signup_to_main_database', true, $posted, $signup_task_id ) ) {
-			$signup_id=$this->data->add_signup($posted,$signup_task_id);
+			// Pass task object through to avoid reloading (uses cache if not provided)
+			$signup_id = pta_sus_add_signup($posted, $signup_task_id, $task);
 			if ( $signup_id === false) {
 				$this->err++;
 				PTA_SUS_Messages::add_error(apply_filters( 'pta_sus_public_output', __('Error adding signup record.  Please try again.', 'pta-volunteer-sign-up-sheets'), 'add_signup_database_error_message' ));
@@ -447,7 +448,7 @@ class PTA_SUS_Public {
             
             // Add Signup
             if (absint($this->err) < 1) {
-				$this->add_signup($posted, $signup_task_id,$task, $sheet);
+				$this->add_signup($posted, $signup_task_id, true, $task, $sheet);
             } else {
 				// allow other plugins to do something if there were errors
 	            do_action('pta_sus_signup_form_errors', $this->err, $posted, $signup_task_id);
@@ -538,7 +539,7 @@ class PTA_SUS_Public {
 		    } else {
 			    $is_hidden = $this->hidden;
 		    }
-		    $open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));
+		    $open_spots = (PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id) - PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id));
 		    $number_spots = $sheet->no_signups ? '' : absint($open_spots);
 		    $open_spots_display = apply_filters('pta_sus_public_output', $number_spots, 'sheet_number_open_spots', absint($open_spots));
 		    $sheet_args = array('sheet_id' => $sheet->id, 'date' => false, 'signup_id' => false, 'task_id' => false);
@@ -663,9 +664,9 @@ class PTA_SUS_Public {
 				    }
 				
 			    } else {
-				    $chair_names = $this->data->get_chair_names_html($sheet->chair_name);
+				    $chair_names = pta_sus_get_chair_names_html($sheet->chair_name);
 				    // Check if there is more than one chair name to display either Chair or Chairs
-				    $names = explode( ',', sanitize_text_field($sheet->chair_name));
+				    $names = explode(',', sanitize_text_field($sheet->chair_name));
 				    $count = count($names);
 				    if ( $count > 1) {
 					    $display_chair = apply_filters( 'pta_sus_public_output', __('Event Chairs:', 'pta-volunteer-sign-up-sheets'), 'event_chairs_label_plural') .' <a class="pta-sus-link contact" href="mailto:'.esc_attr($sheet->chair_email).'">'.esc_html($chair_names).'</a>';
@@ -712,7 +713,7 @@ class PTA_SUS_Public {
 					    $return .= '<h3 class="pta-sus details-header">'.apply_filters( 'pta_sus_public_output', __('DETAILS:', 'pta-volunteer-sign-up-sheets'), 'sheet_details_heading' ).'</h3>';
 					    $return .= wp_kses_post($sheet->details);
 				    }
-				    $open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));
+				    $open_spots = (PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id) - PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id));
 				    if ($open_spots > 0 && !$sheet->no_signups) {
 					    $return .= '<h3 class="pta-sus sign-up-header">'.apply_filters( 'pta_sus_public_output', __('Sign up below...', 'pta-volunteer-sign-up-sheets'), 'sign_up_below' ).'</h3>';
 				    } elseif (!$sheet->no_signups) {

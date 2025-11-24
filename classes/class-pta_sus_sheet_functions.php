@@ -15,6 +15,7 @@ class PTA_SUS_Sheet_Functions {
 
     private static $sheet_table;
     private static $task_table;
+    private static $signup_table;
 
     /**
      * Initialize static properties
@@ -23,6 +24,7 @@ class PTA_SUS_Sheet_Functions {
         global $wpdb;
         self::$sheet_table = $wpdb->prefix . 'pta_sus_sheets';
         self::$task_table = $wpdb->prefix . 'pta_sus_tasks';
+        self::$signup_table = $wpdb->prefix . 'pta_sus_signups';
     }
 
     /**
@@ -233,6 +235,136 @@ class PTA_SUS_Sheet_Functions {
         sort($dates);
 
         return $dates;
+    }
+
+    /**
+     * Checks to see if the sheet title already exists in the database
+     * @param $title string
+     * @return false|int
+     */
+    public static function check_duplicate_sheet($title) {
+        global $wpdb;
+        $title = sanitize_text_field($title);
+        if (empty($title)) {
+            return false;
+        }
+
+        $count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM " . self::$sheet_table . " WHERE title = %s AND trash = 0",
+            $title
+        ));
+
+        return !empty($count) ? absint($count) : false;
+    }
+
+    /**
+     * @param int $sheet_id
+     * @param string $date
+     * @return int
+     */
+    public static function get_sheet_signup_count($sheet_id, $date = '') {
+        global $wpdb;
+        $sheet_id = absint($sheet_id);
+        if (empty($sheet_id)) {
+            return 0;
+        }
+
+        $signup_table = self::$signup_table;
+        $task_table = self::$task_table;
+        $now = current_time('mysql');
+
+        $sql = "
+        SELECT 
+            {$signup_table}.item_qty AS item_qty,
+            {$task_table}.enable_quantities AS enable_quantities 
+        FROM {$task_table} 
+        RIGHT OUTER JOIN {$signup_table} ON {$task_table}.id = {$signup_table}.task_id 
+        WHERE {$task_table}.sheet_id = %d 
+        AND (%s <= ADDDATE({$signup_table}.date, 1) OR {$signup_table}.date = '0000-00-00') 
+    ";
+
+        $prepare_args = array($sheet_id, $now);
+        if (!empty($date)) {
+            $sql .= " AND {$signup_table}.date = %s";
+            $prepare_args[] = $date;
+        }
+
+        $results = $wpdb->get_results($wpdb->prepare($sql, ...$prepare_args));
+
+        $count = 0;
+        foreach ($results as $result) {
+            if ('YES' === $result->enable_quantities) {
+                $count += absint($result->item_qty);
+            } else {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param int $sheet_id
+     * @return array
+     */
+    public static function get_all_signup_ids_for_sheet($sheet_id) {
+        global $wpdb;
+        $sheet_id = absint($sheet_id);
+        if (empty($sheet_id)) {
+            return array();
+        }
+        $signup_table = self::$signup_table;
+        $task_table = self::$task_table;
+
+        $sql = "
+        SELECT {$signup_table}.id AS signup_id 
+        FROM {$signup_table}
+        INNER JOIN {$task_table} ON {$task_table}.id = {$signup_table}.task_id 
+        WHERE {$task_table}.sheet_id = %d 
+    ";
+
+        $results = $wpdb->get_results($wpdb->prepare($sql, $sheet_id));
+
+        // Return array of IDs
+        $ids = array();
+        foreach ($results as $result) {
+            $ids[] = absint($result->signup_id);
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param int $sheet_id
+     * @param string $date
+     * @return float|int
+     */
+    public static function get_sheet_total_spots($sheet_id, $date = '') {
+        $sheet_id = absint($sheet_id);
+        if (empty($sheet_id)) {
+            return 0;
+        }
+
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id, $date);
+        $total_spots = 0;
+        $time = current_time('timestamp');
+
+        foreach ($tasks as $task) {
+            $task_dates = pta_sus_sanitize_dates($task->dates);
+            $good_dates = 0;
+
+            foreach ($task_dates as $tdate) {
+                if (!empty($date) && $tdate !== $date) {
+                    continue;
+                }
+                if ('0000-00-00' === $tdate || (strtotime($tdate) >= ($time - (24*60*60)))) {
+                    ++$good_dates;
+                }
+            }
+            $total_spots += $good_dates * absint($task->qty);
+        }
+
+        return $total_spots;
     }
 }
 

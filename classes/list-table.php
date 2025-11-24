@@ -83,9 +83,9 @@ class PTA_SUS_List_Table extends WP_List_Table
             case 'task_num':
                 return count(PTA_SUS_Task_Functions::get_tasks($item['id']));
             case 'spot_num':
-                return (int)$this->data->get_sheet_total_spots($item['id'], '');
+                return PTA_SUS_Sheet_Functions::get_sheet_total_spots($item['id'], '');
             case 'filled_spot_num':
-                return (int)$this->data->get_sheet_signup_count($item['id']).' '.(($this->data->get_sheet_total_spots($item['id'], '') == $this->data->get_sheet_signup_count($item['id'])) ? '&#10004;' : '');
+                return PTA_SUS_Sheet_Functions::get_sheet_signup_count($item['id']);
             default:
                 // Allow extensions to add column content
                 return apply_filters( 'pta_sus_process_other_columns', '', $item, $column_name );

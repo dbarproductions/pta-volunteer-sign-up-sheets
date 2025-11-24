@@ -109,7 +109,7 @@ class PTA_SUS_Widget extends WP_Widget
         	$last_date = ($sheet->last_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->last_date));
         	if ($first_date == $last_date) $single = true;
 
-        	$open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));
+        	$open_spots = (PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id) - PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id));
 
 			echo '<li><strong><a href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a></strong>'.$is_hidden.'<br/>';
         	if ($single) {
