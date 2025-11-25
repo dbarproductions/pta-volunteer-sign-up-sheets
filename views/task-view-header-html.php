@@ -12,10 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
     <?php endif; ?>
     <div class="pta-sus title-header"><?php echo esc_html($task->title); ?></div>
 	<?php do_action('pta_sus_task_header_info_after_task_title', $task); ?>
-    <?php if($this->show_time && '' !== $task->time_start): ?>
+    <?php if($this->show_time && !empty($task->time_start)): ?>
         <div class="pta-sus time-header start"><?php echo esc_html($this->start_time_header).': '. pta_datetime(get_option("time_format"), strtotime($task->time_start)); ?></div>
     <?php endif; ?>
-	<?php if($this->show_time && '' !== $task->time_end): ?>
+	<?php if($this->show_time && !empty($task->time_end)): ?>
         <div class="pta-sus time-header end"><?php echo esc_html($this->end_time_header).': '. pta_datetime(get_option("time_format"), strtotime($task->time_end)); ?></div>
 	<?php endif; ?>
 	<?php do_action('pta_sus_task_header_info_before_task_description', $task); ?>

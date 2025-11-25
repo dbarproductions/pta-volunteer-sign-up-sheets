@@ -100,8 +100,8 @@ class PTA_SUS_Template_Tags {
 			return array();
 		}
 
-		$start_time = ($task->time_start === "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
-		$end_time = ($task->time_end === "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
+		$start_time = empty($task->time_start) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
+		$end_time = empty($task->time_end) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
 
 		$task_open_spots = $task->get_available_spots($date);
 		$task_filled_spots = $task->qty - $task_open_spots;

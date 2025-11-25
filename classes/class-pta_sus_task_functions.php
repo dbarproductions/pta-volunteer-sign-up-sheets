@@ -151,6 +151,72 @@ class PTA_SUS_Task_Functions {
         return $result;
     }
 
+    /**
+     * Validate task fields from form submission
+     * Validates required fields and field types based on property definitions
+     * Adds error messages directly to PTA_SUS_Messages class
+     *
+     * @param array $clean_fields Array of cleaned fields (after prefix removal)
+     * @return array Array with 'errors' (count) and 'message' (empty string - messages added directly to PTA_SUS_Messages)
+     */
+    public static function validate_task_fields($clean_fields) {
+        $results = array(
+            'errors' => 0,
+            'message' => '', // Empty - messages are added directly to PTA_SUS_Messages
+        );
+
+        // Create a temporary task instance to get property definitions and required fields
+        $task = new PTA_SUS_Task();
+        
+        // Get required fields using reflection to access protected method
+        $reflection = new ReflectionClass($task);
+        $get_required_method = $reflection->getMethod('get_required_fields');
+        // setAccessible() is only needed for PHP < 8.0 (deprecated in PHP 8.5)
+        if (version_compare(PHP_VERSION, '8.0', '<')) {
+            $get_required_method->setAccessible(true);
+        }
+        $required_fields = $get_required_method->invoke($task);
+        
+        // Get property definitions
+        $get_properties_method = $reflection->getMethod('get_property_definitions');
+        // setAccessible() is only needed for PHP < 8.0 (deprecated in PHP 8.5)
+        if (version_compare(PHP_VERSION, '8.0', '<')) {
+            $get_properties_method->setAccessible(true);
+        }
+        $property_definitions = $get_properties_method->invoke($task);
+
+        // Check Required Fields first
+        foreach ($required_fields as $required_field => $label) {
+            if (empty($clean_fields[$required_field])) {
+                $results['errors']++;
+                $error_message = sprintf(__('%s is a required field.', 'pta-volunteer-sign-up-sheets'), $label);
+                PTA_SUS_Messages::add_error($error_message);
+            }
+        }
+
+        // Validate field types
+        foreach ($property_definitions as $field => $type) {
+            if (!empty($clean_fields[$field])) {
+                $validation_result = PTA_SUS_Sheet_Functions::validate_field_by_type($clean_fields[$field], $type, $field);
+                if ($validation_result['error']) {
+                    $results['errors']++;
+                    PTA_SUS_Messages::add_error($validation_result['message']);
+                }
+            }
+        }
+
+        /**
+         * Filter validation results to allow extensions to add custom validation
+         * 
+         * Note: Extensions should use PTA_SUS_Messages::add_error() directly in this filter
+         * for best results. Modifying $results['message'] is still supported for backward
+         * compatibility, but messages should be added via PTA_SUS_Messages to avoid duplicates.
+         *
+         * @param array $results Validation results array
+         * @param array $clean_fields Cleaned fields being validated
+         */
+        return apply_filters('pta_sus_validate_task_fields', $results, $clean_fields);
+    }
 
 }
 

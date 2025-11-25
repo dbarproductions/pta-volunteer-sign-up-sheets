@@ -117,9 +117,21 @@ abstract class PTA_SUS_Base_Object {
         // Apply filter to allow extensions to add defaults
         $object_type = $this->get_object_type();
         $defaults = apply_filters( "pta_sus_{$object_type}_property_defaults", $defaults, $this );
+        
+        // Also check old filter format for backward compatibility
+        // Extensions using old filters may not set defaults, so we use null as fallback
+        // But we should check if there are any defaults defined in the old structure
+        global $pta_sus;
+        if ( isset( $pta_sus ) && isset( $pta_sus->data ) && isset( $pta_sus->data->tables[$object_type] ) ) {
+            // Old format doesn't typically include defaults, but we've already handled that above
+            // The new filter takes precedence, but old extensions can still add properties
+        }
 
         foreach ( $properties as $property => $type ) {
-            $this->data[$property] = isset( $defaults[$property] ) ? $defaults[$property] : null;
+            // Only set default if not already set (allows new filter to override)
+            if ( ! isset( $this->data[$property] ) ) {
+                $this->data[$property] = isset( $defaults[$property] ) ? $defaults[$property] : null;
+            }
         }
 
         // ID is always initialized to 0 for new objects
@@ -166,6 +178,8 @@ abstract class PTA_SUS_Base_Object {
 	/**
 	 * Get properties (with filter applied)
 	 * Allows extensions to add custom properties
+	 * Supports both new filter format (pta_sus_{type}_properties) and old format (pta_sus_{type}_fields)
+	 * for backward compatibility with extensions like Waitlist that use the old filter structure
 	 *
 	 * @return array
 	 */
@@ -173,13 +187,32 @@ abstract class PTA_SUS_Base_Object {
 		$properties = $this->get_property_definitions();
 		$object_type = $this->get_object_type();
 		
+		// Apply new filter format (preferred)
 		/**
 		 * Filter the property definitions for this object type
 		 *
 		 * @param array $properties Array of property_name => type
 		 * @param PTA_SUS_Base_Object $this The object instance
 		 */
-		return apply_filters( "pta_sus_{$object_type}_properties", $properties, $this );
+		$properties = apply_filters( "pta_sus_{$object_type}_properties", $properties, $this );
+		
+		// Also check old filter format for backward compatibility
+		// Old format: pta_sus_{type}_fields returns array with 'allowed_fields' key
+		// Extensions like Waitlist use this to add fields like 'waitlist_id'
+		// We need to check the old filter structure to merge in any extension-added fields
+		global $pta_sus;
+		if ( isset( $pta_sus ) && isset( $pta_sus->data ) && isset( $pta_sus->data->tables[$object_type] ) ) {
+			// Get the filtered table structure (which extensions may have modified via old filters)
+			$table_structure = $pta_sus->data->tables[$object_type];
+			if ( isset( $table_structure['allowed_fields'] ) && is_array( $table_structure['allowed_fields'] ) ) {
+				// Merge in any additional fields from the old filter format
+				// Use array_merge so new filter takes precedence, but old filter adds missing fields
+				// This ensures extensions using old filters (like Waitlist) still work
+				$properties = array_merge( $properties, $table_structure['allowed_fields'] );
+			}
+		}
+		
+		return $properties;
 	}
 	
 	/**
@@ -439,26 +472,29 @@ abstract class PTA_SUS_Base_Object {
 	 * @return mixed Sanitized value
 	 */
 	protected function sanitize_value( $value, $type ) {
-		// Use global function if available
+		// Use global function if available (should always be available in normal operation)
 		if ( function_exists( 'pta_sanitize_value' ) ) {
 			return pta_sanitize_value( $value, $type );
 		}
 		
-		// Fallback sanitization
+		// Minimal fallback for edge cases (e.g., if global function not loaded)
+		// This should rarely be used in practice, but provides a safety net
+		// Note: This fallback is incomplete and doesn't handle all types (names, emails, dates, etc.)
+		// The global function should always be available when the plugin is active
+		if ( WP_DEBUG ) {
+			error_log( 'PTA SUS: pta_sanitize_value() function not available - using fallback sanitization for type: ' . $type );
+		}
+		
 		switch ( $type ) {
 			case 'int':
 				return absint( $value );
 			case 'bool':
-				// Convert boolean to 1 or 0 for database
 				return $value ? 1 : 0;
 			case 'yesno':
-				// YES/NO values - ensure uppercase
 				$value = strtoupper( sanitize_text_field( $value ) );
 				return in_array( $value, array( 'YES', 'NO' ) ) ? $value : 'NO';
 			case 'array':
-				// Handle array types - serialize for database storage
 				if ( is_array( $value ) ) {
-					// If it's a simple array, maybe_serialize will handle it
 					return maybe_serialize( $value );
 				}
 				return $value;
@@ -469,7 +505,12 @@ abstract class PTA_SUS_Base_Object {
 			case 'date':
 			case 'time':
 			case 'text':
+			case 'names':
+			case 'emails':
+			case 'dates':
 			default:
+				// For unknown types or types not handled in fallback, use basic text sanitization
+				// This is safer than leaving data unsanitized
 				return sanitize_text_field( $value );
 		}
 	}

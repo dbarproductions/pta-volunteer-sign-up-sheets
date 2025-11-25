@@ -252,20 +252,20 @@ class PTA_SUS_Admin {
             $results = sprintf( _n( '1 email sent', '%d emails sent', $num, 'pta-volunteer-sign-up-sheets'), $num );
             $rescheduled_messages .= '<div class="updated">'.$results.'</div>';
         }
-		if (isset($_GET['action']) && 'clear_signups' == $_GET['action'] ) {
+		if (isset($_GET['action']) && 'clear_signups' === $_GET['action'] ) {
 			check_admin_referer( 'pta-sus-clear-signups', '_sus_nonce');
-			$num = $this->data->delete_expired_signups();
+			$num = PTA_SUS_Signup_Functions::delete_expired_signups();
 			$results = sprintf( _n( '1 signup cleared', '%d signups cleared', $num, 'pta-volunteer-sign-up-sheets'), $num );
 			$cleared_message = '<div class="updated">'.$results.'</div>';
 		}
-		if (isset($_GET['action']) && 'clear_sheets' == $_GET['action'] ) {
+		if (isset($_GET['action']) && 'clear_sheets' === $_GET['action'] ) {
 			check_admin_referer( 'pta-sus-clear-sheets', '_sus_nonce');
-			$num = $this->data->delete_expired_sheets();
+			$num = PTA_SUS_Sheet_Functions::delete_expired_sheets();
 			$results = sprintf( _n( '1 sheet cleared', '%d sheets cleared', $num, 'pta-volunteer-sign-up-sheets'), $num );
 			$cleared_sheets_message = '<div class="updated">'.$results.'</div>';
 		}
 		// Handle clear log action
-		if (isset($_GET['action']) && 'clear_debug_log' == $_GET['action']) {
+		if (isset($_GET['action']) && 'clear_debug_log' === $_GET['action']) {
 			check_admin_referer('pta-sus-clear-debug-log', '_sus_nonce');
 			if(pta_clear_log_file()) {
 				echo '<div class="updated"><p>' . __('Debug log cleared successfully.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
@@ -487,7 +487,7 @@ class PTA_SUS_Admin {
 			return false;
 		}
 		if($edit) {
-			$result = $this->data->update_signup( $posted, $signup_id);
+			$result = pta_sus_update_signup( $posted, $signup_id);
 		} else {
 			$result = pta_sus_add_signup($posted, $task_id);
 		}
@@ -513,14 +513,16 @@ class PTA_SUS_Admin {
 	    if(empty($tasks)) {
 	        return;
         }
+        // Store signup data arrays instead of just IDs, so emails can be sent even after signups are deleted
         $reschedule_queue = get_option('pta_sus_rescheduled_signup_ids', array());
         foreach ($tasks AS $task) {
             $id = absint($task->id);
             $signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
             if(empty($signups)) continue;
             foreach($signups as $signup) {
-                $signup_id = absint($signup->id);
-                $reschedule_queue[] = $signup_id;
+                // Store signup data as array so we can send emails even if signup is deleted
+                $signup_data = $signup->to_array();
+                $reschedule_queue[] = $signup_data;
             }
         }
         update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
@@ -612,27 +614,34 @@ class PTA_SUS_Admin {
 
         if('reschedule' === $method) {
             // Tasks
-            foreach($tasks as $task) {
-                $id = absint($task->id);
-                $date = $new_dates[$id];
-                $fields = array('task_dates' => $date, 'task_time_start' => $new_start_times[$id], 'task_time_end' => $new_end_times[$id]);
-                $this->data->update_task($fields, $id);
+            foreach($tasks as $task_obj) {
+                $id = absint($task_obj->id);
+                $task = pta_sus_get_task($id);
+                if ($task) {
+                    $task->dates = $new_dates[$id];
+                    $task->time_start = $new_start_times[$id];
+                    $task->time_end = $new_end_times[$id];
+                    $task->save();
+                }
             }
             // Sheet
-            if('Single' === $sheet->type) {
-                $first_date = $last_date = $new_date;
-            } else {
-                $first_date = min($new_dates);
-                $last_date = max($new_dates);
+            $sheet = pta_sus_get_sheet(absint($sheet_id));
+            if ($sheet) {
+                if('Single' === $sheet->type) {
+                    $sheet->first_date = $new_date;
+                    $sheet->last_date = $new_date;
+                } else {
+                    $sheet->first_date = min($new_dates);
+                    $sheet->last_date = max($new_dates);
+                }
+                $sheet->save();
             }
-            $fields = array('sheet_first_date' => $first_date, 'sheet_last_date' => $last_date);
-            $this->data->update_sheet($fields,absint($sheet_id));
 
             // Signups
             if(!$clear_signups) {
                 // update dates for signups - reset reminder flags
-                foreach ($tasks AS $task) {
-                    $id = absint($task->id);
+                foreach ($tasks AS $task_obj) {
+                    $id = absint($task_obj->id);
                     if('Single' === $sheet->type) {
                         $date = $new_date;
                     } else {
@@ -640,9 +649,14 @@ class PTA_SUS_Admin {
                     }
                     $signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
                     if(empty($signups)) continue;
-                    foreach($signups as $signup) {
-                        $fields = array('signup_date' => $date, 'signup_reminder1_sent' => false, 'signup_reminder2_sent' => false);
-                        $this->data->update_signup($fields, absint($signup->id));
+                    foreach($signups as $signup_obj) {
+                        $signup = pta_sus_get_signup($signup_obj->id);
+                        if ($signup) {
+                            $signup->date = $date;
+                            $signup->reminder1_sent = false;
+                            $signup->reminder2_sent = false;
+                            $signup->save();
+                        }
                     }
                 }
             }
@@ -660,7 +674,7 @@ class PTA_SUS_Admin {
                 do_action('pta_sus_clear_all_signups_for_sheet', $sheet_id);
                 foreach ($tasks AS $task) {
                     $id = absint($task->id);
-                    $this->data->clear_all_signups_for_task($id);
+                    PTA_SUS_Signup_Functions::clear_all_for_task($id);
                 }
             }
 
@@ -669,7 +683,7 @@ class PTA_SUS_Admin {
 
         $copy_signups = !$clear_signups;
         if('copy' === $method) {
-            $new_sheet_id = $this->data->copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
+            $new_sheet_id = PTA_SUS_Sheet_Functions::copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
             /**
              * Maybe Send emails for new sheet
              */
@@ -696,7 +710,7 @@ class PTA_SUS_Admin {
                         $new_dates[$id] = $new_date;
                     }
                 }
-                $new_sheet_id = $this->data->copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
+                $new_sheet_id = PTA_SUS_Sheet_Functions::copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
                 /**
                  * Maybe Send emails for new sheet
                  */
@@ -760,12 +774,14 @@ class PTA_SUS_Admin {
 		}
 
 		// All good, just update signup with new task ID and Date
-		$fields = array(
-			'signup_task_id' => $new_task_id,
-			'signup_date' => $new_date,
-		);
-
-        return $this->data->update_signup($fields, $old_signup_id);
+		$signup = pta_sus_get_signup($old_signup_id);
+		if ($signup) {
+			$signup->task_id = $new_task_id;
+			$signup->date = $new_date;
+			$result = $signup->save();
+			return ($result !== false) ? 1 : false;
+		}
+		return false;
     }
 
 	private function admin_sheet_page_redirect() {
@@ -817,13 +833,17 @@ class PTA_SUS_Admin {
 				$emails->send_mail($_GET['signup_id'], false, true);
 			}
 			// make sure there is a signup record first, and get the data before deleting in case extensions need it
-			$signup = $this->data->get_signup($_GET['signup_id']);
+			$signup = pta_sus_get_signup($_GET['signup_id']);
 			if(!empty($signup)) {
-				if (($result = $this->data->delete_signup($_GET['signup_id'])) === false) {
+				// Store signup data for action hook (before deletion)
+				$signup_data = $signup->to_array();
+				if (($result = pta_sus_delete_signup($_GET['signup_id'])) === false) {
 					PTA_SUS_Messages::add_error(sprintf( __('Error clearing spot (ID # %s)', 'pta-volunteer-sign-up-sheets'), esc_attr($_GET['signup_id']) ));
 				} else {
 					if ($result > 0) PTA_SUS_Messages::add_message(__('Spot has been cleared.', 'pta-volunteer-sign-up-sheets'));
-					do_action('pta_sus_admin_clear_signup', $signup);
+					// Convert array back to object for backward compatibility with action hook
+					$signup_obj = (object) $signup_data;
+					do_action('pta_sus_admin_clear_signup', $signup_obj);
 				}
 			}
 		}
@@ -845,26 +865,40 @@ class PTA_SUS_Admin {
 		$sheet_id = isset($_GET['sheet_id']) ? (int)$_GET['sheet_id'] : 0;
 
 		if ('untrash' === $this->action && $sheet_id > 0) {
-			if (($result = $this->data->update_sheet(array('sheet_trash'=>0), $sheet_id)) === false) {
+			$sheet = pta_sus_get_sheet($sheet_id);
+			if ($sheet) {
+				$sheet->trash = false;
+				$result = $sheet->save();
+				if ($result === false) {
+					PTA_SUS_Messages::add_error(__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets'));
+				} else {
+					PTA_SUS_Messages::add_message(__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets'));
+				}
+			} else {
 				PTA_SUS_Messages::add_error(__('Error restoring sheet.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
-				PTA_SUS_Messages::add_message(__('Sheet has been restored.', 'pta-volunteer-sign-up-sheets'));
 			}
 			$this->admin_sheet_page_redirect();
 		}
 		if ('trash' === $this->action && $sheet_id > 0) {
-			if (($result = $this->data->update_sheet(array('sheet_trash'=>true), $sheet_id)) === false) {
+			$sheet = pta_sus_get_sheet($sheet_id);
+			if ($sheet) {
+				$sheet->trash = true;
+				$result = $sheet->save();
+				if ($result === false) {
+					PTA_SUS_Messages::add_error(__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets'));
+				} else {
+					PTA_SUS_Messages::add_message(__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets'));
+				}
+			} else {
 				PTA_SUS_Messages::add_error(__('Error moving sheet to trash.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
-				PTA_SUS_Messages::add_message(__('Sheet has been moved to trash.', 'pta-volunteer-sign-up-sheets'));
 			}
 			$this->admin_sheet_page_redirect();
 		}
 		if ('delete' === $this->action && $sheet_id > 0) {
 			do_action('pta_sus_sheet_before_deleted', $sheet_id);
-			if (($result = $this->data->delete_sheet($sheet_id)) === false) {
+			if (($result = PTA_SUS_Sheet_Functions::delete_sheet($sheet_id)) === false) {
 				PTA_SUS_Messages::add_error(__('Error permanently deleting sheet.', 'pta-volunteer-sign-up-sheets'));
-			} elseif ($result > 0) {
+			} else {
 				PTA_SUS_Messages::add_message(__('Sheet has been permanently deleted.', 'pta-volunteer-sign-up-sheets'));
 				do_action('pta_sus_sheet_deleted', $sheet_id);
 			}
@@ -1161,11 +1195,15 @@ class PTA_SUS_Admin {
 			}
 
 			foreach ($posted_tasks as $task) {
-				// Validate each posted task
-				$results = $this->data->validate_post($task, 'task');
+				// Clean and validate each posted task
+				$clean_task_fields = pta_sus_clean_prefixed_array($task, 'task_');
+				$results = PTA_SUS_Task_Functions::validate_task_fields($clean_task_fields);
 				if(!empty($results['errors'])) {
 					$task_err++;
-					PTA_SUS_Messages::add_error($results['message']);
+					// Messages are already added by validation method, but check for any from filter hook
+					if (!empty($results['message'])) {
+						PTA_SUS_Messages::add_error($results['message']);
+					}
 				} elseif ("Multi-Day" === $_POST['sheet_type'] && -1 != $task['task_id']) {
 					// Make sure a date was entered
 					if(empty($task['task_dates'])) {
@@ -1282,7 +1320,10 @@ class PTA_SUS_Admin {
 					$i = 0;
 					foreach ($keys_to_process AS $key) {                        
 						if (!empty($_POST['task_title'][$key])) {
-							foreach ($this->data->tables['task']['allowed_fields'] AS $field=>$nothing) {
+							// Use new Task class to get properties (includes extension-added fields via filters)
+							$task = new PTA_SUS_Task();
+							$task_properties = $task->get_properties();
+							foreach ($task_properties AS $field=>$nothing) {
 								if ( 'need_details' === $field && !isset($_POST['task_'.$field][$key]) ) {
 									$task_data['task_'.$field] = 'NO';
 								}
@@ -1316,7 +1357,7 @@ class PTA_SUS_Admin {
 									do_action('pta_sus_add_task', $task_data, $sheet_id, $task_id, $key);
 								}
 							} else {
-								if (($result = $this->data->update_task($task_data, $_POST['task_id'][$key], $no_signups)) === false) {
+								if (($result = pta_sus_update_task($task_data, $_POST['task_id'][$key], $no_signups)) === false) {
 									$task_err++;
 								} else {
 									do_action('pta_sus_update_task', $task_data, $sheet_id, $_POST['task_id'][$key], $key);
@@ -1332,27 +1373,28 @@ class PTA_SUS_Admin {
 						// Tasks updated successfully
 
 						// Update sheet with first and last dates
-						if ($sheet = pta_sus_get_sheet((int)$_POST['sheet_id'])) {
-							$sheet_fields = array();
-                            $sheet = $sheet->to_array();
-							foreach($sheet AS $k=>$v) $sheet_fields['sheet_'.$k] = $v;
-						}
-						// Check if we need to update first and last dates for sheet
-						$needs_update = false;
-						sort($dates);
-						if (!isset($sheet_fields['sheet_first_date']) || $sheet_fields['sheet_first_date'] != min($dates)) {
-							$sheet_fields['sheet_first_date'] = min($dates);
-							$needs_update = true;
-						}
-						if (!isset($sheet_fields['sheet_last_date']) || $sheet_fields['sheet_last_date'] != max($dates)) {
-							$sheet_fields['sheet_last_date'] = max($dates);
-							$needs_update = true;
-						}
-						if ($needs_update) {
-							$result = $this->data->update_sheet($sheet_fields, (int)$_POST['sheet_id']);
-							if(false === $result) {
-								$task_err++;
-								PTA_SUS_Messages::add_error(__('Error updating sheet.', 'pta-volunteer-sign-up-sheets'));
+						// Update sheet with first and last dates if needed
+						$sheet = pta_sus_get_sheet((int)$_POST['sheet_id']);
+						if ($sheet) {
+							$needs_update = false;
+							sort($dates);
+							$min_date = min($dates);
+							$max_date = max($dates);
+							
+							if ($sheet->first_date != $min_date) {
+								$sheet->first_date = $min_date;
+								$needs_update = true;
+							}
+							if ($sheet->last_date != $max_date) {
+								$sheet->last_date = $max_date;
+								$needs_update = true;
+							}
+							if ($needs_update) {
+								$result = $sheet->save();
+								if(false === $result) {
+									$task_err++;
+									PTA_SUS_Messages::add_error(__('Error updating sheet.', 'pta-volunteer-sign-up-sheets'));
+								}
 							}
 						}
 						if(empty($task_err)) {
@@ -1363,10 +1405,17 @@ class PTA_SUS_Admin {
 					
 					// Delete unused tasks
 					foreach ($tasks_to_delete AS $task_id) {
-						if ($this->data->delete_task($task_id) === false) {
-							PTA_SUS_Messages::add_error(__('Error removing a task.', 'pta-volunteer-sign-up-sheets'));
+						$task = pta_sus_get_task($task_id);
+						if ($task) {
+							$result = $task->delete();
+							if ($result === false) {
+								PTA_SUS_Messages::add_error(__('Error removing a task.', 'pta-volunteer-sign-up-sheets'));
+							} else {
+								// Action hook is automatically fired by the class delete() method
+								do_action('pta_sus_delete_task', $task_id);
+							}
 						} else {
-							do_action('pta_sus_delete_task', $task_id);
+							PTA_SUS_Messages::add_error(__('Error removing a task.', 'pta-volunteer-sign-up-sheets'));
 						}
 					}
 				}
@@ -1392,15 +1441,20 @@ class PTA_SUS_Admin {
 				$sheet_err++;
 				PTA_SUS_Messages::add_error(__('Please either select a position or type in the chair contact info!', 'pta-volunteer-sign-up-sheets'));
 			}
-			$results = $this->data->validate_post($_POST, 'sheet');
+			// Clean and validate sheet fields
+			$clean_sheet_fields = pta_sus_clean_prefixed_array($_POST, 'sheet_');
+			$results = PTA_SUS_Sheet_Functions::validate_sheet_fields($clean_sheet_fields);
 			// Give extensions a chance to validate any custom fields
 			$results = apply_filters( 'pta_sus_validate_sheet_post', $results );
 			if(!empty($results['errors'])) {
-				PTA_SUS_Messages::add_error($results['message']);
+				// Messages are already added by validation method, but check for any from filter hook
+				if (!empty($results['message'])) {
+					PTA_SUS_Messages::add_error($results['message']);
+				}
 			} elseif (!$sheet_err) {
 				// Passed Validation
 				$sheet_fields = $_POST;
-				$duplicates = $this->data->check_duplicate_sheet( $sheet_fields['sheet_title'] );
+				$duplicates = PTA_SUS_Sheet_Functions::check_duplicate_sheet( $sheet_fields['sheet_title'] );
 				// Some extensions may want to allow duplicates
 				$duplicates = apply_filters( 'pta_sus_check_duplicate_sheets', $duplicates, $sheet_fields );
 				// Make sure our sheet_visible gets set correctly
@@ -1456,7 +1510,7 @@ class PTA_SUS_Admin {
 						$sheet_fields['sheet_id'] = $sheet_id;
 					}
 				} else {
-					$updated = $this->data->update_sheet($sheet_fields, (int)$_GET['sheet_id']);
+					$updated = pta_sus_update_sheet($sheet_fields, (int)$_GET['sheet_id']);
 					$sheet_fields['sheet_id'] = (int)$_GET['sheet_id'];
 					if(false === $updated) {
 						$sheet_err++;
@@ -1560,9 +1614,9 @@ class PTA_SUS_Admin {
 
 		$fields = array_merge((array)$sheet_fields, (array)$task_fields);
 		if ( 'Single' === $sheet_fields['sheet_type'] ) {
-			$fields['single_date'] = (false === $dates) ? '' : $dates[0];
+			$fields['single_date'] = (empty($dates) || !isset($dates[0])) ? '' : $dates[0];
 		} elseif ( 'Recurring' === $sheet_fields['sheet_type'] ) {
-			$fields['recurring_dates'] = (false === $dates) ? '' : implode(",", $dates);
+			$fields['recurring_dates'] = (empty($dates)) ? '' : implode(",", $dates);
 		}
 		return apply_filters( 'pta_sus_admin_get_fields', $fields, $id );
 	} // Get Fields

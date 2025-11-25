@@ -155,6 +155,48 @@ class PTA_SUS_Text_Registry {
                 'desc' => 'The "on {DATE} part of the display on the signup form after the "You are signing up for..." text.',
                 'variable' => 'The date of the task/item the user is signing up for.',
             ),
+            array(
+                'id' => 'task_no_longer_available_error',
+                'default' => 'This task is no longer available. Please try selecting a different task.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when a task cannot be found (e.g., task was deleted between page load and form submission).',
+            ),
+            array(
+                'id' => 'date_required_error',
+                'default' => 'Please select a date for your signup.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when the date field is missing or empty (fallback if validation misses it).',
+            ),
+            array(
+                'id' => 'task_not_available_for_signups_error',
+                'default' => 'This task is not available for signups. Please try a different task.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when a task has invalid or zero quantity and cannot accept signups.',
+            ),
+            array(
+                'id' => 'spots_filled_error',
+                'default' => 'All spots for this task have been filled. Please try a different task or date.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when all spots are filled (can occur due to race condition if someone else signs up between availability check and save).',
+            ),
+            array(
+                'id' => 'signup_save_error',
+                'default' => 'There was an error saving your signup. Please try again.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when the database save operation fails while adding a new signup.',
+            ),
+            array(
+                'id' => 'signup_no_longer_available_error',
+                'default' => 'This signup is no longer available.',
+                'screen' => 'user_signups',
+                'desc' => 'Error message shown when trying to update a signup that no longer exists (e.g., signup was deleted).',
+            ),
+            array(
+                'id' => 'signup_update_error',
+                'default' => 'There was an error updating your signup. Please try again.',
+                'screen' => 'user_signups',
+                'desc' => 'Error message shown when the database save operation fails while updating an existing signup.',
+            ),
         );
         foreach($filters as $filter) {
             $desc = $filter['desc'] ?? '';

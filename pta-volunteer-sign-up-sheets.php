@@ -333,7 +333,7 @@ class PTA_Sign_Up_Sheet {
 
 	    // If automatic clearing of expired signups is enabled, run the check
 	    if($this->main_options['clear_expired_sheets']) {
-		    $results = $this->data->delete_expired_sheets();
+		    $results = PTA_SUS_Sheet_Functions::delete_expired_sheets();
 		    if($results) {
 			    $message .= __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
 			               sprintf(__("%d expired sheets were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";
@@ -342,7 +342,7 @@ class PTA_Sign_Up_Sheet {
 
 		// If automatic clearing of expired signups is enabled, run the check
         if($this->main_options['clear_expired_signups']) {
-            $results = $this->data->delete_expired_signups();
+            $results = PTA_SUS_Signup_Functions::delete_expired_signups();
             if($results) {
                 $message .= __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\n\n" .
                             sprintf(__("%d expired signups were deleted.", 'pta-volunteer-sign-up-sheets'), (int)$results) . "\n\n";

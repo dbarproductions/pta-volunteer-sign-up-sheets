@@ -298,7 +298,7 @@ class PTA_SUS_Data
      *
      * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() instead
      * @param int $sheet_id Sheet ID
-     * @return array Array of dates
+     * @return array|false Array of dates, or false if no dates found (for backward compatibility)
      */
     public function get_all_task_dates_for_sheet($sheet_id) {
         $trace = debug_backtrace();
@@ -307,7 +307,10 @@ class PTA_SUS_Data
         $line = $caller['line'] ?? '';
         _deprecated_function(__FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet() ' . sprintf('Called from %s line %s', $file, $line));
 
-        return PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
+        $result = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
+        
+        // Maintain backward compatibility - return false if empty (old behavior)
+        return !empty($result) ? $result : false;
     }
 
     /**
@@ -845,158 +848,189 @@ class PTA_SUS_Data
     /**
      * Update a sheet
      * 
-     * @param    int        sheet id
-     * @param    array     array of fields and values to update
+     * @deprecated 6.0.0 Use pta_sus_update_sheet() instead
+     * @param    array     $fields array of fields and values to update (with "sheet_" prefix)
+     * @param    int       $id     sheet id
      * @return    mixed    number of rows update or false if fails
      */
     public function update_sheet($fields, $id) {
-        $clean_fields = $this->clean_array($fields, 'sheet_');
-        $clean_fields = array_intersect_key($clean_fields, $this->tables['sheet']['allowed_fields']);
-        if (isset($clean_fields['date']) && $clean_fields['date'] != '0000-00-00') $clean_fields['date'] = date('Y-m-d', strtotime($clean_fields['date']));
-        $sanitized_fields = $this->sanitize_sheet_fields($clean_fields);
-        // wpdb->update does all necessary sanitation before updating the database
-        return $this->wpdb->update($this->tables['sheet']['name'], $sanitized_fields, array('id' => $id), null, array('%d'));
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(
+            __FUNCTION__,
+            '6.0.0',
+            'pta_sus_update_sheet() ' . sprintf('Called from %s line %s', $file, $line)
+        );
+        
+        // Use new function - it handles prefix cleaning and returns compatible value
+        return pta_sus_update_sheet($fields, $id);
     }
     
     /**
      * Update a task
      * 
-     * @param    int    $id    task id
-     * @param    array  $fields   array of fields and values to update
-     * @param   bool $no_signups
+     * @deprecated 6.0.0 Use pta_sus_update_task() instead
+     * @param    array  $fields   array of fields and values to update (with "task_" prefix)
+     * @param    int    $id       task id
+     * @param    bool   $no_signups Whether to allow task with 0 qty (default: false)
      * @return    mixed    number of rows update or false if fails
      */
     public function update_task($fields, $id, $no_signups = false) {
-        $clean_fields = $this->clean_array($fields, 'task_');
-        $clean_fields = array_intersect_key($clean_fields, $this->tables['task']['allowed_fields']);
-        if (!$no_signups && isset($clean_fields['qty']) && $clean_fields['qty'] < 2 ) {
-            $clean_fields['qty'] = 1;
-        }
-        // wpdb->update does all necessary sanitation before updating the database
-        return $this->wpdb->update($this->tables['task']['name'], $clean_fields, array('id' => $id), null, array('%d'));
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(
+            __FUNCTION__,
+            '6.0.0',
+            'pta_sus_update_task() ' . sprintf('Called from %s line %s', $file, $line)
+        );
+        
+        // Use new function - it handles prefix cleaning and returns compatible value
+        return pta_sus_update_task($fields, $id, $no_signups);
     }
 
     /**
      * Update a signup
      * 
-     * @param    int   $id     signup id
-     * @param    array  $fields   array of fields and values to update
+     * @deprecated 6.0.0 Use pta_sus_update_signup() instead
+     * @param    array  $fields   array of fields and values to update (with "signup_" prefix)
+     * @param    int    $id       signup id
      * @return    mixed    number of rows update or false if fails
      */
     public function update_signup( $fields, $id ) {
-        $clean_fields = $this->clean_array($fields, 'signup_');
-        $clean_fields = array_intersect_key($clean_fields, $this->tables['signup']['allowed_fields']);
-        // wpdb->update does all necessary sanitation before updating the database
-        return $this->wpdb->update($this->tables['signup']['name'], $clean_fields, array('id' => $id), null, array('%d'));
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(
+            __FUNCTION__,
+            '6.0.0',
+            'pta_sus_update_signup() ' . sprintf('Called from %s line %s', $file, $line)
+        );
+        
+        // Use new function - it handles prefix cleaning and returns compatible value
+        return pta_sus_update_signup($fields, $id);
     }
 
 	/**
 	 * Delete a sheet and all associated tasks and signups
 	 *
-	 * @param int     sheet id
-	 *
+	 * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::delete_sheet() instead
+	 * @param int $id Sheet ID
 	 * @return bool
 	 */
     public function delete_sheet($id) {
-        $tasks = PTA_SUS_Task_Functions::get_tasks($id);
-        $where_format = array('%d');
-        foreach ($tasks AS $task) {
-            // Delete Signups
-	        $where = array('task_id' => $task->id);
-	        if(false === $this->wpdb->delete($this->tables['signup']['name'], $where, $where_format)) {
-	        	return false;
-	        }
-        }
-        // Delete Tasks
-	    $where = array('sheet_id' => $id);
-        if(false === $this->wpdb->delete($this->tables['task']['name'], $where, $where_format)) {
-            return false;
-        }
-        // Delete Sheet
-	    $where = array('id' => $id);
-        if(false === $this->wpdb->delete($this->tables['sheet']['name'], $where, $where_format)) {
-            return false;
-        }
-        return true;
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(
+            __FUNCTION__,
+            '6.0.0',
+            'PTA_SUS_Sheet_Functions::delete_sheet() ' . sprintf('Called from %s line %s', $file, $line)
+        );
+
+        return PTA_SUS_Sheet_Functions::delete_sheet($id);
     }
 
+    /**
+     * Clear all signups for a specific task
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::clear_all_for_task() instead
+     * @param int $task_id Task ID
+     * @return int|false Number of signups deleted, or false on failure
+     */
     public function clear_all_signups_for_task($task_id) {
-        $where = array('task_id' => $task_id);
-        $where_format = array('%d');
-        return $this->wpdb->delete($this->tables['signup']['name'], $where, $where_format);
+        $trace = debug_backtrace();
+        $caller = $trace[1] ?? array();
+        $file = $caller['file'] ?? '';
+        $line = $caller['line'] ?? '';
+        _deprecated_function(
+            __FUNCTION__,
+            '6.0.0',
+            'PTA_SUS_Signup_Functions::clear_all_for_task() ' . sprintf('Called from %s line %s', $file, $line)
+        );
+
+        return PTA_SUS_Signup_Functions::clear_all_for_task($task_id);
     }
 
 	/**
 	 * Delete a task
 	 *
+	 * @deprecated 6.0.0 Use $task->delete() or pta_sus_get_task($id)->delete() instead
 	 * @param int     task id
 	 *
 	 * @return bool|int
 	 */
     public function delete_task($id) {
-    	$where = array('id' => $id);
-    	$where_format = array('%d');
-        return $this->wpdb->delete($this->tables['task']['name'],$where,$where_format);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task::delete() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		$task = pta_sus_get_task($id);
+		if (!$task) {
+			return false;
+		}
+		return $task->delete();
     }
     
     /**
     * Delete a signup
     * 
+    * @deprecated 6.0.0 Use pta_sus_delete_signup($id) instead
     * @param    int     $id  Signup ID
      *
      * @return mixed int/false
     */
     public function delete_signup($id) {
-    	$where = array('id' => $id);
-    	$where_format = array('%d');
-        return $this->wpdb->delete($this->tables['signup']['name'],$where,$where_format);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_delete_signup() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return pta_sus_delete_signup($id);
     }
 	
 	/**
+	 * Delete expired signups from the database
+	 *
+	 * @deprecated 6.0.0 Use PTA_SUS_Signup_Functions::delete_expired_signups() instead
 	 * @param array $exclude array of ids to NOT delete
 	 *
 	 * @return false|int
 	 */
     public function delete_expired_signups($exclude = array()) {
-    	$exclude = apply_filters('pta_sus_delete_expired_signups_exclusions', $exclude);
-	    $num_days = !empty($this->main_options['num_days_expired']) ? absint($this->main_options['num_days_expired']) : 1;
-	    if($num_days < 1) {
-		    $num_days = 1;
-	    }
-	    $sql = "DELETE FROM ".$this->tables['signup']['name']." WHERE %s > ADDDATE(date, %d)";
-    	if(!empty($exclude)) {
-    		$clean_ids = array_map('absint', $exclude);
-    		$exclusions = implode(',', $clean_ids);
-		    $sql .= " AND id NOT IN ($exclusions)";
-	    }
-	    $safe_sql = $this->wpdb->prepare($sql, $this->now, $num_days);
-        return $this->wpdb->query($safe_sql);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Signup_Functions::delete_expired_signups() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return PTA_SUS_Signup_Functions::delete_expired_signups($exclude);
     }
 
+	/**
+	 * Delete expired sheets from the database
+	 *
+	 * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::delete_expired_sheets() instead
+	 * @param array $exclude array of ids to NOT delete
+	 *
+	 * @return int Number of sheets deleted
+	 */
 	public function delete_expired_sheets($exclude = array()) {
-		$exclude = apply_filters('pta_sus_delete_expired_sheets_exclusions', $exclude);
-		$num_days = !empty($this->main_options['num_days_expired']) ? absint($this->main_options['num_days_expired']) : 1;
-		if($num_days < 1) {
-			$num_days = 1;
-		}
-		// get sheet IDs for expired sheets
-		$sql = "SELECT id FROM ".$this->tables['sheet']['name']." WHERE %s > ADDDATE(last_date, %d)";
-		if(!empty($exclude)) {
-			$clean_ids = array_map('absint', $exclude);
-			$exclusions = implode(',', $clean_ids);
-			$sql .= " AND id NOT IN ($exclusions)";
-		}
-		$safe_sql = $this->wpdb->prepare($sql, $this->now, $num_days);
-		$ids = $this->wpdb->get_col($safe_sql);
-		$deleted = 0;
-		if(!empty($ids)) {
-			foreach ($ids AS $id) {
-				if( $this->delete_sheet($id) ) {
-					$deleted++;
-				}
-			}
-		}
-		return $deleted;
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::delete_expired_sheets() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return PTA_SUS_Sheet_Functions::delete_expired_sheets($exclude);
 	}
     
     /**
@@ -1019,128 +1053,43 @@ class PTA_SUS_Data
     /**
      * Copy a sheet and all tasks to a new sheet with new dates, optionally copy signups
      *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::copy_sheet_to_new_dates() instead
      * @param    int  $id   sheet id
      * @param   array $task_dates key must be task ID, value is SQL format date
      * @param   array $start_times key must be task ID, value is start time
      * @param   array $end_times key must be task ID, value is end time
+     * @param   bool  $copy_signups Whether to copy signups (default: false)
      *
-     * @return mixed
+     * @return int|false New sheet ID on success, false on failure
      */
     public function copy_sheet_to_new_dates($id, $task_dates, $start_times, $end_times, $copy_signups = false) {
-        $new_fields = array();
-
-        $first_date = min($task_dates);
-        $last_date = max($task_dates);
-        $sheet = pta_sus_get_sheet($id);
-        if(!$sheet) return false;
-        $sheet = (array)$sheet;
-        foreach ($this->tables['sheet']['allowed_fields'] AS $field=>$nothing) {
-            if('first_date' === $field) {
-                $new_fields['sheet_first_date'] = $first_date;
-            } elseif('last_date' === $field) {
-                $new_fields['sheet_last_date'] = $last_date;
-            } elseif('visible' === $field) {
-	            // make copied sheets hidden until admin can edit them
-	            $new_fields['sheet_visible'] = false;
-            } else {
-                $new_fields['sheet_'.$field] = $sheet[$field];
-            }
-        }
-        if ( false === $this->add_sheet($new_fields) ) {
-            return false;
-        }
-
-        $new_sheet_id = $this->wpdb->insert_id;
-
-        $new_tasks = array();
-
-        $tasks = PTA_SUS_Task_Functions::get_tasks($id);
-        if(empty($tasks)) return false;
-        foreach ($tasks AS $task) {
-            $new_fields = array();
-            $task = (array)$task;
-            $task_id = absint($task['id']);
-            foreach ($this->tables['task']['allowed_fields'] AS $field=>$nothing) {
-                if('dates' === $field) {
-                    $new_fields['task_dates'] = $task_dates[$task_id];
-                } elseif('time_start' === $field) {
-                    $new_fields['task_time_start'] = $start_times[$task_id];
-                } elseif('time_end' === $field) {
-                    $new_fields['task_time_end'] = $end_times[$task_id];
-                } elseif('sheet_id' === $field) {
-                    continue; // passed in separately to add_task method
-                } else {
-                    $new_fields['task_'.$field] = $task[$field];
-                }
-            }
-            if (false === $this->add_task($new_fields, $new_sheet_id) ) {
-                return false;
-            }
-            $new_task_id = $this->wpdb->insert_id;
-            $old_task_id = $task['id'];
-            $new_tasks[$old_task_id] = $new_task_id;
-
-            do_action('pta_sus_task_copied', $old_task_id, $new_task_id);
-
-            // Maybe copy signups
-            if($copy_signups) {
-                $signups = PTA_SUS_Signup_Functions::get_signups_for_task($old_task_id);
-                if(!empty($signups)) {
-                    $date = $task_dates[$old_task_id];
-                    foreach($signups as $signup) {
-                        $signup = (array)$signup;
-                        $new_fields = array();
-                        foreach ($this->tables['signup']['allowed_fields'] AS $field=>$nothing) {
-                            if('date' === $field) {
-                                $new_fields['signup_date'] = $date;
-                            } elseif('task_id' === $field) {
-                                continue; // this is passed in separate parameter to add signup function
-                            } elseif('item_qty' === $field) {
-                                $qty = isset($signup['item_qty']) && absint($signup['item_qty']) > 0 ? absint( $signup['item_qty']) : 1;
-                                $new_fields['signup_item_qty'] = $qty;
-                            } elseif('reminder1_sent' === $field || 'reminder2_sent' === $field) {
-                                $new_fields['signup_'.$field] = false; // reset reminders for copied sheet
-                            } else {
-                                $new_fields['signup_'.$field] = $signup[$field];
-                            }
-                        }
-                        $new_signup_id = pta_sus_add_signup($new_fields, $new_task_id);
-                        if (false === $new_signup_id) {
-                            return false;
-                        }
-                        do_action('pta_sus_signup_copied', $signup['id'], $new_signup_id);
-                    }
-                }
-            }
-        }
-
-        if(!empty($new_tasks)) {
-            $data = array('sheet_id' => $id, 'tasks' => $new_tasks);
-            // store array of copied tasks to temporary option for possible use in other extensions
-            update_option('pta_sus_copied_tasks', $data);
-        }
-        do_action('pta_sus_sheet_copied', $id, $new_sheet_id);
-        return $new_sheet_id;
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Sheet_Functions::copy_sheet_to_new_dates() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return PTA_SUS_Sheet_Functions::copy_sheet_to_new_dates($id, $task_dates, $start_times, $end_times, $copy_signups);
     }
 
 
 	/**
 	 * Remove prefix from keys of an array and return records that were cleaned
 	 *
+	 * @deprecated 6.0.0 Use pta_sus_clean_prefixed_array() instead
 	 * @param array   input array
 	 * @param mixed $prefix
 	 *
 	 * @return   mixed   records that were cleaned
 	 */
     public function clean_array($input=array(), $prefix=false) {
-        if (!is_array($input)) return false;
-        $clean_fields = array();
-        foreach ($input AS $k=>$v) {
-            if ($prefix === false || (substr($k, 0, strlen($prefix)) == $prefix)) {
-                $clean_fields[str_replace($prefix, '', $k)] = $v;
-            }
-        }
-        return $clean_fields;
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_clean_prefixed_array() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return pta_sus_clean_prefixed_array($input, $prefix);
     }
     
     /**
@@ -1158,213 +1107,68 @@ class PTA_SUS_Data
 	    return stripslashes_deep($input);
     }
 
+    /**
+     * Validate form post data for sheets or tasks
+     *
+     * @deprecated 6.0.0 Use PTA_SUS_Sheet_Functions::validate_sheet_fields() or PTA_SUS_Task_Functions::validate_task_fields() instead
+     * @param array $fields Form fields (with prefixes)
+     * @param string $post_type "sheet" or "task"
+     * @return array Array with 'errors' (count) and 'message' (error messages)
+     */
     public function validate_post($fields, $post_type="sheet") {
-        // Create a results array that we will return
-        $results = array(
-            'errors' => 0,
-            'message' => '',
-            );
-        $prefix = ( 'sheet' === $post_type ) ? 'sheet_' : 'task_';
-        $clean_fields = $this->clean_array($fields, $prefix);
-        // Check Required Fields first
-        foreach ( $this->tables[$post_type]['required_fields'] as $required_field => $label ) {
-            if( empty($clean_fields[$required_field]) ) {
-                $results['errors']++;
-                $results['message'] .= sprintf( __('%s is a required field.', 'pta-volunteer-sign-up-sheets'), $label ) . '<br/>';
-            }
-        }
-
-        foreach ( $this->tables[$post_type]['allowed_fields'] as $field => $type ) {
-            if ( !empty( $clean_fields[$field] ) ) {
-                switch ($type) {
-                    case 'text':
-                    case 'names':
-                        if (!pta_sus_check_allowed_text($clean_fields[$field])) {
-                            $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid characters in %s field.', 'pta-volunteer-sign-up-sheets'), $field ) .'<br/>';
-                        }
-                        break;
-
-                    case 'textarea':
-                        // For now, we allow everything in text area, but it is escaped before display on admin side,
-                        // using wp_kses_post on public side to sanitize
-                        // need to sanitize before saving to database
-                        break;
-
-                    case 'emails':
-                        // Validate one or more emails that will be separated by commas
-                        // First, get rid of any spaces
-                        $emails_field = str_replace(' ', '', $clean_fields[$field]);
-                        // Then, separate out the emails into a simple data array, using comma as separator
-                        $emails = explode( ',',$emails_field);
-
-                        foreach ($emails as $email) {
-                            if (!is_email( $email )) {
-                                $results['errors']++;
-                                $results['message'] .= __('Invalid email.', 'pta-volunteer-sign-up-sheets') . '<br/>';
-                            }
-                        }
-                        break;
-
-                    case 'date':
-                        if (!pta_sus_check_date( $clean_fields[$field] )) {
-                            $results['errors']++;
-                            $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
-                        }
-                        break;
-
-                    case 'dates':
-                        // Validate one or more dates that will be separated by commas
-                        // Format for each date should be yyyy-mm-dd
-                        // First, get rid of any spaces
-                        $dates_field = str_replace(' ', '', $clean_fields[$field]);
-                        // Then, separate out the dates into a simple data array, using comma as separator
-                        $dates = explode(',', $dates_field);
-                        foreach ($dates as $date) {
-                            if (!pta_sus_check_date( $date )) {
-                                $results['errors']++;
-                                $results['message'] .= __('Invalid date.', 'pta-volunteer-sign-up-sheets') .'<br/>';
-                            }
-                        }
-                        break;
-
-                    case 'int':
-                        // Validate input is only numbers
-                        if (!pta_sus_check_numbers($clean_fields[$field])) {
-                            $results['errors']++;
-                            $results['message'] .= sprintf(__('Numbers only for %s please!', 'pta-volunteer-sign-up-sheets'), $field ) . '<br/>';
-                        }
-                        break;
-
-                    case 'yesno':
-                        if ("YES" != $clean_fields[$field] && "NO" != $clean_fields[$field]) {
-                            $results['errors']++;
-                            $results['message'] .= sprintf( __('YES or NO only for %s please!', 'pta-volunteer-sign-up-sheets'), $field ) . '<br/>';
-                        }
-                        break;
-
-                    case 'bool':
-                        if ("1" != $clean_fields[$field] && "0" != $clean_fields[$field]) {
-                            $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid Value for %s', 'pta-volunteer-sign-up-sheets'), $field ) .'<br/>';
-                        }
-                        break;
-
-                    case 'time':
-                        $pattern = '/^(?:0[1-9]|1[0-2]):[0-5][0-9] (am|pm|AM|PM)$/';
-                        if(!preg_match($pattern, $clean_fields[$field])){
-                            $results['errors']++;
-                            $results['message'] .= sprintf( __('Invalid time format for %s', 'pta-volunteer-sign-up-sheets'), $field) .'<br/>';
-                        }
-                        break;
-                        
-                    default:
-                        $results = apply_filters( 'pta_sus_validate_custom_fields', $results, $field, $type );
-                        break;
-                }
-            }
-        }
-        return $results;
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', ($post_type === 'sheet' ? 'PTA_SUS_Sheet_Functions::validate_sheet_fields()' : 'PTA_SUS_Task_Functions::validate_task_fields()') . ' ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		$prefix = ( 'sheet' === $post_type ) ? 'sheet_' : 'task_';
+		$clean_fields = pta_sus_clean_prefixed_array($fields, $prefix);
+		
+		if ($post_type === 'sheet') {
+			return PTA_SUS_Sheet_Functions::validate_sheet_fields($clean_fields);
+		} else {
+			return PTA_SUS_Task_Functions::validate_task_fields($clean_fields);
+		}
     }
 
+    /**
+     * Sanitize sheet fields from form submission
+     *
+     * @deprecated 6.0.0 Use pta_sanitize_value() directly for each field instead
+     * @param array $clean_fields Array of cleaned fields (after prefix removal)
+     * @return array Array of sanitized fields
+     */
     public function sanitize_sheet_fields($clean_fields) {
-        $sanitized_fields = array();
-        foreach ( $this->tables['sheet']['allowed_fields'] as $field => $type ) {
-            if ( isset( $clean_fields[$field] ) ) {
-                switch ($type) {
-                    case 'text':
-                    case 'type':
-                    case 'position':
-                        $sanitized_fields[$field] = sanitize_text_field( $clean_fields[$field] );
-                        break;
-                    case 'names':
-                        $valid_names = '';
-	                    // Sanitize and format one or more names that will be separated by commas
-						if(!empty($clean_fields[$field])) {
-							$names = explode( ',',sanitize_text_field( $clean_fields[$field] ));
-							$count = 1;
-							foreach ($names as $name) {
-								$name = !empty($name) ? trim($name) : '';
-								if ('' != $name) {
-									if ($count >1) {
-										$valid_names .= ',';
-									}
-									$valid_names .= $name;
-								}
-								$count++;
-							}
-						}
-                        $sanitized_fields[$field] = $valid_names;
-                        break;
-                    case 'textarea':
-                        $sanitized_fields[$field] = wp_kses_post( $clean_fields[$field] );
-                        break;
-
-                    case 'emails':
-	                    // create an empty string to store our valid emails
-	                    $valid_emails = '';
-                        if(!empty($clean_fields[$field])) {
-	                        // Sanitize one or more emails that will be separated by commas
-	                        // First, get rid of any spaces
-	                        $emails_field = preg_replace('/\s+/', '', $clean_fields[$field]);
-	                        // Then, separate out the emails into a simple data array, using comma as separator
-	                        $emails = explode( ',',$emails_field);
-	                        $count = 1;
-	                        foreach ($emails as $email) {
-		                        // Only add the email if it's a valid email
-		                        if (is_email( $email )) {
-			                        if ($count > 1) {
-				                        // separate multiple emails by comma
-				                        $valid_emails .= ',';
-			                        }
-			                        $valid_emails .= $email;
-		                        }
-		                        $count++;
-	                        }
-                        }
-
-                        $sanitized_fields[$field] = $valid_emails;
-                        break;
-
-                    case 'dates':
-                        // Sanitize one date
-                        // Format for date should be yyyy-mm-dd
-                        // First, get rid of any spaces
-                        $date = str_replace(' ', '', $clean_fields[$field]);
-                        // Convert the remaining string to a date
-                        $sanitized_fields[$field] = date('Y-m-d', strtotime($date));
-                        break;
-
-                    case 'int':
-                        // Make the value into absolute integer
-                        $sanitized_fields[$field] = absint( $clean_fields[$field] );
-                        break;
-
-                    case 'bool':
-                        if ( $clean_fields[ $field ] ) {
-                            $sanitized_fields[$field] = 1;
-                        } else {
-                            $sanitized_fields[$field] = 0;
-                        }
-                        break;
-	                case 'array':
-	                	// make sure it is really an array
-						$array = (array)maybe_unserialize($clean_fields[$field]);
-	                	$sanitized_fields[$field] = array();
-						foreach ($array as $k => $v) {
-							$sanitized_fields[$field][$k] = sanitize_text_field($v);
-						}
-		                $sanitized_fields[$field] = maybe_serialize($sanitized_fields[$field]);
-		                break;
-
-                    default:
-                        // return any other fields unaltered for now
-                        $sanitized_fields[$field] = apply_filters('pta_sus_sanitize_sheet_fields', $clean_fields[$field], $type);
-                        break;
-                }
-            }
-        }
-        return $sanitized_fields;
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'pta_sanitize_value() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		$sanitized_fields = array();
+		
+		// Get allowed fields from tables structure (for backward compatibility)
+		$allowed_fields = isset($this->tables['sheet']['allowed_fields']) ? $this->tables['sheet']['allowed_fields'] : array();
+		
+		foreach ($allowed_fields as $field => $type) {
+			if (isset($clean_fields[$field])) {
+				// Map 'type' and 'position' to 'text' for pta_sanitize_value
+				$sanitize_type = $type;
+				if ($type === 'type' || $type === 'position') {
+					$sanitize_type = 'text';
+				}
+				
+				// Use the global pta_sanitize_value function
+				$sanitized_value = pta_sanitize_value($clean_fields[$field], $sanitize_type);
+				
+				// Apply filter for backward compatibility (old filter was called per-field in default case)
+				// Filter signature: (value, type) - matches old behavior
+				$sanitized_fields[$field] = apply_filters('pta_sus_sanitize_sheet_fields', $sanitized_value, $type);
+			}
+		}
+		
+		return $sanitized_fields;
     }
 
     /**
@@ -1431,25 +1235,38 @@ class PTA_SUS_Data
         return pta_sanitize_value($dates,'dates');
     }
     
-    private function initials_arr($nwords) {
-        $new_name="";
-        foreach($nwords as $nword){
-        	if(!empty($nword[0])) {
-        		$new_name .= $nword[0].'.';
-	        }
-        }
-        return $new_name;
-    }
-    
+    /**
+     * Convert a name string to initials
+     *
+     * @deprecated 6.0.0 Use pta_sus_get_name_initials() instead
+     * @param string $name Name string to convert
+     * @return string Initials with periods
+     */
     public function initials($name) {
-        $nwords = explode(" ",$name);
-        return $this->initials_arr($nwords);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_name_initials() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return pta_sus_get_name_initials($name);
     }
 
+    /**
+     * Convert a full name to first name plus initials for remaining words
+     *
+     * @deprecated 6.0.0 Use pta_sus_get_name_with_initials() instead
+     * @param string $name Full name string to convert
+     * @return string First name followed by initials for remaining words
+     */
     public function initials_firstname_complete($name) {
-        $nwords = explode(" ",$name);
-        $firstname=array_shift($nwords);
-        return $firstname." ".$this->initials_arr($nwords);
+		$trace = debug_backtrace();
+		$caller = $trace[1] ?? array();
+		$file = $caller['file'] ?? '';
+		$line = $caller['line'] ?? '';
+		_deprecated_function( __FUNCTION__, '6.0.0', 'pta_sus_get_name_with_initials() ' . sprintf('Called from %s line %s', $file, $line) );
+		
+		return pta_sus_get_name_with_initials($name);
     }
 }
 /* EOF */

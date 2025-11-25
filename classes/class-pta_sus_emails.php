@@ -47,10 +47,21 @@ class PTA_SUS_Emails {
     * @return   bool true if success or email does not need to be sent. False on sending failure
     */
     public function send_mail($signup_id, $reminder=false, $clear=false, $reschedule=false, $action='') {
-	    $signup = pta_sus_get_signup($signup_id);
+	    // Accept either signup ID (int) or signup data (array) for reschedule emails after signups are deleted
+	    if (is_array($signup_id)) {
+		    // Convert array to stdClass object for compatibility
+		    $signup = (object) $signup_id;
+	    } else {
+		    $signup = pta_sus_get_signup($signup_id);
+	    }
 	    if(!$signup) return false;
+	    
+	    // If signup was passed as array, task and sheet might not exist anymore, so try to load them
+	    // If they don't exist, we can't send the email properly
 	    $task = pta_sus_get_task($signup->task_id);
+	    if (!$task) return false;
 	    $sheet = pta_sus_get_sheet($task->sheet_id);
+	    if (!$sheet) return false;
 
 		$confirmation = !($reminder || $clear || $reschedule) && empty($action);
 
@@ -453,7 +464,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 
         // Next, go through each reschedule event and prepare/send an email
-        foreach ($reschedule_queue as $index => $signup_id) {
+        foreach ($reschedule_queue as $index => $signup_data) {
 
             // Check if we have reached our hourly limit or not
             if ($limit && !empty($last_batch)) {
@@ -463,7 +474,9 @@ Please click on, or copy and paste, the link below to validate yourself:
                 }
             }
 
-            if ( $this->send_mail( $signup_id, false, false, true ) ) {
+            // $signup_data can be either an ID (legacy) or an array (new format with signup data)
+            // Pass it directly to send_mail which now handles both formats
+            if ( $this->send_mail( $signup_data, false, false, true ) ) {
                 // Keep track of # of emails sent
                 $reschedule_count++;
                 unset($reschedule_queue[$index]); // remove it from queue

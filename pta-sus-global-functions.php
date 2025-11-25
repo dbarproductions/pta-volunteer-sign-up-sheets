@@ -1,4 +1,13 @@
 <?php
+/**
+ * Format a date/time with optional internationalization
+ * Uses WordPress date_i18n() by default, or date() if i18n is disabled in settings
+ * Result is filterable via 'pta_sus_datetime' filter
+ *
+ * @param string $format PHP date format string (e.g., 'Y-m-d', 'F j, Y')
+ * @param int $timestamp Unix timestamp to format
+ * @return string Formatted date/time string
+ */
 if(!function_exists( 'pta_datetime')) {
 	function pta_datetime($format, $timestamp) {
 		$main_options = get_option( 'pta_volunteer_sus_main_options' );
@@ -206,6 +215,33 @@ function pta_sus_sanitize_dates($dates) {
     return $valid_dates;
 }
 
+/**
+ * Sanitize a value based on its type
+ * Central sanitization function used throughout the plugin for all data types
+ * Supports filter 'pta_sanitize_value' for custom types added by extensions
+ *
+ * @param mixed $value Value to sanitize (string, int, array, etc.)
+ * @param string $type Data type (e.g., 'text', 'email', 'int', 'bool', 'yesno', 'date', 'time', 'textarea', 'names', 'emails', 'dates', 'array')
+ * @return mixed Sanitized value (type depends on $type parameter)
+ *
+ * Supported types:
+ * - 'text': Basic text field (sanitize_text_field)
+ * - 'textarea': Multi-line text (wp_kses_post)
+ * - 'html': HTML content with auto-paragraphs (wpautop + wp_kses_post)
+ * - 'email': Single email address (sanitize_email, special handling for '{chair_email}' placeholder)
+ * - 'emails': Comma-separated emails (validates each email, removes invalid ones)
+ * - 'date': Single date in yyyy-mm-dd format (converts to SQL format)
+ * - 'dates': Comma-separated dates (validates each date, returns comma-separated valid dates)
+ * - 'time': Time string in HH:MM AM/PM format (sanitize_text_field, preserves format)
+ * - 'int': Positive integer (absint)
+ * - 'intval': Integer (positive or negative) (intval)
+ * - 'float': Floating point number (floatval)
+ * - 'bool': Boolean (converts to 1 or 0 for database)
+ * - 'yesno': YES/NO string (converts to uppercase 'YES' or 'NO')
+ * - 'names': Comma-separated names (sanitizes each name, removes empty)
+ * - 'array': Array data (sanitizes recursively, serializes for database)
+ * - Custom types: Use 'pta_sanitize_value' filter for extension-added types
+ */
 function pta_sanitize_value($value, $type) {
 	$sanitized_value = $value;
 	switch ($type) {
@@ -240,17 +276,17 @@ function pta_sanitize_value($value, $type) {
         case 'dates': // NEW - for comma-separated dates
             $sanitized = pta_sus_sanitize_dates($value);
             return implode(',', $sanitized);
-	case 'time':
-		// Sanitize time - keep in HH:MM AM/PM format as stored in database
-		// Tasks use 12-hour format with AM/PM, not 24-hour SQL format
-		$time = sanitize_text_field($value);
-		if(!empty($time)) {
-			// Just sanitize, don't convert format
-			$sanitized_value = trim($time);
-		} else {
-			$sanitized_value = null;
-		}
-		break;
+        case 'time':
+            // Sanitize time - keep in HH:MM AM/PM format as stored in database
+            // Tasks use 12-hour format with AM/PM, not 24-hour SQL format
+            $time = sanitize_text_field($value);
+            if(!empty($time)) {
+                // Just sanitize, don't convert format
+                $sanitized_value = trim($time);
+            } else {
+                $sanitized_value = null;
+            }
+            break;
 		case 'int':
 			// Make the value into absolute integer
 			$sanitized_value = null === $value ? null : absint($value);
@@ -272,9 +308,6 @@ function pta_sanitize_value($value, $type) {
                 // If it's an array, sanitize and serialize for database
                 $array = stripslashes_deep($value);
                 $sanitized_value = maybe_serialize(pta_sanitize_array($array));
-            } else {
-                // If it's already serialized, just ensure it's clean
-                $sanitized_value = $value;
             }
             break;
         case 'yesno':
@@ -286,6 +319,50 @@ function pta_sanitize_value($value, $type) {
                 $sanitized_value = 'NO';
             }
             break;
+        case 'names':
+            // Sanitize and format one or more names that will be separated by commas
+            // Used for fields like chair_name that can contain multiple comma-separated names
+            $valid_names = '';
+            if (!empty($value)) {
+                $names = explode(',', sanitize_text_field(stripslashes($value)));
+                $count = 1;
+                foreach ($names as $name) {
+                    $name = !empty($name) ? trim($name) : '';
+                    if ('' != $name) {
+                        if ($count > 1) {
+                            $valid_names .= ',';
+                        }
+                        $valid_names .= $name;
+                    }
+                    $count++;
+                }
+            }
+            $sanitized_value = $valid_names;
+            break;
+        case 'emails':
+            // Sanitize one or more emails that will be separated by commas
+            // Used for fields like chair_email that can contain multiple comma-separated emails
+            $valid_emails = '';
+            if (!empty($value)) {
+                // First, get rid of any spaces
+                $emails_field = preg_replace('/\s+/', '', stripslashes($value));
+                // Then, separate out the emails into a simple data array, using comma as separator
+                $emails = explode(',', $emails_field);
+                $count = 1;
+                foreach ($emails as $email) {
+                    // Only add the email if it's a valid email
+                    if (is_email($email)) {
+                        if ($count > 1) {
+                            // separate multiple emails by comma
+                            $valid_emails .= ',';
+                        }
+                        $valid_emails .= $email;
+                    }
+                    $count++;
+                }
+            }
+            $sanitized_value = $valid_emails;
+            break;
             default:
                 $sanitized_value = apply_filters('pta_sanitize_value', wp_kses_post(stripslashes($value)), $type);
                 break;
@@ -293,12 +370,27 @@ function pta_sanitize_value($value, $type) {
 	return $sanitized_value;
 }
 
+/**
+ * Create a URL-safe slug from a name
+ * Converts spaces to underscores and sanitizes using sanitize_key()
+ *
+ * @param string $name Name to convert to slug
+ * @return string URL-safe slug (lowercase, alphanumeric and underscores only)
+ */
 function pta_create_slug($name) {
 	$name = trim($name);
 	$name = str_replace(' ','_', $name);
 	return sanitize_key($name);
 }
 
+/**
+ * Recursively sanitize an array of values
+ * Sanitizes all string values in an array (and nested arrays) using sanitize_text_field()
+ * Modifies array by reference
+ *
+ * @param array &$array Array to sanitize (passed by reference)
+ * @return array Sanitized array (same reference)
+ */
 function pta_sanitize_array( &$array ) {
 	foreach ( $array as &$value ) {
 		if ( ! is_array( $value ) ) {
@@ -312,6 +404,13 @@ function pta_sanitize_array( &$array ) {
 	return $array;
 }
 
+/**
+ * Get the validation required message HTML
+ * Returns formatted HTML message when validation is required to view/signup
+ * Includes link to validation page if configured
+ *
+ * @return string HTML message with optional validation page link
+ */
 function pta_get_validation_required_message() {
 	$validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 	$message = '<p class="pta-sus error">' . esc_html($validation_options['validation_required_message']) . '</p>';
@@ -322,11 +421,25 @@ function pta_get_validation_required_message() {
 	return $message;
 }
 
+/**
+ * Check if the validation system is enabled
+ * Checks the validation options to determine if user validation is active
+ *
+ * @return bool True if validation is enabled, false otherwise
+ */
 function pta_validation_enabled() {
 	$validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 	return isset($validation_options['enable_validation']) && $validation_options['enable_validation'];
 }
 
+/**
+ * Get validated user information from multiple sources
+ * Checks in order: logged-in user, validation cookie, validation code from URL/database
+ * Returns stdClass object with user_id, firstname, lastname, and email
+ *
+ * @param string $validation_code Optional validation code to check (if not provided, checks $_GET['code'])
+ * @return object|false stdClass object with user info, or false if not validated
+ */
 function pta_get_validated_user_info($validation_code='') {
 	$user_info = false;
 	$user = wp_get_current_user();
@@ -368,6 +481,18 @@ function pta_get_validated_user_info($validation_code='') {
 	return $user_info;
 }
 
+/**
+ * Create a validation link URL for a user
+ * Generates or retrieves a validation code and creates a URL with validation parameters
+ * Used for sending validation emails to users
+ *
+ * @param string $firstname User's first name
+ * @param string $lastname User's last name
+ * @param string $email User's email address
+ * @param int $signup_id Optional signup ID for signup-specific validation (default: 0)
+ * @param string $action Validation action type: 'validate_user' or 'validate_signup' (default: 'validate_user')
+ * @return string Complete validation URL with query parameters
+ */
 function pta_create_validation_link($firstname, $lastname, $email,$signup_id=0,$action='validate_user') {
 	$validation_options = get_option( 'pta_volunteer_sus_validation_options' );
 	$main_options   = get_option( 'pta_volunteer_sus_main_options' );
@@ -394,6 +519,8 @@ function pta_create_validation_link($firstname, $lastname, $email,$signup_id=0,$
 
 /**
  * Sets a cookie to track validated user information
+ * Stores user info in a secure cookie for validation persistence across page loads
+ * Cookie expiration is based on validation_code_expiration_hours setting
  *
  * @param string $firstname User's first name
  * @param string $lastname User's last name
@@ -420,6 +547,13 @@ function pta_set_validated_user_cookie($firstname, $lastname, $email) {
 	);
 }
 
+/**
+ * Clear the validated user cookie
+ * Removes the validation cookie by setting it to expire in the past
+ * Used when user explicitly clears their validation
+ *
+ * @return void
+ */
 function pta_clear_validated_user_cookie() {
 	setcookie(
 		'pta_sus_validated_user',
@@ -468,6 +602,13 @@ function pta_is_user_validated( $firstname, $lastname, $email) {
 	return false;
 }
 
+/**
+ * Generate a unique validation code
+ * Creates a cryptographically secure random code for user validation
+ * Falls back to MD5 hash if random_bytes() is unavailable
+ *
+ * @return string Unique validation code (64 character hex string)
+ */
 function pta_generate_unique_code() {
 	try {
 		$code = bin2hex(random_bytes(32));
@@ -477,6 +618,16 @@ function pta_generate_unique_code() {
 	return $code;
 }
 
+/**
+ * Create or update a validation code in the database
+ * If a code exists for the user, updates its timestamp
+ * If no code exists, creates a new one
+ *
+ * @param string $firstname User's first name
+ * @param string $lastname User's last name
+ * @param string $email User's email address
+ * @return string|false Validation code on success, false on failure
+ */
 function pta_create_or_update_code($firstname,$lastname,$email) {
 	global $wpdb;
 	$table_name = $wpdb->prefix . 'pta_sus_validation_codes';
@@ -532,6 +683,16 @@ function pta_validate_code($code, $expiration=24) {
 	return $result;
 }
 
+/**
+ * Get an existing validation code for a user
+ * Retrieves a non-expired validation code from the database
+ *
+ * @param string $firstname User's first name
+ * @param string $lastname User's last name
+ * @param string $email User's email address
+ * @param int|string $hours Number of hours for expiration check (default: uses setting or 24)
+ * @return string|false Validation code if found and not expired, false otherwise
+ */
 function pta_get_validation_code($firstname, $lastname, $email, $hours='') {
 	if(empty($hours)) {
 		$options = get_option( 'pta_volunteer_sus_validation_options' );
@@ -544,6 +705,13 @@ function pta_get_validation_code($firstname, $lastname, $email, $hours='') {
 	return $wpdb->get_var( $sql );
 }
 
+/**
+ * Delete expired validation codes from the database
+ * Removes validation codes older than the configured expiration time
+ * Used by scheduled cleanup tasks
+ *
+ * @return string Status message indicating number of codes deleted (empty string if none)
+ */
 function pta_delete_expired_validation_codes() {
 	$options = get_option( 'pta_volunteer_sus_validation_options' );
 	$hours = isset($options['validation_code_expiration_hours']) ? absint($options['validation_code_expiration_hours']) : 24;
@@ -554,6 +722,13 @@ function pta_delete_expired_validation_codes() {
 	return $message;
 }
 
+/**
+ * Delete unvalidated signups from the database
+ * Removes signups that haven't been validated within the configured expiration time
+ * Used by scheduled cleanup tasks
+ *
+ * @return string Status message indicating number of signups deleted (empty string if none)
+ */
 function pta_delete_unvalidated_signups() {
 	$options = get_option( 'pta_volunteer_sus_validation_options' );
 	$hours = isset($options['signup_expiration_hours']) ? absint($options['signup_expiration_hours']) : 1;
@@ -564,6 +739,13 @@ function pta_delete_unvalidated_signups() {
 	return $message;
 }
 
+/**
+ * Get the validation form HTML
+ * Loads and returns the validation form template
+ *
+ * @param bool $echo Whether to echo the form immediately (default: false)
+ * @return string|void Form HTML if $echo is false, void if $echo is true
+ */
 function pta_get_validation_form($echo=false) {
 	ob_start();
 	include(PTA_VOLUNTEER_SUS_DIR.'views/public-validation-form.php');
@@ -575,18 +757,44 @@ function pta_get_validation_form($echo=false) {
 	}
 }
 
+/**
+ * Get the main plugin options
+ * Retrieves all main plugin settings from WordPress options
+ *
+ * @return array Array of main plugin options
+ */
 function pta_get_main_options() {
 	return get_option('pta_volunteer_sus_main_options', array());
 }
 
+/**
+ * Get the validation system options
+ * Retrieves all validation-related settings from WordPress options
+ *
+ * @return array Array of validation options
+ */
 function pta_get_validation_options() {
 	return get_option('pta_volunteer_sus_validation_options', array());
 }
 
+/**
+ * Get the email options
+ * Retrieves all email-related settings from WordPress options
+ *
+ * @return array Array of email options
+ */
 function pta_get_email_options() {
 	return get_option('pta_volunteer_sus_email_options', array());
 }
 
+/**
+ * Retrieve and display messages from cookies
+ * Loads messages and errors stored in cookies (from redirects) and adds them to PTA_SUS_Messages
+ * Clears the cookies after loading
+ * Used to preserve messages across page redirects
+ *
+ * @return void
+ */
 function pta_get_messages_from_cookie() {
 	if(isset($_COOKIE['pta_sus_messages'])) {
 		$messages = json_decode(stripslashes($_COOKIE['pta_sus_messages']), true);
@@ -609,6 +817,14 @@ function pta_get_messages_from_cookie() {
 	}
 }
 
+/**
+ * Clean URL and redirect after form submission
+ * Stores current messages/errors in cookies, cleans URL parameters (keeps sheet_id if present),
+ * and redirects to the cleaned URL
+ * Used after signup submissions to prevent form resubmission on refresh
+ *
+ * @return void Exits script execution after redirect
+ */
 function pta_clean_redirect() {
 	// Store current messages in cookies
 	setcookie(
@@ -646,7 +862,16 @@ function pta_clean_redirect() {
 	exit;
 }
 
-
+/**
+ * Determine if a user can clear a signup
+ * Checks user capabilities and sheet settings to determine if clear link should be shown
+ * Admins/managers can always clear; regular users can clear based on sheet settings and time restrictions
+ *
+ * @param object $sheet Sheet object (PTA_SUS_Sheet or stdClass)
+ * @param string $date Signup date in yyyy-mm-dd format
+ * @param string $time Optional task time (default: empty string)
+ * @return bool True if user can clear the signup, false otherwise
+ */
 function pta_sus_show_clear($sheet, $date, $time='') {
 	if ( current_user_can('manage_signup_sheets')) {
 		// admin/manager can always clear
@@ -654,7 +879,7 @@ function pta_sus_show_clear($sheet, $date, $time='') {
 	}
 	if ($sheet->clear && (
 			0 == $sheet->clear_days ||
-			$date == "0000-00-00" ||
+			$date === "0000-00-00" ||
 			(strtotime($date . (!empty($time) ? ' ' . $time : '')) - current_time('timestamp') > (
 					(int)$sheet->clear_days * 60 * 60 * ($sheet->clear_type === 'hours' ? 1 : 24)
 				))
@@ -666,10 +891,11 @@ function pta_sus_show_clear($sheet, $date, $time='') {
 
 /**
  * Search WordPress users by name or email
- * Used for live search functionality
+ * Used for live search functionality in admin signup forms
+ * Searches user_email directly and first_name/last_name via meta_query
  *
- * @param string $search Search term
- * @return array Array of WP_User objects
+ * @param string $search Search term (searches email, first name, and last name)
+ * @return array Array of WP_User objects (limited fields: ID, user_email, display_name)
  */
 function pta_sus_search_users($search = '') {
     if (empty($search)) {
@@ -707,6 +933,15 @@ function pta_sus_search_users($search = '') {
     return get_users($args);
 }
 
+/**
+ * Write a message to a log file
+ * Creates log directory if needed and appends message with timestamp
+ * Logs are stored in wp-content/uploads/pta-logs/
+ *
+ * @param string $msg Message to log
+ * @param string $filename Log filename (default: 'pta_debug.log')
+ * @return void
+ */
 function pta_logToFile($msg, $filename='')	{
 	if(empty($filename)) {
 		$filename = 'pta_debug.log';
@@ -724,6 +959,14 @@ function pta_logToFile($msg, $filename='')	{
 	file_put_contents($log_file, date('Y-m-d H:i:s') . ": " . $msg . "\n", FILE_APPEND);
 }
 
+/**
+ * Clear a log file
+ * Empties the contents of a log file
+ * Logs are stored in wp-content/uploads/pta-logs/
+ *
+ * @param string $filename Log filename to clear (default: 'pta_debug.log')
+ * @return bool True if file was cleared, false if file doesn't exist
+ */
 function pta_clear_log_file($filename='') {
 	if(empty($filename)) {
 		$filename = 'pta_debug.log';
@@ -850,13 +1093,27 @@ function pta_sus_add_task($prefixed_fields, $sheet_id, $no_signups = false) {
 		return false;
 	}
 	
+	// Validate that sheet exists
+	$sheet = pta_sus_get_sheet(absint($sheet_id));
+	if (!$sheet) {
+		return false; // Sheet not found
+	}
+	
 	// Set sheet_id
 	$clean_fields['sheet_id'] = absint($sheet_id);
 	
 	// Enforce minimum qty of 1 unless no_signups is true
-	if (!$no_signups && isset($clean_fields['qty']) && $clean_fields['qty'] < 2) {
-		$clean_fields['qty'] = 1;
+	// If no_signups is false, ensure qty is at least 1
+	// If no_signups is true, allow qty = 0 (for informational tasks)
+	if (!$no_signups) {
+		if (!isset($clean_fields['qty']) || (int)$clean_fields['qty'] < 1) {
+			$clean_fields['qty'] = 1;
+		} elseif (isset($clean_fields['qty']) && (int)$clean_fields['qty'] < 2) {
+			// If qty is 1, keep it as 1 (this handles the case where qty is explicitly set to 1)
+			$clean_fields['qty'] = 1;
+		}
 	}
+	// If no_signups is true, allow qty = 0 (don't enforce minimum)
 	
 	// Create new task object
 	$task = new PTA_SUS_Task();
@@ -888,6 +1145,8 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	// Clean prefixed fields
 	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'signup_');
 	if (false === $clean_fields) {
+		// This shouldn't normally happen, but if it does, it's a programming error
+		// Don't show a message to end users for this
 		return false;
 	}
 	
@@ -895,7 +1154,7 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	$clean_fields['task_id'] = absint($task_id);
 	
 	// Ensure item_qty is set (defaults to 1 if not provided)
-	if (!isset($clean_fields['item_qty']) || empty($clean_fields['item_qty'])) {
+	if (empty($clean_fields['item_qty'])) {
 		$clean_fields['item_qty'] = 1;
 	}
 	
@@ -944,18 +1203,32 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	if (!$task || !is_object($task) || empty($task->id)) {
 		$task = pta_sus_get_task($task_id);
 		if (!$task) {
+			// Task not found - this could happen if task was deleted between page load and submission
+			$message = apply_filters(
+				'pta_sus_public_output',
+				__('This task is no longer available. Please try selecting a different task.', 'pta-volunteer-sign-up-sheets'),
+				'task_no_longer_available_error'
+			);
+			PTA_SUS_Messages::add_error($message);
 			return false;
 		}
 	}
 	
 	// Ensure date is set (required for availability check)
 	if (empty($clean_fields['date'])) {
-		return false; // Date is required
+		// Date is required - this should be caught by validation, but add message as fallback
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('Please select a date for your signup.', 'pta-volunteer-sign-up-sheets'),
+			'date_required_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+		return false;
 	}
 	
 	// Get task properties
 	$task_qty = (int)$task->qty;
-	$enable_quantities = isset($task->enable_quantities) ? $task->enable_quantities : 'NO';
+	$enable_quantities = $task->enable_quantities ?? 'NO';
 	
 	// Check availability
 	$signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $clean_fields['date']);
@@ -971,11 +1244,25 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	}
 	
 	if ($task_qty <= 0) {
-		return false; // Invalid task qty
+		// Invalid task qty - this is unlikely but could happen
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('This task is not available for signups. Please try a different task.', 'pta-volunteer-sign-up-sheets'),
+			'task_not_available_for_signups_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+		return false;
 	}
 	
 	if ($count > $task_qty) {
-		return false; // Spots are full
+		// Spots are full - this could happen due to race condition (someone else signed up between check and save)
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('All spots for this task have been filled. Please try a different task or date.', 'pta-volunteer-sign-up-sheets'),
+			'spots_filled_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+		return false;
 	}
 	
 	// Set timestamp
@@ -1002,5 +1289,247 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	
 	// Save and return ID
 	// Note: pta_sus_created_signup hook is automatically fired by the class object
-	return $signup->save();
+	$result = $signup->save();
+	
+	// If save failed, add a generic error message
+	if ($result === false) {
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('There was an error saving your signup. Please try again.', 'pta-volunteer-sign-up-sheets'),
+			'signup_save_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+	}
+	
+	return $result;
+}
+
+/**
+ * Update an existing sheet from prefixed form fields
+ * Handles cleaning of prefixed field names and updates the sheet using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "sheet_" prefix (e.g., "sheet_title", "sheet_visible")
+ * @param int $id Sheet ID to update
+ * @return int|false Number of rows updated (1) on success, false on failure
+ */
+function pta_sus_update_sheet($prefixed_fields, $id) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'sheet_');
+	if (false === $clean_fields) {
+		return false;
+	}
+	
+	// Load existing sheet object
+	$sheet = pta_sus_get_sheet($id);
+	if (!$sheet) {
+		return false;
+	}
+	
+	// Handle date field conversion (if present)
+	if (isset($clean_fields['date']) && $clean_fields['date'] !== '0000-00-00') {
+		$clean_fields['date'] = date('Y-m-d', strtotime($clean_fields['date']));
+	}
+	
+	// Set properties from cleaned fields
+	// The class will filter to only allowed properties and sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		$sheet->$key = $value;
+	}
+	
+	// Save and return result
+	// Note: pta_sus_updated_sheet hook is automatically fired by the class object
+	$result = $sheet->save();
+	
+	// Return 1 for success (backward compatibility with old update_sheet return value)
+	// or false for failure
+	return ($result !== false) ? 1 : false;
+}
+
+/**
+ * Update an existing task from prefixed form fields
+ * Handles cleaning of prefixed field names and updates the task using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "task_" prefix (e.g., "task_title", "task_qty")
+ * @param int $id Task ID to update
+ * @param bool $no_signups Whether to allow task with 0 qty (default: false)
+ * @return int|false Number of rows updated (1) on success, false on failure
+ */
+function pta_sus_update_task($prefixed_fields, $id, $no_signups = false) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'task_');
+	if (false === $clean_fields) {
+		return false;
+	}
+	
+	// Load existing task object
+	$task = pta_sus_get_task($id);
+	if (!$task) {
+		return false;
+	}
+	
+	// Enforce minimum qty of 1 unless no_signups is true
+	if (!$no_signups && isset($clean_fields['qty']) && $clean_fields['qty'] < 2) {
+		$clean_fields['qty'] = 1;
+	}
+	
+	// Set properties from cleaned fields
+	// The class will filter to only allowed properties and sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		$task->$key = $value;
+	}
+	
+	// Save and return result
+	// Note: pta_sus_updated_task hook is automatically fired by the class object
+	$result = $task->save();
+	
+	// Return 1 for success (backward compatibility with old update_task return value)
+	// or false for failure
+	return ($result !== false) ? 1 : false;
+}
+
+/**
+ * Update an existing signup from prefixed form fields
+ * Handles cleaning of prefixed field names and updates the signup using the class object
+ *
+ * @param array $prefixed_fields Array of fields with "signup_" prefix (e.g., "signup_firstname", "signup_email")
+ * @param int $id Signup ID to update
+ * @return int|false Number of rows updated (1) on success, false on failure
+ */
+function pta_sus_update_signup($prefixed_fields, $id) {
+	// Clean prefixed fields
+	$clean_fields = pta_sus_clean_prefixed_array($prefixed_fields, 'signup_');
+	if (false === $clean_fields) {
+		// This shouldn't normally happen, but if it does, it's a programming error
+		// Don't show a message to end users for this
+		return false;
+	}
+	
+	// Load existing signup object
+	$signup = pta_sus_get_signup($id);
+	if (!$signup) {
+		// Signup not found - this could happen if signup was deleted
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('This signup is no longer available.', 'pta-volunteer-sign-up-sheets'),
+			'signup_no_longer_available_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+		return false;
+	}
+	
+	// Get allowed properties from the signup class
+	$allowed_properties = array(
+		'task_id', 'date', 'user_id', 'item', 'firstname', 'lastname', 
+		'email', 'phone', 'reminder1_sent', 'reminder2_sent', 
+		'item_qty', 'ts', 'validated'
+	);
+	
+	// Set properties from cleaned fields (only allowed properties)
+	// The class will sanitize on save
+	foreach ($clean_fields as $key => $value) {
+		if (in_array($key, $allowed_properties)) {
+			$signup->$key = $value;
+		}
+	}
+	
+	// Save and return result
+	// Note: pta_sus_updated_signup hook is automatically fired by the class object
+	$result = $signup->save();
+	
+	// If save failed, add a generic error message
+	if ($result === false) {
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('There was an error updating your signup. Please try again.', 'pta-volunteer-sign-up-sheets'),
+			'signup_update_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+	}
+	
+	// Return 1 for success (backward compatibility with old update_signup return value)
+	// or false for failure
+	return ($result !== false) ? 1 : false;
+}
+
+/**
+ * Delete a signup
+ * 
+ * Uses the PTA_SUS_Signup class delete() method which handles:
+ * - Proper validation
+ * - Action hooks (pta_sus_before_delete_signup, pta_sus_deleted_signup)
+ * - Returns number of rows deleted (1) or false on failure
+ *
+ * @param int $id Signup ID to delete
+ * @return int|false Number of rows deleted (1) on success, false on failure
+ */
+function pta_sus_delete_signup($id) {
+	$id = absint($id);
+	if (empty($id)) {
+		return false;
+	}
+	
+	// Load signup object
+	$signup = pta_sus_get_signup($id);
+	if (!$signup) {
+		return false;
+	}
+	
+	// Delete using the class method (handles hooks automatically)
+	return $signup->delete();
+}
+
+/**
+ * Convert a name string to initials
+ * Takes a name (e.g., "Smith Jr" or "Van Der Berg") and converts it to initials with periods
+ * Example: "Smith Jr" becomes "S.J."
+ *
+ * @param string $name Name string to convert (can be multiple words)
+ * @return string Initials with periods (e.g., "S.J." or "V.D.B.")
+ */
+function pta_sus_get_name_initials($name) {
+	if (empty($name)) {
+		return '';
+	}
+	
+	$words = explode(' ', trim($name));
+	$initials = '';
+	
+	foreach ($words as $word) {
+		$word = trim($word);
+		if (!empty($word) && !empty($word[0])) {
+			$initials .= $word[0] . '.';
+		}
+	}
+	
+	return $initials;
+}
+
+/**
+ * Convert a full name to first name plus initials for remaining words
+ * Takes a full name and returns the first word as the first name, with initials for the rest
+ * Example: "John Smith Jr" becomes "John S.J."
+ * Useful for edge cases like names with suffixes (Jr, Sr, III, etc.)
+ *
+ * @param string $full_name Full name string to convert
+ * @return string First name followed by initials for remaining words (e.g., "John S.J.")
+ */
+function pta_sus_get_name_with_initials($full_name) {
+	if (empty($full_name)) {
+		return '';
+	}
+	
+	$words = explode(' ', trim($full_name));
+	
+	if (empty($words)) {
+		return '';
+	}
+	
+	// Get first name (first word)
+	$firstname = array_shift($words);
+	
+	// Get initials for remaining words
+	$initials = pta_sus_get_name_initials(implode(' ', $words));
+	
+	// Return firstname + initials (with space if there are initials)
+	return $firstname . (!empty($initials) ? ' ' . $initials : '');
 }

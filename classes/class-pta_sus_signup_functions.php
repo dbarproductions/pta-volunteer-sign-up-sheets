@@ -232,6 +232,38 @@ class PTA_SUS_Signup_Functions {
     }
 
     /**
+     * Clear all signups for a specific task
+     * Deletes all signup records associated with the given task ID
+     * Uses object delete methods to fire hooks properly
+     *
+     * @param int $task_id Task ID
+     * @return int|false Number of signups deleted, or false on failure
+     */
+    public static function clear_all_for_task($task_id) {
+        $task_id = absint($task_id);
+        if (empty($task_id)) {
+            return false;
+        }
+
+        // Get all signups for this task
+        $signups = self::get_signups_for_task($task_id);
+        
+        if (empty($signups)) {
+            return 0; // No signups to delete
+        }
+
+        $deleted_count = 0;
+        foreach ($signups as $signup) {
+            // Use object's delete method to fire hooks
+            if ($signup->delete()) {
+                $deleted_count++;
+            }
+        }
+
+        return $deleted_count;
+    }
+
+    /**
      * Search signups by firstname or lastname
      * Used for live search functionality in admin and frontend
      *
@@ -673,6 +705,51 @@ class PTA_SUS_Signup_Functions {
         $result = $wpdb->query($sql);
         
         return $result !== false ? $result : false;
+    }
+
+    /**
+     * Delete expired signups from the database
+     * 
+     * Deletes signups that are older than the configured number of days.
+     * Only runs if the admin has enabled automatic clearing in settings.
+     * 
+     * @param array $exclude Array of signup IDs to NOT delete (allows extensions to protect certain signups)
+     * @return int|false Number of rows deleted, or false on failure
+     */
+    public static function delete_expired_signups($exclude = array()) {
+        global $wpdb;
+        
+        // Allow extensions to modify the exclusion list
+        $exclude = apply_filters('pta_sus_delete_expired_signups_exclusions', $exclude);
+        
+        // Get number of days from options (default to 1 if not set)
+        $num_days = !empty(self::$main_options['num_days_expired']) ? absint(self::$main_options['num_days_expired']) : 1;
+        if ($num_days < 1) {
+            $num_days = 1;
+        }
+        
+        $signup_table = self::$signup_table;
+        $now = current_time('mysql');
+        
+        // Build the SQL query
+        // Note: Using ADDDATE to calculate expiration date
+        $sql = "DELETE FROM {$signup_table} WHERE %s > ADDDATE(date, %d)";
+        
+        // Add exclusions if provided
+        if (!empty($exclude)) {
+            // Sanitize all IDs to integers (safe for IN clause)
+            $clean_ids = array_map('absint', $exclude);
+            $clean_ids = array_filter($clean_ids); // Remove any zeros
+            if (!empty($clean_ids)) {
+                $exclusions = implode(',', $clean_ids);
+                $sql .= " AND id NOT IN ($exclusions)";
+            }
+        }
+        
+        // Prepare the query (date and num_days are the placeholders)
+        $safe_sql = $wpdb->prepare($sql, $now, $num_days);
+        
+        return $wpdb->query($safe_sql);
     }
 
 }

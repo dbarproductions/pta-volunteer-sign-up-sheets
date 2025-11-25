@@ -261,9 +261,15 @@ class PTA_SUS_List_Table extends WP_List_Table
         if('bulk_trash' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $trashed = $this->data->update_sheet(array('sheet_trash'=>true), $id);
-                if ($trashed) {
-                    $count++;
+                $sheet = pta_sus_get_sheet($id);
+                if ($sheet) {
+                    $sheet->trash = true;
+                    $result = $sheet->save();
+                    if ($result !== false) {
+                        $count++;
+                    } else {
+                        echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    }
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
@@ -272,7 +278,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif ('bulk_delete' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $deleted = $this->data->delete_sheet($id);
+                $deleted = PTA_SUS_Sheet_Functions::delete_sheet($id);
                 if ($deleted) {
                     $count++;
                 } else {
@@ -283,9 +289,15 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif('bulk_restore' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $restored = $this->data->update_sheet(array('sheet_trash'=>false), $id);
-                if ($restored) {
-                    $count++;
+                $sheet = pta_sus_get_sheet($id);
+                if ($sheet) {
+                    $sheet->trash = false;
+                    $result = $sheet->save();
+                    if ($result !== false) {
+                        $count++;
+                    } else {
+                        echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    }
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }

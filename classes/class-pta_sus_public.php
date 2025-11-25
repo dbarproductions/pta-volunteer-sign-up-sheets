@@ -873,12 +873,12 @@ class PTA_SUS_Public {
 			    if ($times) {
 				    if($this->use_divs) {
 					    $return .='
-                            <div class="column-start-time" >'.(("" == $signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</div>
-                            <div class="column-end-time" >'.(("" == $signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</div>';
+                            <div class="column-start-time" >'.(empty($signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</div>
+                            <div class="column-end-time" >'.(empty($signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</div>';
 				    } else {
 					    $return .='
-                            <td class="pta-sus start-time-td" data-label="'.esc_attr($this->start_time_header).'" >'.(("" == $signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</td>
-                            <td class="pta-sus end-time-td" data-label="'.esc_attr($this->end_time_header).'" >'.(("" == $signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</td>';
+                            <td class="pta-sus start-time-td" data-label="'.esc_attr($this->start_time_header).'" >'.(empty($signup->time_start) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_start)) ).'</td>
+                            <td class="pta-sus end-time-td" data-label="'.esc_attr($this->end_time_header).'" >'.(empty($signup->time_end) ? esc_html($this->na_text) : pta_datetime(get_option("time_format"), strtotime($signup->time_end)) ).'</td>';
 				    }
 				    
 			    }
@@ -1192,7 +1192,7 @@ class PTA_SUS_Public {
 			if($this->show_full_name) {
 				$display_signup = wp_kses_post($signup->firstname.' '.$signup->lastname);
 			} else {
-				$display_signup = wp_kses_post($signup->firstname.' '.$this->data->initials($signup->lastname));
+				$display_signup = wp_kses_post($signup->firstname.' '.pta_sus_get_name_initials($signup->lastname));
 			}
 			$row_data['extra-class'] = 'signup';
 		} else {
@@ -1261,8 +1261,8 @@ class PTA_SUS_Public {
 
 	public function get_default_task_column_values($task, $date) {
 		$display_date = $date != "0000-00-00" ? mysql2date( get_option('date_format'), $date, $translate = true ) : '';
-		$start_time = '' !== $task->time_start ? pta_datetime(get_option("time_format"), strtotime($task->time_start)) : '';
-		$end_time = '' !== $task->time_end ? pta_datetime(get_option("time_format"), strtotime($task->time_end)) : '';
+		$start_time = !empty($task->time_start) ? pta_datetime(get_option("time_format"), strtotime($task->time_start)) : '';
+		$end_time = !empty($task->time_end) ? pta_datetime(get_option("time_format"), strtotime($task->time_end)) : '';
 		$description = wp_kses_post($task->description);
 		$task_title = sanitize_text_field($task->title);
 		$row_data = array();
