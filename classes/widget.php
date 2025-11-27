@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class PTA_SUS_Widget extends WP_Widget
 {
-	private $data;
 	private $main_options;
 
 	/**
@@ -18,8 +17,6 @@ class PTA_SUS_Widget extends WP_Widget
 			'PTA Volunteer Sign-up Sheet List', // Name
 			array( 'description' => __( 'PTA Volunteer Sign-up Sheet list Widget.', 'pta-volunteer-sign-up-sheets' ), ) // Args
 		);
-        global $pta_sus;
-		$this->data = $pta_sus->data;
 		$this->main_options = get_option('pta_volunteer_sus_main_options');
 	}
 
@@ -51,7 +48,8 @@ class PTA_SUS_Widget extends WP_Widget
         $order = isset($instance['order']) && in_array($instance['order'], array('ASC', 'DESC')) ? $instance['order'] : 'ASC';
 
 		// Check if there are sheets first, if not, we won't show anything
-		$sheets = $this->data->get_sheets(false, true, $show_hidden, $sort_by, $order);
+		// Use new helper function instead of deprecated $this->data->get_sheets()
+		$sheets = PTA_SUS_Sheet_Functions::get_sheets(false, true, $show_hidden, $sort_by, $order);
         
         if (empty($sheets)) {
             return;

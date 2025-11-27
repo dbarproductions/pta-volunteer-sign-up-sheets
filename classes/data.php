@@ -6,26 +6,33 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class PTA_SUS_Data
 {
-    
-    public $wpdb;
+    /**
+     * Table definitions and field configurations
+     * 
+     * This property is kept for backward compatibility with extensions
+     * that access table names and field definitions via $pta_sus->data->tables
+     * 
+     * @var array
+     */
     public $tables = array();
-    public $now;
-    public $time;
-	public $main_options;
     
+    /**
+     * Constructor
+     * 
+     * Initializes the tables array with table names and field definitions.
+     * This class is kept for backward compatibility - all methods are deprecated.
+     * 
+     * @since 1.0.0
+     */
     public function __construct()
     {
         global $wpdb;
-        $this->wpdb = $wpdb;
-        $this->now = current_time( 'mysql' );
-        $this->time = current_time( 'timestamp' );
-
-		$this->main_options =get_option( 'pta_volunteer_sus_main_options', array() );
         
         // Set table names
+        // Note: Only the tables array is kept for backward compatibility with extensions
         $this->tables = array(
             'sheet' => apply_filters( 'pta_sus_sheet_fields', array(
-                'name' => $this->wpdb->prefix.'pta_sus_sheets',
+                'name' => $wpdb->prefix.'pta_sus_sheets',
                 'allowed_fields' => array(
                     'title' => 'text',
                     'details' => 'textarea',
@@ -54,7 +61,7 @@ class PTA_SUS_Data
                     ),
             )),
             'task' => apply_filters( 'pta_sus_task_fields', array(
-                'name' => $this->wpdb->prefix.'pta_sus_tasks',
+                'name' => $wpdb->prefix.'pta_sus_tasks',
                 'allowed_fields' => array(
                     'sheet_id' => 'int',
                     'title' => 'text',
@@ -73,7 +80,7 @@ class PTA_SUS_Data
                 'required_fields' => array(),
             )),
             'signup' => apply_filters( 'pta_sus_signup_fields', array(
-                'name' => $this->wpdb->prefix.'pta_sus_signups',
+                'name' => $wpdb->prefix.'pta_sus_signups',
                 'allowed_fields' => array(
                     'task_id' => 'int',
                     'date'  => 'date',

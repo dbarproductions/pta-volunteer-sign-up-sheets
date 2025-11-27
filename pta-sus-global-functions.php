@@ -1214,6 +1214,19 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 		}
 	}
 	
+	// Verify the sheet exists (could be deleted between page load and submission)
+	$sheet = pta_sus_get_sheet((int)$task->sheet_id);
+	if (!$sheet) {
+		// Sheet not found - this could happen if sheet was deleted between page load and submission
+		$message = apply_filters(
+			'pta_sus_public_output',
+			__('This sheet is no longer available. Please try selecting a different sheet.', 'pta-volunteer-sign-up-sheets'),
+			'sheet_no_longer_available_error'
+		);
+		PTA_SUS_Messages::add_error($message);
+		return false;
+	}
+	
 	// Ensure date is set (required for availability check)
 	if (empty($clean_fields['date'])) {
 		// Date is required - this should be caught by validation, but add message as fallback

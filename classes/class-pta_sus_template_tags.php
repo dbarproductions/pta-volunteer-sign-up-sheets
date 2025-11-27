@@ -5,6 +5,13 @@ class PTA_SUS_Template_Tags {
 	private static $extra_tags = array();
 	private static $registered_tag_callbacks = array();
 	private static $current_signup_id = null;
+	
+	/**
+	 * Cached validation options array
+	 * 
+	 * @var array|null
+	 */
+	private static $validation_options = null;
 
 	public static function register_tag_provider($callback) {
 		self::$registered_tag_callbacks[] = $callback;
@@ -215,7 +222,7 @@ class PTA_SUS_Template_Tags {
 		}
 
 		// Add validation options tags
-		$validation_options = get_option('pta_volunteer_sus_validation_options');
+		$validation_options = self::get_validation_options();
 		self::$tags['{signup_expiration_hours}'] = ($validation_options['signup_expiration_hours'] ?? 1);
 		self::$tags['{validation_code_expiration_hours}'] = ($validation_options['validation_code_expiration_hours'] ?? 48);
 
@@ -264,5 +271,19 @@ class PTA_SUS_Template_Tags {
 		$replace = apply_filters('pta_sus_email_replace', array_values(self::$tags), $signup, $reminder, $clear, $reschedule);
 
 		return str_replace($search, $replace, $text);
+	}
+
+	/**
+	 * Get validation options with static caching
+	 * 
+	 * Caches validation options to avoid multiple database queries.
+	 * 
+	 * @return array Validation options array
+	 */
+	private static function get_validation_options() {
+		if (self::$validation_options === null) {
+			self::$validation_options = get_option('pta_volunteer_sus_validation_options', array());
+		}
+		return self::$validation_options;
 	}
 }

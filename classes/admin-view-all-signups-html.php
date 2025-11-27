@@ -6,7 +6,7 @@
 	 * Time: 4:01 PM
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-$sheets = $this->data->get_sheets($show_trash = false, $active_only = false, $show_hidden = true);
+$sheets = PTA_SUS_Sheet_Functions::get_sheets(false, false, true);
 $sheets = apply_filters('pta_sus_admin_view_all_data_sheets', $sheets);
 if(empty($sheets)) {
 	echo '<div class="error"><p>'.__('No data to show.', 'pta-volunteer-sign-up-sheets').'</p></div>';
@@ -65,7 +65,7 @@ $num_cols = count($columns);
                 $task_dates = explode(',', $task->dates);
                 if(!in_array($tdate, $task_dates)) continue;
                 $i=0;
-                $signups = $this->data->get_signups($task->id, $tdate);
+                $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $tdate);
                 ?>
 
                 <?php foreach ($signups AS $signup): ?>

@@ -162,6 +162,12 @@ class PTA_SUS_Text_Registry {
                 'desc' => 'Error message shown when a task cannot be found (e.g., task was deleted between page load and form submission).',
             ),
             array(
+                'id' => 'sheet_no_longer_available_error',
+                'default' => 'This sheet is no longer available. Please try selecting a different sheet.',
+                'screen' => 'signup',
+                'desc' => 'Error message shown when a sheet cannot be found (e.g., sheet was deleted between page load and form submission).',
+            ),
+            array(
                 'id' => 'date_required_error',
                 'default' => 'Please select a date for your signup.',
                 'screen' => 'signup',

@@ -102,7 +102,7 @@ foreach ($signup_fields as $key => $label) {
     }
 }
 $loading_img = PTA_VOLUNTEER_SUS_URL.'assets/images/loading.gif';
-$required_fields = $this->get_required_signup_fields($task_id);
+$required_fields = PTA_SUS_Validation::get_required_signup_fields($task_id, $this->main_options);
 ?>
 <form name="pta_sus_admin_signup_form" id="pta_sus_admin_signup_form" method="post" action="">
     <table class="pta-sus admin widefat">

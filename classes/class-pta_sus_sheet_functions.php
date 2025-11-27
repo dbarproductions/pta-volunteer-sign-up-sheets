@@ -630,173 +630,153 @@ class PTA_SUS_Sheet_Functions {
      * @return array Array with 'errors' (count) and 'message' (empty string - messages added directly to PTA_SUS_Messages)
      */
     public static function validate_sheet_fields($clean_fields) {
-        $results = array(
-            'errors' => 0,
-            'message' => '', // Empty - messages are added directly to PTA_SUS_Messages
-        );
-
-        // Create a temporary sheet instance to get property definitions and required fields
-        $sheet = new PTA_SUS_Sheet();
-        
-        // Get required fields using reflection to access protected method
-        $reflection = new ReflectionClass($sheet);
-        $get_required_method = $reflection->getMethod('get_required_fields');
-        // setAccessible() is only needed for PHP < 8.0 (deprecated in PHP 8.5)
-        if (version_compare(PHP_VERSION, '8.0', '<')) {
-            $get_required_method->setAccessible(true);
-        }
-        $required_fields = $get_required_method->invoke($sheet);
-        
-        // Get property definitions
-        $get_properties_method = $reflection->getMethod('get_property_definitions');
-        // setAccessible() is only needed for PHP < 8.0 (deprecated in PHP 8.5)
-        if (version_compare(PHP_VERSION, '8.0', '<')) {
-            $get_properties_method->setAccessible(true);
-        }
-        $property_definitions = $get_properties_method->invoke($sheet);
-
-        // Check Required Fields first
-        foreach ($required_fields as $required_field => $label) {
-            if (empty($clean_fields[$required_field])) {
-                $results['errors']++;
-                $error_message = sprintf(__('%s is a required field.', 'pta-volunteer-sign-up-sheets'), $label);
-                PTA_SUS_Messages::add_error($error_message);
-            }
-        }
-
-        // Validate field types
-        foreach ($property_definitions as $field => $type) {
-            if (!empty($clean_fields[$field])) {
-                $validation_result = self::validate_field_by_type($clean_fields[$field], $type, $field);
-                if ($validation_result['error']) {
-                    $results['errors']++;
-                    PTA_SUS_Messages::add_error($validation_result['message']);
-                }
-            }
-        }
-
-        /**
-         * Filter validation results to allow extensions to add custom validation
-         * 
-         * Note: Extensions should use PTA_SUS_Messages::add_error() directly in this filter
-         * for best results. Modifying $results['message'] is still supported for backward
-         * compatibility, but messages should be added via PTA_SUS_Messages to avoid duplicates.
-         *
-         * @param array $results Validation results array
-         * @param array $clean_fields Cleaned fields being validated
-         */
-        return apply_filters('pta_sus_validate_sheet_fields', $results, $clean_fields);
+        return PTA_SUS_Validation::validate_object_fields($clean_fields, 'sheet');
     }
 
     /**
-     * Validate a single field based on its type
-     * Helper method used by validate_sheet_fields and validate_task_fields
+     * Reschedule a sheet to new dates/times
+     * Updates tasks, sheet dates, and optionally updates signup dates or clears signups
      *
-     * @param mixed $value Field value to validate
-     * @param string $type Field type (text, email, date, etc.)
-     * @param string $field_name Field name (for error messages)
-     * @return array Array with 'error' (bool) and 'message' (string)
+     * @param int $sheet_id Sheet ID to reschedule
+     * @param array $new_dates Array of task_id => new_date mappings
+     * @param array $new_start_times Array of task_id => new_start_time mappings
+     * @param array $new_end_times Array of task_id => new_end_time mappings
+     * @param string $new_date Single date for Single sheet type
+     * @param bool $clear_signups Whether to clear all signups (default: false)
+     * @return bool True on success, false on failure
      */
-    public static function validate_field_by_type($value, $type, $field_name) {
-        $result = array(
-            'error' => false,
-            'message' => '',
-        );
-
-        switch ($type) {
-            case 'text':
-            case 'names':
-                if (!pta_sus_check_allowed_text($value)) {
-                    $result['error'] = true;
-                    $result['message'] = sprintf(__('Invalid characters in %s field.', 'pta-volunteer-sign-up-sheets'), $field_name);
-                }
-                break;
-
-            case 'textarea':
-                // For now, we allow everything in text area, but it is escaped before display on admin side,
-                // using wp_kses_post on public side to sanitize
-                // need to sanitize before saving to database
-                break;
-
-            case 'emails':
-                // Validate one or more emails that will be separated by commas
-                // First, get rid of any spaces
-                $emails_field = str_replace(' ', '', $value);
-                // Then, separate out the emails into a simple data array, using comma as separator
-                $emails = explode(',', $emails_field);
-
-                foreach ($emails as $email) {
-                    if (!is_email($email)) {
-                        $result['error'] = true;
-                        $result['message'] = __('Invalid email.', 'pta-volunteer-sign-up-sheets');
-                        break; // Stop on first invalid email
-                    }
-                }
-                break;
-
-            case 'date':
-                if (!pta_sus_check_date($value)) {
-                    $result['error'] = true;
-                    $result['message'] = __('Invalid date.', 'pta-volunteer-sign-up-sheets');
-                }
-                break;
-
-            case 'dates':
-                // Validate one or more dates that will be separated by commas
-                // Format for each date should be yyyy-mm-dd
-                // First, get rid of any spaces
-                $dates_field = str_replace(' ', '', $value);
-                // Then, separate out the dates into a simple data array, using comma as separator
-                $dates = explode(',', $dates_field);
-                foreach ($dates as $date) {
-                    if (!pta_sus_check_date($date)) {
-                        $result['error'] = true;
-                        $result['message'] = __('Invalid date.', 'pta-volunteer-sign-up-sheets');
-                        break; // Stop on first invalid date
-                    }
-                }
-                break;
-
-            case 'int':
-                // Validate input is only numbers
-                if (!pta_sus_check_numbers($value)) {
-                    $result['error'] = true;
-                    $result['message'] = sprintf(__('Numbers only for %s please!', 'pta-volunteer-sign-up-sheets'), $field_name);
-                }
-                break;
-
-            case 'yesno':
-                if ("YES" != $value && "NO" != $value) {
-                    $result['error'] = true;
-                    $result['message'] = sprintf(__('YES or NO only for %s please!', 'pta-volunteer-sign-up-sheets'), $field_name);
-                }
-                break;
-
-            case 'bool':
-                if ("1" != $value && "0" != $value) {
-                    $result['error'] = true;
-                    $result['message'] = sprintf(__('Invalid Value for %s', 'pta-volunteer-sign-up-sheets'), $field_name);
-                }
-                break;
-
-            case 'time':
-                $pattern = '/^(?:0[1-9]|1[0-2]):[0-5][0-9] (am|pm|AM|PM)$/';
-                if (!preg_match($pattern, $value)) {
-                    $result['error'] = true;
-                    $result['message'] = sprintf(__('Invalid time format for %s', 'pta-volunteer-sign-up-sheets'), $field_name);
-                }
-                break;
-
-            default:
-                // Allow extensions to validate custom field types
-                $filtered = apply_filters('pta_sus_validate_custom_field_type', $result, $value, $type, $field_name);
-                if (isset($filtered['error']) && $filtered['error']) {
-                    $result = $filtered;
-                }
-                break;
+    public static function reschedule_sheet($sheet_id, $new_dates, $new_start_times, $new_end_times, $new_date = '', $clear_signups = false) {
+        $sheet_id = absint($sheet_id);
+        if ($sheet_id < 1) {
+            return false;
         }
 
-        return $result;
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if (!$sheet) {
+            return false;
+        }
+
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
+        if (empty($tasks)) {
+            return false;
+        }
+
+        // Update tasks
+        foreach($tasks as $task_obj) {
+            $id = absint($task_obj->id);
+            $task = pta_sus_get_task($id);
+            if ($task) {
+                if (isset($new_dates[$id])) {
+                    $task->dates = $new_dates[$id];
+                }
+                if (isset($new_start_times[$id])) {
+                    $task->time_start = $new_start_times[$id];
+                }
+                if (isset($new_end_times[$id])) {
+                    $task->time_end = $new_end_times[$id];
+                }
+                $task->save();
+            }
+        }
+
+        // Update sheet dates
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if ($sheet) {
+            if('Single' === $sheet->type && !empty($new_date)) {
+                $sheet->first_date = $new_date;
+                $sheet->last_date = $new_date;
+            } elseif (!empty($new_dates)) {
+                $sheet->first_date = min($new_dates);
+                $sheet->last_date = max($new_dates);
+            }
+            $sheet->save();
+        }
+
+        // Update signup dates if not clearing
+        if(!$clear_signups) {
+            // update dates for signups - reset reminder flags
+            foreach ($tasks AS $task_obj) {
+                $id = absint($task_obj->id);
+                if('Single' === $sheet->type && !empty($new_date)) {
+                    $date = $new_date;
+                } elseif (isset($new_dates[$id])) {
+                    $date = $new_dates[$id];
+                } else {
+                    continue; // Skip if no date for this task
+                }
+                $signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
+                if(empty($signups)) continue;
+                foreach($signups as $signup_obj) {
+                    $signup = pta_sus_get_signup($signup_obj->id);
+                    if ($signup) {
+                        $signup->date = $date;
+                        $signup->reminder1_sent = false;
+                        $signup->reminder2_sent = false;
+                        $signup->save();
+                    }
+                }
+            }
+        }
+
+        // Maybe clear Signups
+        if($clear_signups) {
+            // allow extensions to clear data first before signups are deleted
+            do_action('pta_sus_clear_all_signups_for_sheet', $sheet_id);
+            foreach ($tasks AS $task) {
+                $id = absint($task->id);
+                PTA_SUS_Signup_Functions::clear_all_for_task($id);
+            }
+        }
+
+        do_action( 'pta_sus_sheet_rescheduled', $sheet_id);
+        return true;
+    }
+
+    /**
+     * Create multiple copies of a sheet with date offsets
+     * Creates multiple copies of a sheet, each offset by a specified number of days
+     *
+     * @param int $sheet_id Original sheet ID
+     * @param array $tasks Array of PTA_SUS_Task objects from the original sheet
+     * @param int $interval Number of days between copies
+     * @param int $copies Number of copies to create
+     * @param array $new_start_times Array of task_id => new_start_time mappings
+     * @param array $new_end_times Array of task_id => new_end_time mappings
+     * @param bool $copy_signups Whether to copy signups to new sheets (default: true)
+     * @return array Array of new sheet IDs created
+     */
+    public static function multi_copy_sheet($sheet_id, $tasks, $interval, $copies, $new_start_times, $new_end_times, $copy_signups = true) {
+        $sheet_id = absint($sheet_id);
+        $interval = absint($interval);
+        $copies = absint($copies);
+        
+        if ($sheet_id < 1 || $interval < 1 || $copies < 1) {
+            return array();
+        }
+
+        $new_sheet_ids = array();
+        $new_dates = array();
+        $offset = $interval * 86400; // timestamp value of interval in days
+
+        for($i = 1; $i <= $copies; $i++) {
+            // loop through tasks and set new dates
+            foreach($tasks as $task) {
+                $id = absint($task->id);
+                if(1 == $i) {
+                    $task_date = strtotime($task->dates);
+                    $new_dates[$id] = date('Y-m-d', $task_date + $offset);
+                } else {
+                    $new_date = date('Y-m-d', strtotime($new_dates[$id]) + $offset);
+                    $new_dates[$id] = $new_date;
+                }
+            }
+            $new_sheet_id = self::copy_sheet_to_new_dates($sheet_id, $new_dates, $new_start_times, $new_end_times, $copy_signups);
+            if ($new_sheet_id) {
+                $new_sheet_ids[] = $new_sheet_id;
+            }
+        }
+
+        return $new_sheet_ids;
     }
 }
 
