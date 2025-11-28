@@ -3,7 +3,7 @@
  * @var string $messages
  */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-$sheets = $this->data->get_all_sheet_ids_and_titles();
+$sheets = PTA_SUS_Sheet_Functions::get_sheet_ids_and_titles();
 $user = wp_get_current_user();
 $name = $user->user_firstname . ' ' . $user->user_lastname;
 $selected = isset($_POST['sheet_select']) ? absint($_POST['sheet_select']) : 0;

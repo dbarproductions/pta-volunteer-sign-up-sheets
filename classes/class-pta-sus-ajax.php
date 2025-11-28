@@ -33,6 +33,9 @@ class PTA_SUS_AJAX {
 		}
 	}
 
+    /**
+     * AJAX handler for live search - validates security and calls search method
+     */
     public static function live_search() {
         // Verify action and capability
         if (!isset($_POST['pta_pub_action']) || $_POST['pta_pub_action'] !== 'autocomplete_volunteer' || !current_user_can('manage_signup_sheets')) {
@@ -42,21 +45,31 @@ class PTA_SUS_AJAX {
 
         check_ajax_referer('ajax-pta-nonce', 'security');
 
+        // Perform the actual search
+        $results = self::perform_live_search();
+        wp_send_json_success($results);
+    }
+
+    /**
+     * Perform the live search logic (without security checks)
+     * This method can be called by other plugins/extensions after they've done their own security validation
+     * 
+     * @return array Array of search results
+     */
+    public static function perform_live_search() {
         $main_options = get_option('pta_volunteer_sus_main_options');
         $return = array();
 
         // Check if search is enabled and query exists
         if (empty($main_options['enable_signup_search']) || !isset($_POST['q'])) {
-            wp_send_json_success($return);
-            return;
+            return $return;
         }
 
         $search = sanitize_text_field($_POST['q']);
 
         // Don't search if query is too short (optional - prevents excessive queries)
         if (strlen($search) < 2) {
-            wp_send_json_success($return);
-            return;
+            return $return;
         }
 
         $tables = $main_options['signup_search_tables'] ?? 'both';
@@ -107,7 +120,7 @@ class PTA_SUS_AJAX {
             }
         }
 
-        wp_send_json_success($return);
+        return $return;
     }
 
 	public static function get_tasks_for_sheet() {

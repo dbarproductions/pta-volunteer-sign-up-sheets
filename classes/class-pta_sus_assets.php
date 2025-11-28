@@ -2,10 +2,10 @@
 /**
  * Assets Manager Class
  * 
- * Handles registration of all scripts and styles for the Volunteer Sign-Up Sheets
- * plugin. This includes DataTables, date pickers, Select2, and autocomplete assets.
- * These assets are registered (not enqueued) so they can be conditionally loaded
- * and shared with other PTA extensions.
+	 * Handles registration of all scripts and styles for the Volunteer Sign-Up Sheets
+	 * plugin. This includes DataTables, date pickers, Select2, Quill editor, and autocomplete assets.
+	 * These assets are registered (not enqueued) so they can be conditionally loaded
+	 * and shared with other PTA extensions.
  * 
  * @package PTA_Volunteer_Sign_Up_Sheets
  * @since 6.0.0
@@ -29,12 +29,14 @@ class PTA_SUS_Assets {
 	 * @see register_datatables() DataTables library registration
 	 * @see register_datepicker() Date picker library registration
 	 * @see register_select2() Select2 library registration
+	 * @see register_quill() Quill editor library registration
 	 * @see register_autocomplete() Autocomplete library registration
 	 */
 	public static function register_scripts() {
 		self::register_datatables();
 		self::register_datepicker();
 		self::register_select2();
+		self::register_quill();
 		self::register_autocomplete();
 	}
 
@@ -129,6 +131,35 @@ class PTA_SUS_Assets {
 			'https://cdn.jsdelivr.net/npm/select2/dist/js/select2.min.js',
 			array('jquery'),
 			'4.1.0',
+			false
+		);
+	}
+
+	/**
+	 * Register Quill editor assets
+	 * 
+	 * Registers Quill CSS and JavaScript from CDN. These can be enqueued by
+	 * extensions using the handles 'pta-quill' (style and script).
+	 * 
+	 * Note: Quill is loaded from CDN and is used by Custom Fields extension
+	 * as an alternative to wp_editor() for HTML fields.
+	 * 
+	 * @since 6.0.0
+	 * @return void
+	 */
+	public static function register_quill() {
+		wp_register_style(
+			'pta-quill',
+			'https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css',
+			array(),
+			'2.0.3'
+		);
+		
+		wp_register_script(
+			'pta-quill',
+			'https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js',
+			array(),
+			'2.0.3',
 			false
 		);
 	}

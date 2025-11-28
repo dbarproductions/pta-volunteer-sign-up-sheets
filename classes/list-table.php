@@ -12,8 +12,7 @@ if (!class_exists('PTA_SUS_Data')) require_once 'data.php';
 
 class PTA_SUS_List_Table extends WP_List_Table
 {
-    
-    private $data;
+
     private $rows = array();
     private $show_trash;
     
@@ -24,10 +23,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function __construct()
     {
-        global $status, $page, $pta_sus;
-        
-        // Set data and convert to array
-        $this->data = $pta_sus->data;
+        global $status, $page;
                 
         //Set parent defaults
         parent::__construct( array(
@@ -306,8 +302,11 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif('bulk_toggle_visibility' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $toggled = $this->data->toggle_visibility($id);
-                if ($toggled) {
+                $sheet = pta_sus_get_sheet($id);
+                if(empty($sheet)) {
+                    continue;
+                }
+                if ($sheet->toggle_visibility()) {
                     $count++;
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error toggling visibility for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
