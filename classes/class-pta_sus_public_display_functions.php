@@ -349,9 +349,11 @@ class PTA_SUS_Public_Display_Functions {
 	 * Get volunteer object
 	 * Returns volunteer object, creating one if needed
 	 * 
+	 * Made public in 6.0.0 to allow extensions to access the volunteer object directly
+	 * 
 	 * @return PTA_SUS_Volunteer Volunteer object
 	 */
-	private static function get_volunteer() {
+	public static function get_volunteer() {
 		if (self::$volunteer === null) {
 			self::$volunteer = new PTA_SUS_Volunteer(get_current_user_id());
 		}
@@ -558,13 +560,17 @@ class PTA_SUS_Public_Display_Functions {
 	 * @param PTA_SUS_Task|object $task Task object
 	 * @param string $date Date string (yyyy-mm-dd format)
 	 * @param int $sheet_id Sheet ID
-	 * @param PTA_SUS_Volunteer|object $volunteer Volunteer object (for validation/permission checks)
+	 * @param PTA_SUS_Volunteer|object|null $volunteer Optional volunteer object (for validation/permission checks). If null, uses the initialized volunteer from the static class.
 	 * @param bool $show_clear Whether to show clear link if volunteer can modify (default: false)
 	 * @param bool $no_signups Whether this is a no-signups task (default: false)
 	 * @param array $signups Optional pre-loaded signups array (default: empty, will load if needed)
 	 * @return array Array of row data arrays, each with column keys
 	 */
-	public static function get_task_row_data($task, $date, $sheet_id, $volunteer, $show_clear = false, $no_signups = false, $signups = array()) {
+	public static function get_task_row_data($task, $date, $sheet_id, $volunteer = null, $show_clear = false, $no_signups = false, $signups = array()) {
+		// If no volunteer provided, use the initialized one from the static class
+		if ($volunteer === null) {
+			$volunteer = self::get_volunteer();
+		}
 		$main_options = self::get_main_options();
 		$column_data = array();
 		$show_all_slots = true;
@@ -1644,6 +1650,8 @@ class PTA_SUS_Public_Display_Functions {
 			'order_by' => 'first_date',
 			'order' => 'ASC',
 			'list_title' => __('Current Volunteer Sign-up Sheets', 'pta-volunteer-sign-up-sheets'),
+			'author_id' => '',
+			'author_email' => '',
 		), $atts, 'pta_sign_up_sheet'));
 		/**
 		 * Variables extracted from shortcode, with above default values
@@ -1658,6 +1666,8 @@ class PTA_SUS_Public_Display_Functions {
 		 * @var string $list_title
 		 * @var string $show_date_start
 		 * @var string $show_date_end
+		 * @var string $author_id
+		 * @var string $author_email
 		 */
 		// Allow plugins or themes to modify shortcode parameters
 		$id = apply_filters('pta_sus_shortcode_id', $id);
@@ -1738,7 +1748,25 @@ class PTA_SUS_Public_Display_Functions {
 			$title_header = '<h2 class="pta-sus-list-title">' . apply_filters('pta_sus_public_output', esc_html($list_title), 'sheet_list_title') . '</h2>';
 			$title_header = apply_filters('pta_sus_sheet_list_title_header_html', $title_header, $list_title);
 			$return .= $title_header;
-			$sheets = PTA_SUS_Sheet_Functions::get_sheets(false, true, self::$show_hidden, $order_by, $order);
+			
+			// Build args for get_sheets_by_args() to support author filtering
+			$args = array(
+				'trash' => false,
+				'active_only' => true,
+				'show_hidden' => self::$show_hidden,
+				'order_by' => $order_by,
+				'order' => $order,
+			);
+			
+			// Add author filtering if provided in shortcode attributes
+			if ( ! empty( $author_id ) ) {
+				$args['author_id'] = absint( $author_id );
+			}
+			if ( ! empty( $author_email ) ) {
+				$args['author_email'] = sanitize_email( $author_email );
+			}
+			
+			$sheets = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 
 			// Move ongoing sheets to bottom of list if that setting is checked
 			if ($main_options['show_ongoing_last']) {

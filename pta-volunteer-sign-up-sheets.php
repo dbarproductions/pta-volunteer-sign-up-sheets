@@ -73,6 +73,7 @@ if (!class_exists('PTA_SUS_Base_Object')) require_once 'classes/models/class-pta
 if (!class_exists('PTA_SUS_Sheet')) require_once 'classes/models/class-pta-sus-sheet.php';
 if (!class_exists('PTA_SUS_Task')) require_once 'classes/models/class-pta-sus-task.php';
 if (!class_exists('PTA_SUS_Signup')) require_once 'classes/models/class-pta-sus-signup.php';
+if (!class_exists('PTA_SUS_Email_Template')) require_once 'classes/models/class-pta-sus-email-template.php';
 
 // Load helper function classes
 if (!class_exists('PTA_SUS_Sheet_Functions')) require_once 'classes/class-pta_sus_sheet_functions.php';
@@ -434,9 +435,9 @@ class PTA_Sign_Up_Sheet {
 	}
 
     public function init() {
-        // Check our database version and run the activate function if needed
+        // Check our database version and run upgrades if needed
         if ( PTA_SUS_Activation::needs_upgrade() ) {
-            PTA_SUS_Activation::activate_site();
+            PTA_SUS_Activation::run_upgrades();
         }
 
         // Check if options need upgrading (new options added during plugin upgrade)

@@ -49,6 +49,14 @@
     "order": {
       "type": "string",
       "default": "ASC"
+    },
+    "author_id": {
+      "type": "string",
+      "default": ""
+    },
+    "author_email": {
+      "type": "string",
+      "default": ""
     }
   },
   "supports": {

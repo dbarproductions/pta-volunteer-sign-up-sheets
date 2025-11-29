@@ -113,8 +113,16 @@ do_action( 'pta_sus_tasks_form_after_tasks', $f ); ?>
 </p>
 </form>
 <?php
-// tasks move
-$rows = PTA_SUS_Sheet_Functions::get_sheets(false, false, true);
+// tasks move - filter by author for Signup Sheet Authors
+$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+$author_id = $can_manage_others ? null : get_current_user_id();
+$args = array(
+	'trash' => false,
+	'active_only' => false,
+	'show_hidden' => true,
+	'author_id' => $author_id,
+);
+$rows = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 if (count($rows)>1) : ?>
 	<h2><?php _e('Move tasks ', 'pta-volunteer-sign-up-sheets'); ?></h2>
 	<form name="move_tasks" id="pta-sus-move-tasks" method="post" action="">

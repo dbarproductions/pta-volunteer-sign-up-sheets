@@ -6,7 +6,16 @@
 	 * Time: 4:01 PM
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-$sheets = PTA_SUS_Sheet_Functions::get_sheets(false, false, true);
+// Filter sheets by author for Signup Sheet Authors (respect author permissions)
+$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+$author_id = $can_manage_others ? null : get_current_user_id();
+$args = array(
+	'trash' => false,
+	'active_only' => false,
+	'show_hidden' => true,
+	'author_id' => $author_id,
+);
+$sheets = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 $sheets = apply_filters('pta_sus_admin_view_all_data_sheets', $sheets);
 if(empty($sheets)) {
 	echo '<div class="error"><p>'.__('No data to show.', 'pta-volunteer-sign-up-sheets').'</p></div>';

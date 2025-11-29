@@ -113,8 +113,28 @@ class PTA_SUS_List_Table extends WP_List_Table
         if('Ongoing' === $item['type'] || 'Recurring' === $item['type']) {
             unset($actions['reschedule']); // can't reschedule Ongoing or Recurring type sheets
         }
+        // Check permissions for actions - only show edit/delete if user is author or can manage others
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $current_user_id = get_current_user_id();
+        $is_author = false;
+        
+        // Check if current user is the author (need to get sheet object to check author_id)
+        if ( isset( $item['id'] ) ) {
+            $sheet = pta_sus_get_sheet( $item['id'] );
+            if ( $sheet && $sheet->author_id == $current_user_id ) {
+                $is_author = true;
+            }
+        }
+        
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {
+            // For edit/delete actions, check permissions
+            if ( in_array( $action_slug, array( 'edit_sheet', 'edit_tasks', 'trash', 'delete' ) ) ) {
+                if ( ! $can_manage_others && ! $is_author ) {
+                    continue; // Skip this action - user doesn't have permission
+                }
+            }
+            
             if ('edit_sheet' == $action_slug || 'edit_tasks' == $action_slug) {
                 $page = 'pta-sus-settings_modify_sheet';
             } else {
@@ -253,12 +273,21 @@ class PTA_SUS_List_Table extends WP_List_Table
             if ( ! wp_verify_nonce( $nonce, $action ) )
                 wp_die( 'Nope! Security check failed!' );
         }
+        // Check user permissions for bulk actions
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $current_user_id = get_current_user_id();
+        
         // Process bulk actions
         if('bulk_trash' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
                 $sheet = pta_sus_get_sheet($id);
                 if ($sheet) {
+                    // Check permission: user must be able to manage others OR be the author
+                    if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                        echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                        continue;
+                    }
                     $sheet->trash = true;
                     $result = $sheet->save();
                     if ($result !== false) {
@@ -274,6 +303,12 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif ('bulk_delete' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
+                $sheet = pta_sus_get_sheet($id);
+                // Check permission: user must be able to manage others OR be the author
+                if ($sheet && !$can_manage_others && $sheet->author_id != $current_user_id) {
+                    echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    continue;
+                }
                 $deleted = PTA_SUS_Sheet_Functions::delete_sheet($id);
                 if ($deleted) {
                     $count++;
@@ -287,6 +322,11 @@ class PTA_SUS_List_Table extends WP_List_Table
             foreach ($_REQUEST['sheets'] as $key => $id) {
                 $sheet = pta_sus_get_sheet($id);
                 if ($sheet) {
+                    // Check permission: user must be able to manage others OR be the author
+                    if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                        echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                        continue;
+                    }
                     $sheet->trash = false;
                     $result = $sheet->save();
                     if ($result !== false) {
@@ -304,6 +344,11 @@ class PTA_SUS_List_Table extends WP_List_Table
             foreach ($_REQUEST['sheets'] as $key => $id) {
                 $sheet = pta_sus_get_sheet($id);
                 if(empty($sheet)) {
+                    continue;
+                }
+                // Check permission: user must be able to manage others OR be the author
+                if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                    echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                     continue;
                 }
                 if ($sheet->toggle_visibility()) {
@@ -325,7 +370,19 @@ class PTA_SUS_List_Table extends WP_List_Table
      */
     function prepare_items() {
         $this->process_bulk_action();
-        $rows = PTA_SUS_Sheet_Functions::get_sheets($this->show_trash, $active_only = false, $show_hidden = true);
+        
+        // Check if we need to filter by author (for Signup Sheet Authors)
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $author_id = $can_manage_others ? null : get_current_user_id();
+        
+        // Use get_sheets_by_args to support author filtering
+        $args = array(
+            'trash' => $this->show_trash,
+            'active_only' => false,
+            'show_hidden' => true,
+            'author_id' => $author_id,
+        );
+        $rows = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 
         foreach ($rows AS $k => $v) {
             // if search is set, skip any that title doesn't match search string

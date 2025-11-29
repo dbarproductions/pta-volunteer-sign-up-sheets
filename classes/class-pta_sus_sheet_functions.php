@@ -29,6 +29,9 @@ class PTA_SUS_Sheet_Functions {
 
     /**
      * Get all sheets with optional filtering
+     * 
+     * Backward compatible wrapper that converts parameters to args array
+     * and calls get_sheets_by_args()
      *
      * @param bool   $trash       Get trashed sheets (default: false)
      * @param bool   $active_only Get only non-expired sheets (default: false)
@@ -38,34 +41,120 @@ class PTA_SUS_Sheet_Functions {
      * @return array Array of PTA_SUS_Sheet objects
      */
     public static function get_sheets( $trash = false, $active_only = false, $show_hidden = false, $order_by = 'first_date', $order = 'ASC' ) {
+        // Convert parameters to args array for get_sheets_by_args()
+        $args = array(
+            'trash' => $trash,
+            'active_only' => $active_only,
+            'show_hidden' => $show_hidden,
+            'order_by' => $order_by,
+            'order' => $order,
+        );
+        
+        return self::get_sheets_by_args( $args );
+    }
+
+    /**
+     * Get sheets by flexible arguments array
+     * 
+     * Supports filtering by author, sus_group, and all standard filters.
+     * This is the main method for querying sheets with advanced filtering.
+     *
+     * @param array $args {
+     *     Optional. Array of arguments for filtering sheets.
+     *
+     *     @type bool        $trash         Get trashed sheets (default: false)
+     *     @type bool        $active_only   Get only non-expired sheets (default: false)
+     *     @type bool        $show_hidden   Include hidden sheets (default: false)
+     *     @type string      $order_by      Column to order by (default: 'first_date')
+     *     @type string      $order         Sort order ASC or DESC (default: 'ASC')
+     *     @type int|null    $author_id     Filter by author user ID. null = no filter, 0 = no author, >0 = specific author (default: null)
+     *     @type string      $author_email  Filter by author email (default: '')
+     *     @type string|array $sus_group    Filter by sus_group slug(s) (default: '')
+     * }
+     * @return array Array of PTA_SUS_Sheet objects
+     * @since 6.1.0
+     */
+    public static function get_sheets_by_args( $args = array() ) {
         global $wpdb;
 
+        // Parse args with defaults
+        $defaults = array(
+            'trash' => false,
+            'active_only' => false,
+            'show_hidden' => false,
+            'order_by' => 'first_date',
+            'order' => 'ASC',
+            'author_id' => null,      // null = no filter, 0 = no author, >0 = specific author
+            'author_email' => '',     // empty = no filter
+            'sus_group' => '',        // empty = no filter, string or array for filtering
+        );
+        
+        $args = wp_parse_args( $args, $defaults );
+
         // Sanitize and validate order_by
-        $order_by = sanitize_key( $order_by );
+        $order_by = sanitize_key( $args['order_by'] );
         $allowed_order_by = array( 'first_date', 'last_date', 'title', 'id' );
         if ( ! in_array( $order_by, $allowed_order_by ) ) {
             $order_by = 'first_date';
         }
 
         // Sanitize and validate order
-        $order = strtoupper( sanitize_text_field( $order ) );
+        $order = strtoupper( sanitize_text_field( $args['order'] ) );
         if ( ! in_array( $order, array( 'ASC', 'DESC' ) ) ) {
             $order = 'ASC';
         }
 
         // Build query
         $sql = "SELECT * FROM " . self::$sheet_table . " WHERE trash = %d";
-        $params = array( $trash ? 1 : 0 );
+        $params = array( $args['trash'] ? 1 : 0 );
 
         // Add active_only filter
-        if ( $active_only ) {
+        if ( $args['active_only'] ) {
             $sql .= " AND (DATE_ADD(last_date, INTERVAL 1 DAY) >= %s OR last_date = '0000-00-00')";
             $params[] = current_time( 'mysql' );
         }
 
         // Add visibility filter
-        if ( ! $show_hidden ) {
+        if ( ! $args['show_hidden'] ) {
             $sql .= " AND visible = 1";
+        }
+
+        // Add author_id filter
+        if ( null !== $args['author_id'] ) {
+            $author_id = absint( $args['author_id'] );
+            $sql .= " AND author_id = %d";
+            $params[] = $author_id;
+        }
+
+        // Add author_email filter
+        if ( ! empty( $args['author_email'] ) ) {
+            $author_email = sanitize_email( $args['author_email'] );
+            if ( ! empty( $author_email ) ) {
+                $sql .= " AND author_email = %s";
+                $params[] = $author_email;
+            }
+        }
+
+        // Add sus_group filter (if provided)
+        // Note: sus_group is stored as serialized array in VARCHAR field
+        // For now, we'll do a simple LIKE search - can be enhanced later for better performance
+        if ( ! empty( $args['sus_group'] ) ) {
+            $sus_groups = is_array( $args['sus_group'] ) ? $args['sus_group'] : array( $args['sus_group'] );
+            if ( ! empty( $sus_groups ) ) {
+                $group_conditions = array();
+                foreach ( $sus_groups as $group ) {
+                    $group = sanitize_text_field( $group );
+                    if ( ! empty( $group ) ) {
+                        // Escape for LIKE query
+                        $group_escaped = '%' . $wpdb->esc_like( $group ) . '%';
+                        $group_conditions[] = "sus_group LIKE %s";
+                        $params[] = $group_escaped;
+                    }
+                }
+                if ( ! empty( $group_conditions ) ) {
+                    $sql .= " AND (" . implode( " OR ", $group_conditions ) . ")";
+                }
+            }
         }
 
         // Add ordering - safe to use variables since we validated them
@@ -116,10 +205,20 @@ class PTA_SUS_Sheet_Functions {
     /**
      * Get sheet count
      *
-     * @param bool $trash Count trashed or non-trashed sheets
+     * @param bool|array $trash_or_args If boolean, count trashed or non-trashed sheets.
+     *                                   If array, use as args for filtering (supports author filtering).
      * @return int Number of sheets
      */
-    public static function get_sheet_count( $trash = false ) {
+    public static function get_sheet_count( $trash_or_args = false ) {
+        // If $trash_or_args is an array, use it as args for filtering
+        if ( is_array( $trash_or_args ) ) {
+            $args = $trash_or_args;
+            $sheets = self::get_sheets_by_args( $args );
+            return count( $sheets );
+        }
+        
+        // Otherwise, use the old boolean behavior for backward compatibility
+        $trash = (bool) $trash_or_args;
         global $wpdb;
 
         $count = $wpdb->get_var(
@@ -150,6 +249,12 @@ class PTA_SUS_Sheet_Functions {
         $sheet_data['id'] = 0; // Explicitly set to 0 instead of unsetting
         $sheet_data['title'] = $original_sheet->title . ' Copy';
         $sheet_data['visible'] = false;
+        
+        // Set author to current user when copying
+        $current_user_id = get_current_user_id();
+        $current_user = wp_get_current_user();
+        $sheet_data['author_id'] = $current_user_id;
+        $sheet_data['author_email'] = $current_user->user_email;
 
         $new_sheet = new PTA_SUS_Sheet($sheet_data);
         $new_sheet_id = $new_sheet->save();
@@ -462,6 +567,12 @@ class PTA_SUS_Sheet_Functions {
         $sheet_data['first_date'] = $first_date;
         $sheet_data['last_date'] = $last_date;
         $sheet_data['visible'] = false; // Make copied sheets hidden until admin can edit them
+        
+        // Set author to current user when copying
+        $current_user_id = get_current_user_id();
+        $current_user = wp_get_current_user();
+        $sheet_data['author_id'] = $current_user_id;
+        $sheet_data['author_email'] = $current_user->user_email;
 
         $new_sheet = new PTA_SUS_Sheet($sheet_data);
         $new_sheet_id = $new_sheet->save();

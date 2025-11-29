@@ -18,7 +18,7 @@ class PTA_SUS_Activation {
 	 * 
 	 * @var string
 	 */
-	private static $db_version = '5.2.0';
+	private static $db_version = '6.2.0';
 
 	/**
 	 * Get database version
@@ -102,9 +102,18 @@ class PTA_SUS_Activation {
 			trash BOOL NOT NULL DEFAULT FALSE,
 			clear_emails VARCHAR(50) NOT NULL DEFAULT 'default',
 			signup_emails VARCHAR(50) NOT NULL DEFAULT 'default',
+			author_id INT NOT NULL DEFAULT 0,
+			author_email VARCHAR(100) NOT NULL DEFAULT '',
+			confirmation_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reminder1_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reminder2_email_template_id INT(11) NOT NULL DEFAULT 0,
+			clear_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reschedule_email_template_id INT(11) NOT NULL DEFAULT 0,
+			signup_validation_email_template_id INT(11) NOT NULL DEFAULT 0,
 			PRIMARY KEY id (id),
 			KEY `first_date` (`first_date`),
-			KEY `last_date` (`last_date`)
+			KEY `last_date` (`last_date`),
+			KEY `author_id` (`author_id`)
 		) $charset_collate;";
 		$sql .= "CREATE TABLE {$data->tables['task']['name']} (
 			id INT NOT NULL AUTO_INCREMENT,
@@ -154,6 +163,22 @@ class PTA_SUS_Activation {
 			ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY id (id)
 		) $charset_collate;";
+		$email_templates_table = $wpdb->prefix . 'pta_sus_email_templates';
+		$sql .= "CREATE TABLE {$email_templates_table} (
+			id INT(11) NOT NULL AUTO_INCREMENT,
+			title VARCHAR(255) NOT NULL DEFAULT '',
+			subject VARCHAR(255) NOT NULL DEFAULT '',
+			body TEXT NOT NULL,
+			from_name VARCHAR(255) NOT NULL DEFAULT '',
+			from_email VARCHAR(100) NOT NULL DEFAULT '',
+			author_id INT(11) NOT NULL DEFAULT 0,
+			is_system_default TINYINT(1) NOT NULL DEFAULT 0,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			PRIMARY KEY (id),
+			KEY author_id (author_id),
+			KEY is_system_default (is_system_default)
+		) $charset_collate;";
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 
@@ -170,6 +195,7 @@ class PTA_SUS_Activation {
 		$role = get_role( 'administrator' );
 		if ( is_object( $role ) ) {
 			$role->add_cap( 'manage_signup_sheets' );
+			$role->add_cap( 'manage_others_signup_sheets' );
 		}
 
 		// add capability to all super admins
@@ -177,6 +203,27 @@ class PTA_SUS_Activation {
 		foreach ( $supers as $admin ) {
 			$user = new WP_User( 0, $admin );
 			$user->add_cap( 'manage_signup_sheets' );
+			$user->add_cap( 'manage_others_signup_sheets' );
+		}
+
+		// Add manage_others_signup_sheets capability to Signup Sheet Manager role
+		$role = get_role( 'signup_sheet_manager' );
+		if ( is_object( $role ) ) {
+			$role->add_cap( 'manage_others_signup_sheets' );
+		}
+
+		// Create Signup Sheet Author role
+		$author_role = get_role( 'signup_sheet_author' );
+		if ( ! is_object( $author_role ) ) {
+			$role = get_role( 'author' );
+			$author_caps = is_object( $role ) ? $role->capabilities : array();
+			add_role( 'signup_sheet_author', 'Signup Sheet Author', $author_caps );
+			$author_role = get_role( 'signup_sheet_author' );
+			if ( is_object( $author_role ) ) {
+				$author_role->add_cap( 'read' );
+				$author_role->add_cap( 'manage_signup_sheets' );
+				// Do NOT add manage_others_signup_sheets - Authors can only manage their own sheets
+			}
 		}
 
 		// Initialize plugin options with defaults
@@ -260,6 +307,450 @@ class PTA_SUS_Activation {
 	public static function needs_upgrade() {
 		$current = get_option( "pta_sus_db_version" );
 		return ( $current < self::$db_version );
+	}
+
+	/**
+	 * Run database upgrades
+	 * 
+	 * Checks current database version and runs appropriate upgrade functions
+	 * in sequence. This allows for incremental upgrades without requiring
+	 * deactivation/reactivation.
+	 * 
+	 * @since 6.1.0
+	 * @return void
+	 */
+	public static function run_upgrades() {
+		$current_version = get_option( "pta_sus_db_version", '0.0.0' );
+		
+		// Run upgrades in sequence based on version
+		if ( version_compare( $current_version, '6.1.0', '<' ) ) {
+			self::upgrade_to_6_1_0();
+		}
+		
+		if ( version_compare( $current_version, '6.2.0', '<' ) ) {
+			self::upgrade_to_6_2_0();
+		}
+	}
+
+	/**
+	 * Upgrade database to version 6.1.0
+	 * 
+	 * Adds author_id and author_email columns to pta_sus_sheets table,
+	 * creates Signup Sheet Author role, and adds manage_others_signup_sheets
+	 * capability to Administrator and Signup Sheet Manager roles.
+	 * 
+	 * @since 6.1.0
+	 * @return void
+	 */
+	private static function upgrade_to_6_1_0() {
+		global $wpdb;
+		
+		// Create new data object to get table name
+		$data = new PTA_SUS_Data();
+		$table_name = $data->tables['sheet']['name'];
+		
+		// Check if columns already exist
+		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );
+		$column_names = array();
+		foreach ( $columns as $column ) {
+			$column_names[] = $column['Field'];
+		}
+		
+		// Add author_id column if it doesn't exist
+		if ( ! in_array( 'author_id', $column_names ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN author_id INT NOT NULL DEFAULT 0" );
+		}
+		
+		// Add author_email column if it doesn't exist
+		if ( ! in_array( 'author_email', $column_names ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN author_email VARCHAR(100) NOT NULL DEFAULT ''" );
+		}
+		
+		// Check if index exists on author_id
+		$indexes = $wpdb->get_results( "SHOW INDEX FROM {$table_name} WHERE Key_name = 'author_id'", ARRAY_A );
+		if ( empty( $indexes ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD INDEX author_id (author_id)" );
+		}
+		
+		// Set existing sheets to author_id = 0 and author_email = '' (legacy sheets)
+		// Only update if they're currently NULL or empty (shouldn't happen, but safety check)
+		// Note: Using direct query since we're setting fixed values and checking for NULL is safe
+		$wpdb->query( 
+			"UPDATE " . esc_sql( $table_name ) . " SET author_id = 0, author_email = '' WHERE author_id IS NULL OR author_email IS NULL"
+		);
+		
+		// Add manage_others_signup_sheets capability to Administrator role
+		$role = get_role( 'administrator' );
+		if ( is_object( $role ) && ! $role->has_cap( 'manage_others_signup_sheets' ) ) {
+			$role->add_cap( 'manage_others_signup_sheets' );
+		}
+		
+		// Add manage_others_signup_sheets capability to Signup Sheet Manager role
+		$role = get_role( 'signup_sheet_manager' );
+		if ( is_object( $role ) && ! $role->has_cap( 'manage_others_signup_sheets' ) ) {
+			$role->add_cap( 'manage_others_signup_sheets' );
+		}
+		
+		// Add capability to all super admins
+		$supers = get_super_admins();
+		foreach ( $supers as $admin ) {
+			$user = new WP_User( 0, $admin );
+			if ( ! $user->has_cap( 'manage_others_signup_sheets' ) ) {
+				$user->add_cap( 'manage_others_signup_sheets' );
+			}
+		}
+		
+		// Create Signup Sheet Author role if it doesn't exist
+		$author_role = get_role( 'signup_sheet_author' );
+		if ( ! is_object( $author_role ) ) {
+			$role = get_role( 'author' );
+			$author_caps = is_object( $role ) ? $role->capabilities : array();
+			add_role( 'signup_sheet_author', 'Signup Sheet Author', $author_caps );
+			$author_role = get_role( 'signup_sheet_author' );
+			if ( is_object( $author_role ) ) {
+				$author_role->add_cap( 'read' );
+				$author_role->add_cap( 'manage_signup_sheets' );
+				// Do NOT add manage_others_signup_sheets - Authors can only manage their own sheets
+			}
+		}
+		
+		// Update database version
+		update_option( "pta_sus_db_version", '6.1.0' );
+	}
+
+	/**
+	 * Upgrade database to version 6.2.0
+	 * 
+	 * Creates email templates table, adds email template ID columns to sheets table,
+	 * migrates existing email templates from options to database, and migrates
+	 * Customizer extension templates if active.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private static function upgrade_to_6_2_0() {
+		global $wpdb;
+		$charset_collate = $wpdb->get_charset_collate();
+		
+		// Create email templates table (dbDelta will create if it doesn't exist, update if it does)
+		$email_templates_table = $wpdb->prefix . 'pta_sus_email_templates';
+		// Check if table exists first
+		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '" . esc_sql( $email_templates_table ) . "'" );
+		
+		if ( $table_exists !== $email_templates_table ) {
+			// Match the exact format used in activate_site() for consistency
+			$sql = "CREATE TABLE {$email_templates_table} (
+				id INT(11) NOT NULL AUTO_INCREMENT,
+				title VARCHAR(255) NOT NULL DEFAULT '',
+				subject VARCHAR(255) NOT NULL DEFAULT '',
+				body TEXT NOT NULL,
+				from_name VARCHAR(255) NOT NULL DEFAULT '',
+				from_email VARCHAR(100) NOT NULL DEFAULT '',
+				author_id INT(11) NOT NULL DEFAULT 0,
+				is_system_default TINYINT(1) NOT NULL DEFAULT 0,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY id (id),
+				KEY `author_id` (`author_id`),
+				KEY `is_system_default` (`is_system_default`)
+			) $charset_collate;";
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $sql );
+			
+			// Double-check table was created - if not, try direct query
+			$table_exists_after = $wpdb->get_var( "SHOW TABLES LIKE '" . esc_sql( $email_templates_table ) . "'" );
+			if ( $table_exists_after !== $email_templates_table ) {
+				// If dbDelta failed, try direct query as fallback
+				$wpdb->query( $sql );
+			}
+		}
+		
+		// Add email template ID columns to sheets table
+		$data = new PTA_SUS_Data();
+		$sheet_table = $data->tables['sheet']['name'];
+		
+		// Check existing columns
+		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$sheet_table}", ARRAY_A );
+		$column_names = array();
+		foreach ( $columns as $column ) {
+			$column_names[] = $column['Field'];
+		}
+		
+		$template_columns = array(
+			'confirmation_email_template_id',
+			'reminder1_email_template_id',
+			'reminder2_email_template_id',
+			'clear_email_template_id',
+			'reschedule_email_template_id',
+			'signup_validation_email_template_id',
+		);
+		
+		foreach ( $template_columns as $column_name ) {
+			if ( ! in_array( $column_name, $column_names ) ) {
+				$wpdb->query( "ALTER TABLE {$sheet_table} ADD COLUMN {$column_name} INT(11) NOT NULL DEFAULT 0" );
+			}
+		}
+		
+		// Migrate existing email templates from options to database
+		self::migrate_email_templates();
+		
+		// Update database version
+		update_option( "pta_sus_db_version", '6.2.0' );
+	}
+
+	/**
+	 * Migrate email templates from options to database
+	 * 
+	 * Converts existing email templates from options arrays to PTA_SUS_Email_Template records,
+	 * migrates Customizer extension templates if active, and maps sheet assignments.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private static function migrate_email_templates() {
+		global $wpdb;
+		
+		// Check if migration has already been done
+		$migration_done = get_option( 'pta_sus_email_templates_migrated', false );
+		if ( $migration_done ) {
+			return; // Already migrated
+		}
+		
+		$email_options = get_option( 'pta_volunteer_sus_email_options', array() );
+		$validation_options = get_option( 'pta_volunteer_sus_validation_options', array() );
+		$defaults = array();
+		$from_email = isset( $email_options['from_email'] ) ? $email_options['from_email'] : '';
+		
+		// Migrate main plugin email templates
+		$email_types = array(
+			'confirmation' => array(
+				'subject_key' => 'confirmation_email_subject',
+				'template_key' => 'confirmation_email_template',
+				'title' => __( 'Confirmation Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+			),
+			'reminder1' => array(
+				'subject_key' => 'reminder_email_subject',
+				'template_key' => 'reminder_email_template',
+				'title' => __( 'Reminder 1 Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+			),
+			'reminder2' => array(
+				'subject_key' => 'reminder2_email_subject',
+				'template_key' => 'reminder2_email_template',
+				'title' => __( 'Reminder 2 Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+			),
+			'clear' => array(
+				'subject_key' => 'clear_email_subject',
+				'template_key' => 'clear_email_template',
+				'title' => __( 'Clear Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+			),
+			'reschedule' => array(
+				'subject_key' => 'reschedule_email_subject',
+				'template_key' => 'reschedule_email_template',
+				'title' => __( 'Reschedule Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+			),
+		);
+		
+		foreach ( $email_types as $email_type => $config ) {
+			$subject = isset( $email_options[ $config['subject_key'] ] ) ? $email_options[ $config['subject_key'] ] : '';
+			$body = isset( $email_options[ $config['template_key'] ] ) ? $email_options[ $config['template_key'] ] : '';
+			
+			// Skip reminder2 if empty (will fall back to reminder1)
+			if ( 'reminder2' === $email_type && ( empty( $subject ) || empty( $body ) ) ) {
+				continue; // Leave as 0, will use reminder1 fallback
+			}
+			
+			// Only create template if both subject and body exist
+			if ( ! empty( $subject ) && ! empty( $body ) ) {
+				$template = new PTA_SUS_Email_Template();
+				$template->title = $config['title'];
+				$template->subject = $subject;
+				$template->body = $body;
+				$template->from_email = $from_email;
+				$template->author_id = 0;
+				$template->is_system_default = true;
+				$template->created_at = current_time( 'mysql' );
+				$template->updated_at = current_time( 'mysql' );
+				
+				$template_id = $template->save();
+				if ( $template_id > 0 ) {
+					$defaults[ $email_type ] = $template_id;
+				}
+			}
+		}
+		
+		// Migrate validation email templates
+		if ( ! empty( $validation_options['signup_validation_email_subject'] ) && ! empty( $validation_options['signup_validation_email_template'] ) ) {
+			$template = new PTA_SUS_Email_Template();
+			$template->title = __( 'Signup Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' );
+			$template->subject = $validation_options['signup_validation_email_subject'];
+			$template->body = $validation_options['signup_validation_email_template'];
+			$template->from_email = $from_email;
+			$template->author_id = 0;
+			$template->is_system_default = true;
+			$template->created_at = current_time( 'mysql' );
+			$template->updated_at = current_time( 'mysql' );
+			
+			$template_id = $template->save();
+			if ( $template_id > 0 ) {
+				$defaults['signup_validation'] = $template_id;
+			}
+		}
+		
+		// Save system default template IDs
+		if ( ! empty( $defaults ) ) {
+			update_option( 'pta_volunteer_sus_email_template_defaults', $defaults );
+		}
+		
+		// Migrate Customizer extension templates if active
+		if ( class_exists( 'PTA_SUS_CUSTOMIZER_INTEGRATOR' ) ) {
+			self::migrate_customizer_templates( $from_email );
+		}
+		
+		// Mark migration as complete
+		update_option( 'pta_sus_email_templates_migrated', true );
+	}
+
+	/**
+	 * Migrate Customizer extension email templates
+	 * 
+	 * Converts Customizer's custom email templates to PTA_SUS_Email_Template records
+	 * and maps sheet assignments to new template IDs.
+	 * 
+	 * @since 6.2.0
+	 * @param string $from_email Default from email
+	 * @return void
+	 */
+	private static function migrate_customizer_templates( $from_email ) {
+		global $wpdb;
+		
+		$custom_emails = get_option( 'pta_volunteer_sus_customizer_custom_emails', array() );
+		$sheet_emails = get_option( 'pta_volunteer_sus_customizer_sheet_emails', array() );
+		
+		if ( empty( $custom_emails ) ) {
+			return; // No Customizer templates to migrate
+		}
+		
+		// Map old slugs to new template IDs
+		$slug_to_id_map = array();
+		
+		// Migrate each Customizer template
+		foreach ( $custom_emails as $slug => $email_data ) {
+			if ( empty( $email_data['name'] ) || empty( $email_data['subject'] ) || empty( $email_data['body'] ) ) {
+				continue; // Skip invalid templates
+			}
+			
+			$template = new PTA_SUS_Email_Template();
+			$template->title = sanitize_text_field( $email_data['name'] );
+			$template->subject = sanitize_text_field( $email_data['subject'] );
+			$template->body = wp_kses_post( $email_data['body'] );
+			$template->from_email = $from_email;
+			$template->author_id = 0; // Available to all users (migrated template)
+			$template->is_system_default = false; // Not a system default
+			$template->created_at = current_time( 'mysql' );
+			$template->updated_at = current_time( 'mysql' );
+			
+			$template_id = $template->save();
+			if ( $template_id > 0 ) {
+				$slug_to_id_map[ $slug ] = $template_id;
+			}
+		}
+		
+		// Map sheet assignments from old slugs to new template IDs
+		if ( ! empty( $sheet_emails ) && ! empty( $slug_to_id_map ) ) {
+			$data = new PTA_SUS_Data();
+			$sheet_table = $data->tables['sheet']['name'];
+			
+			// Map email type to column name
+			$email_type_map = array(
+				'confirmation' => 'confirmation_email_template_id',
+				'reminder' => 'reminder1_email_template_id',
+				'reminder2' => 'reminder2_email_template_id',
+				'reschedule' => 'reschedule_email_template_id',
+				'clear' => 'clear_email_template_id',
+				'validate' => 'signup_validation_email_template_id',
+			);
+			
+			foreach ( $sheet_emails as $sheet_id => $email_assignments ) {
+				if ( ! is_array( $email_assignments ) ) {
+					continue;
+				}
+				
+				$updates = array();
+				$update_needed = false;
+				
+				foreach ( $email_assignments as $email_type => $slug ) {
+					if ( empty( $slug ) || ! isset( $slug_to_id_map[ $slug ] ) ) {
+						continue; // Skip invalid or unmapped slugs
+					}
+					
+					if ( ! isset( $email_type_map[ $email_type ] ) ) {
+						continue; // Skip unknown email types
+					}
+					
+					$column_name = $email_type_map[ $email_type ];
+					$template_id = $slug_to_id_map[ $slug ];
+					
+					$updates[ $column_name ] = $template_id;
+					$update_needed = true;
+				}
+				
+				// Update sheet with new template IDs
+				if ( $update_needed ) {
+					$sheet_id = absint( $sheet_id );
+					$wpdb->update(
+						$sheet_table,
+						$updates,
+						array( 'id' => $sheet_id ),
+						array_fill( 0, count( $updates ), '%d' ),
+						array( '%d' )
+					);
+				}
+			}
+		}
+		
+		// Handle backward compatibility for old Customizer versions
+		$customizer_version = defined( 'PTA_VOL_SUS_CUSTOMIZER_VERSION' ) ? PTA_VOL_SUS_CUSTOMIZER_VERSION : '0.0.0';
+		
+		// If Customizer version is old (before templates moved to main plugin), disable its hooks
+		if ( version_compare( $customizer_version, '4.1.0', '<' ) ) {
+			// Remove Customizer's email template filter hooks
+			remove_filter( 'pta_sus_email_subject', array( 'PTA_SUS_CUSTOMIZER_INTEGRATOR', 'customize_email_subject' ) );
+			remove_filter( 'pta_sus_email_template', array( 'PTA_SUS_CUSTOMIZER_INTEGRATOR', 'customize_email_template' ) );
+			
+			// Add dismissible admin notice (site-wide, not per-user)
+			$notice_dismissed = get_option( 'pta_sus_email_template_notice_dismissed', false );
+			if ( ! $notice_dismissed ) {
+				add_action( 'admin_notices', array( __CLASS__, 'show_customizer_migration_notice' ) );
+			}
+		}
+	}
+
+	/**
+	 * Show admin notice about email templates migration
+	 * 
+	 * Displays a dismissible notice informing users that email templates
+	 * have been moved to the main plugin.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	public static function show_customizer_migration_notice() {
+		// Check if notice was dismissed
+		if ( isset( $_GET['pta_sus_dismiss_template_notice'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'pta_sus_dismiss_template_notice' ) ) {
+			update_option( 'pta_sus_email_template_notice_dismissed', true );
+			return;
+		}
+		
+		$dismiss_url = wp_nonce_url( add_query_arg( 'pta_sus_dismiss_template_notice', '1' ), 'pta_sus_dismiss_template_notice' );
+		?>
+		<div class="notice notice-info is-dismissible">
+			<p>
+				<strong><?php _e( 'PTA Volunteer Sign-Up Sheets:', 'pta-volunteer-sign-up-sheets' ); ?></strong>
+				<?php _e( 'Email templates have been migrated to the main plugin. You can now manage all email templates from the "Email Templates" menu under Sign-up Sheets. Custom email templates from the Customizer extension have been preserved and are available to all users.', 'pta-volunteer-sign-up-sheets' ); ?>
+				<a href="<?php echo esc_url( $dismiss_url ); ?>" class="notice-dismiss"><span class="screen-reader-text"><?php _e( 'Dismiss this notice.', 'pta-volunteer-sign-up-sheets' ); ?></span></a>
+			</p>
+		</div>
+		<?php
 	}
 }
 

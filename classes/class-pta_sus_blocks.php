@@ -63,7 +63,9 @@ class PTA_SUS_Blocks {
 			'show_phone' => $attributes['show_phone'] ?? 'no',
 			'show_email' => $attributes['show_email'] ?? 'no',
 			'order_by' => $attributes['order_by'] ?? 'first_date',
-			'order' => $attributes['order'] ?? 'ASC'
+			'order' => $attributes['order'] ?? 'ASC',
+			'author_id' => $attributes['author_id'] ?? '',
+			'author_email' => $attributes['author_email'] ?? ''
 		);
 
 		$shortcode = '[pta_sign_up_sheet';

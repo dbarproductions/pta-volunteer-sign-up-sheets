@@ -799,67 +799,96 @@ function pta_get_messages_from_cookie() {
 	if(isset($_COOKIE['pta_sus_messages'])) {
 		$messages = json_decode(stripslashes($_COOKIE['pta_sus_messages']), true);
 		if($messages) {
+			// Get existing messages to avoid duplicates
+			$existing_messages = PTA_SUS_Messages::get_messages();
 			foreach($messages as $msg) {
-				PTA_SUS_Messages::add_message($msg);
+				// Only add if not already in messages (avoid duplicates)
+				if (!in_array($msg, $existing_messages)) {
+					PTA_SUS_Messages::add_message($msg);
+				}
 			}
 		}
-		setcookie('pta_sus_messages', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+		// Only try to clear cookie if headers haven't been sent
+		if (!headers_sent()) {
+			setcookie('pta_sus_messages', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+		}
 	}
 
 	if(isset($_COOKIE['pta_sus_errors'])) {
 		$errors = json_decode(stripslashes($_COOKIE['pta_sus_errors']), true);
 		if($errors) {
+			// Get existing errors to avoid duplicates
+			$existing_errors = PTA_SUS_Messages::get_errors();
 			foreach($errors as $error) {
-				PTA_SUS_Messages::add_error($error);
+				// Only add if not already in errors (avoid duplicates)
+				if (!in_array($error, $existing_errors)) {
+					PTA_SUS_Messages::add_error($error);
+				}
 			}
 		}
-		setcookie('pta_sus_errors', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+		// Only try to clear cookie if headers haven't been sent
+		if (!headers_sent()) {
+			setcookie('pta_sus_errors', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN);
+		}
 	}
 }
 
 /**
  * Clean URL and redirect after form submission
- * Stores current messages/errors in cookies, cleans URL parameters (keeps sheet_id if present),
- * and redirects to the cleaned URL
- * Used after signup submissions to prevent form resubmission on refresh
+ * Stores current messages/errors in cookies, and redirects to a cleaned URL.
+ * If a URL is provided, redirects to that URL. Otherwise, cleans current URL
+ * parameters (keeping sheet_id if present) and redirects there.
+ * Used after signup submissions to prevent form resubmission on refresh.
  *
+ * @param string $url Optional URL to redirect to. If empty, current URL is cleaned.
  * @return void Exits script execution after redirect
  */
-function pta_clean_redirect() {
-	// Store current messages in cookies
-	setcookie(
-		'pta_sus_messages',
-		json_encode(PTA_SUS_Messages::get_messages()),
-		time() + 300,
-		COOKIEPATH,
-		COOKIE_DOMAIN,
-		is_ssl(),
-		true
-	);
-
-	setcookie(
-		'pta_sus_errors',
-		json_encode(PTA_SUS_Messages::get_errors()),
-		time() + 300,
-		COOKIEPATH,
-		COOKIE_DOMAIN,
-		is_ssl(),
-		true
-	);
-
-	// Keep only sheet_id parameter, if set
-	if(isset($_GET['sheet_id'])) {
-		$clean_url = add_query_arg(
-			['sheet_id' => $_GET['sheet_id']],
-			remove_query_arg(array_keys($_GET))
+function pta_clean_redirect( $url = '' ) {
+	// Store current messages in cookies (only if headers haven't been sent)
+	if ( ! headers_sent() ) {
+		setcookie(
+			'pta_sus_messages',
+			json_encode(PTA_SUS_Messages::get_messages()),
+			time() + 300,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
 		);
-	} else {
-		$clean_url = remove_query_arg(array_keys($_GET));
+
+		setcookie(
+			'pta_sus_errors',
+			json_encode(PTA_SUS_Messages::get_errors()),
+			time() + 300,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			is_ssl(),
+			true
+		);
 	}
 
-	// Redirect to individual sheet page
-	wp_redirect(esc_url($clean_url));
-	exit;
+	// Determine redirect URL
+	if ( ! empty( $url ) ) {
+		// Use explicitly provided URL (typically for admin redirects)
+		$clean_url = $url;
+	} else {
+		// Keep only sheet_id parameter, if set (front-end usage)
+		if(isset($_GET['sheet_id'])) {
+			$clean_url = add_query_arg(
+				['sheet_id' => $_GET['sheet_id']],
+				remove_query_arg(array_keys($_GET))
+			);
+		} else {
+			$clean_url = remove_query_arg(array_keys($_GET));
+		}
+	}
+
+	// Only redirect if headers haven't been sent
+	if ( ! headers_sent() ) {
+		wp_redirect(esc_url($clean_url));
+		exit;
+	}
+	// If headers already sent, messages will display on current page
 }
 
 /**

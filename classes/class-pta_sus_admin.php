@@ -79,6 +79,20 @@ class PTA_SUS_Admin {
 	private $action;
 
 	/**
+	 * Whether to filter sheets by author (for Signup Sheet Authors)
+	 * 
+	 * @var bool
+	 */
+	private $filter_by_author;
+
+	/**
+	 * Current author ID for filtering (null for admins, user ID for authors)
+	 * 
+	 * @var int|null
+	 */
+	private $current_author_id;
+
+	/**
 	 * Constructor
 	 * 
 	 * Initializes the admin class, loads options, and sets up data access.
@@ -213,13 +227,18 @@ class PTA_SUS_Admin {
 	/**
 	 * Admin initialization
 	 * 
-	 * WordPress admin_init hook callback. Processes list table actions.
+	 * WordPress admin_init hook callback. Processes list table actions and email template forms.
 	 * 
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function admin_init() {
 		$this->maybe_process_list_table_actions();
+		// Process email template forms early (before any output)
+		// Check for POST submission (form was submitted) rather than just page check
+		if (isset($_POST['pta_email_template_mode']) && 'submitted' === $_POST['pta_email_template_mode']) {
+			$this->process_email_template_form();
+		}
 	}
 
 	/**
@@ -237,7 +256,9 @@ class PTA_SUS_Admin {
 		} else {
 			$this->member_directory_active = false;
 		}
-		$this->show_settings = (current_user_can('manage_options') || !isset($this->main_options['admin_only_settings']) || false == $this->main_options['admin_only_settings']);
+		// Settings pages should only be visible to Admins and Managers (those with manage_others_signup_sheets)
+		// Authors (only manage_signup_sheets) should NOT see Settings, CRON, or Add Ons pages
+		$this->show_settings = (current_user_can('manage_options') || current_user_can('manage_others_signup_sheets') || (!isset($this->main_options['admin_only_settings']) || false == $this->main_options['admin_only_settings']));
 		if($this->show_settings) {
 			add_filter( 'option_page_capability_pta_volunteer_sus_main_options', array($this,'pta_settings_permissions'), 10, 1 );
 		}
@@ -246,10 +267,12 @@ class PTA_SUS_Admin {
 			$all_sheets = add_submenu_page($this->admin_settings_slug.'_sheets', __('Sign-up Sheets', 'pta-volunteer-sign-up-sheets'), __('All Sheets', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_sheets', array($this, 'admin_sheet_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta-volunteer-sign-up-sheets'), __('Add New', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta-volunteer-sign-up-sheets'), __('Email Volunteers', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
-			if($this->show_settings) {
-				add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta-volunteer-sign-up-sheets'), __('Settings', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
-				add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta-volunteer-sign-up-sheets'), __('CRON Functions', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
-				add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta-volunteer-sign-up-sheets'), __('Add Ons', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
+			add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Templates', 'pta-volunteer-sign-up-sheets'), __('Email Templates', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_email_templates', array($this, 'admin_email_templates_page'));
+			// Settings, CRON, and Add Ons pages require manage_others_signup_sheets (Admins and Managers only, not Authors)
+			if($this->show_settings && (current_user_can('manage_options') || current_user_can('manage_others_signup_sheets'))) {
+				add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta-volunteer-sign-up-sheets'), __('Settings', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
+				add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta-volunteer-sign-up-sheets'), __('CRON Functions', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
+				add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta-volunteer-sign-up-sheets'), __('Add Ons', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
 			}
 			add_action( "load-$all_sheets", array( $this, 'screen_options' ) );
 		}
@@ -286,14 +309,15 @@ class PTA_SUS_Admin {
 	 * Filter settings page capability
 	 * 
 	 * WordPress filter callback to change the required capability for settings pages
-	 * from 'manage_options' to 'manage_signup_sheets'.
+	 * from 'manage_options' to 'manage_others_signup_sheets' (so only Admins and Managers can access).
+	 * Authors (only manage_signup_sheets) should NOT be able to access settings.
 	 * 
 	 * @since 1.0.0
 	 * @param string $capability Current capability requirement
-	 * @return string Modified capability ('manage_signup_sheets')
+	 * @return string Modified capability ('manage_others_signup_sheets')
 	 */
 	public function pta_settings_permissions( $capability ) {
-		return 'manage_signup_sheets';
+		return 'manage_others_signup_sheets';
 	}
 
 	/**
@@ -345,6 +369,21 @@ class PTA_SUS_Admin {
 				'disableAdminGrouping' => $this->main_options['disable_grouping'] ?? false,
 			);
 			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
+
+			// If an old version of the Customizer is active, hide its email template selects on the sheet form.
+			// The main plugin now owns email templates; we keep the Customizer layout options but hide its email options UI.
+			if ( defined( 'PTA_VOL_SUS_CUSTOMIZER_VERSION' )
+			     && version_compare( PTA_VOL_SUS_CUSTOMIZER_VERSION, '4.1.0', '<' )
+			     && class_exists( 'PTA_SUS_CUSTOMIZER_INTEGRATOR' ) ) {
+				$custom_css = '
+					/* Hide Customizer Email Options section on sheet form (but keep Layout Options) */
+					.pta-sus.customizer h3:nth-of-type(2),
+					.pta-sus.customizer h3:nth-of-type(2) ~ p {
+						display: none !important;
+					}
+				';
+				wp_add_inline_style( 'pta-admin-style', $custom_css );
+			}
 		}
 	}
 
@@ -360,6 +399,11 @@ class PTA_SUS_Admin {
 	 * @return void
 	 */
 	public function admin_reminders_page() {
+		// Check permissions - only Admins and Managers (with manage_others_signup_sheets) can access
+		if (!current_user_can('manage_options') && !current_user_can('manage_others_signup_sheets'))  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
+		}
+		
 		$messages = '';
         $rescheduled_messages = '';
 		$cleared_message = $cleared_sheets_message = '';
@@ -681,9 +725,20 @@ class PTA_SUS_Admin {
 			} else {
 				// the existing data functions need "signup_" at the front of each key - even though it will get "cleaned"
 				if(isset($form_data[$key])) {
-					$posted['signup_'.$key] = stripslashes( wp_kses_post( $form_data[$key]));
+					// Handle arrays (e.g., multi-select fields from Custom Fields extension)
+					if (is_array($form_data[$key])) {
+						$posted['signup_'.$key] = $form_data[$key];
+					} else {
+						$posted['signup_'.$key] = stripslashes( wp_kses_post( $form_data[$key]));
+					}
 				}
 			}
+		}
+		
+		// Admin form doesn't have validate_email field, but validation expects it
+		// Set it to the same value as email since admin doesn't need email confirmation
+		if (!isset($posted['signup_validate_email']) && isset($posted['signup_email'])) {
+			$posted['signup_validate_email'] = $posted['signup_email'];
 		}
 		
 		// Use validation helper class for consistent validation
@@ -1106,6 +1161,11 @@ class PTA_SUS_Admin {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
 		}
 
+		// Check if we need to filter by author (for Signup Sheet Authors)
+		$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+		$this->filter_by_author = ! $can_manage_others; // Store for list table to use
+		$this->current_author_id = $can_manage_others ? null : get_current_user_id();
+
 		echo '<div class="wrap pta_sus">';
 
 		// Edit Signup
@@ -1235,10 +1295,30 @@ class PTA_SUS_Admin {
 		$this->table->prepare_items();
 
 		// Moved this below above 2 lines so counts update properly when doing bulk actions (bulk actions called inside of prepare_items function)
+		// Get filtered counts based on user permissions (Authors only see their own sheets)
+		$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+		$author_id = $can_manage_others ? null : get_current_user_id();
+		
+		$all_count_args = array(
+			'trash' => false,
+			'active_only' => false,
+			'show_hidden' => true,
+			'author_id' => $author_id,
+		);
+		$trash_count_args = array(
+			'trash' => true,
+			'active_only' => false,
+			'show_hidden' => true,
+			'author_id' => $author_id,
+		);
+		
+		$all_count = PTA_SUS_Sheet_Functions::get_sheet_count( $all_count_args );
+		$trash_count = PTA_SUS_Sheet_Functions::get_sheet_count( $trash_count_args );
+		
 		echo '
 			<ul class="subsubsub">
-			<li class="all"><a href="admin.php?page='.$this->admin_settings_slug.'_sheets"'.(($show_all) ? ' class="current"' : '').'>'.__('All ', 'pta-volunteer-sign-up-sheets').'<span class="count">('.PTA_SUS_Sheet_Functions::get_sheet_count().')</span></a> |</li>
-			<li class="trash"><a href="admin.php?page='.$this->admin_settings_slug.'_sheets&amp;sheet_status=trash"'.(($show_trash) ? ' class="current"' : '').'>'.__('Trash ', 'pta-volunteer-sign-up-sheets').'<span class="count">('.PTA_SUS_Sheet_Functions::get_sheet_count(true).')</span></a></li>
+			<li class="all"><a href="admin.php?page='.$this->admin_settings_slug.'_sheets"'.(($show_all) ? ' class="current"' : '').'>'.__('All ', 'pta-volunteer-sign-up-sheets').'<span class="count">('.$all_count.')</span></a> |</li>
+			<li class="trash"><a href="admin.php?page='.$this->admin_settings_slug.'_sheets&amp;sheet_status=trash"'.(($show_trash) ? ' class="current"' : '').'>'.__('Trash ', 'pta-volunteer-sign-up-sheets').'<span class="count">('.$trash_count.')</span></a></li>
 			</ul>
 			';
 
@@ -1292,6 +1372,22 @@ class PTA_SUS_Admin {
 		// Set mode vars
 		$edit = ! empty( $_GET['sheet_id'] );
 		$add = ! $edit;
+		
+		// Check author permissions for editing
+		if ( $edit ) {
+			$sheet_id = (int) $_GET['sheet_id'];
+			$sheet = pta_sus_get_sheet( $sheet_id );
+			
+			if ( $sheet ) {
+				$current_user_id = get_current_user_id();
+				$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+				
+				// If user doesn't have manage_others_signup_sheets and is not the author, deny access
+				if ( ! $can_manage_others && $sheet->author_id != $current_user_id ) {
+					wp_die( __( 'You do not have permission to edit this sheet. You can only edit sheets that you created.', 'pta-volunteer-sign-up-sheets' ) );
+				}
+			}
+		}
 		$sheet_submitted = (isset($_POST['sheet_mode']) && $_POST['sheet_mode'] === 'submitted');
 		$tasks_submitted = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] === 'submitted');
 		$tasks_move = (isset($_POST['tasks_mode']) && $_POST['tasks_mode'] === 'move_tasks');
@@ -1701,8 +1797,17 @@ class PTA_SUS_Admin {
 					PTA_SUS_Messages::show_messages(true,'admin');
 					return;
 				}
+				// Handle author assignment
+				$current_user_id = get_current_user_id();
+				$current_user = wp_get_current_user();
+				$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+				
 				// Add/Update Sheet
 				if ($add) {
+					// For new sheets, set author to current user
+					$sheet_fields['sheet_author_id'] = $current_user_id;
+					$sheet_fields['sheet_author_email'] = $current_user->user_email;
+					
 					$sheet_id = pta_sus_add_sheet($sheet_fields);
 					if(!$sheet_id) {
 						$sheet_err++;
@@ -1712,6 +1817,46 @@ class PTA_SUS_Admin {
 						$sheet_fields['sheet_id'] = $sheet_id;
 					}
 				} else {
+					// For updates, only allow author changes if user has manage_others_signup_sheets
+					if ( $can_manage_others ) {
+						// Admin/Manager can change author
+						if ( isset( $_POST['sheet_author_id'] ) ) {
+							$author_id = absint( $_POST['sheet_author_id'] );
+							$sheet_fields['sheet_author_id'] = $author_id;
+							
+							// If assigning to a WordPress user (author_id > 0), fetch their email
+							// If author_id is 0 (no author), use the email from form (for guest authors)
+							if ( $author_id > 0 ) {
+								$author_user = get_user_by( 'id', $author_id );
+								if ( $author_user ) {
+									$sheet_fields['sheet_author_email'] = $author_user->user_email;
+								} else {
+									// User doesn't exist, clear email
+									$sheet_fields['sheet_author_email'] = '';
+								}
+							} else {
+								// No author (0) - use email from form if provided (for guest authors)
+								if ( isset( $_POST['sheet_author_email'] ) ) {
+									$sheet_fields['sheet_author_email'] = sanitize_email( $_POST['sheet_author_email'] );
+								} else {
+									$sheet_fields['sheet_author_email'] = '';
+								}
+							}
+						} elseif ( isset( $_POST['sheet_author_email'] ) ) {
+							// If only email is set (guest author), set author_id to 0
+							$sheet_fields['sheet_author_id'] = 0;
+							$sheet_fields['sheet_author_email'] = sanitize_email( $_POST['sheet_author_email'] );
+						}
+					} else {
+						// Author cannot change author - verify they are still the author
+						$sheet = pta_sus_get_sheet( (int)$_GET['sheet_id'] );
+						if ( $sheet && $sheet->author_id != $current_user_id ) {
+							$sheet_err++;
+							PTA_SUS_Messages::add_error(__('You do not have permission to edit this sheet.', 'pta-volunteer-sign-up-sheets'));
+						}
+						// Don't include author fields - they should remain unchanged
+					}
+					
 					$updated = pta_sus_update_sheet($sheet_fields, (int)$_GET['sheet_id']);
 					$sheet_fields['sheet_id'] = (int)$_GET['sheet_id'];
 					if(false === $updated) {
@@ -2012,6 +2157,65 @@ class PTA_SUS_Admin {
 		}
 		echo '</select></p>';
 
+		// Sheet-level email templates (optional, overrides system defaults)
+		// Only show if we have templates available
+		$templates = PTA_SUS_Email_Functions::get_available_templates( true );
+		if ( ! empty( $templates ) ) {
+			echo '<hr />';
+			echo '<h3>' . __( 'Sheet Email Templates', 'pta-volunteer-sign-up-sheets' ) . '</h3>';
+			echo '<p>' . __( 'Select specific email templates for this sheet. Leave set to "Use System Default" to use the global default templates.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+
+			// Build options array once for reuse
+			$template_options = array(
+				0 => __( 'Use System Default', 'pta-volunteer-sign-up-sheets' ),
+			);
+			foreach ( $templates as $template ) {
+				$label = $template->title;
+				if ( $template->is_system_default() ) {
+					$label .= ' ' . __( '(System Default)', 'pta-volunteer-sign-up-sheets' );
+				}
+				$template_options[ $template->id ] = $label;
+			}
+
+			// Helper to render a select for a given field
+			$render_template_select = function( $field_key, $label_text ) use ( $f, $template_options ) {
+				$current = isset( $f[ $field_key ] ) ? absint( $f[ $field_key ] ) : 0;
+				echo '<p>';
+				echo '<label for="' . esc_attr( $field_key ) . '">'. esc_html( $label_text ) . '</label> ';
+				echo '<select id="' . esc_attr( $field_key ) . '" name="' . esc_attr( $field_key ) . '">';
+				foreach ( $template_options as $value => $label ) {
+					echo '<option value="' . esc_attr( $value ) . '" ' . selected( $current, $value, false ) . '>' . esc_html( $label ) . '</option>';
+				}
+				echo '</select>';
+				echo '</p>';
+			};
+
+			$render_template_select(
+				'sheet_confirmation_email_template_id',
+				__( 'Confirmation Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_reminder1_email_template_id',
+				__( 'Reminder 1 Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_reminder2_email_template_id',
+				__( 'Reminder 2 Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_clear_email_template_id',
+				__( 'Clear Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_reschedule_email_template_id',
+				__( 'Reschedule Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_signup_validation_email_template_id',
+				__( 'Signup Validation Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+		}
+
 		// Allow other plugins to add fields to the form
 		do_action( 'pta_sus_sheet_form_before_contact_info', $f, $edit );
 
@@ -2039,19 +2243,102 @@ class PTA_SUS_Admin {
 				<p>'.__('<strong><em>OR</em></strong>, manually enter chair names and contact emails below.', 'pta-volunteer-sign-up-sheets').'</p>';
 		}
 
+		// Prefill chair name and email with current user's info if fields are empty
+		$current_user = wp_get_current_user();
+		$chair_name = isset($f['sheet_chair_name']) ? $f['sheet_chair_name'] : '';
+		$chair_email = isset($f['sheet_chair_email']) ? $f['sheet_chair_email'] : '';
+		
+		// Only prefill if fields are empty (for new sheets or when editing existing sheets with empty values)
+		if ( empty( $chair_name ) && ! empty( $current_user->first_name ) ) {
+			// Build name from firstname and lastname
+			$chair_name = trim( $current_user->first_name . ' ' . $current_user->last_name );
+		}
+		if ( empty( $chair_email ) && ! empty( $current_user->user_email ) ) {
+			$chair_email = $current_user->user_email;
+		}
+		
 		echo '
 			<p>
 			<label for="sheet_chair_name">'.__('Chair Name(s):', 'pta-volunteer-sign-up-sheets').'</label>
-	      	<input type="text" id="sheet_chair_name" name="sheet_chair_name" value="'.((isset($f['sheet_chair_name']) ? esc_attr($f['sheet_chair_name']) : '')).'" size="80">
+	      	<input type="text" id="sheet_chair_name" name="sheet_chair_name" value="'.esc_attr( $chair_name ).'" size="80">
 			<em>'.__('Separate multiple names with commas', 'pta-volunteer-sign-up-sheets').'</em>
 		  	</p>
 	      	<p>
 		 	<label for="sheet_chair_email">'.__('Chair Email(s):', 'pta-volunteer-sign-up-sheets').'</label>
-		 	<input type="text" id="sheet_chair_email" name="sheet_chair_email" value="'.((isset($f['sheet_chair_email']) ? esc_attr($f['sheet_chair_email']) : '')).'" size="80">
+		 	<input type="text" id="sheet_chair_email" name="sheet_chair_email" value="'.esc_attr( $chair_email ).'" size="80">
 		  	<em>'.__('Separate multiple emails with commas', 'pta-volunteer-sign-up-sheets').'</em>
 		    </p>';
 		// Allow other plugins to add fields to the form
 		do_action( 'pta_sus_sheet_form_after_contact_info', $f, $edit );
+		
+		// Author assignment section (only show if editing or if user can manage others)
+		$current_user_id = get_current_user_id();
+		$current_user = wp_get_current_user();
+		$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+		$is_author = false;
+		$sheet_author_id = isset( $f['sheet_author_id'] ) ? absint( $f['sheet_author_id'] ) : 0;
+		$sheet_author_email = isset( $f['sheet_author_email'] ) ? sanitize_email( $f['sheet_author_email'] ) : '';
+		
+		if ( $edit && $sheet_author_id == $current_user_id ) {
+			$is_author = true;
+		}
+		
+		// Show author section if: editing and (user can manage others OR user is the author)
+		if ( $edit && ( $can_manage_others || $is_author ) ) {
+			echo '<hr />';
+			echo '<h3>'.__('Author Information:', 'pta-volunteer-sign-up-sheets').'</h3>';
+			
+			if ( $can_manage_others ) {
+				// Admin/Manager can edit author - show dropdown and email field
+				// Get all users with manage_signup_sheets capability
+				$users = get_users( array(
+					'capability' => 'manage_signup_sheets',
+					'orderby' => 'display_name',
+				) );
+				
+				echo '<p>';
+				echo '<label for="sheet_author_id"><strong>'.__('Author:', 'pta-volunteer-sign-up-sheets').'</strong></label><br/>';
+				echo '<select id="sheet_author_id" name="sheet_author_id">';
+				echo '<option value="0" '.selected( 0, $sheet_author_id, false ).'>'.__('No Author', 'pta-volunteer-sign-up-sheets').'</option>';
+				foreach ( $users as $user ) {
+					$selected = selected( $user->ID, $sheet_author_id, false );
+					echo '<option value="'.esc_attr( $user->ID ).'" '.$selected.'>'.esc_html( $user->display_name ).' ('.esc_html( $user->user_email ).')</option>';
+				}
+				echo '</select>';
+				echo '<em> '.__('Select the author of this sheet. Authors can only edit their own sheets.', 'pta-volunteer-sign-up-sheets').'</em>';
+				echo '</p>';
+				
+				echo '<p>';
+				echo '<label for="sheet_author_email"><strong>'.__('Author Email:', 'pta-volunteer-sign-up-sheets').'</strong></label><br/>';
+				echo '<input type="email" id="sheet_author_email" name="sheet_author_email" value="'.esc_attr( $sheet_author_email ).'" size="60">';
+				echo '<em> '.__('Email address for guest authors (users without WordPress accounts). Leave blank if author has a WordPress account.', 'pta-volunteer-sign-up-sheets').'</em>';
+				echo '</p>';
+			} else {
+				// Author can only view (read-only)
+				$author_name = __('No Author', 'pta-volunteer-sign-up-sheets');
+				$author_email_display = '';
+				
+				if ( $sheet_author_id > 0 ) {
+					$author_user = get_user_by( 'id', $sheet_author_id );
+					if ( $author_user ) {
+						$author_name = $author_user->display_name . ' (' . $author_user->user_email . ')';
+					}
+				} elseif ( ! empty( $sheet_author_email ) ) {
+					$author_name = __('Guest Author', 'pta-volunteer-sign-up-sheets');
+					$author_email_display = $sheet_author_email;
+				}
+				
+				echo '<p>';
+				echo '<strong>'.__('Author:', 'pta-volunteer-sign-up-sheets').'</strong> ';
+				echo esc_html( $author_name );
+				if ( ! empty( $author_email_display ) ) {
+					echo ' - ' . esc_html( $author_email_display );
+				}
+				echo '<br/><em>'.__('You can only edit sheets that you created.', 'pta-volunteer-sign-up-sheets').'</em>';
+				echo '</p>';
+			}
+		}
+		
 		$content = isset($f['sheet_details']) ? wp_kses_post($f['sheet_details']) : '';
 		$editor_id = "sheet_details";
 		$settings = array( 'wpautop' => false, 'textarea_rows' => 10 );
@@ -2118,6 +2405,11 @@ class PTA_SUS_Admin {
 	 * @return void
 	 */
 	public function admin_addons_page() {
+		// Check permissions - only Admins and Managers (with manage_others_signup_sheets) can access
+		if (!current_user_can('manage_options') && !current_user_can('manage_others_signup_sheets'))  {
+			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
+		}
+		
 		include('admin-addons-html.php');
 	}
 
@@ -2240,6 +2532,452 @@ class PTA_SUS_Admin {
 			}
 		}
 
+	}
+
+	/**
+	 * Admin page: Email Templates
+	 * 
+	 * Displays the Email Templates management page with list table and add/edit forms.
+	 * Allows users to create, edit, delete, and duplicate email templates.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	public function admin_email_templates_page() {
+		// Check permissions
+		if (!current_user_can('manage_signup_sheets')) {
+			wp_die(__('You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets'));
+		}
+
+		// Form submissions are processed in admin_init() to avoid header issues
+		// Messages from cookies are already retrieved by PTA_SUS_Public::init() which runs on admin pages too
+		
+		// Show messages
+		PTA_SUS_Messages::show_messages(true, 'admin');
+
+		// Check if we're adding or editing
+		$action = isset($_GET['action']) ? sanitize_key($_GET['action']) : '';
+		$template_id = isset($_GET['template_id']) ? absint($_GET['template_id']) : 0;
+
+		if (in_array($action, array('add', 'edit')) && ($action !== 'edit' || $template_id > 0)) {
+			// Show add/edit form
+			$this->display_email_template_form($template_id, $action);
+		} else {
+			// Show list table
+			$this->display_email_templates_list();
+		}
+	}
+
+	/**
+	 * Process email template form submissions
+	 * 
+	 * Handles add, edit, delete, and duplicate actions for email templates.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private function process_email_template_form() {
+		if (!isset($_POST['pta_email_template_mode']) || 'submitted' !== $_POST['pta_email_template_mode']) {
+			return;
+		}
+
+		// Verify nonce
+		if (!isset($_POST['pta_email_template_nonce']) || !wp_verify_nonce($_POST['pta_email_template_nonce'], 'pta_email_template_action')) {
+			PTA_SUS_Messages::add_error(__('Invalid security token. Please try again.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		$action = isset($_POST['action']) ? sanitize_key($_POST['action']) : '';
+
+		switch ($action) {
+			case 'add':
+			case 'edit':
+				$this->save_email_template();
+				break;
+			case 'delete':
+				$this->delete_email_template();
+				break;
+			case 'duplicate':
+				$this->duplicate_email_template();
+				break;
+		}
+	}
+
+	/**
+	 * Save email template (add or edit)
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private function save_email_template() {
+		$template_id = isset($_POST['template_id']) ? absint($_POST['template_id']) : 0;
+		$template = new PTA_SUS_Email_Template($template_id);
+
+		// Check permissions
+		if (!$template->can_edit()) {
+			PTA_SUS_Messages::add_error(__('You do not have permission to edit this template.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		// Validate required fields
+		$title = isset($_POST['template_title']) ? sanitize_text_field($_POST['template_title']) : '';
+		$subject = isset($_POST['template_subject']) ? sanitize_text_field($_POST['template_subject']) : '';
+		$body = isset($_POST['template_body']) ? wp_kses_post($_POST['template_body']) : '';
+
+		if (empty($title) || empty($subject) || empty($body)) {
+			PTA_SUS_Messages::add_error(__('Title, Subject, and Body are required fields.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		// Set template properties
+		// Note: content_type is determined by global use_html setting, not stored per-template
+		$template->title = $title;
+		$template->subject = $subject;
+		$template->body = $body;
+		$template->from_name = isset($_POST['template_from_name']) ? sanitize_text_field($_POST['template_from_name']) : '';
+		$template->from_email = isset($_POST['template_from_email']) ? sanitize_email($_POST['template_from_email']) : '';
+
+		// Handle author assignment (only for Admins/Managers)
+		if (current_user_can('manage_others_signup_sheets')) {
+			$author_id = isset($_POST['template_author_id']) ? absint($_POST['template_author_id']) : 0;
+			// System defaults cannot be reassigned
+			if (!$template->is_system_default()) {
+				$template->author_id = $author_id;
+			}
+		} else {
+			// Authors can only set their own author_id on new templates
+			if ($template_id === 0) {
+				$template->author_id = get_current_user_id();
+			}
+		}
+
+		// Save template
+		$saved_id = $template->save();
+		if ($saved_id > 0) {
+			$message = $template_id > 0 ? __('Email template updated successfully.', 'pta-volunteer-sign-up-sheets') : __('Email template created successfully.', 'pta-volunteer-sign-up-sheets');
+			PTA_SUS_Messages::add_message($message);
+			// Redirect to list after successful save (preserves messages in cookie)
+			$redirect_url = admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates');
+			pta_clean_redirect($redirect_url);
+		} else {
+			PTA_SUS_Messages::add_error(__('Error saving email template. Please try again.', 'pta-volunteer-sign-up-sheets'));
+		}
+	}
+
+	/**
+	 * Delete email template
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private function delete_email_template() {
+		$template_id = isset($_POST['template_id']) ? absint($_POST['template_id']) : 0;
+		if ($template_id === 0) {
+			PTA_SUS_Messages::add_error(__('Invalid template ID.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		$template = new PTA_SUS_Email_Template($template_id);
+		if ($template->id === 0) {
+			PTA_SUS_Messages::add_error(__('Template not found.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		if (!$template->can_delete()) {
+			PTA_SUS_Messages::add_error(__('You do not have permission to delete this template.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		if ($template->delete()) {
+			PTA_SUS_Messages::add_message(__('Email template deleted successfully.', 'pta-volunteer-sign-up-sheets'));
+		} else {
+			PTA_SUS_Messages::add_error(__('Error deleting email template.', 'pta-volunteer-sign-up-sheets'));
+		}
+	}
+
+	/**
+	 * Duplicate email template
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private function duplicate_email_template() {
+		$template_id = isset($_POST['template_id']) ? absint($_POST['template_id']) : 0;
+		if ($template_id === 0) {
+			PTA_SUS_Messages::add_error(__('Invalid template ID.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		$original = new PTA_SUS_Email_Template($template_id);
+		if ($original->id === 0) {
+			PTA_SUS_Messages::add_error(__('Template not found.', 'pta-volunteer-sign-up-sheets'));
+			return;
+		}
+
+		// Create new template from original
+		$new_template = new PTA_SUS_Email_Template();
+		$new_template->title = $original->title . ' ' . __('(Copy)', 'pta-volunteer-sign-up-sheets');
+		$new_template->subject = $original->subject;
+		$new_template->body = $original->body;
+		// Note: content_type is determined by global use_html setting, not stored per-template
+		$new_template->from_name = $original->from_name;
+		$new_template->from_email = $original->from_email;
+		$new_template->author_id = get_current_user_id(); // Duplicate belongs to current user
+		$new_template->is_system_default = false; // Never duplicate as system default
+
+		$new_id = $new_template->save();
+		if ($new_id > 0) {
+			PTA_SUS_Messages::add_message(__('Email template duplicated successfully.', 'pta-volunteer-sign-up-sheets'));
+			// Store messages in cookies and redirect to edit the new template
+			setcookie(
+				'pta_sus_messages',
+				json_encode(PTA_SUS_Messages::get_messages()),
+				time() + 300,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+			setcookie(
+				'pta_sus_errors',
+				json_encode(PTA_SUS_Messages::get_errors()),
+				time() + 300,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+			wp_safe_redirect(admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates&action=edit&template_id=' . $new_id));
+			exit;
+		} else {
+			PTA_SUS_Messages::add_error(__('Error duplicating email template.', 'pta-volunteer-sign-up-sheets'));
+		}
+	}
+
+	/**
+	 * Display email templates list table
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private function display_email_templates_list() {
+		// Get available templates
+		$templates = PTA_SUS_Email_Functions::get_available_templates(true);
+		?>
+		<div class="wrap">
+			<h1 class="wp-heading-inline"><?php _e('Email Templates', 'pta-volunteer-sign-up-sheets'); ?></h1>
+			<a href="<?php echo admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates&action=add'); ?>" class="page-title-action"><?php _e('Add New', 'pta-volunteer-sign-up-sheets'); ?></a>
+			<hr class="wp-header-end">
+
+			<?php if (empty($templates)) : ?>
+				<p><?php _e('No email templates found.', 'pta-volunteer-sign-up-sheets'); ?></p>
+			<?php else : ?>
+				<table class="wp-list-table widefat fixed striped">
+					<thead>
+						<tr>
+							<th scope="col"><?php _e('Title', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<th scope="col"><?php _e('Subject', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<th scope="col"><?php _e('Content Type', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<th scope="col"><?php _e('Author', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<th scope="col"><?php _e('Type', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<th scope="col"><?php _e('Actions', 'pta-volunteer-sign-up-sheets'); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ($templates as $template) : ?>
+							<tr>
+								<td><strong><?php echo esc_html($template->title); ?></strong></td>
+								<td><?php echo esc_html($template->subject); ?></td>
+								<td>
+								<?php
+								$email_options = get_option('pta_volunteer_sus_email_options', array());
+								$use_html = isset($email_options['use_html']) && $email_options['use_html'];
+								echo $use_html ? __('HTML', 'pta-volunteer-sign-up-sheets') : __('Plain Text', 'pta-volunteer-sign-up-sheets');
+								?>
+							</td>
+								<td>
+									<?php
+									if ($template->author_id > 0) {
+										$author = get_user_by('id', $template->author_id);
+										echo $author ? esc_html($author->display_name) : __('Unknown', 'pta-volunteer-sign-up-sheets');
+									} else {
+										_e('Available to All', 'pta-volunteer-sign-up-sheets');
+									}
+									?>
+								</td>
+								<td>
+									<?php
+									if ($template->is_system_default) {
+										echo '<span class="dashicons dashicons-admin-settings" title="' . esc_attr__('System Default', 'pta-volunteer-sign-up-sheets') . '"></span> ' . __('System Default', 'pta-volunteer-sign-up-sheets');
+									} else {
+										_e('Custom', 'pta-volunteer-sign-up-sheets');
+									}
+									?>
+								</td>
+								<td>
+									<?php if ($template->can_edit()) : ?>
+										<a href="<?php echo admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates&action=edit&template_id=' . $template->id); ?>"><?php _e('Edit', 'pta-volunteer-sign-up-sheets'); ?></a> |
+									<?php endif; ?>
+									<?php if ($template->can_delete()) : ?>
+										<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e('Are you sure you want to delete this template?', 'pta-volunteer-sign-up-sheets'); ?>');">
+											<?php wp_nonce_field('pta_email_template_action', 'pta_email_template_nonce'); ?>
+											<input type="hidden" name="pta_email_template_mode" value="submitted">
+											<input type="hidden" name="action" value="delete">
+											<input type="hidden" name="template_id" value="<?php echo $template->id; ?>">
+											<button type="submit" class="button-link" style="color:#b32d2e;"><?php _e('Delete', 'pta-volunteer-sign-up-sheets'); ?></button>
+										</form> |
+									<?php endif; ?>
+									<form method="post" style="display:inline;">
+										<?php wp_nonce_field('pta_email_template_action', 'pta_email_template_nonce'); ?>
+										<input type="hidden" name="pta_email_template_mode" value="submitted">
+										<input type="hidden" name="action" value="duplicate">
+										<input type="hidden" name="template_id" value="<?php echo $template->id; ?>">
+										<button type="submit" class="button-link"><?php _e('Duplicate', 'pta-volunteer-sign-up-sheets'); ?></button>
+									</form>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Display email template add/edit form
+	 * 
+	 * @since 6.2.0
+	 * @param int $template_id Template ID (0 for new template)
+	 * @param string $action Action ('add' or 'edit')
+	 * @return void
+	 */
+	private function display_email_template_form($template_id, $action) {
+		$template = new PTA_SUS_Email_Template($template_id);
+		$is_edit = ($action === 'edit' && $template_id > 0);
+
+		// Check permissions
+		if ($is_edit && !$template->can_edit()) {
+			wp_die(__('You do not have permission to edit this template.', 'pta-volunteer-sign-up-sheets'));
+		}
+
+		$use_html = isset($this->email_options['use_html']) && $this->email_options['use_html'];
+		$can_manage_others = current_user_can('manage_others_signup_sheets');
+		?>
+		<div class="wrap">
+			<h1><?php echo $is_edit ? __('Edit Email Template', 'pta-volunteer-sign-up-sheets') : __('Add New Email Template', 'pta-volunteer-sign-up-sheets'); ?></h1>
+            <?php PTA_SUS_Template_Tags_Helper::render_helper_panel(); ?>
+			<form method="post" action="">
+				<?php wp_nonce_field('pta_email_template_action', 'pta_email_template_nonce'); ?>
+				<input type="hidden" name="pta_email_template_mode" value="submitted">
+				<input type="hidden" name="action" value="<?php echo $is_edit ? 'edit' : 'add'; ?>">
+				<?php if ($is_edit) : ?>
+					<input type="hidden" name="template_id" value="<?php echo $template->id; ?>">
+				<?php endif; ?>
+
+				<table class="form-table">
+					<tr>
+						<th scope="row"><label for="template_title"><?php _e('Title', 'pta-volunteer-sign-up-sheets'); ?> <span class="required">*</span></label></th>
+						<td>
+							<input type="text" id="template_title" name="template_title" value="<?php echo esc_attr($template->title); ?>" class="regular-text" required />
+							<p class="description"><?php _e('A descriptive name for this template (for admin use only).', 'pta-volunteer-sign-up-sheets'); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="template_subject"><?php _e('Subject', 'pta-volunteer-sign-up-sheets'); ?> <span class="required">*</span></label></th>
+						<td>
+							<input type="text" id="template_subject" name="template_subject" value="<?php echo esc_attr($template->subject); ?>" class="regular-text" required />
+							<p class="description"><?php _e('Email subject line. You can use template tags like {firstname}, {lastname}, {sheet_title}, etc.', 'pta-volunteer-sign-up-sheets'); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="template_body"><?php _e('Body', 'pta-volunteer-sign-up-sheets'); ?> <span class="required">*</span></label></th>
+						<td>
+							<?php if ($use_html) : ?>
+								<?php
+								$editor_id = 'template_body';
+								$editor_content = wp_kses_post($template->body);
+								$editor_settings = array(
+									'wpautop' => true,
+									'media_buttons' => false,
+									'textarea_name' => 'template_body',
+									'textarea_rows' => 15,
+									'teeny' => false,
+									'quicktags' => true,
+									'tinymce' => true,
+								);
+								wp_editor($editor_content, $editor_id, $editor_settings);
+								?>
+							<?php else : ?>
+								<textarea id="template_body" name="template_body" rows="15" class="large-text" required><?php echo esc_textarea($template->body); ?></textarea>
+							<?php endif; ?>
+							<p class="description"><?php _e('Email body content. You can use template tags like {firstname}, {lastname}, {sheet_title}, etc.', 'pta-volunteer-sign-up-sheets'); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="template_from_name"><?php _e('From Name', 'pta-volunteer-sign-up-sheets'); ?></label></th>
+						<td>
+							<input type="text" id="template_from_name" name="template_from_name" value="<?php echo esc_attr($template->from_name); ?>" class="regular-text" />
+							<p class="description"><?php _e('Optional custom "From" name for emails using this template. Leave blank to use default.', 'pta-volunteer-sign-up-sheets'); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="template_from_email"><?php _e('From Email', 'pta-volunteer-sign-up-sheets'); ?></label></th>
+						<td>
+							<input type="email" id="template_from_email" name="template_from_email" value="<?php echo esc_attr($template->from_email); ?>" class="regular-text" />
+							<p class="description"><?php _e('Optional custom "From" email address for emails using this template. Leave blank to use default.', 'pta-volunteer-sign-up-sheets'); ?></p>
+						</td>
+					</tr>
+					<?php if ($can_manage_others) : ?>
+						<tr>
+							<th scope="row"><label for="template_author_id"><?php _e('Author', 'pta-volunteer-sign-up-sheets'); ?></label></th>
+							<td>
+								<?php if ($template->is_system_default) : ?>
+									<p><?php _e('System default templates cannot be reassigned.', 'pta-volunteer-sign-up-sheets'); ?></p>
+								<?php else : ?>
+									<?php
+									$args = array(
+										'role__in' => array('administrator', 'signup_sheet_manager', 'signup_sheet_author'),
+										'capability' => 'manage_signup_sheets',
+										'orderby' => 'display_name',
+										'order' => 'ASC',
+									);
+									$users = get_users($args);
+									?>
+									<select id="template_author_id" name="template_author_id">
+										<option value="0" <?php selected($template->author_id, 0); ?>><?php _e('Available to All', 'pta-volunteer-sign-up-sheets'); ?></option>
+										<?php foreach ($users as $user) : ?>
+											<option value="<?php echo $user->ID; ?>" <?php selected($template->author_id, $user->ID); ?>><?php echo esc_html($user->display_name); ?></option>
+										<?php endforeach; ?>
+									</select>
+									<p class="description"><?php _e('Assign this template to a specific user, or make it available to all users.', 'pta-volunteer-sign-up-sheets'); ?></p>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php else : ?>
+						<tr>
+							<th scope="row"><?php _e('Author', 'pta-volunteer-sign-up-sheets'); ?></th>
+							<td>
+								<?php
+								if ($template->author_id > 0) {
+									$author = get_user_by('id', $template->author_id);
+									echo $author ? esc_html($author->display_name) : __('Unknown', 'pta-volunteer-sign-up-sheets');
+								} else {
+									_e('Available to All', 'pta-volunteer-sign-up-sheets');
+								}
+								?>
+							</td>
+						</tr>
+					<?php endif; ?>
+				</table>
+
+				<p class="submit">
+					<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php echo $is_edit ? esc_attr__('Update Template', 'pta-volunteer-sign-up-sheets') : esc_attr__('Create Template', 'pta-volunteer-sign-up-sheets'); ?>">
+					<a href="<?php echo admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates'); ?>" class="button"><?php _e('Cancel', 'pta-volunteer-sign-up-sheets'); ?></a>
+				</p>
+			</form>
+		</div>
+		<?php
 	}
 
 } // End of Class

@@ -86,7 +86,13 @@ $saved_values = array();
 if($edit) {
     foreach ($signup_fields as $key => $label) {
         if(in_array($key, array('user_id','firstname','lastname','email','phone','item','item_qty'))) {
-	        $saved_values[$key] = wp_kses_post(stripslashes($signup->$key));
+            $value = stripslashes($signup->$key);
+            // Handle arrays (e.g., multi-select fields from Custom Fields extension)
+            if (is_array($value)) {
+                $saved_values[$key] = $value;
+            } else {
+                $saved_values[$key] = wp_kses_post($value);
+            }
         }
     }
 }
@@ -96,7 +102,12 @@ $saved_values = apply_filters( 'pta_sus_admin_saved_signup_values', $saved_value
 foreach ($signup_fields as $key => $label) {
 	// get posted if form was submitted, but there were errors
 	if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode'] && !empty($posted[$key])) {
-        $saved_values[$key] = wp_kses_post($posted[$key]);
+        // Handle arrays (e.g., multi-select fields from Custom Fields extension)
+        if (is_array($posted[$key])) {
+            $saved_values[$key] = $posted[$key];
+        } else {
+            $saved_values[$key] = wp_kses_post($posted[$key]);
+        }
     } elseif (empty($saved_values[$key])) {
         $saved_values[$key] = '';
     }

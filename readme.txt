@@ -4,10 +4,10 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.8.2
+Tested up to: 6.8.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.8.1
+Stable tag: 6.0.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -162,6 +162,16 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 6.0.0**
+*   **NEW FEATURE: Author System** - Added a new "Signup Sheet Author" user role that allows users to create and manage only their own sign-up sheets. Administrators and Signup Sheet Managers can continue to manage all sheets, while Authors can only see and edit sheets they've created. This is perfect for organizations that want to delegate sheet management to committee chairs or event coordinators without giving them full admin access.
+*   **NEW FEATURE: Author Filtering** - Added `author_id` and `author_email` parameters to the [pta_sign_up_sheet] shortcode and Sign Up Sheets block, allowing you to filter and display sheets by specific authors on the public side.
+*   **NEW FEATURE: Auto-fill Contact Info** - When creating a new sheet, the Chair Name and Chair Email fields are now automatically pre-filled with the current user's information, saving time when the author is also the contact person.
+*   **IMPROVEMENT: Performance Optimization** - Refactored core code structure to improve performance and reduce resource usage. The plugin now uses more efficient database queries and optimized object caching to provide faster page loads, especially on sites with many sign-up sheets.
+*   **IMPROVEMENT: Enhanced Security** - Added permission checks throughout the admin interface to ensure users can only access and modify sheets they have permission to manage.
+*   **IMPROVEMENT: Better Bulk Operations** - Bulk actions (trash, delete, restore, toggle visibility) now respect author permissions, ensuring users can only perform bulk operations on sheets they're authorized to manage.
+*   **IMPROVEMENT: Export Filtering** - The View/Export All Data page now respects author permissions, so Authors only see data from their own sheets when exporting.
+*   Database upgrade function automatically adds author tracking columns to existing installations without requiring plugin deactivation.
+
 **Version 5.8.1**
 *   Fix for date format passed to the output function on the View/Export All Data admin page that could cause issues with the displayed date for languages other than English.
 *   Fixed: Updated the registration of the Text Registry action hook to match changes in the Customizer so that Validation text filters and other newer text filters will show up in the Customizer now.

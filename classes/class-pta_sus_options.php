@@ -25,7 +25,9 @@ class PTA_SUS_Options {
     * Admin Page: Options/Settings
     */
     function admin_options() {
-        if (!current_user_can('manage_options') && !current_user_can('manage_signup_sheets'))  {
+        // Check permissions - only Admins and Managers (with manage_others_signup_sheets) can access
+        // Authors (only manage_signup_sheets) should NOT be able to access settings
+        if (!current_user_can('manage_options') && !current_user_can('manage_others_signup_sheets'))  {
             wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
         }
         $docs_link = '<a class="button-secondary" href="https://stephensherrardplugins.com/docs/pta-volunteer-sign-up-sheets-documentation/" target="_blank">'.__('Documentation', 'pta-volunteer-sign-up-sheets') . '</a>';

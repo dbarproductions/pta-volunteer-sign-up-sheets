@@ -14,6 +14,59 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PTA_SUS_Email_Functions {
 
 	/**
+	 * Track whether we've already disabled old Customizer email filters for this request.
+	 *
+	 * @var bool
+	 */
+	private static $customizer_filters_removed = false;
+
+	/**
+	 * Disable old Customizer email subject/body filters (for legacy versions)
+	 *
+	 * This ensures the main plugin's template system controls email content even
+	 * when an old Customizer version is still active. We only remove callbacks
+	 * from PTA_SUS_Customizer_Public and leave other extensions intact.
+	 *
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private static function maybe_disable_customizer_email_filters() {
+		if ( self::$customizer_filters_removed ) {
+			return;
+		}
+
+		// Only needed when an older Customizer version is active
+		if ( ! defined( 'PTA_VOL_SUS_CUSTOMIZER_VERSION' ) ) {
+			return;
+		}
+
+		// In future Customizer versions the filters will be removed there; this is for legacy.
+		if ( version_compare( PTA_VOL_SUS_CUSTOMIZER_VERSION, '4.1.0', '>=' ) ) {
+			return;
+		}
+
+		global $wp_filter;
+
+		foreach ( array( 'pta_sus_email_subject', 'pta_sus_email_template' ) as $tag ) {
+			if ( empty( $wp_filter[ $tag ] ) || ! isset( $wp_filter[ $tag ]->callbacks ) ) {
+				continue;
+			}
+
+			foreach ( $wp_filter[ $tag ]->callbacks as $priority => $callbacks ) {
+				foreach ( $callbacks as $callback_id => $callback ) {
+					$fn = $callback['function'];
+					// Look for methods on PTA_SUS_Customizer_Public instances
+					if ( is_array( $fn ) && is_object( $fn[0] ) && 'PTA_SUS_Customizer_Public' === get_class( $fn[0] ) ) {
+						remove_filter( $tag, $fn, $priority );
+					}
+				}
+			}
+		}
+
+		self::$customizer_filters_removed = true;
+	}
+
+	/**
 	 * Get email options
 	 * Cached to avoid multiple get_option calls
 	 *
@@ -161,6 +214,8 @@ class PTA_SUS_Email_Functions {
 
 		$subject = $message = $validation_link = '';
 		$signup_validation = false;
+		$email_type = '';
+
 		if($reminder) {
 			if( 2 == $reminder && isset($email_options['reminder2_email_subject']) && '' !== $email_options['reminder2_email_subject']) {
 				$subject = $email_options['reminder2_email_subject'];
@@ -172,25 +227,47 @@ class PTA_SUS_Email_Functions {
 			} else {
 				$message = $email_options['reminder_email_template'];
 			}
-			
+			$email_type = ( 2 == $reminder ) ? 'reminder2' : 'reminder1';
 		} elseif ($clear) {
 			$subject = $email_options['clear_email_subject'];
 			$message = $email_options['clear_email_template'];
+			$email_type = 'clear';
 		} elseif ($reschedule) {
 			$subject = $email_options['reschedule_email_subject'];
 			$message = $email_options['reschedule_email_template'];
+			$email_type = 'reschedule';
 		} elseif($confirmation) {
 			$subject = $email_options['confirmation_email_subject'];
 			$message = $email_options['confirmation_email_template'];
+			$email_type = 'confirmation';
 		} elseif('validate_signup' === $action) {
 			$subject = $validation_options['signup_validation_email_subject'];
 			$message = $validation_options['signup_validation_email_template'];
 			$validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
 			$signup_validation = true;
+			$email_type = 'signup_validation';
+		}
+
+		// If we have an email type, try to use a template (sheet-level or system default)
+		if ( ! empty( $email_type ) ) {
+			$template = self::get_active_email_template( $email_type, $sheet->id, $task->id );
+			if ( $template ) {
+				$replaced = $template->replace_placeholders( $signup, $task, $sheet );
+				// Only override if template returned non-empty values
+				if ( ! empty( $replaced['subject'] ) ) {
+					$subject = $replaced['subject'];
+				}
+				if ( ! empty( $replaced['body'] ) ) {
+					$message = $replaced['body'];
+				}
+			}
 		}
 		PTA_SUS_Template_Tags::add_tag('{validation_link}', $validation_link);
-		
-		// Allow extensions to modify subject and template
+
+		// Disable old Customizer email filters (subject/body) so the new template system is authoritative
+		self::maybe_disable_customizer_email_filters();
+
+		// Allow other extensions to modify subject and template
 		$subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule, $action));
 		$message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule, $action));
 
@@ -198,9 +275,48 @@ class PTA_SUS_Email_Functions {
 			return false;
 		}
 
-		// convert old line breaks to html when using html
-		if($use_html) {
-			$message = wpautop($message, false);
+		// Format message based on content type
+		if ($use_html) {
+			// When sending HTML, convert plain-text line breaks into paragraphs/BRs.
+			// Normalize line endings first so wpautop sees consistent "\n" breaks.
+			$message = preg_replace('/\r\n?|\r/', "\n", $message);
+			// Let wpautop add <p> and <br> for both double and single line breaks.
+			$message = wpautop($message, true);
+		} else {
+			// When sending plain text, strip HTML but preserve basic structure.
+			// Convert common block/line break tags to newlines before stripping tags.
+			$search = array(
+				"/<br\\s*\\/?>/i",
+				"/<p[^>]*>/i",
+				"/<\\/p>/i",
+				"/<div[^>]*>/i",
+				"/<\\/div>/i",
+				"/<li[^>]*>/i",
+				"/<\\/li>/i",
+				"/<h[1-6][^>]*>/i",
+				"/<\\/h[1-6]>/i",
+			);
+			$replace = array(
+				"\n",
+				"",
+				"\n\n",
+				"",
+				"\n\n",
+				"* ",
+				"\n",
+				"",
+				"\n\n",
+			);
+			$message = preg_replace($search, $replace, $message);
+			// Strip any remaining tags
+			$message = wp_strip_all_tags($message);
+			// Decode entities and normalize newlines
+			$message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
+			$message = preg_replace("/\r\n|\r/", "\n", $message);
+			// Collapse excessive blank lines
+			$message = preg_replace("/\n{3,}/", "\n\n", $message);
+			// Wrap to a reasonable width for plain text emails
+			$message = wordwrap(trim($message), 70);
 		}
 
 		// Get Chair emails
@@ -672,6 +788,169 @@ Please click on, or copy and paste, the link below to validate yourself:
 			}
 		}
 		update_option('pta_sus_rescheduled_signup_ids', $reschedule_queue);
+	}
+
+	/**
+	 * Get system default template ID for an email type
+	 * Stored in options: pta_volunteer_sus_email_template_defaults
+	 * 
+	 * @param string $email_type Email type (confirmation, reminder1, reminder2, clear, reschedule, signup_validation)
+	 * @return int Template ID, or 0 if not set
+	 */
+	public static function get_system_default_template_id($email_type) {
+		$defaults = get_option('pta_volunteer_sus_email_template_defaults', array());
+		if (isset($defaults[$email_type]) && $defaults[$email_type] > 0) {
+			return absint($defaults[$email_type]);
+		}
+		return 0;
+	}
+
+	/**
+	 * Get system default template object for an email type
+	 * Handles fallback: if reminder2 not set, use reminder1
+	 * 
+	 * @param string $email_type Email type
+	 * @return PTA_SUS_Email_Template|false Template object or false if not found
+	 */
+	public static function get_system_default_template($email_type) {
+		$template_id = self::get_system_default_template_id($email_type);
+		
+		// Handle reminder2 fallback to reminder1
+		if ('reminder2' === $email_type && $template_id === 0) {
+			$template_id = self::get_system_default_template_id('reminder1');
+		}
+		
+		if ($template_id > 0) {
+			$template = new PTA_SUS_Email_Template($template_id);
+			if ($template->id > 0) {
+				return $template;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Get active email template for a specific email type
+	 * Checks: Sheet template -> System default
+	 * (Task template check will be added in Phase 2B)
+	 * 
+	 * @param string $email_type Email type (confirmation, reminder1, reminder2, clear, reschedule, signup_validation)
+	 * @param int $sheet_id Sheet ID
+	 * @param int $task_id Task ID (optional, for task-specific templates in Phase 2B)
+	 * @return PTA_SUS_Email_Template|false Template object or false if not found
+	 */
+	public static function get_active_email_template($email_type, $sheet_id, $task_id = 0) {
+		$sheet = pta_sus_get_sheet($sheet_id);
+		if (!$sheet) {
+			return false;
+		}
+		
+		// Map email type to sheet property name
+		$property_map = array(
+			'confirmation' => 'confirmation_email_template_id',
+			'reminder1' => 'reminder1_email_template_id',
+			'reminder2' => 'reminder2_email_template_id',
+			'clear' => 'clear_email_template_id',
+			'reschedule' => 'reschedule_email_template_id',
+			'signup_validation' => 'signup_validation_email_template_id',
+		);
+		
+		if (!isset($property_map[$email_type])) {
+			return false;
+		}
+		
+		$property_name = $property_map[$email_type];
+		$template_id = isset($sheet->$property_name) ? absint($sheet->$property_name) : 0;
+		
+		// If sheet has a template assigned, use it
+		if ($template_id > 0) {
+			$template = new PTA_SUS_Email_Template($template_id);
+			if ($template->id > 0) {
+				return $template;
+			}
+		}
+		
+		// Fall back to system default
+		return self::get_system_default_template($email_type);
+	}
+
+	/**
+	 * Get templates available to current user
+	 * Authors see their own + templates with author_id = 0 (available to all)
+	 * Admins/Managers see all templates
+	 * 
+	 * @param bool $include_system_defaults Whether to include system defaults
+	 * @return array Array of PTA_SUS_Email_Template objects
+	 */
+	public static function get_available_templates($include_system_defaults = true) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'pta_sus_email_templates';
+		
+		$can_manage_others = current_user_can('manage_others_signup_sheets');
+		$current_user_id = get_current_user_id();
+		
+		// Build WHERE clause based on permissions
+		if ($can_manage_others) {
+			// Admins/Managers see all templates
+			$where = '';
+			$params = array();
+		} else {
+			// Authors see their own + templates with author_id = 0
+			$where = ' WHERE (author_id = %d OR author_id = 0)';
+			$params = array($current_user_id);
+		}
+		
+		// Optionally exclude system defaults
+		if (!$include_system_defaults) {
+			if (empty($where)) {
+				$where = ' WHERE is_system_default = 0';
+			} else {
+				$where .= ' AND is_system_default = 0';
+			}
+		}
+		
+		$sql = "SELECT id FROM {$table}" . $where . " ORDER BY title ASC";
+		
+		if (!empty($params)) {
+			$sql = $wpdb->prepare($sql, $params);
+		}
+		
+		$template_ids = $wpdb->get_col($sql);
+		$templates = array();
+		
+		foreach ($template_ids as $template_id) {
+			$template = new PTA_SUS_Email_Template($template_id);
+			if ($template->id > 0) {
+				$templates[] = $template;
+			}
+		}
+		
+		return $templates;
+	}
+
+	/**
+	 * Set system default template for an email type
+	 * Updates options: pta_volunteer_sus_email_template_defaults
+	 * 
+	 * @param string $email_type Email type
+	 * @param int $template_id Template ID (0 to unset)
+	 * @return bool Success
+	 */
+	public static function set_system_default_template($email_type, $template_id) {
+		$defaults = get_option('pta_volunteer_sus_email_template_defaults', array());
+		$template_id = absint($template_id);
+		
+		// Validate template exists if ID > 0
+		if ($template_id > 0) {
+			$template = new PTA_SUS_Email_Template($template_id);
+			if ($template->id === 0) {
+				return false; // Template doesn't exist
+			}
+		}
+		
+		$defaults[$email_type] = $template_id;
+		return update_option('pta_volunteer_sus_email_template_defaults', $defaults);
 	}
 }
 

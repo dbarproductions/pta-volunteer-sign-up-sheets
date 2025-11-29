@@ -40,6 +40,14 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 			'trash' => 'bool',
 			'clear_emails' => 'text',
 			'signup_emails' => 'text',
+			'author_id' => 'int',
+			'author_email' => 'email',
+			'confirmation_email_template_id' => 'int',
+			'reminder1_email_template_id' => 'int',
+			'reminder2_email_template_id' => 'int',
+			'clear_email_template_id' => 'int',
+			'reschedule_email_template_id' => 'int',
+			'signup_validation_email_template_id' => 'int',
 		);
 	}
 	
@@ -71,6 +79,14 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 			'trash' => false,
 			'clear_emails' => 'default',
 			'signup_emails' => 'default',
+			'author_id' => 0,
+			'author_email' => '',
+			'confirmation_email_template_id' => 0,
+			'reminder1_email_template_id' => 0,
+			'reminder2_email_template_id' => 0,
+			'clear_email_template_id' => 0,
+			'reschedule_email_template_id' => 0,
+			'signup_validation_email_template_id' => 0,
 		);
 	}
 	
