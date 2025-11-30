@@ -56,6 +56,70 @@ if ($count < 3) $count = 3;
         </p>
     </div>
 
+	<?php
+	// Get available templates for dropdowns
+	$available_templates = PTA_SUS_Email_Functions::get_available_templates(true);
+	$email_types = PTA_SUS_Email_Functions::get_email_types();
+	
+	// Get sheet to check its template assignments (for "Use Sheet Template" option)
+	$sheet = pta_sus_get_sheet($f['sheet_id']);
+	$sheet_template_ids = array();
+	if ($sheet) {
+		$sheet_template_ids = array(
+			'confirmation' => isset($sheet->confirmation_email_template_id) ? absint($sheet->confirmation_email_template_id) : 0,
+			'reminder1' => isset($sheet->reminder1_email_template_id) ? absint($sheet->reminder1_email_template_id) : 0,
+			'reminder2' => isset($sheet->reminder2_email_template_id) ? absint($sheet->reminder2_email_template_id) : 0,
+			'clear' => isset($sheet->clear_email_template_id) ? absint($sheet->clear_email_template_id) : 0,
+			'reschedule' => isset($sheet->reschedule_email_template_id) ? absint($sheet->reschedule_email_template_id) : 0,
+		);
+	}
+	
+	// Get current task template IDs (if editing)
+	$task_template_ids = array();
+	$task_template_ids['confirmation'] = isset($f['task_confirmation_email_template_id'][$i]) ? absint($f['task_confirmation_email_template_id'][$i]) : 0;
+	$task_template_ids['reminder1'] = isset($f['task_reminder1_email_template_id'][$i]) ? absint($f['task_reminder1_email_template_id'][$i]) : 0;
+	$task_template_ids['reminder2'] = isset($f['task_reminder2_email_template_id'][$i]) ? absint($f['task_reminder2_email_template_id'][$i]) : 0;
+	$task_template_ids['clear'] = isset($f['task_clear_email_template_id'][$i]) ? absint($f['task_clear_email_template_id'][$i]) : 0;
+	$task_template_ids['reschedule'] = isset($f['task_reschedule_email_template_id'][$i]) ? absint($f['task_reschedule_email_template_id'][$i]) : 0;
+	?>
+	<br/><a href="#" class="task_email_templates_trigger" id="email_templates_trigger_<?php echo $i; ?>"><?php _e('Email Template Options', 'pta-volunteer-sign-up-sheets'); ?></a>
+	<div class="pta_sus_task_email_templates" id="task_email_templates_<?php echo $i; ?>" style="display:none;">
+		<p><em><?php _e('Select email templates for this task. Leave as "Use Sheet Template" to use the template assigned to the sheet, or "Use System Default" if no sheet template is set.', 'pta-volunteer-sign-up-sheets'); ?></em></p>
+		<?php foreach ($email_types as $email_type => $email_type_label) : 
+			// Skip validation email types as they're system-wide only, not task/sheet level
+			if ('user_validation' === $email_type || 'signup_validation' === $email_type) continue;
+			
+			$property_name = $email_type . '_email_template_id';
+			$current_template_id = isset($task_template_ids[$email_type]) ? $task_template_ids[$email_type] : 0;
+			$sheet_template_id = isset($sheet_template_ids[$email_type]) ? $sheet_template_ids[$email_type] : 0;
+		?>
+			<p>
+				<label for="task_<?php echo esc_attr($property_name); ?>[<?php echo $i; ?>]">
+					<strong><?php echo esc_html($email_type_label); ?>:</strong>
+				</label>
+				<select name="task_<?php echo esc_attr($property_name); ?>[<?php echo $i; ?>]" id="task_<?php echo esc_attr($property_name); ?>[<?php echo $i; ?>]">
+					<option value="0" <?php selected($current_template_id, 0); ?>>
+						<?php 
+						if ($sheet_template_id > 0) {
+							_e('Use Sheet Template', 'pta-volunteer-sign-up-sheets');
+						} else {
+							_e('Use System Default', 'pta-volunteer-sign-up-sheets');
+						}
+						?>
+					</option>
+					<?php foreach ($available_templates as $template) : ?>
+						<option value="<?php echo $template->id; ?>" <?php selected($current_template_id, $template->id); ?>>
+							<?php echo esc_html($template->title); ?>
+							<?php if ($template->is_system_default()) : ?>
+								<?php echo ' ' . __('(System Default)', 'pta-volunteer-sign-up-sheets'); ?>
+							<?php endif; ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</p>
+		<?php endforeach; ?>
+	</div>
+
 	<?php if(!$no_signups) : ?>
 		<br/><?php _e('Allow Duplicates? ', 'pta-volunteer-sign-up-sheets');
 		if (!isset($f['task_allow_duplicates'][$i])) {

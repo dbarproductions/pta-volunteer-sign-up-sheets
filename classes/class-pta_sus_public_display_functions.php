@@ -1038,8 +1038,8 @@ class PTA_SUS_Public_Display_Functions {
 			$view_signup_text = apply_filters('pta_sus_view_signup_text_for_sheet', $view_signup_text, $sheet);
 
 			$title = '<a class="pta-sus-link view" href="' . esc_url($sheet_url) . '">' . esc_html($sheet->title) . '</a>' . $is_hidden;
-			$start_date = ($sheet->first_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->first_date));
-			$end_date = ($sheet->last_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->last_date));
+			$start_date = (empty($sheet->first_date) || $sheet->first_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->first_date));
+			$end_date = (empty($sheet->last_date) || $sheet->last_date == '0000-00-00') ? $ongoing_label : pta_datetime(get_option('date_format'), strtotime($sheet->last_date));
 			$view_link = ($open_spots > 0) ? '<a class="pta-sus-link view" href="' . esc_url($sheet_url) . '">' . esc_html($view_signup_text) . '</a>' : '&#10004; ' . esc_html($sheet_filled_text);
 			// allow extensions to modify the view link
 			$view_link = apply_filters('pta_sus_view_link_for_sheet', $view_link, $sheet, $open_spots);

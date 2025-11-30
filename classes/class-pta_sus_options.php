@@ -152,17 +152,8 @@ class PTA_SUS_Options {
         add_settings_field('replyto_email', __('Reply-To email:', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('replyto_chairs', __('Reply-To Chairs?', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_chairs_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('cc_email', __('CC email:', 'pta-volunteer-sign-up-sheets'), array($this, 'cc_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('confirmation_email_subject', __('Confirmation email subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'confirmation_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('confirmation_email_template', __('Confirmation email template:', 'pta-volunteer-sign-up-sheets'), array($this, 'confirmation_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('clear_email_subject', __('Cleared signup email subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('clear_email_template', __('Cleared signup email template:', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('reminder_email_subject', __('Reminder email subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'reminder_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('reminder_email_template', __('Reminder email template:', 'pta-volunteer-sign-up-sheets'), array($this, 'reminder_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-	    add_settings_field('reminder2_email_subject', __('Reminder 2 email subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'reminder2_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-	    add_settings_field('reminder2_email_template', __('Reminder 2 email template:', 'pta-volunteer-sign-up-sheets'), array($this, 'reminder2_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+        // Email templates are now managed via the Email Templates admin page
         add_settings_field('reminder_email_limit', __('Max Reminders per Hour:', 'pta-volunteer-sign-up-sheets'), array($this, 'reminder_email_limit_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('reschedule_email_subject', __('Reschedule email subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'reschedule_email_subject_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
-        add_settings_field('reschedule_email_template', __('Reschedule email template:', 'pta-volunteer-sign-up-sheets'), array($this, 'reschedule_email_template_textarea_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('individual_emails', __('Separate CC/BCC to individual TO emails?', 'pta-volunteer-sign-up-sheets'), array($this, 'individual_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('admin_clear_emails', __('Send emails when clear from admin?', 'pta-volunteer-sign-up-sheets'), array($this, 'admin_clear_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('no_chair_emails', __('Disable chair emails?', 'pta-volunteer-sign-up-sheets'), array($this, 'no_chair_emails_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -193,14 +184,12 @@ class PTA_SUS_Options {
 	    add_settings_field('validation_page_id', __('Validation Page:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_page_id_select'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
         add_settings_field('enable_signup_validation', __('Enable Signup Validation:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_signup_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
         add_settings_field('signup_expiration_hours', __('Signup Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
-	    add_settings_field('signup_validation_email_subject', __('Signup Validation Email Subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_subject_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
-	    add_settings_field('signup_validation_email_template', __('Signup Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('signup_validation_email_template_id', __('Signup Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'signup_validation_email_template_select'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('disable_cc_validation_signup_emails', __('Disable CC for Signup Validation emails:', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_cc_validation_signup_emails_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('enable_user_validation_form', __('Enable User Validation Form:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_user_validation_form_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_code_expiration_hours', __('Validation Code Expiration (hours):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_code_expiration_hours_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_form_header', __('User Validation Form Header:', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_header_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
-	    add_settings_field('user_validation_email_subject', __('User Validation Email Subject:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_subject_text_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
-	    add_settings_field('user_validation_email_template', __('User Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_template_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
+	    add_settings_field('user_validation_email_template_id', __('User Validation Email Template:', 'pta-volunteer-sign-up-sheets'), array($this, 'user_validation_email_template_select'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('validation_form_resubmission_minutes', __('Validation Form Resubmission Time (minutes):', 'pta-volunteer-sign-up-sheets'), array($this, 'validation_form_resubmission_minutes_number_input'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('enable_clear_validation', __('Enable Clear Validation link:', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_clear_validation_checkbox'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
 	    add_settings_field('clear_validation_message', __('Clear Validation Message:', 'pta-volunteer-sign-up-sheets'), array($this, 'clear_validation_message_textarea'), 'pta_volunteer_sus_validation', 'pta_volunteer_validation');
@@ -324,17 +313,8 @@ class PTA_SUS_Options {
 		    'from_email'                  => 'email',
 		    'replyto_email'               => 'email',
 		    'cc_email'                    => 'email',
-		    'confirmation_email_subject'  => 'text',
-		    'confirmation_email_template' => 'textarea',
-		    'clear_email_subject'         => 'text',
-		    'clear_email_template'        => 'textarea',
-		    'reminder_email_subject'      => 'text',
-		    'reminder_email_template'     => 'textarea',
-		    'reminder2_email_subject'     => 'text',
-		    'reminder2_email_template'    => 'textarea',
+		    // Email templates are now managed via the Email Templates admin page
 		    'reminder_email_limit'        => 'integer',
-		    'reschedule_email_subject'    => 'text',
-		    'reschedule_email_template'   => 'textarea',
 		    'individual_emails'           => 'bool',
 		    'admin_clear_emails'          => 'bool',
 		    'no_chair_emails'             => 'bool',
@@ -363,10 +343,8 @@ class PTA_SUS_Options {
             'enable_signup_validation' => 'bool',
             'signup_expiration_hours' => 'integer',
             'validation_code_expiration_hours' => 'integer',
-            'signup_validation_email_subject' => 'text',
-            'signup_validation_email_template' => 'textarea',
-            'user_validation_email_subject' => 'text',
-            'user_validation_email_template' => 'textarea',
+            'signup_validation_email_template_id' => 'integer',
+            'user_validation_email_template_id' => 'integer',
             'validation_form_header' => 'textarea',
             'enable_user_validation_form' => 'bool',
             'validation_form_resubmission_minutes' => 'integer',
@@ -500,30 +478,7 @@ class PTA_SUS_Options {
         echo '<em> ' . __('Global CC email address for signup confirmation and signup cleared emails. This email is in ADDITION TO the chair contact emails for sheets and will apply to ALL sheets. Useful for notifying admin or the head volunteer coordinator. Leave blank to only notify the chairs entered for each sheet.', 'pta-volunteer-sign-up-sheets') . '</em>';
     }
 
-    public function confirmation_email_subject_text_input() {
-	    echo '<input id="confirmation_email_subject" name="pta_volunteer_sus_email_options[confirmation_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["confirmation_email_subject"]).'" />';
-        echo '<em> ' . __('Subject line for signup confirmation email messages. Template tags can be used.', 'pta-volunteer-sign-up-sheets') .'</em>';
-    }
-
-    public function clear_email_subject_text_input() {
-	    echo '<input id="clear_email_subject" name="pta_volunteer_sus_email_options[clear_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["clear_email_subject"]).'" />';
-        echo '<em> ' . __('Subject line for cleared signup email messages. Template tags can be used.', 'pta-volunteer-sign-up-sheets') .'</em>';
-    }
-
-    public function reminder_email_subject_text_input() {
-	    echo '<input id="reminder_email_subject" name="pta_volunteer_sus_email_options[reminder_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reminder_email_subject"]).'" />';
-        echo '<em> '. __('Subject line for signup reminder email messages. Template tags can be used.', 'pta-volunteer-sign-up-sheets') . '</em>';
-    }
-	
-	public function reminder2_email_subject_text_input() {
-		echo '<input id="reminder2_email_subject" name="pta_volunteer_sus_email_options[reminder2_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reminder2_email_subject"]).'" />';
-		echo '<em> '. __('Subject line for signup reminder #2 email messages. LEAVE BLANK to use same subject template (above) for both reminders. Template tags can be used.', 'pta-volunteer-sign-up-sheets') . '</em>';
-	}
-
-    public function reschedule_email_subject_text_input() {
-        echo '<input id="reschedule_email_subject" name="pta_volunteer_sus_email_options[reschedule_email_subject]" size="60" type="text" value="'.esc_attr($this->email_options["reschedule_email_subject"]).'" />';
-        echo '<em> '. __('Subject line for reschedule email messages. Template tags can be used.', 'pta-volunteer-sign-up-sheets') . '</em>';
-    }
+    // Email template subject and body fields have been removed - templates are now managed via the Email Templates admin page
 
     public function reminder_email_limit_text_input() {
         echo "<input id='reminder_email_limit' name='pta_volunteer_sus_email_options[reminder_email_limit]' size='5' type='text' value='{$this->email_options['reminder_email_limit']}' />";
@@ -535,14 +490,68 @@ class PTA_SUS_Options {
 	    echo '<em> '. __('# of days after the last sheet date (when clearing sheets automatically), or signup date (when clearing signups automatically), before clearing the sheet or signup from the database. Min/default is 1 calendar day. Note this is calendar days and NOT based on hours or task times.', 'pta-volunteer-sign-up-sheets') . '</em>';
     }
 
-    public function signup_validation_email_subject_text_input() {
-        echo '<input id="signup_validation_email_subject" name="pta_volunteer_sus_validation_options[signup_validation_email_subject]" size="60" type="text" value="'.esc_attr($this->validation_options["signup_validation_email_subject"]).'" />';
-        echo '<em> '. __('Subject line for signup validation email messages.', 'pta-volunteer-sign-up-sheets') . '</em>';
-    }
+    public function signup_validation_email_template_select() {
+		$templates = PTA_SUS_Email_Functions::get_available_templates( true );
+		if ( empty( $templates ) ) {
+			echo '<p>' . __( 'No email templates available. Please create templates on the Email Templates page.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+			return;
+		}
+		
+		$current = isset( $this->validation_options['signup_validation_email_template_id'] ) ? absint( $this->validation_options['signup_validation_email_template_id'] ) : 0;
+		$defaults = get_option( 'pta_volunteer_sus_email_template_defaults', array() );
+		$system_default_id = isset( $defaults['signup_validation'] ) ? absint( $defaults['signup_validation'] ) : 0;
+		
+		// Build options array
+		$template_options = array(
+			0 => __( 'Use System Default', 'pta-volunteer-sign-up-sheets' ) . ( $system_default_id > 0 ? ' (' . __( 'ID:', 'pta-volunteer-sign-up-sheets' ) . ' ' . $system_default_id . ')' : '' ),
+		);
+		foreach ( $templates as $template ) {
+			$label = $template->title;
+			if ( $template->is_system_default() ) {
+				$label .= ' ' . __( '(System Default)', 'pta-volunteer-sign-up-sheets' );
+			}
+			$template_options[ $template->id ] = $label;
+		}
+		
+		echo '<select id="signup_validation_email_template_id" name="pta_volunteer_sus_validation_options[signup_validation_email_template_id]">';
+		foreach ( $template_options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '" ' . selected( $current, $value, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __( 'Select the email template to use for signup validation emails. Leave set to "Use System Default" to use the global default template.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+		echo '<p class="description"><strong>' . __( 'Important:', 'pta-volunteer-sign-up-sheets' ) . '</strong> ' . __( 'The template must include the {validation_link} tag to enable validation. You can also use {signup_expiration_hours} to show how much time they have to validate the signup before it is deleted.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+	}
 
-	public function user_validation_email_subject_text_input() {
-		echo '<input id="user_validation_email_subject" name="pta_volunteer_sus_validation_options[user_validation_email_subject]" size="60" type="text" value="'.esc_attr($this->validation_options["user_validation_email_subject"]).'" />';
-		echo '<em> '. __('Subject line for user validation email messages.', 'pta-volunteer-sign-up-sheets') . '</em>';
+	public function user_validation_email_template_select() {
+		$templates = PTA_SUS_Email_Functions::get_available_templates( true );
+		if ( empty( $templates ) ) {
+			echo '<p>' . __( 'No email templates available. Please create templates on the Email Templates page.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+			return;
+		}
+		
+		$current = isset( $this->validation_options['user_validation_email_template_id'] ) ? absint( $this->validation_options['user_validation_email_template_id'] ) : 0;
+		$defaults = get_option( 'pta_volunteer_sus_email_template_defaults', array() );
+		$system_default_id = isset( $defaults['user_validation'] ) ? absint( $defaults['user_validation'] ) : 0;
+		
+		// Build options array
+		$template_options = array(
+			0 => __( 'Use System Default', 'pta-volunteer-sign-up-sheets' ) . ( $system_default_id > 0 ? ' (' . __( 'ID:', 'pta-volunteer-sign-up-sheets' ) . ' ' . $system_default_id . ')' : '' ),
+		);
+		foreach ( $templates as $template ) {
+			$label = $template->title;
+			if ( $template->is_system_default() ) {
+				$label .= ' ' . __( '(System Default)', 'pta-volunteer-sign-up-sheets' );
+			}
+			$template_options[ $template->id ] = $label;
+		}
+		
+		echo '<select id="user_validation_email_template_id" name="pta_volunteer_sus_validation_options[user_validation_email_template_id]">';
+		foreach ( $template_options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '" ' . selected( $current, $value, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		echo '<p class="description">' . __( 'Select the email template to use for user validation emails. Leave set to "Use System Default" to use the global default template.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
+		echo '<p class="description"><strong>' . __( 'Important:', 'pta-volunteer-sign-up-sheets' ) . '</strong> ' . __( 'The template must include the {validation_link} tag to enable validation. You can also use {validation_code_expiration_hours} to show how much time they have to validate themselves before the code expires.', 'pta-volunteer-sign-up-sheets' ) . '</p>';
 	}
 
     public function clear_validation_link_text_input() {
@@ -1224,96 +1233,9 @@ class PTA_SUS_Options {
 		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Keep this checked to allow users to clear the validation cookie from their browser via a link on the page where you put the validation form shortcode. It will also appear below the lists of their signups. Useful to clear cookies on public computers, or if they have signed up spouses or family members using different info and need to revalidate with different info.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
 	}
 
-    public function confirmation_email_template_textarea_input() {
-        if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-            wp_editor(wpautop($this->email_options['confirmation_email_template']),'confirmation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[confirmation_email_template]'));
-        } else {
-	        echo "<textarea id='confirmation_email_template' name='pta_volunteer_sus_email_options[confirmation_email_template]' cols='55' rows='15' >";
-	        echo esc_textarea( $this->email_options['confirmation_email_template'] );
-	        echo '</textarea>';
-        }
+    // Email template textarea/editor fields have been removed - templates are now managed via the Email Templates admin page
 
-        echo '<br />' . __('Email user receives when they sign up for a volunteer slot.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-    }
-
-    public function reminder_email_template_textarea_input() {
-	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-		    wp_editor(wpautop($this->email_options['reminder_email_template']),'reminder_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reminder_email_template]'));
-	    } else {
-		    echo "<textarea id='reminder_email_template' name='pta_volunteer_sus_email_options[reminder_email_template]' cols='55' rows='15' >";
-		    echo esc_textarea( $this->email_options['reminder_email_template'] );
-		    echo '</textarea>';
-	    }
-        echo '<br />' . __('Reminder email sent to volunteers.', 'pta-volunteer-sign-up-sheets');
-	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-    }
-	
-	public function reminder2_email_template_textarea_input() {
-		if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-			wp_editor(wpautop($this->email_options['reminder2_email_template']),'reminder2_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reminder2_email_template]'));
-		} else {
-			echo "<textarea id='reminder2_email_template' name='pta_volunteer_sus_email_options[reminder2_email_template]' cols='55' rows='15' >";
-			echo esc_textarea( $this->email_options['reminder2_email_template'] );
-			echo '</textarea>';
-		}
-
-		echo '<br />' . __('Reminder #2 email sent to volunteers. LEAVE BLANK to use the same (first) message template for both reminders', 'pta-volunteer-sign-up-sheets');
-		echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-	}
-
-    public function reschedule_email_template_textarea_input() {
-	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-		    wp_editor(wpautop($this->email_options['reschedule_email_template']),'reschedule_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[reschedule_email_template]'));
-	    } else {
-		    echo "<textarea id='reschedule_email_template' name='pta_volunteer_sus_email_options[reschedule_email_template]' cols='55' rows='15' >";
-		    echo esc_textarea( $this->email_options['reschedule_email_template'] );
-		    echo '</textarea>';
-	    }
-        echo '<br />' . __('Reschedule email sent to volunteers. Template tags will show the new dates and times.', 'pta-volunteer-sign-up-sheets');
-        echo '<br />' . __('Reschedule emails will be sent hourly via the same CRON job and limits set for reminder emails.', 'pta-volunteer-sign-up-sheets');
-	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-    }
-
-    public function clear_email_template_textarea_input() {
-	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-		    wp_editor(wpautop($this->email_options['clear_email_template']),'clear_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_email_options[clear_email_template]'));
-	    } else {
-		    echo "<textarea id='clear_email_template' name='pta_volunteer_sus_email_options[clear_email_template]' cols='55' rows='15' >";
-		    echo esc_textarea( $this->email_options['clear_email_template'] );
-		    echo '</textarea>';
-	    }
-        echo '<br />' . __('Cleared signup email sent to volunteers when they clear themselves from a signup.', 'pta-volunteer-sign-up-sheets');
-	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-    }
-
-    public function signup_validation_email_template_textarea() {
-	    if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-		    wp_editor(wpautop($this->validation_options['signup_validation_email_template']),'signup_validation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[signup_validation_email_template]'));
-	    } else {
-		    echo "<textarea id='signup_validation_email_template' name='pta_volunteer_sus_validation_options[signup_validation_email_template]' cols='55' rows='15' >";
-		    echo esc_textarea( $this->validation_options['signup_validation_email_template'] );
-		    echo '</textarea>';
-	    }
-	    echo '<br />' . __('Signup Validation email sent to volunteers when a non-validated user signs up for something.', 'pta-volunteer-sign-up-sheets');
-        echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
-	    echo '<br />'.__('You can also use {signup_expiration_hours} to show how much time they have to validate the signup before it is deleted.', 'pta-volunteer-sign-up-sheets');
-	    echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-    }
-
-	public function user_validation_email_template_textarea() {
-		if(isset($this->email_options['use_html']) && true === $this->email_options['use_html']) {
-			wp_editor(wpautop($this->validation_options['user_validation_email_template']),'user_validation_email_template',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 15,'textarea_name' => 'pta_volunteer_sus_validation_options[user_validation_email_template]'));
-		} else {
-			echo "<textarea id='user_validation_email_template' name='pta_volunteer_sus_validation_options[user_validation_email_template]' cols='55' rows='15' >";
-			echo esc_textarea( $this->validation_options['user_validation_email_template'] );
-			echo '</textarea>';
-		}
-		echo '<br />' . __('User Validation email sent to a non-validated user when they fill out the validation form.', 'pta-volunteer-sign-up-sheets');
-		echo '<br /><strong>'.__('You MUST include at least the {validation_link} tag to enable validation.', 'pta-volunteer-sign-up-sheets') .'</strong>';
-		echo '<br />'.__('You can also use {validation_code_expiration_hours} to show how much time they have to validate themselves before the code expires.', 'pta-volunteer-sign-up-sheets');
-		echo '<br />' . __('Template Tags are allowed. Use the Template Tags helper in upper right.', 'pta-volunteer-sign-up-sheets');
-	}
+    // Validation email template textarea fields have been removed - templates are now selected via dropdowns above
 
 	public function validation_form_header_textarea() {
         wp_editor(wpautop($this->validation_options['validation_form_header']),'validation_form_header',array('wpautop' => true, 'media_buttons' => false, 'textarea_rows' => 5,'textarea_name' => 'pta_volunteer_sus_validation_options[validation_form_header]'));

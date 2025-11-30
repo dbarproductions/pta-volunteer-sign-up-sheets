@@ -241,15 +241,40 @@ class PTA_SUS_Email_Functions {
 			$message = $email_options['confirmation_email_template'];
 			$email_type = 'confirmation';
 		} elseif('validate_signup' === $action) {
-			$subject = $validation_options['signup_validation_email_subject'];
-			$message = $validation_options['signup_validation_email_template'];
+			// Get template ID from validation options (0 = use system default)
+			// Note: signup_validation is system-wide only, not sheet/task level
+			$template_id = isset( $validation_options['signup_validation_email_template_id'] ) ? absint( $validation_options['signup_validation_email_template_id'] ) : 0;
+			$template = self::get_email_template( $template_id, 'signup_validation' );
+			
+			if ( $template ) {
+				$subject = $template->subject;
+				$message = $template->body;
+				// Replace placeholders in validation template
+				$replaced = $template->replace_placeholders( $signup, $task, $sheet );
+				if ( ! empty( $replaced['subject'] ) ) {
+					$subject = $replaced['subject'];
+				}
+				if ( ! empty( $replaced['body'] ) ) {
+					$message = $replaced['body'];
+				}
+			} else {
+				// Fallback to old options if template not found
+				$subject = $validation_options['signup_validation_email_subject'] ?? '';
+				$message = $validation_options['signup_validation_email_template'] ?? '';
+			}
+			
 			$validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
+			// Format validation link for HTML emails if enabled
+			if ($use_html && !empty($validation_link)) {
+				$validation_link = '<a href="' . esc_url($validation_link) . '">' . esc_html($validation_link) . '</a>';
+			}
 			$signup_validation = true;
 			$email_type = 'signup_validation';
 		}
 
 		// If we have an email type, try to use a template (sheet-level or system default)
-		if ( ! empty( $email_type ) ) {
+		// Note: signup_validation and user_validation are system-wide only, handled separately above
+		if ( ! empty( $email_type ) && 'signup_validation' !== $email_type && 'user_validation' !== $email_type ) {
 			$template = self::get_active_email_template( $email_type, $sheet->id, $task->id );
 			if ( $template ) {
 				$replaced = $template->replace_placeholders( $signup, $task, $sheet );
@@ -516,17 +541,34 @@ class PTA_SUS_Email_Functions {
 		$email = sanitize_email($email);
 		// Validate that email is actually valid before proceeding
 		if(empty($firstname) || empty($lastname) || empty($email) || !is_email($email)) return false;
-		$user_validation_template = "
+		
+		$use_html = isset($email_options['use_html']) && $email_options['use_html'];
+		
+		// Get template ID from validation options (0 = use system default)
+		$template_id = isset( $validation_options['user_validation_email_template_id'] ) ? absint( $validation_options['user_validation_email_template_id'] ) : 0;
+		$template = self::get_email_template( $template_id, 'user_validation' );
+		
+		if ( $template ) {
+			$subject = $template->subject;
+			$message = $template->body;
+		} else {
+			// Fallback to old options or default template
+			$user_validation_template = "
 Please click on, or copy and paste, the link below to validate yourself:
 {validation_link}
-		";
-		$subject = $validation_options['user_validation_email_subject'] ?? __('Your Validation Link', 'pta-volunteer-sign-up-sheets');
-		$message = $validation_options['user_validation_email_template'] ?? $user_validation_template;
+			";
+			$subject = $validation_options['user_validation_email_subject'] ?? __('Your Validation Link', 'pta-volunteer-sign-up-sheets');
+			$message = $validation_options['user_validation_email_template'] ?? $user_validation_template;
+		}
 		// Allow extensions to modify subject and template
 		$subject = stripslashes(apply_filters('pta_sus_validation_email_subject', $subject, $firstname, $lastname, $email));
 		$message = stripslashes(apply_filters('pta_sus_validation_email_template', $message, $firstname, $lastname, $email));
 
 		$validation_link = pta_create_validation_link($firstname,$lastname,$email );
+		// Format validation link for HTML emails if enabled
+		if ($use_html && !empty($validation_link)) {
+			$validation_link = '<a href="' . esc_url($validation_link) . '">' . esc_html($validation_link) . '</a>';
+		}
 		// Replace any template tags with the appropriate variables
 		$search = array(
 			'{firstname}',
@@ -556,7 +598,6 @@ Please click on, or copy and paste, the link below to validate yourself:
 		$subject = str_replace($search, $replace, $subject);
 		$to = sanitize_text_field($firstname) . ' ' . sanitize_text_field($lastname) . ' <'. sanitize_email($email) . '>';
 		$to = str_replace( ',', '', $to);
-		$use_html = isset($email_options['use_html']) && $email_options['use_html'];
 		// Get from email - use configured from_email if valid, otherwise use admin email
 		// Don't use no-reply@domain as it may not be a valid/verified email address
 		$from = apply_filters('pta_sus_from_email', $email_options['from_email'], null, null, null, false, false, false);
@@ -658,13 +699,33 @@ Please click on, or copy and paste, the link below to validate yourself:
 			if ( 0 < $reminder_count && $main_options['enable_cron_notifications'] ) {
 				$to = get_bloginfo( 'admin_email' );
 				$subject = __("Volunteer Signup Reminders sent", 'pta-volunteer-sign-up-sheets');
-				$message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\r\n\r\n";
-				$message .= sprintf( __("%d reminder emails were sent.", 'pta-volunteer-sign-up-sheets'), $reminder_count ) ."\r\n\r\n";
-				if ($main_options['detailed_reminder_admin_emails']) {
-					$message .= "Messages Sent:\r\n\r\n";
-					$message .= $reminders_log;
+				
+				$use_html = isset( $email_options['use_html'] ) && $email_options['use_html'];
+				
+				if ( $use_html ) {
+					// HTML email format
+					$message = '<p>' . __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets') . '</p>';
+					$message .= '<p>' . sprintf( __("%d reminder emails were sent.", 'pta-volunteer-sign-up-sheets'), $reminder_count ) . '</p>';
+					if ($main_options['detailed_reminder_admin_emails']) {
+						$message .= '<h3>' . __("Messages Sent:", 'pta-volunteer-sign-up-sheets') . '</h3>';
+						// Convert plain text reminders log to HTML
+						$reminders_log_html = preg_replace('/\r\n?|\r/', "\n", $reminders_log);
+						$reminders_log_html = wpautop($reminders_log_html, true);
+						$message .= $reminders_log_html;
+					}
+					$headers = array('Content-Type: text/html; charset=UTF-8');
+				} else {
+					// Plain text email format
+					$message = __("Volunteer signup sheet CRON job has been completed.", 'pta-volunteer-sign-up-sheets')."\r\n\r\n";
+					$message .= sprintf( __("%d reminder emails were sent.", 'pta-volunteer-sign-up-sheets'), $reminder_count ) ."\r\n\r\n";
+					if ($main_options['detailed_reminder_admin_emails']) {
+						$message .= __("Messages Sent:", 'pta-volunteer-sign-up-sheets') . "\r\n\r\n";
+						$message .= $reminders_log;
+					}
+					$headers = array();
 				}
-				wp_mail($to, $subject, $message);
+				
+				wp_mail($to, $subject, $message, $headers);
 			}
 		}
 
@@ -832,12 +893,12 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 	/**
 	 * Get active email template for a specific email type
-	 * Checks: Sheet template -> System default
-	 * (Task template check will be added in Phase 2B)
+	 * Checks: Task template -> Sheet template -> System default
+	 * Special handling for reminder2: falls back to reminder1 (task/sheet or system default) if no reminder2 template
 	 * 
 	 * @param string $email_type Email type (confirmation, reminder1, reminder2, clear, reschedule, signup_validation)
 	 * @param int $sheet_id Sheet ID
-	 * @param int $task_id Task ID (optional, for task-specific templates in Phase 2B)
+	 * @param int $task_id Task ID (optional, for task-specific templates)
 	 * @return PTA_SUS_Email_Template|false Template object or false if not found
 	 */
 	public static function get_active_email_template($email_type, $sheet_id, $task_id = 0) {
@@ -846,14 +907,14 @@ Please click on, or copy and paste, the link below to validate yourself:
 			return false;
 		}
 		
-		// Map email type to sheet property name
+		// Map email type to property name (same for both task and sheet)
+		// Note: signup_validation and user_validation are system-wide only, not sheet/task level
 		$property_map = array(
 			'confirmation' => 'confirmation_email_template_id',
 			'reminder1' => 'reminder1_email_template_id',
 			'reminder2' => 'reminder2_email_template_id',
 			'clear' => 'clear_email_template_id',
 			'reschedule' => 'reschedule_email_template_id',
-			'signup_validation' => 'signup_validation_email_template_id',
 		);
 		
 		if (!isset($property_map[$email_type])) {
@@ -861,17 +922,66 @@ Please click on, or copy and paste, the link below to validate yourself:
 		}
 		
 		$property_name = $property_map[$email_type];
-		$template_id = isset($sheet->$property_name) ? absint($sheet->$property_name) : 0;
 		
-		// If sheet has a template assigned, use it
-		if ($template_id > 0) {
-			$template = new PTA_SUS_Email_Template($template_id);
+		// First, check task template (if task_id provided)
+		if ($task_id > 0) {
+			$task = pta_sus_get_task($task_id);
+			if ($task) {
+				$task_template_id = isset($task->$property_name) ? absint($task->$property_name) : 0;
+				// If task has a template assigned (not 0), use it
+				if ($task_template_id > 0) {
+					$template = new PTA_SUS_Email_Template($task_template_id);
+					if ($template->id > 0) {
+						return $template;
+					}
+				}
+			}
+		}
+		
+		// Second, check sheet template
+		$sheet_template_id = isset($sheet->$property_name) ? absint($sheet->$property_name) : 0;
+		if ($sheet_template_id > 0) {
+			$template = new PTA_SUS_Email_Template($sheet_template_id);
 			if ($template->id > 0) {
 				return $template;
 			}
 		}
 		
-		// Fall back to system default
+		// Special handling for reminder2: if no task/sheet template and no system default for reminder2,
+		// fall back to reminder1 template (task/sheet reminder1 template if set, otherwise reminder1 system default)
+		if ('reminder2' === $email_type) {
+			// Check if there's a system default for reminder2
+			$reminder2_system_default_id = self::get_system_default_template_id('reminder2');
+			
+			// If no system default for reminder2, use reminder1 instead
+			if ($reminder2_system_default_id === 0) {
+				// Check task first (if task_id provided)
+				if ($task_id > 0) {
+					$task = pta_sus_get_task($task_id);
+					if ($task) {
+						$reminder1_template_id = isset($task->reminder1_email_template_id) ? absint($task->reminder1_email_template_id) : 0;
+						if ($reminder1_template_id > 0) {
+							$template = new PTA_SUS_Email_Template($reminder1_template_id);
+							if ($template->id > 0) {
+								return $template;
+							}
+						}
+					}
+				}
+				// Check sheet's reminder1 template
+				$reminder1_template_id = isset($sheet->reminder1_email_template_id) ? absint($sheet->reminder1_email_template_id) : 0;
+				if ($reminder1_template_id > 0) {
+					$template = new PTA_SUS_Email_Template($reminder1_template_id);
+					if ($template->id > 0) {
+						return $template;
+					}
+				}
+				// Fall back to reminder1 system default
+				return self::get_system_default_template('reminder1');
+			}
+		}
+		
+		// Finally, fall back to system default
 		return self::get_system_default_template($email_type);
 	}
 
@@ -901,15 +1011,6 @@ Please click on, or copy and paste, the link below to validate yourself:
 			$params = array($current_user_id);
 		}
 		
-		// Optionally exclude system defaults
-		if (!$include_system_defaults) {
-			if (empty($where)) {
-				$where = ' WHERE is_system_default = 0';
-			} else {
-				$where .= ' AND is_system_default = 0';
-			}
-		}
-		
 		$sql = "SELECT id FROM {$table}" . $where . " ORDER BY title ASC";
 		
 		if (!empty($params)) {
@@ -918,15 +1019,46 @@ Please click on, or copy and paste, the link below to validate yourself:
 		
 		$template_ids = $wpdb->get_col($sql);
 		$templates = array();
+		$defaults = get_option('pta_volunteer_sus_email_template_defaults', array());
 		
 		foreach ($template_ids as $template_id) {
 			$template = new PTA_SUS_Email_Template($template_id);
 			if ($template->id > 0) {
+				// Optionally exclude system defaults (check option instead of database field)
+				if (!$include_system_defaults && in_array($template_id, $defaults, true)) {
+					continue;
+				}
 				$templates[] = $template;
 			}
 		}
 		
 		return $templates;
+	}
+
+	/**
+	 * Get email template by ID, with fallback to system default
+	 * Used for validation emails where template_id comes from options
+	 * 
+	 * @param int $template_id Template ID (0 = use system default)
+	 * @param string $email_type Email type for system default fallback
+	 * @return PTA_SUS_Email_Template|false Template object or false if not found
+	 */
+	public static function get_email_template($template_id, $email_type) {
+		$template_id = absint($template_id);
+		
+		// If template_id is 0, use system default
+		if ($template_id === 0) {
+			return self::get_system_default_template($email_type);
+		}
+		
+		// Try to load the specified template
+		$template = new PTA_SUS_Email_Template($template_id);
+		if ($template->id > 0) {
+			return $template;
+		}
+		
+		// If template not found, fall back to system default
+		return self::get_system_default_template($email_type);
 	}
 
 	/**
@@ -951,6 +1083,53 @@ Please click on, or copy and paste, the link below to validate yourself:
 		
 		$defaults[$email_type] = $template_id;
 		return update_option('pta_volunteer_sus_email_template_defaults', $defaults);
+	}
+
+	/**
+	 * Check if a template is a system default
+	 * Checks the pta_volunteer_sus_email_template_defaults option to see if
+	 * the template ID is used as a system default for any email type
+	 * 
+	 * @param int $template_id Template ID to check
+	 * @return bool True if template is a system default, false otherwise
+	 */
+	public static function is_system_default_template($template_id) {
+		$template_id = absint($template_id);
+		if ($template_id <= 0) {
+			return false;
+		}
+		
+		$defaults = get_option('pta_volunteer_sus_email_template_defaults', array());
+		// Check if this template ID is used as a default for any email type
+		return in_array($template_id, $defaults, true);
+	}
+
+	/**
+	 * Get list of email types
+	 * Returns an array of email types with their labels
+	 * Can be filtered by extensions to add custom email types
+	 * 
+	 * @return array Associative array of email_type => label
+	 */
+	public static function get_email_types() {
+		$email_types = array(
+			'confirmation' => __('Confirmation Email', 'pta-volunteer-sign-up-sheets'),
+			'reminder1' => __('Reminder 1 Email', 'pta-volunteer-sign-up-sheets'),
+			'reminder2' => __('Reminder 2 Email', 'pta-volunteer-sign-up-sheets'),
+			'clear' => __('Clear Email', 'pta-volunteer-sign-up-sheets'),
+			'reschedule' => __('Reschedule Email', 'pta-volunteer-sign-up-sheets'),
+			'signup_validation' => __('Signup Validation Email', 'pta-volunteer-sign-up-sheets'),
+			'user_validation' => __('User Validation Email', 'pta-volunteer-sign-up-sheets'),
+		);
+		
+		/**
+		 * Filter email types
+		 * Allows extensions to add custom email types
+		 * 
+		 * @param array $email_types Associative array of email_type => label
+		 * @return array Filtered email types array
+		 */
+		return apply_filters('pta_sus_email_types', $email_types);
 	}
 }
 

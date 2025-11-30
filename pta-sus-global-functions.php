@@ -1085,6 +1085,12 @@ function pta_sus_add_sheet($prefixed_fields) {
 		$sheet->$key = $value;
 	}
 	
+	// For Ongoing sheets, set first_date and last_date to '0000-00-00'
+	if ( isset( $clean_fields['type'] ) && 'Ongoing' === $clean_fields['type'] ) {
+		$sheet->first_date = '0000-00-00';
+		$sheet->last_date = '0000-00-00';
+	}
+	
 	// Save and return ID
 	// Note: pta_sus_created_sheet hook is automatically fired by the class object
 	$sheet_id = $sheet->save();
@@ -1376,6 +1382,12 @@ function pta_sus_update_sheet($prefixed_fields, $id) {
 	// The class will filter to only allowed properties and sanitize on save
 	foreach ($clean_fields as $key => $value) {
 		$sheet->$key = $value;
+	}
+	
+	// For Ongoing sheets, set first_date and last_date to '0000-00-00'
+	if ( isset( $clean_fields['type'] ) && 'Ongoing' === $clean_fields['type'] ) {
+		$sheet->first_date = '0000-00-00';
+		$sheet->last_date = '0000-00-00';
 	}
 	
 	// Save and return result

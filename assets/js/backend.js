@@ -141,6 +141,17 @@
         toggle_description(id);
     });
 
+    function toggle_email_templates(id) {
+        $('#task_email_templates_'+id).toggle();
+        $('.pta_sus_task_email_templates').not('#task_email_templates_'+id).hide();
+    }
+
+    $('.task_email_templates_trigger').on('click', function(e){
+        e.preventDefault();
+        let id = $(this).attr('id').split('_').pop();
+        toggle_email_templates(id);
+    });
+
     $('.details_checkbox').change(function() {
         $(this).closest('li').find('.pta_toggle').toggle(this.checked);
     });
@@ -181,6 +192,15 @@
             if ($element.is('textarea')) {
                 $element.val('');
                 $element.closest('.pta_sus_task_description').attr('id', `task_description_${rowKey}`);
+            }
+
+            if ($element.is('select')) {
+                // Reset select to first option (0 = Use Sheet Template/System Default)
+                $element.prop('selectedIndex', 0);
+                // Update email templates div ID if this is an email template select
+                if ($element.attr('name') && $element.attr('name').includes('email_template_id')) {
+                    $element.closest('.pta_sus_task_email_templates').attr('id', `task_email_templates_${rowKey}`);
+                }
             }
 
             if ($element.hasClass('details_text')) {
@@ -234,11 +254,23 @@
                         toggle_description(id);
                     });
             });
+            
+            $row.find('a.task_email_templates_trigger').each(function() {
+                const newId = $(this).attr('id').replace(/\d+/, rowKey);
+                $(this)
+                    .attr('id', newId)
+                    .on('click', function(e) {
+                        e.preventDefault();
+                        const id = $(this).attr('id').split('_').pop();
+                        toggle_email_templates(id);
+                    });
+            });
         };
 
         $(document).on('click', '.add-task-after', function(e) {
             e.preventDefault();
             $('.pta_sus_task_description').hide();
+            $('.pta_sus_task_email_templates').hide();
 
             const rowKey = getNextRowKey();
             const $newRow = $(".tasks LI").last().clone();

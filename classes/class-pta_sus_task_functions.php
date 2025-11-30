@@ -39,9 +39,9 @@ class PTA_SUS_Task_Functions {
         }
         $SQL .= "ORDER BY position, id";
         if ('' !== $date ) {
-            $results = $wpdb->get_results($wpdb->prepare($SQL, $sheet_id, $date));
+            $results = $wpdb->get_results($wpdb->prepare($SQL, $sheet_id, $date), ARRAY_A);
         } else {
-            $results = $wpdb->get_results($wpdb->prepare($SQL, $sheet_id));
+            $results = $wpdb->get_results($wpdb->prepare($SQL, $sheet_id), ARRAY_A);
         }
         $tasks = array();
         foreach ( $results as $row ) {
@@ -161,6 +161,56 @@ class PTA_SUS_Task_Functions {
      */
     public static function validate_task_fields($clean_fields) {
         return PTA_SUS_Validation::validate_object_fields($clean_fields, 'task');
+    }
+
+    /**
+     * Check if a task has signups for a specific date
+     * 
+     * @param int $task_id Task ID
+     * @param string $date Optional specific date to check (required for Multi-Day/Recurring tasks)
+     * @return bool True if task has signups for the date, false otherwise
+     */
+    public static function task_has_signups($task_id, $date = '') {
+        $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
+        return count($signups) > 0;
+    }
+
+    /**
+     * Get unique task titles from all sheets
+     * Useful for populating dropdowns to copy tasks between sheets
+     *
+     * @param bool $unique If true, returns only unique task titles (default: true)
+     * @return array Array of objects with 'id' and 'title' properties, ordered by title
+     */
+    public static function get_unique_task_titles($unique = true) {
+        global $wpdb;
+        
+        if ($unique) {
+            // Get unique task titles with their first task ID
+            $sql = "SELECT MIN(id) as id, title 
+                    FROM " . self::$task_table . " 
+                    WHERE title != '' AND title IS NOT NULL
+                    GROUP BY title 
+                    ORDER BY title ASC";
+            $results = $wpdb->get_results($sql, OBJECT);
+        } else {
+            // Get all task titles
+            $sql = "SELECT id, title 
+                    FROM " . self::$task_table . " 
+                    WHERE title != '' AND title IS NOT NULL
+                    ORDER BY title ASC";
+            $results = $wpdb->get_results($sql, OBJECT);
+        }
+        
+        $tasks = array();
+        foreach ($results as $row) {
+            $tasks[] = (object) array(
+                'id' => (int) $row->id,
+                'title' => $row->title
+            );
+        }
+        
+        return $tasks;
     }
 
 }

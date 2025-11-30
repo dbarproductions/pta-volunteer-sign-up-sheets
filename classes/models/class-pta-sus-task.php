@@ -33,6 +33,11 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 			'allow_duplicates' => 'yesno',
 			'enable_quantities' => 'yesno',
 			'position' => 'int',
+			'confirmation_email_template_id' => 'int',
+			'reminder1_email_template_id' => 'int',
+			'reminder2_email_template_id' => 'int',
+			'clear_email_template_id' => 'int',
+			'reschedule_email_template_id' => 'int',
 		);
 	}
 	
@@ -57,6 +62,11 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 			'allow_duplicates' => 'NO',
 			'enable_quantities' => 'NO',
 			'position' => 0,
+			'confirmation_email_template_id' => 0,
+			'reminder1_email_template_id' => 0,
+			'reminder2_email_template_id' => 0,
+			'clear_email_template_id' => 0,
+			'reschedule_email_template_id' => 0,
 		);
 	}
 	

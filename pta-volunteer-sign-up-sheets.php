@@ -652,7 +652,6 @@ function pta_sus_load_plugin_components() {
 	require_once(__DIR__ .'/classes/class-pta_sus_template_tags_helper.php');
 	require_once(__DIR__ .'/classes/class-pta_sus_volunteer.php');
 	require_once(__DIR__ .'/classes/class-pta_sus_text_registry.php');
-    require_once(__DIR__ .'/classes/class-pta_sus_validator.php');
 
 	// Initialize template tags after translations are loaded
 	PTA_SUS_Template_Tags_Helper::setup();

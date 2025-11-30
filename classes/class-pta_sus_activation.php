@@ -72,15 +72,13 @@ class PTA_SUS_Activation {
 			return;
 		}
 
-		// Create new data object here so it works for multi-site activation
-		$data = new PTA_SUS_Data();
-
 		global $wpdb;
 		$charset_collate = $wpdb->get_charset_collate();
 
 		// Database Tables
 		// **********************************************************
-		$sql = "CREATE TABLE {$data->tables['sheet']['name']} (
+        $sheets_table = $wpdb->prefix . 'pta_sus_sheets';
+		$sql = "CREATE TABLE {$sheets_table} (
 			id INT NOT NULL AUTO_INCREMENT,
 			title VARCHAR(200) NOT NULL,
 			first_date DATE,
@@ -115,7 +113,8 @@ class PTA_SUS_Activation {
 			KEY `last_date` (`last_date`),
 			KEY `author_id` (`author_id`)
 		) $charset_collate;";
-		$sql .= "CREATE TABLE {$data->tables['task']['name']} (
+        $tasks_table = $wpdb->prefix . 'pta_sus_tasks';
+		$sql .= "CREATE TABLE {$tasks_table} (
 			id INT NOT NULL AUTO_INCREMENT,
 			sheet_id INT NOT NULL,
 			dates VARCHAR(8000) NOT NULL,
@@ -130,10 +129,16 @@ class PTA_SUS_Activation {
 			allow_duplicates VARCHAR(3) NOT NULL DEFAULT 'NO',
 			enable_quantities VARCHAR(3) NOT NULL DEFAULT 'NO',
 			position INT NOT NULL,
+			confirmation_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reminder1_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reminder2_email_template_id INT(11) NOT NULL DEFAULT 0,
+			clear_email_template_id INT(11) NOT NULL DEFAULT 0,
+			reschedule_email_template_id INT(11) NOT NULL DEFAULT 0,
 			PRIMARY KEY id (id),
 			KEY `sheet_id` (`sheet_id`)
 		) $charset_collate;";
-		$sql .= "CREATE TABLE {$data->tables['signup']['name']} (
+        $signups_table = $wpdb->prefix . 'pta_sus_signups';
+		$sql .= "CREATE TABLE {$signups_table} (
 			id INT NOT NULL AUTO_INCREMENT,
 			task_id INT NOT NULL,
 			date DATE NOT NULL,
@@ -172,12 +177,10 @@ class PTA_SUS_Activation {
 			from_name VARCHAR(255) NOT NULL DEFAULT '',
 			from_email VARCHAR(100) NOT NULL DEFAULT '',
 			author_id INT(11) NOT NULL DEFAULT 0,
-			is_system_default TINYINT(1) NOT NULL DEFAULT 0,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY (id),
-			KEY author_id (author_id),
-			KEY is_system_default (is_system_default)
+			KEY author_id (author_id)
 		) $charset_collate;";
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
@@ -330,6 +333,12 @@ class PTA_SUS_Activation {
 		if ( version_compare( $current_version, '6.2.0', '<' ) ) {
 			self::upgrade_to_6_2_0();
 		}
+		
+		// Check for missing user_validation template migration (runs regardless of version if templates were migrated)
+		// This handles cases where sites upgraded to 6.2.0 before user_validation migration was added
+		if ( get_option( 'pta_sus_email_templates_migrated', false ) ) {
+			self::maybe_migrate_user_validation_template();
+		}
 	}
 
 	/**
@@ -346,8 +355,8 @@ class PTA_SUS_Activation {
 		global $wpdb;
 		
 		// Create new data object to get table name
-		$data = new PTA_SUS_Data();
-		$table_name = $data->tables['sheet']['name'];
+
+		$table_name = $wpdb->prefix . 'pta_sus_sheets';
 		
 		// Check if columns already exist
 		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );
@@ -447,12 +456,10 @@ class PTA_SUS_Activation {
 				from_name VARCHAR(255) NOT NULL DEFAULT '',
 				from_email VARCHAR(100) NOT NULL DEFAULT '',
 				author_id INT(11) NOT NULL DEFAULT 0,
-				is_system_default TINYINT(1) NOT NULL DEFAULT 0,
 				created_at DATETIME NOT NULL,
 				updated_at DATETIME NOT NULL,
 				PRIMARY KEY id (id),
-				KEY `author_id` (`author_id`),
-				KEY `is_system_default` (`is_system_default`)
+				KEY `author_id` (`author_id`)
 			) $charset_collate;";
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $sql );
@@ -464,10 +471,8 @@ class PTA_SUS_Activation {
 				$wpdb->query( $sql );
 			}
 		}
-		
-		// Add email template ID columns to sheets table
-		$data = new PTA_SUS_Data();
-		$sheet_table = $data->tables['sheet']['name'];
+
+        $sheet_table = $wpdb->prefix . 'pta_sus_sheets';
 		
 		// Check existing columns
 		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$sheet_table}", ARRAY_A );
@@ -482,12 +487,27 @@ class PTA_SUS_Activation {
 			'reminder2_email_template_id',
 			'clear_email_template_id',
 			'reschedule_email_template_id',
-			'signup_validation_email_template_id',
 		);
 		
 		foreach ( $template_columns as $column_name ) {
 			if ( ! in_array( $column_name, $column_names ) ) {
 				$wpdb->query( "ALTER TABLE {$sheet_table} ADD COLUMN {$column_name} INT(11) NOT NULL DEFAULT 0" );
+			}
+		}
+		
+		// Add email template ID columns to tasks table
+		$task_table = $wpdb->prefix . 'pta_sus_tasks';
+		
+		// Check existing columns
+		$task_columns = $wpdb->get_results( "SHOW COLUMNS FROM {$task_table}", ARRAY_A );
+		$task_column_names = array();
+		foreach ( $task_columns as $column ) {
+			$task_column_names[] = $column['Field'];
+		}
+		
+		foreach ( $template_columns as $column_name ) {
+			if ( ! in_array( $column_name, $task_column_names ) ) {
+				$wpdb->query( "ALTER TABLE {$task_table} ADD COLUMN {$column_name} INT(11) NOT NULL DEFAULT 0" );
 			}
 		}
 		
@@ -518,8 +538,26 @@ class PTA_SUS_Activation {
 		
 		$email_options = get_option( 'pta_volunteer_sus_email_options', array() );
 		$validation_options = get_option( 'pta_volunteer_sus_validation_options', array() );
+		$existing_defaults = get_option( 'pta_volunteer_sus_email_template_defaults', array() );
 		$defaults = array();
 		$from_email = isset( $email_options['from_email'] ) ? $email_options['from_email'] : '';
+		
+		// Helper function to check if a system default template already exists
+		$check_existing_default = function( $email_type ) use ( $existing_defaults ) {
+			if ( ! isset( $existing_defaults[ $email_type ] ) || $existing_defaults[ $email_type ] <= 0 ) {
+				return false; // No existing default
+			}
+			
+			$template_id = absint( $existing_defaults[ $email_type ] );
+			$template = new PTA_SUS_Email_Template( $template_id );
+			
+			// Verify template exists and is still marked as system default
+			if ( $template->id > 0 && $template->is_system_default() ) {
+				return $template_id; // Valid existing default
+			}
+			
+			return false; // Template doesn't exist or isn't a system default anymore
+		};
 		
 		// Migrate main plugin email templates
 		$email_types = array(
@@ -551,6 +589,13 @@ class PTA_SUS_Activation {
 		);
 		
 		foreach ( $email_types as $email_type => $config ) {
+			// Check if system default already exists
+			$existing_template_id = $check_existing_default( $email_type );
+			if ( $existing_template_id ) {
+				$defaults[ $email_type ] = $existing_template_id;
+				continue; // Skip creating duplicate
+			}
+			
 			$subject = isset( $email_options[ $config['subject_key'] ] ) ? $email_options[ $config['subject_key'] ] : '';
 			$body = isset( $email_options[ $config['template_key'] ] ) ? $email_options[ $config['template_key'] ] : '';
 			
@@ -567,7 +612,6 @@ class PTA_SUS_Activation {
 				$template->body = $body;
 				$template->from_email = $from_email;
 				$template->author_id = 0;
-				$template->is_system_default = true;
 				$template->created_at = current_time( 'mysql' );
 				$template->updated_at = current_time( 'mysql' );
 				
@@ -579,14 +623,16 @@ class PTA_SUS_Activation {
 		}
 		
 		// Migrate validation email templates
-		if ( ! empty( $validation_options['signup_validation_email_subject'] ) && ! empty( $validation_options['signup_validation_email_template'] ) ) {
+		$existing_signup_validation_id = $check_existing_default( 'signup_validation' );
+		if ( $existing_signup_validation_id ) {
+			$defaults['signup_validation'] = $existing_signup_validation_id;
+		} elseif ( ! empty( $validation_options['signup_validation_email_subject'] ) && ! empty( $validation_options['signup_validation_email_template'] ) ) {
 			$template = new PTA_SUS_Email_Template();
 			$template->title = __( 'Signup Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' );
 			$template->subject = $validation_options['signup_validation_email_subject'];
 			$template->body = $validation_options['signup_validation_email_template'];
 			$template->from_email = $from_email;
 			$template->author_id = 0;
-			$template->is_system_default = true;
 			$template->created_at = current_time( 'mysql' );
 			$template->updated_at = current_time( 'mysql' );
 			
@@ -596,14 +642,38 @@ class PTA_SUS_Activation {
 			}
 		}
 		
-		// Save system default template IDs
-		if ( ! empty( $defaults ) ) {
-			update_option( 'pta_volunteer_sus_email_template_defaults', $defaults );
+		// Migrate user validation email template
+		$existing_user_validation_id = $check_existing_default( 'user_validation' );
+		if ( $existing_user_validation_id ) {
+			$defaults['user_validation'] = $existing_user_validation_id;
+		} elseif ( ! empty( $validation_options['user_validation_email_subject'] ) && ! empty( $validation_options['user_validation_email_template'] ) ) {
+			$template = new PTA_SUS_Email_Template();
+			$template->title = __( 'User Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' );
+			$template->subject = $validation_options['user_validation_email_subject'];
+			$template->body = $validation_options['user_validation_email_template'];
+			$template->from_email = $from_email;
+			$template->author_id = 0;
+			$template->created_at = current_time( 'mysql' );
+			$template->updated_at = current_time( 'mysql' );
+			
+			$template_id = $template->save();
+			if ( $template_id > 0 ) {
+				$defaults['user_validation'] = $template_id;
+			}
 		}
 		
 		// Migrate Customizer extension templates if active
 		if ( class_exists( 'PTA_SUS_CUSTOMIZER_INTEGRATOR' ) ) {
 			self::migrate_customizer_templates( $from_email );
+		}
+		
+		// Save system default template IDs (merge with existing to preserve any that weren't migrated)
+		if ( ! empty( $defaults ) ) {
+			$merged_defaults = array_merge( $existing_defaults, $defaults );
+			update_option( 'pta_volunteer_sus_email_template_defaults', $merged_defaults );
+		} elseif ( ! empty( $existing_defaults ) ) {
+			// Even if no new defaults were created, preserve existing ones
+			update_option( 'pta_volunteer_sus_email_template_defaults', $existing_defaults );
 		}
 		
 		// Mark migration as complete
@@ -645,7 +715,6 @@ class PTA_SUS_Activation {
 			$template->body = wp_kses_post( $email_data['body'] );
 			$template->from_email = $from_email;
 			$template->author_id = 0; // Available to all users (migrated template)
-			$template->is_system_default = false; // Not a system default
 			$template->created_at = current_time( 'mysql' );
 			$template->updated_at = current_time( 'mysql' );
 			
@@ -657,8 +726,7 @@ class PTA_SUS_Activation {
 		
 		// Map sheet assignments from old slugs to new template IDs
 		if ( ! empty( $sheet_emails ) && ! empty( $slug_to_id_map ) ) {
-			$data = new PTA_SUS_Data();
-			$sheet_table = $data->tables['sheet']['name'];
+			$sheet_table = $wpdb->prefix . 'pta_sus_sheets';
 			
 			// Map email type to column name
 			$email_type_map = array(
@@ -667,7 +735,7 @@ class PTA_SUS_Activation {
 				'reminder2' => 'reminder2_email_template_id',
 				'reschedule' => 'reschedule_email_template_id',
 				'clear' => 'clear_email_template_id',
-				'validate' => 'signup_validation_email_template_id',
+				// Note: 'validate' (signup_validation) is system-wide only, not sheet/task level
 			);
 			
 			foreach ( $sheet_emails as $sheet_id => $email_assignments ) {
@@ -722,6 +790,56 @@ class PTA_SUS_Activation {
 			if ( ! $notice_dismissed ) {
 				add_action( 'admin_notices', array( __CLASS__, 'show_customizer_migration_notice' ) );
 			}
+		}
+	}
+
+	/**
+	 * Migrate user_validation email template if missing
+	 * 
+	 * Checks if the user_validation template was migrated and migrates it
+	 * if it's missing from the system defaults. This handles cases where
+	 * sites upgraded to 6.2.0 before the user_validation migration was added.
+	 * 
+	 * @since 6.2.0
+	 * @return void
+	 */
+	private static function maybe_migrate_user_validation_template() {
+		$defaults = get_option( 'pta_volunteer_sus_email_template_defaults', array() );
+		
+		// Check if system default already exists and is valid
+		if ( isset( $defaults['user_validation'] ) && $defaults['user_validation'] > 0 ) {
+			$template_id = absint( $defaults['user_validation'] );
+			$template = new PTA_SUS_Email_Template( $template_id );
+			// If template exists and is still marked as system default, skip migration
+			if ( $template->id > 0 && $template->is_system_default() ) {
+				return; // Already migrated and valid
+			}
+			// Template was deleted or changed, so we'll create a new one below
+		}
+		
+		$validation_options = get_option( 'pta_volunteer_sus_validation_options', array() );
+		$email_options = get_option( 'pta_volunteer_sus_email_options', array() );
+		
+		// Check if we have user_validation data to migrate
+		if ( empty( $validation_options['user_validation_email_subject'] ) || empty( $validation_options['user_validation_email_template'] ) ) {
+			return; // No data to migrate
+		}
+		
+		$from_email = isset( $email_options['from_email'] ) ? $email_options['from_email'] : get_bloginfo( 'admin_email' );
+		
+		$template = new PTA_SUS_Email_Template();
+		$template->title = __( 'User Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' );
+		$template->subject = $validation_options['user_validation_email_subject'];
+		$template->body = $validation_options['user_validation_email_template'];
+		$template->from_email = $from_email;
+		$template->author_id = 0;
+		$template->created_at = current_time( 'mysql' );
+		$template->updated_at = current_time( 'mysql' );
+		
+		$template_id = $template->save();
+		if ( $template_id > 0 ) {
+			$defaults['user_validation'] = $template_id;
+			update_option( 'pta_volunteer_sus_email_template_defaults', $defaults );
 		}
 	}
 

@@ -160,6 +160,11 @@ class PTA_SUS_Template_Tags_Helper {
 			__('Validation Code Expiration Hours - Site Validation','pta-volunteer-sign-up-sheets'),
 			'Validation'
 		);
+		self::register_template_tag(
+			'{validation_link}',
+			__('Validation Link - Required for validation emails','pta-volunteer-sign-up-sheets'),
+			'Validation'
+		);
 	}
 
 	public static function render_helper_panel() {

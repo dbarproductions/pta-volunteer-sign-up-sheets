@@ -110,7 +110,8 @@ class PTA_SUS_Sheet_Functions {
 
         // Add active_only filter
         if ( $args['active_only'] ) {
-            $sql .= " AND (DATE_ADD(last_date, INTERVAL 1 DAY) >= %s OR last_date = '0000-00-00')";
+            // Include sheets that haven't expired OR Ongoing sheets (0000-00-00) OR sheets with NULL dates (Ongoing sheets that haven't been set yet)
+            $sql .= " AND (DATE_ADD(last_date, INTERVAL 1 DAY) >= %s OR last_date = '0000-00-00' OR last_date IS NULL)";
             $params[] = current_time( 'mysql' );
         }
 
@@ -426,6 +427,29 @@ class PTA_SUS_Sheet_Functions {
      * @param string $date
      * @return int
      */
+    /**
+     * Check if any tasks in a sheet have signups
+     * 
+     * @param int $sheet_id Sheet ID
+     * @param string $date Optional specific date to check (for Recurring/Multi-Day sheets)
+     * @return bool True if any tasks have signups, false otherwise
+     */
+    public static function sheet_has_signups($sheet_id, $date = '') {
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id, $date);
+        if (empty($tasks)) {
+            return false;
+        }
+        
+        foreach ($tasks as $task) {
+            $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $date);
+            if (count($signups) > 0) {
+                return true; // Found signups, no need to check further
+            }
+        }
+        
+        return false;
+    }
+
     public static function get_sheet_signup_count($sheet_id, $date = '') {
         global $wpdb;
         $sheet_id = absint($sheet_id);

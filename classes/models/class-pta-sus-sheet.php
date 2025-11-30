@@ -47,7 +47,6 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 			'reminder2_email_template_id' => 'int',
 			'clear_email_template_id' => 'int',
 			'reschedule_email_template_id' => 'int',
-			'signup_validation_email_template_id' => 'int',
 		);
 	}
 	
@@ -86,7 +85,6 @@ class PTA_SUS_Sheet extends PTA_SUS_Base_Object {
 			'reminder2_email_template_id' => 0,
 			'clear_email_template_id' => 0,
 			'reschedule_email_template_id' => 0,
-			'signup_validation_email_template_id' => 0,
 		);
 	}
 	
