@@ -14,6 +14,17 @@ $task_data = array();
 $sheet_id = isset($f['sheet_id']) ? (int)$f['sheet_id'] : (isset($_GET['sheet_id']) ? (int)$_GET['sheet_id'] : 0);
 $sheet_type = isset($f['sheet_type']) ? $f['sheet_type'] : (isset($_GET['sheet_type']) ? sanitize_text_field($_GET['sheet_type']) : '');
 $no_signups = isset($f['sheet_no_signups']) ? absint($f['sheet_no_signups']) : (isset($_GET['no_signups']) ? absint($_GET['no_signups']) : 0);
+
+// Helper to get task object for hooks (null for new tasks)
+$task_object = null;
+if (isset($task_data['task_id']) && $task_data['task_id'] > 0) {
+	$task_object = pta_sus_get_task($task_data['task_id']);
+} elseif (isset($_GET['task_id']) && absint($_GET['task_id']) > 0) {
+	$task_object = pta_sus_get_task(absint($_GET['task_id']));
+	if ($task_object) {
+		$task_id = $task_object->id;
+	}
+}
 ?>
 
 <div id="pta-sus-task-modal" style="display: none;">
@@ -80,7 +91,30 @@ $no_signups = isset($f['sheet_no_signups']) ? absint($f['sheet_no_signups']) : (
 						</td>
 					</tr>
 					
-					<?php do_action('pta_sus_task_form_task_loop_after_times', array(), 0); ?>
+					<?php
+					// BACKWARDS COMPATIBILITY: Wrapper for old hook that expected indexed array format
+					// Old extensions (pre-6.0.0) use this hook with array notation in field names (e.g., task_template_id[0])
+					// TODO: Remove this wrapper after extensions are updated to use new hooks (see hooks below)
+					?>
+					<tr>
+                        <td colspan="2">
+                            <?php do_action('pta_sus_task_form_task_loop_after_times', array(), 0); ?>
+                        </td>
+                    </tr>
+					
+					<?php
+					/**
+					 * NEW HOOK (6.0.0+): Add extension fields after time fields
+					 * 
+					 * Extensions should output complete table rows (<tr>...</tr>) to fit the form structure
+					 * Field names should NOT use array notation - use simple names like "task_template_id"
+					 * 
+					 * @param int $task_id Current task ID (0 for new tasks)
+					 * @param int $sheet_id Sheet ID
+					 * @param object $task Task object (null for new tasks)
+					 */
+					do_action('pta_sus_task_form_fields_after_times', $task_id, $sheet_id, $task_object);
+					?>
 					
 					<tr>
 						<th scope="row">
@@ -95,6 +129,21 @@ $no_signups = isset($f['sheet_no_signups']) ? absint($f['sheet_no_signups']) : (
 							<p class="description"><?php _e('Optional task description. HTML is allowed.', 'pta-volunteer-sign-up-sheets'); ?></p>
 						</td>
 					</tr>
+					
+					<?php
+					/**
+					 * NEW HOOK (6.0.0+): Add extension fields after description
+					 * 
+					 * Extensions should output complete table rows (<tr>...</tr>) to fit the form structure
+					 * Field names should NOT use array notation - use simple names like "task_template_id"
+					 * 
+					 * @param int $task_id Current task ID (0 for new tasks)
+					 * @param int $sheet_id Sheet ID
+					 * @param object $task Task object (null for new tasks)
+					 */
+					do_action('pta_sus_task_form_fields_after_description', $task_id, $sheet_id, $task_object);
+					?>
+
 					
 					<?php if (!$no_signups) : ?>
 					<tr>
@@ -190,7 +239,23 @@ $no_signups = isset($f['sheet_no_signups']) ? absint($f['sheet_no_signups']) : (
 						</td>
 					</tr>
 					
-					<?php do_action('pta_sus_task_form_task_loop_before_li_close', array(), 0); ?>
+					<?php
+					/**
+					 * NEW HOOK (6.0.0+): Add extension fields before form table closes
+					 * 
+					 * Extensions should output complete table rows (<tr>...</tr>) to fit the form structure
+					 * Field names should NOT use array notation - use simple names like "task_template_id"
+					 * 
+					 * @param int $task_id Current task ID (0 for new tasks)
+					 * @param int $sheet_id Sheet ID
+					 * @param object $task Task object (null for new tasks)
+					 */
+					do_action('pta_sus_task_form_fields_before_close', $task_id, $sheet_id, $task_object);
+					
+					// BACKWARDS COMPATIBILITY: Old hook for extensions that haven't been updated yet
+					// TODO: Remove after extensions are updated
+					do_action('pta_sus_task_form_task_loop_before_li_close', array(), 0);
+					?>
 				</table>
 			</div>
 			

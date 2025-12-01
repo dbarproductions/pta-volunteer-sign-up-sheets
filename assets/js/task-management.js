@@ -90,8 +90,21 @@
 				showTrigger: '#calImg'
 			});
 
-			// Initialize Quill editor if available
+			// Initialize Select2 for select fields (Custom Fields extension)
+			// Note: This runs when modal opens, but fields may not be in DOM yet
+			// Select2 will be re-initialized after form population
+			if (typeof $.fn.select2 !== 'undefined') {
+				// Select2 should be initialized on fields with class 'jq-select2' or multi-select fields
+				$('#pta-sus-task-modal select.jq-select2:not(.select2-hidden-accessible), #pta-sus-task-modal select[multiple]:not(.select2-hidden-accessible)').select2({
+					width: '100%'
+				});
+			}
+
+			// Initialize Quill editor for task description if available
 			this.initQuillEditor();
+			
+			// Initialize Quill editors for Custom Fields HTML fields
+			this.initCustomFieldsQuillEditors();
 
 			// Details checkbox toggle - use event delegation to ensure it works
 			$('#pta-sus-task-modal').off('change', '.details_checkbox').on('change', '.details_checkbox', function() {
@@ -194,6 +207,97 @@
 
 			// Store Quill instance for later retrieval
 			$container.data('quill-instance', quill);
+		},
+		
+		/**
+		 * Initialize Quill editors for Custom Fields HTML fields in the task modal
+		 * Uses the same Quill instance and configuration as the task description editor
+		 */
+		initCustomFieldsQuillEditors: function() {
+			if (typeof Quill === 'undefined') {
+				return; // Quill not loaded
+			}
+			
+			// Find all Quill containers in the modal (excluding the task description one)
+			$('#pta-sus-task-modal .pta-quill-container').each(function() {
+				var $container = $(this);
+				var containerId = $container.attr('id');
+				
+				// Skip task description container (handled separately)
+				if (containerId === 'task_description-quill-container') {
+					return;
+				}
+				
+				// Check if Quill is already initialized on this container
+				if ($container.data('quill-instance')) {
+					return; // Already initialized
+				}
+				
+				// Extract hidden input ID from container ID (remove '-quill-container' suffix)
+				if (!containerId || containerId.indexOf('-quill-container') === -1) {
+					return; // Invalid container ID
+				}
+				
+				var hiddenInputId = containerId.replace('-quill-container', '');
+				var $hiddenInput = $('#' + hiddenInputId);
+				
+				if (!$hiddenInput.length) {
+					return; // Hidden input not found
+				}
+				
+				// Initialize Quill with same configuration as task description
+				var quill = new Quill($container[0], {
+					theme: 'snow',
+					modules: {
+						toolbar: [
+							[{ 'header': [1, 2, 3, false] }],
+							['bold', 'italic', 'underline', 'strike'],
+							[{ 'list': 'ordered'}, { 'list': 'bullet' }],
+							['blockquote', 'code-block'],
+							['link'],
+							['clean']
+						],
+						clipboard: {
+							matchVisual: false // Convert pasted HTML to Quill's format
+						}
+					}
+				});
+				
+				// Set initial content
+				var initialContent = $hiddenInput.val() || '';
+				if (initialContent) {
+					var delta = quill.clipboard.convert({ html: initialContent });
+					quill.setContents(delta, 'silent');
+				} else {
+					quill.setContents([], 'silent');
+				}
+				
+				// Sync Quill content to hidden input on text change
+				quill.on('text-change', function() {
+					$hiddenInput.val(quill.root.innerHTML);
+					TaskManager.hasUnsavedChanges = true;
+				});
+				
+				// Handle link toolbar button
+				var toolbar = quill.getModule('toolbar');
+				if (toolbar) {
+					toolbar.addHandler('link', function(value) {
+						if (value) {
+							var href = prompt('Enter the URL:');
+							if (href) {
+								quill.format('link', href);
+							} else {
+								quill.format('link', false);
+							}
+						} else {
+							quill.format('link', false);
+						}
+					});
+				}
+				
+				// Store Quill instance for later retrieval
+				$container.data('quill-instance', quill);
+			});
 		},
 
 		initEventHandlers: function() {
@@ -412,13 +516,27 @@
 				success: function(response) {
 					$form.css('opacity', '1').css('pointer-events', 'auto');
 					if (response.success && response.data.task) {
+						// Reset form first to clear any previous values (especially extension fields)
+						self.resetForm();
+						// Then populate with the task data
 						self.populateForm(response.data.task);
 						self.setModalTitle('Edit Task');
 						self.hasUnsavedChanges = false;
-						// Wait a bit for Quill to initialize before getting form data
+						// Initialize Select2 after form is populated (fields are now in DOM with values set)
 						setTimeout(function() {
+							if (typeof $.fn.select2 !== 'undefined') {
+								$('#pta-sus-task-modal select.jq-select2:not(.select2-hidden-accessible), #pta-sus-task-modal select[multiple]:not(.select2-hidden-accessible)').each(function() {
+									var $select = $(this);
+									$select.select2({
+										width: '100%'
+									});
+									// Trigger change to ensure Select2 displays selected values correctly
+									$select.trigger('change');
+								});
+							}
+							// Wait a bit for Quill to initialize before getting form data
 							self.originalFormData = self.getFormData();
-						}, 200);
+						}, 100);
 					} else {
 						alert(response.data.message || 'Error loading task data.');
 						self.modal.dialog('close');
@@ -451,13 +569,27 @@
 						taskData.task_id = 0;
 						// Keep original title (no "(Copy)" suffix - tasks can have same name across sheets)
 						self.modal.dialog('open');
+						// Reset form first to clear any previous values
+						self.resetForm();
+						// Then populate with the copied task data
 						self.populateForm(taskData);
 						self.setModalTitle('Add New Task');
 						self.hasUnsavedChanges = false;
-						// Wait a bit for Quill to initialize before getting form data
+						// Initialize Select2 after form is populated (fields are now in DOM with values set)
 						setTimeout(function() {
+							if (typeof $.fn.select2 !== 'undefined') {
+								$('#pta-sus-task-modal select.jq-select2:not(.select2-hidden-accessible), #pta-sus-task-modal select[multiple]:not(.select2-hidden-accessible)').each(function() {
+									var $select = $(this);
+									$select.select2({
+										width: '100%'
+									});
+									// Trigger change to ensure Select2 displays selected values correctly
+									$select.trigger('change');
+								});
+							}
+							// Wait a bit for Quill to initialize before getting form data
 							self.originalFormData = self.getFormData();
-						}, 200);
+						}, 100);
 					} else {
 						alert(response.data.message || 'Error loading task data.');
 					}
@@ -528,6 +660,111 @@
 			$('#task_clear_email_template_id').val(taskData.task_clear_email_template_id || 0);
 			$('#task_reschedule_email_template_id').val(taskData.task_reschedule_email_template_id || 0);
 
+			// BACKWARDS COMPATIBILITY: Handle extension fields (Custom Fields, etc.)
+			// These fields are added by extensions via the pta_sus_task_form_task_loop_after_times hook
+			// Extension creates fields with IDs/names like task_template_id[0], task_$slug[0]
+			// TODO: Remove backwards compatibility code after extensions are updated
+			var handledFields = [
+				'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty',
+				'task_time_start', 'task_time_end', 'task_allow_duplicates', 'task_enable_quantities',
+				'task_need_details', 'task_details_required', 'task_details_text',
+				'task_confirmation_email_template_id', 'task_reminder1_email_template_id',
+				'task_reminder2_email_template_id', 'task_clear_email_template_id', 'task_reschedule_email_template_id'
+			];
+			
+			// Populate any extension fields that exist in the form
+			for (var key in taskData) {
+				if (taskData.hasOwnProperty(key) && key.indexOf('task_') === 0 && handledFields.indexOf(key) === -1) {
+					var value = taskData[key];
+					
+					// Extension fields have array notation in IDs/names: task_template_id[0]
+					// Try multiple selectors to find the field
+					var selectors = [
+						'#' + key.replace(/\[/g, '\\[').replace(/\]/g, '\\]'), // Escaped brackets for ID
+						'[name="' + key + '[0]"]', // Name with [0]
+						'[name="' + key + '"]', // Name without brackets
+						'#' + key // ID without brackets (fallback)
+					];
+					
+					var $field = null;
+					for (var i = 0; i < selectors.length; i++) {
+						$field = $(selectors[i]);
+						if ($field.length) {
+							break;
+						}
+					}
+					
+					if ($field && $field.length) {
+						// Check if this is a Quill editor field (Custom Fields HTML field)
+						var $quillContainer = $field.closest('td').find('#' + key + '-quill-container');
+						if ($quillContainer.length) {
+							// This is a Quill editor field - set content in Quill
+							var quillInstance = $quillContainer.data('quill-instance');
+							if (quillInstance) {
+								if (value) {
+									var delta = quillInstance.clipboard.convert({ html: value });
+									quillInstance.setContents(delta, 'silent');
+								} else {
+									quillInstance.setContents([], 'silent');
+								}
+								// Sync to hidden input
+								$field.val(value || '');
+							} else {
+								// Quill not initialized yet, just set the hidden input value
+								$field.val(value || '');
+								// Initialize Quill and Select2 for this field
+								setTimeout(function() {
+									TaskManager.initCustomFieldsQuillEditors();
+									// Re-initialize Select2 for any new select fields
+									if (typeof $.fn.select2 !== 'undefined') {
+										$('#pta-sus-task-modal select.jq-select2:not(.select2-hidden-accessible), #pta-sus-task-modal select[multiple]:not(.select2-hidden-accessible)').select2({
+											width: '100%'
+										});
+									}
+								}, 100);
+							}
+						} else if ($field.is('select[multiple]')) {
+							// Multi-select field - value is comma-separated string, need to convert to array
+							var selectedValues = [];
+							if (value) {
+								if (typeof value === 'string') {
+									// Comma-separated string from database
+									selectedValues = value.split(',').map(function(v) { return v.trim(); }).filter(function(v) { return v !== ''; });
+								} else if (Array.isArray(value)) {
+									// Already an array
+									selectedValues = value;
+								}
+							}
+							// Set selected values
+							$field.val(selectedValues).trigger('change');
+							// Initialize Select2 if not already initialized
+							if (typeof $.fn.select2 !== 'undefined' && !$field.hasClass('select2-hidden-accessible')) {
+								$field.select2({
+									width: '100%'
+								});
+							}
+						} else if ($field.is('select')) {
+							// Regular select field
+							$field.val(value || '').trigger('change');
+							// Initialize Select2 if not already initialized
+							if (typeof $.fn.select2 !== 'undefined' && $field.hasClass('jq-select2') && !$field.hasClass('select2-hidden-accessible')) {
+								$field.select2({
+									width: '100%'
+								});
+							}
+						} else {
+							// Regular field - handle different field types
+							if ($field.is('input[type="checkbox"]') || $field.is('input[type="radio"]')) {
+								$field.prop('checked', value === 'YES' || value === '1' || value === true || value === 'on');
+							} else {
+								// Text input, textarea, etc.
+								$field.val(value || '');
+							}
+						}
+					}
+				}
+			}
+
 			// Toggle details section if needed
 			if (taskData.task_need_details === 'YES') {
 				$('#pta-sus-task-modal .pta_toggle').show();
@@ -559,6 +796,44 @@
 
 			// Reset email template selects
 			$('#pta-sus-task-modal select[id^="task_"][id$="_email_template_id"]').val(0);
+			
+			// BACKWARDS COMPATIBILITY: Reset extension fields (Custom Fields, etc.)
+			// Extension fields have array notation in IDs/names like task_template_id[0]
+			// TODO: Remove backwards compatibility code after extensions are updated
+			var standardFields = [
+				'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty',
+				'task_time_start', 'task_time_end', 'task_allow_duplicates', 'task_enable_quantities',
+				'task_need_details', 'task_details_required', 'task_details_text',
+				'task_confirmation_email_template_id', 'task_reminder1_email_template_id',
+				'task_reminder2_email_template_id', 'task_clear_email_template_id', 'task_reschedule_email_template_id',
+				'task_sheet_id', 'task_sheet_type', 'task_no_signups'
+			];
+			
+			// Reset fields by ID (with and without brackets) and by name
+			$('#pta-sus-task-modal [id^="task_"], #pta-sus-task-modal [name^="task_"]').each(function() {
+				var $field = $(this);
+				var fieldId = $field.attr('id') || '';
+				var fieldName = $field.attr('name') || '';
+				
+				// Extract base name (remove [0] notation)
+				var baseId = fieldId.replace(/\[.*?\]/g, '');
+				var baseName = fieldName.replace(/\[.*?\]/g, '');
+				
+				// Skip if it's a standard field
+				if (standardFields.indexOf(baseId) !== -1 || standardFields.indexOf(baseName) !== -1) {
+					return;
+				}
+				
+				// Reset the field
+				if ($field.is('input[type="checkbox"]') || $field.is('input[type="radio"]')) {
+					$field.prop('checked', false);
+				} else if ($field.is('select')) {
+					$field.val('');
+				} else {
+					// Text input, textarea, etc.
+					$field.val('');
+				}
+			});
 		},
 
 		getFormData: function() {
@@ -579,31 +854,48 @@
 				description = $hiddenInput.val();
 			}
 
+			// BACKWARDS COMPATIBILITY: Use jQuery's serialize() to get query string
+			// This properly handles array notation in field names (e.g., name="task_template_id[0]")
+			// PHP will automatically parse this as $_POST['task_template_id'][0]
+			// We'll send this query string directly to preserve array notation exactly
+			// TODO: Remove backwards compatibility code after extensions are updated (see note above)
+			var queryString = $('#pta-sus-task-form').serialize();
+			
+			// Add checkboxes that aren't checked (serialize() only includes checked ones)
+			var additionalParams = [];
+			if (!$('#task_allow_duplicates').is(':checked')) {
+				additionalParams.push('task_allow_duplicates=NO');
+			}
+			if (!$('#task_enable_quantities').is(':checked')) {
+				additionalParams.push('task_enable_quantities=NO');
+			}
+			if (!$('#task_need_details').is(':checked')) {
+				additionalParams.push('task_need_details=NO');
+			}
+			if (!$('#task_details_required').is(':checked')) {
+				additionalParams.push('task_details_required=NO');
+			}
+			
+			// Append additional params if any
+			if (additionalParams.length > 0) {
+				queryString += (queryString ? '&' : '') + additionalParams.join('&');
+			}
+			
+			// Return as object with queryString property for backwards compatibility
+			// The saveTask function will handle sending it correctly
 			return {
-				task_id: $('#task_id').val(),
-				task_title: $('#task_title').val(),
-				task_description: description,
-				task_dates: $('#task_dates').val(),
-				task_qty: $('#task_qty').val(),
-				task_time_start: $('#task_time_start').val(),
-				task_time_end: $('#task_time_end').val(),
-				task_allow_duplicates: $('#task_allow_duplicates').is(':checked') ? 'YES' : 'NO',
-				task_enable_quantities: $('#task_enable_quantities').is(':checked') ? 'YES' : 'NO',
-				task_need_details: $('#task_need_details').is(':checked') ? 'YES' : 'NO',
-				task_details_required: $('#task_details_required').is(':checked') ? 'YES' : 'NO',
-				task_details_text: $('#task_details_text').val(),
-				task_confirmation_email_template_id: $('#task_confirmation_email_template_id').val(),
-				task_reminder1_email_template_id: $('#task_reminder1_email_template_id').val(),
-				task_reminder2_email_template_id: $('#task_reminder2_email_template_id').val(),
-				task_clear_email_template_id: $('#task_clear_email_template_id').val(),
-				task_reschedule_email_template_id: $('#task_reschedule_email_template_id').val()
+				queryString: queryString,
+				description: description
 			};
 		},
 
 		saveTask: function() {
 			var self = this;
 			
-			// Sync Quill content before getting form data
+			// Sync all Quill editors before getting form data
+			// Task description
+			// Sync all Quill editors before getting form data
+			// Task description
 			var $container = $('#task_description-quill-container');
 			if ($container.length && typeof Quill !== 'undefined') {
 				var quillInstance = $container.data('quill-instance');
@@ -612,39 +904,100 @@
 				}
 			}
 			
-			var formData = this.getFormData();
-
-			// Basic validation
-			if (!formData.task_title || formData.task_title.trim() === '') {
+			// Custom Fields HTML fields
+			$('#pta-sus-task-modal .pta-quill-container').each(function() {
+				var $cfContainer = $(this);
+				var containerId = $cfContainer.attr('id');
+				if (containerId === 'task_description-quill-container') {
+					return; // Skip task description (already handled)
+				}
+				
+				if (containerId && containerId.indexOf('-quill-container') !== -1) {
+					var hiddenInputId = containerId.replace('-quill-container', '');
+					var $hiddenInput = $('#' + hiddenInputId);
+					if ($hiddenInput.length) {
+						var quillInstance = $cfContainer.data('quill-instance');
+						if (quillInstance && quillInstance.root) {
+							$hiddenInput.val(quillInstance.root.innerHTML);
+						}
+					}
+				}
+			});
+			
+			// Custom Fields HTML fields
+			$('#pta-sus-task-modal .pta-quill-container').each(function() {
+				var $cfContainer = $(this);
+				var containerId = $cfContainer.attr('id');
+				if (containerId === 'task_description-quill-container') {
+					return; // Skip task description (already handled)
+				}
+				
+				if (containerId && containerId.indexOf('-quill-container') !== -1) {
+					var hiddenInputId = containerId.replace('-quill-container', '');
+					var $hiddenInput = $('#' + hiddenInputId);
+					if ($hiddenInput.length) {
+						var quillInstance = $cfContainer.data('quill-instance');
+						if (quillInstance && quillInstance.root) {
+							$hiddenInput.val(quillInstance.root.innerHTML);
+						}
+					}
+				}
+			});
+			
+			// Basic validation - check form field directly since getFormData now returns query string
+			var taskTitle = $('#task_title').val();
+			if (!taskTitle || taskTitle.trim() === '') {
 				alert('Task title is required.');
 				return;
 			}
+			
+			var formData = this.getFormData();
 
-			// Add sheet info to form data
-			formData.task_sheet_id = this.sheetId;
-			formData.task_sheet_type = this.sheetType;
-			formData.task_no_signups = this.noSignups ? 1 : 0;
-			formData.action = 'pta_sus_save_task';
-			formData.nonce = ptaSusTaskData.nonce;
-
+			// BACKWARDS COMPATIBILITY: Build query string to preserve array notation
+			// Extensions expect fields like task_template_id[0] in POST data
+			// TODO: Remove backwards compatibility code after extensions are updated
+			var queryString = formData.queryString || '';
+			
+			// Add additional fields that aren't in the form
+			var additionalFields = [];
+			additionalFields.push('task_sheet_id=' + encodeURIComponent(this.sheetId));
+			additionalFields.push('task_sheet_type=' + encodeURIComponent(this.sheetType));
+			additionalFields.push('task_no_signups=' + (this.noSignups ? 1 : 0));
+			additionalFields.push('action=pta_sus_save_task');
+			additionalFields.push('nonce=' + encodeURIComponent(ptaSusTaskData.nonce));
+			
 			// Add dates for Single/Recurring/Ongoing sheets from input fields
 			if (this.sheetType === 'Single' || this.sheetType === 'Ongoing') {
-				// Get date from input field (more reliable than stored data)
 				var singleDate = $('#single_date').val();
-				formData.single_date = singleDate || ptaSusTaskData.singleDate || '';
+				if (singleDate) {
+					additionalFields.push('single_date=' + encodeURIComponent(singleDate));
+				}
 			} else if (this.sheetType === 'Recurring') {
-				// Get dates from input field (more reliable than stored data)
 				var recurringDates = $('#multi999Picker').val();
-				formData.recurring_dates = recurringDates || ptaSusTaskData.recurringDates || '';
+				if (recurringDates) {
+					additionalFields.push('recurring_dates=' + encodeURIComponent(recurringDates));
+				}
+			}
+			
+			// Combine all fields into final query string
+			if (queryString) {
+				queryString += '&' + additionalFields.join('&');
+			} else {
+				queryString = additionalFields.join('&');
 			}
 
 			// Disable save button
 			$('#pta-sus-task-save').prop('disabled', true).text('Saving...');
 
+			// BACKWARDS COMPATIBILITY: Send as query string to preserve array notation
+			// PHP will automatically parse task_template_id[0]=value as $_POST['task_template_id'][0]
+			// TODO: Remove backwards compatibility code after extensions are updated
 			$.ajax({
 				url: ptaSusTaskData.ajaxUrl,
 				type: 'POST',
-				data: formData,
+				data: queryString,
+				processData: false, // Don't process - we've already serialized it
+				contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 				success: function(response) {
 					if (response.success) {
 						self.hasUnsavedChanges = false;

@@ -347,7 +347,13 @@ class PTA_SUS_Admin {
 			wp_enqueue_script('pta-datatables');
 			wp_enqueue_script('jquery-ui-sortable');
 			wp_enqueue_script( 'jquery-ui-autocomplete');
-			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.min.js' , __FILE__ ), array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete'), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
+			// Use non-minified version for debugging (switch back to .min.js for production)
+			// Ensure pta-sus-autocomplete is a dependency so livesearch.js loads before backend.js
+			$backend_deps = array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete');
+			if (isset($this->main_options['enable_signup_search']) && $this->main_options['enable_signup_search']) {
+				$backend_deps[] = 'pta-sus-autocomplete'; // Ensure livesearch.js loads before backend.js
+			}
+			wp_enqueue_script( 'pta-sus-backend', plugins_url( '../assets/js/backend.js' , __FILE__ ), $backend_deps, PTA_VOLUNTEER_SUS_VERSION_NUM . '-' . filemtime(plugin_dir_path(__FILE__) . '../assets/js/backend.js'), true );
 			// Task management modal system
 			wp_enqueue_script( 'jquery-ui-dialog' );
 			// Always enqueue Quill for task description editor (used on public side)
@@ -359,6 +365,7 @@ class PTA_SUS_Admin {
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
             // Enqueue live search script for admin signup forms
+            // Note: pta-sus-autocomplete (livesearch.js) must load before backend.js so ptaVolunteer is available
             if (isset($this->main_options['enable_signup_search']) && $this->main_options['enable_signup_search']) {
                 wp_enqueue_style('pta-sus-autocomplete');
                 wp_enqueue_script('pta-sus-autocomplete');
@@ -366,6 +373,8 @@ class PTA_SUS_Admin {
                     'ajaxurl' => admin_url('admin-ajax.php'),
                     'ptaNonce' => wp_create_nonce('ajax-pta-nonce')
                 ));
+                // Ensure backend.js depends on pta-sus-autocomplete so livesearch.js loads first
+                // This is important because backend.js uses ptaVolunteer from livesearch.js
             }
 			$translation_array = array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
@@ -2871,27 +2880,85 @@ class PTA_SUS_Admin {
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
 		
+		// Normalize POST data for extensions that expect array format (index 0 for modal)
+		// Extensions like Custom Fields expect $_POST['task_template_id'][0], $_POST['task_$slug'][0], etc.
+		$index = 0; // Modal always uses index 0 since there's only one task
+		$normalized_post = $_POST;
+		
+		// Standard task fields that should NOT be normalized (they're handled separately)
+		$standard_fields = array( 'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty', 'task_time_start', 'task_time_end', 
+			'task_need_details', 'task_details_required', 'task_details_text', 'task_allow_duplicates', 'task_enable_quantities',
+			'task_confirmation_email_template_id', 'task_reminder1_email_template_id', 'task_reminder2_email_template_id',
+			'task_clear_email_template_id', 'task_reschedule_email_template_id', 'task_sheet_id', 'task_sheet_type', 'task_no_signups',
+			'action', 'nonce', 'single_date', 'recurring_dates' );
+		
+		// Normalize task_template_id if present (not already in array format)
+		if ( isset( $_POST['task_template_id'] ) && ! is_array( $_POST['task_template_id'] ) ) {
+			$normalized_post['task_template_id'] = array( $index => absint( $_POST['task_template_id'] ) );
+		}
+		
+		// Normalize any task_ prefixed custom fields (for extensions like Custom Fields)
+		// These fields might come in as simple names (task_$slug) or already in array format (task_$slug[0])
+		foreach ( $_POST as $key => $value ) {
+			// Skip if already in standard fields list
+			if ( in_array( $key, $standard_fields ) ) {
+				continue;
+			}
+			
+			// Only process fields that start with 'task_'
+			if ( strpos( $key, 'task_' ) === 0 ) {
+				// If value is already an array, it's already in the correct format (e.g., from form fields with name="task_$slug[0]")
+				if ( is_array( $value ) ) {
+					// Already normalized, keep as is
+					continue;
+				}
+				
+				// This is a simple field name (not array) - normalize to array format
+				// This handles cases where the extension outputs fields without array notation
+				$normalized_post[ $key ] = array( $index => $value );
+			}
+		}
+		
+		// Temporarily replace $_POST so extensions can read normalized data
+		$original_post = $_POST;
+		$_POST = $normalized_post;
+		
 		// Save task
 		if ( $task_id > 0 ) {
 			// Update existing task
 			$result = pta_sus_update_task( $task_data, $task_id, $no_signups );
 			if ( false === $result ) {
+				$_POST = $original_post; // Restore original POST
 				PTA_SUS_Messages::add_error( __( 'Error updating task.', 'pta-volunteer-sign-up-sheets' ) );
 				wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 			}
+			
+			// BACKWARDS COMPATIBILITY: Fire old hook with indexed array format
+			// TODO: Remove after extensions are updated
+			do_action( 'pta_sus_update_task', $task_data, $sheet_id, $task_id, $index );
+			
 			$action = 'updated';
 			PTA_SUS_Messages::add_message( __( 'Task updated successfully.', 'pta-volunteer-sign-up-sheets' ) );
 		} else {
 			// Create new task
 			$new_task_id = pta_sus_add_task( $task_data, $sheet_id, $no_signups );
 			if ( false === $new_task_id ) {
+				$_POST = $original_post; // Restore original POST
 				PTA_SUS_Messages::add_error( __( 'Error creating task.', 'pta-volunteer-sign-up-sheets' ) );
 				wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 			}
 			$task_id = $new_task_id;
+			
+			// BACKWARDS COMPATIBILITY: Fire old hook with indexed array format
+			// TODO: Remove after extensions are updated
+			do_action( 'pta_sus_add_task', $task_data, $sheet_id, $task_id, $index );
+			
 			$action = 'created';
 			PTA_SUS_Messages::add_message( __( 'Task created successfully.', 'pta-volunteer-sign-up-sheets' ) );
 		}
+		
+		// Restore original POST
+		$_POST = $original_post;
 		
 		// Update sheet first_date and last_date
 		$sheet = pta_sus_get_sheet( $sheet_id );
@@ -2948,6 +3015,20 @@ class PTA_SUS_Admin {
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
 		
+		/**
+		 * NEW ACTION (6.0.0+): Task saved via modal form (fired after task is saved and retrieved)
+		 * 
+		 * Extensions should read field values directly from $_POST (no array notation needed)
+		 * Field names should be simple (e.g., "task_template_id", not "task_template_id[0]")
+		 * This hook fires for both created and updated tasks, after the task object is available
+		 * 
+		 * @param int $task_id Task ID
+		 * @param int $sheet_id Sheet ID
+		 * @param object $task Task object (PTA_SUS_Task instance)
+		 * @param string $action Either 'created' or 'updated'
+		 */
+		do_action( 'pta_sus_task_saved', $task_id, $sheet_id, $saved_task, $action );
+		
 		// Return full task data for JavaScript to build table row (using task_ prefix)
 		$task_response_data = array(
 			'task_id' => $saved_task->id,
@@ -3001,8 +3082,58 @@ class PTA_SUS_Admin {
 			$task_has_signups = PTA_SUS_Task_Functions::task_has_signups( $task_id, $task->dates );
 		}
 		
-		// Return task data as array (using task_ prefix to match JavaScript expectations)
+		// Build base task data array (using task_ prefix to match JavaScript expectations)
 		$task_data = array(
+			'task_id' => array( $task->id ), // Extension expects array format
+			'task_title' => stripslashes($task->title),
+			'task_description' => stripslashes($task->description),
+			'task_dates' => $task->dates,
+			'task_qty' => $task->qty,
+			'task_time_start' => $task->time_start,
+			'task_time_end' => $task->time_end,
+			'task_need_details' => $task->need_details,
+			'task_details_required' => $task->details_required,
+			'task_details_text' => stripslashes($task->details_text),
+			'task_allow_duplicates' => $task->allow_duplicates,
+			'task_enable_quantities' => $task->enable_quantities,
+			'task_position' => isset( $task->position ) ? $task->position : 0,
+			'task_confirmation_email_template_id' => isset( $task->confirmation_email_template_id ) ? $task->confirmation_email_template_id : 0,
+			'task_reminder1_email_template_id' => isset( $task->reminder1_email_template_id ) ? $task->reminder1_email_template_id : 0,
+			'task_reminder2_email_template_id' => isset( $task->reminder2_email_template_id ) ? $task->reminder2_email_template_id : 0,
+			'task_clear_email_template_id' => isset( $task->clear_email_template_id ) ? $task->clear_email_template_id : 0,
+			'task_reschedule_email_template_id' => isset( $task->reschedule_email_template_id ) ? $task->reschedule_email_template_id : 0,
+			'task_has_signups' => $task_has_signups,
+		);
+		
+		// BACKWARDS COMPATIBILITY: Apply old filter for extensions using indexed array format
+		// Extension expects task_id as array and will add task_template_id[0], task_$slug[0], etc.
+		// TODO: Remove after extensions are updated to use new filter
+		$task_data = apply_filters( 'pta_sus_admin_get_fields', $task_data, $task->sheet_id );
+		
+		/**
+		 * NEW FILTER (6.0.0+): Get extension field data for a single task
+		 * 
+		 * Extensions should return field values as simple key-value pairs (not arrays)
+		 * Example: array('task_template_id' => 123, 'task_custom_field' => 'value')
+		 * 
+		 * @param array $field_data Array of field values (key => value)
+		 * @param int $task_id Task ID
+		 * @param int $sheet_id Sheet ID
+		 * @param object $task Task object
+		 * @return array Modified field data array
+		 */
+		$extension_fields = apply_filters( 'pta_sus_task_get_extension_fields', array(), $task_id, $task->sheet_id, $task );
+		
+		// Merge new extension fields into task data (overrides old array format if present)
+		if ( ! empty( $extension_fields ) ) {
+			foreach ( $extension_fields as $key => $value ) {
+				$task_data[ $key ] = $value;
+			}
+		}
+		
+		// Convert extension field data from array format to single values for modal (index 0)
+		// Extensions return arrays like task_template_id[0], task_$slug[0], but modal needs single values
+		$modal_task_data = array(
 			'task_id' => $task->id,
 			'task_title' => stripslashes($task->title),
 			'task_description' => stripslashes($task->description),
@@ -3024,7 +3155,28 @@ class PTA_SUS_Admin {
 			'task_has_signups' => $task_has_signups,
 		);
 		
-		wp_send_json_success( array( 'task' => $task_data ) );
+		// Extract extension fields from array format (index 0) to single values
+		// The extension returns arrays like: task_template_id => array(0 => 'value')
+		foreach ( $task_data as $key => $value ) {
+			if ( is_array( $value ) ) {
+				// Check if it's a numeric array with index 0 (extension field format)
+				if ( isset( $value[0] ) ) {
+					// Extract index 0 value
+					$modal_task_data[ $key ] = $value[0];
+				} elseif ( ! empty( $value ) ) {
+					// Non-numeric array, use as-is (shouldn't happen for extension fields)
+					$modal_task_data[ $key ] = $value;
+				} else {
+					// Empty array, set to empty string
+					$modal_task_data[ $key ] = '';
+				}
+			} elseif ( ! isset( $modal_task_data[ $key ] ) ) {
+				// New field from extension that's not in our base array (non-array value)
+				$modal_task_data[ $key ] = $value;
+			}
+		}
+		
+		wp_send_json_success( array( 'task' => $modal_task_data ) );
 	}
 
 	/**

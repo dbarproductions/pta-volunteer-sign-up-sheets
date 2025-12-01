@@ -1231,7 +1231,8 @@ class PTA_SUS_Public {
 	    if ( $this->main_options['enable_signup_search'] && isset( $_GET['task_id'] ) && current_user_can( 'manage_signup_sheets' ) ) {
             wp_enqueue_style('pta-sus-autocomplete');
             wp_enqueue_script('pta-sus-autocomplete');
-            wp_enqueue_script('pta-sus-live-search', plugins_url( '../assets/js/livesearch-listener.min.js', __FILE__ ), array('pta-sus-autocomplete'), '', true);
+            // Use non-minified version for debugging (switch back to .min.js for production)
+            wp_enqueue_script('pta-sus-live-search', plugins_url( '../assets/js/livesearch-listener.js', __FILE__ ), array('pta-sus-autocomplete'), '', true);
 	    }
 
 	    // Always enqueue URL cleanup script

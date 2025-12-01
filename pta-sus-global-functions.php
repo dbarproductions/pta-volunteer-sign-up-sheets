@@ -1202,15 +1202,39 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	}
 	
 	// Handle user_id logic
-	// Set user from email if they weren't logged in and if there is an account with that email
-	// if they were logged in and not manager, take the current wp id as value
-	if (empty($clean_fields['user_id']) && is_user_logged_in() && !current_user_can('manage_signup_sheets')) {
-		$clean_fields['user_id'] = get_current_user_id();
+	// Priority:
+	// 1. If user_id is already set (from autocomplete/selected user), preserve it
+	// 2. If not set and user is logged in but NOT a manager, use current user
+	// 3. If not set and user is logged in AND is a manager, check email for user account first
+	// 4. If not set and user is NOT logged in, check email for user account
+	
+	// Convert user_id to integer if set
+	if (!empty($clean_fields['user_id'])) {
+		$clean_fields['user_id'] = absint($clean_fields['user_id']);
+		// If user_id is 0 or invalid, treat as empty
+		if ($clean_fields['user_id'] <= 0) {
+			$clean_fields['user_id'] = '';
+		}
 	}
+	
+	// Only set user_id if it's not already set (preserve from autocomplete/selected user)
 	if (empty($clean_fields['user_id'])) {
-		if (is_user_logged_in()) {
+		// For non-managers, always use current user if logged in
+		if (is_user_logged_in() && !current_user_can('manage_signup_sheets')) {
 			$clean_fields['user_id'] = get_current_user_id();
-		} elseif (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
+		} 
+		// For managers/admins, check email first (in case they selected a user from signups table)
+		elseif (is_user_logged_in() && current_user_can('manage_signup_sheets')) {
+			// Check if email has a user account (for signups table search)
+			if (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
+				$clean_fields['user_id'] = $user->ID;
+			} else {
+				// No user account found for email, fall back to current user (admin)
+				$clean_fields['user_id'] = get_current_user_id();
+			}
+		}
+		// For non-logged-in users, check email for user account
+		elseif (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
 			$clean_fields['user_id'] = $user->ID;
 		}
 	}

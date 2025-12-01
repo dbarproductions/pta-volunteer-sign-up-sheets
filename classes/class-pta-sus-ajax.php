@@ -92,7 +92,15 @@ class PTA_SUS_AJAX {
                 $record['firstname'] = esc_html($signup->firstname);
                 $record['email'] = esc_html($signup->email);
                 $record['phone'] = esc_html($signup->phone);
+                
+                // DEBUG: Set breakpoint here (before filter) to see record before Custom Fields adds data
+                // Check: $record should have user_id, firstname, lastname, email, phone
+                
                 $record = apply_filters('pta_sus_signups_table_search_record', $record, $signup);
+                
+                // DEBUG: Set breakpoint here (after filter) to see record after Custom Fields adds data
+                // Check: $record should now include custom field keys if hook was called
+                
                 $return[] = $record;
             }
         }
@@ -114,8 +122,15 @@ class PTA_SUS_AJAX {
                 $record['email'] = esc_html($user->user_email);
                 $record['phone'] = esc_html(get_user_meta($user->ID, 'billing_phone', true));
 
+                // DEBUG: Set breakpoint here (before filter) to see record before Custom Fields adds data
+                // Check: $record should have user_id, firstname, lastname, email, phone
+                
                 // Get additional user meta
                 $record = apply_filters('pta_sus_users_table_search_record', $record, $user);
+                
+                // DEBUG: Set breakpoint here (after filter) to see record after Custom Fields adds data
+                // Check: $record should now include custom field keys if hook was called
+                
                 $return[] = $record;
             }
         }

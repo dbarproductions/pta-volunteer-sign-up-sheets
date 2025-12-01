@@ -188,11 +188,13 @@ class PTA_SUS_Assets {
 			$version
 		);
 		
+		// Register livesearch.js (non-minified for easier debugging)
+		// Note: If a minified version exists, ensure it's updated or removed
 		wp_register_script(
 			'pta-sus-autocomplete',
-			$plugin_url . '/assets/js/livesearch.min.js',
+			$plugin_url . '/assets/js/livesearch.js',
 			array(),
-			$version,
+			$version . '-' . filemtime(plugin_dir_path(__DIR__) . 'assets/js/livesearch.js'), // Add filemtime to bust cache
 			true
 		);
 		

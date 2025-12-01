@@ -204,12 +204,218 @@ window.ptaVolunteer = {
                 return;
             }
 
+            // Skip standard fields that are handled below
+            if (['firstname', 'lastname', 'email', 'phone'].includes(key)) {
+                return;
+            }
+
+            // Try to find field with prefix first (frontend), then without (admin)
+            // Handle different element types: input, select, textarea
+            // Also handle multi-select fields with [] in name (Custom Fields)
+            // Note: Custom Fields multi-select fields use name="field_name[]" (no prefix)
+            let field = null;
+            
+            // Build list of possible selectors to try
+            const selectors = [];
+            
+            // First try with prefix (for standard fields like signup_firstname)
+            if (prefix) {
+                selectors.push(
+                    `input[name="${prefix}${key}"]`,
+                    `select[name="${prefix}${key}"]`,
+                    `textarea[name="${prefix}${key}"]`,
+                    `select[name="${prefix}${key}[]"]`  // Multi-select with prefix
+                );
+            }
+            
+            // Then try without prefix (for Custom Fields and admin fields)
+            selectors.push(
+                `input[name="${key}"]`,
+                `select[name="${key}"]`,
+                `textarea[name="${key}"]`,
+                `select[name="${key}[]"]`  // Multi-select without prefix (Custom Fields)
+            );
+            
+            // Try each selector until we find a match
+            for (const selector of selectors) {
+                field = document.querySelector(selector);
+                if (field) {
+                    break;
+                }
+            }
+
+            if (field) {
+                const value = data[key];
+                const fieldType = field.tagName.toLowerCase();
+                const isMultiSelect = field.multiple || field.name.indexOf('[]') !== -1;
+                
+                if (fieldType === 'select' && isMultiSelect) {
+                    // Handle multi-select (Select2)
+                    // Value should be an array or comma-separated string
+                    let values = [];
+                    if (Array.isArray(value)) {
+                        values = value.map(v => String(v).trim()).filter(v => v);
+                    } else if (value) {
+                        values = String(value).split(',').map(v => v.trim()).filter(v => v);
+                    }
+                    
+                    // Use jQuery/Select2 method if available (more reliable for Select2)
+                    if (typeof jQuery !== 'undefined' && jQuery.fn.select2) {
+                        const $field = jQuery(field);
+                        const setSelect2Values = () => {
+                            // First, ensure Select2 is initialized
+                            if (!$field.data('select2')) {
+                                // Select2 not initialized yet, initialize it first
+                                $field.select2();
+                            }
+                            
+                            // Set values using Select2's val() method
+                            // This properly handles multi-select and updates the UI
+                            $field.val(values);
+                            
+                            // Trigger change to ensure Select2 updates and any change handlers fire
+                            $field.trigger('change');
+                        };
+                        
+                        // Try to set values immediately
+                        setSelect2Values();
+                        
+                        // If Select2 wasn't initialized, try again after a short delay
+                        // This handles cases where fields are populated before Select2 is initialized
+                        if (!$field.data('select2')) {
+                            setTimeout(() => {
+                                setSelect2Values();
+                            }, 100);
+                        }
+                    } else {
+                        // Fallback: manually set selections on native select
+                        Array.from(field.options).forEach(option => {
+                            const optionValue = String(option.value).trim();
+                            option.selected = values.includes(optionValue);
+                        });
+                        // Trigger change event
+                        if (field.dispatchEvent) {
+                            field.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                } else if (fieldType === 'select') {
+                    // Handle single select
+                    field.value = this.htmlDecode(value || '');
+                    // Trigger change to update Select2 if present
+                    if (typeof jQuery !== 'undefined' && jQuery(field).data('select2')) {
+                        jQuery(field).trigger('change');
+                    } else if (field.dispatchEvent) {
+                        field.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                } else if (fieldType === 'textarea') {
+                    // Handle textarea
+                    field.value = this.htmlDecode(value || '');
+                } else if (fieldType === 'input' && field.type === 'checkbox') {
+                    // Handle checkbox
+                    field.checked = value == 1 || value === true || value === '1';
+                } else if (fieldType === 'input' && field.type === 'radio') {
+                    // Handle radio buttons - find the one with matching value
+                    const radioGroup = document.querySelectorAll(`input[type="radio"][name="${field.name}"]`);
+                    radioGroup.forEach(radio => {
+                        radio.checked = radio.value === String(value);
+                    });
+                } else {
+                    // Handle regular input (text, email, etc.)
+                    field.value = this.htmlDecode(value || '');
+                }
+                
+                // Handle Quill editor fields (Custom Fields HTML fields)
+                // Quill fields have a hidden input with data-quill-field="true"
+                if (fieldType === 'input' && field.hasAttribute('data-quill-field')) {
+                    // For HTML fields, use raw value (don't decode - it's already HTML)
+                    // The value from the server should already be properly formatted HTML
+                    const htmlContent = value || '';
+                    
+                    // First, set the value in the hidden input (raw HTML, no decoding)
+                    field.value = htmlContent;
+                    
+                    const containerId = field.id + '-quill-container';
+                    const container = document.getElementById(containerId);
+                    if (container && typeof Quill !== 'undefined') {
+                        // Try to get Quill instance (might be stored in jQuery data or as property)
+                        let quill = null;
+                        if (typeof jQuery !== 'undefined') {
+                            quill = jQuery(container).data('quill-instance');
+                        }
+                        if (!quill && container.quillInstance) {
+                            quill = container.quillInstance;
+                        }
+                        
+                        if (quill && quill.root) {
+                            // Quill is already initialized, set content (raw HTML, no decoding)
+                            if (htmlContent) {
+                                const delta = quill.clipboard.convert({ html: htmlContent });
+                                quill.setContents(delta, 'silent');
+                            } else {
+                                quill.setText('');
+                            }
+                        } else {
+                            // Quill not initialized yet - initialize it now
+                            // This matches the initialization in Custom Fields admin/public JS
+                            quill = new Quill(container, {
+                                theme: 'snow',
+                                modules: {
+                                    toolbar: [
+                                        [{ 'header': [1, 2, 3, false] }],
+                                        ['bold', 'italic', 'underline', 'strike'],
+                                        ['blockquote', 'code-block'],
+                                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                                        [{ 'direction': 'rtl' }],
+                                        [{ 'color': [] }, { 'background': [] }],
+                                        [{ 'font': [] }],
+                                        [{ 'align': [] }],
+                                        ['clean'],
+                                        ['link']
+                                    ]
+                                }
+                            });
+                            
+                            // Set initial content if provided
+                            if (htmlContent) {
+                                const delta = quill.clipboard.convert({ html: htmlContent });
+                                quill.setContents(delta, 'silent');
+                            }
+                            
+                            // Store Quill instance
+                            if (typeof jQuery !== 'undefined') {
+                                jQuery(container).data('quill-instance', quill);
+                            } else {
+                                container.quillInstance = quill;
+                            }
+                            
+                            // Sync Quill content to hidden input on text change
+                            quill.on('text-change', function() {
+                                const html = quill.root.innerHTML;
+                                // Only update if content actually changed (avoid infinite loops)
+                                if (field.value !== html) {
+                                    field.value = html;
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        // Handle standard fields (firstname, lastname, email, phone)
+        Object.keys(data).forEach(key => {
+            if (!['firstname', 'lastname', 'email', 'phone'].includes(key)) {
+                return;
+            }
+
             // Try with prefix first (frontend), then without (admin)
             let input = document.querySelector(`input[name="${prefix}${key}"]`) ||
                 document.querySelector(`input[name="${key}"]`);
 
             if (input) {
-                input.value = this.htmlDecode(data[key]);
+                input.value = this.htmlDecode(data[key] || '');
             }
         });
 
@@ -218,6 +424,13 @@ window.ptaVolunteer = {
             const validateEmail = document.querySelector('input[name="signup_validate_email"]');
             if (validateEmail) {
                 validateEmail.value = this.htmlDecode(data.email || '');
+            }
+            
+            // Set signup_user_id hidden field (public side) when user is selected from autocomplete
+            const signupUserIdField = document.querySelector('input[name="signup_user_id"]');
+            if (signupUserIdField && data.user_id) {
+                const user_id = parseInt(data.user_id || 0, 10);
+                signupUserIdField.value = user_id > 0 ? user_id : '';
             }
         }
 
