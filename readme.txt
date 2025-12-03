@@ -4,10 +4,10 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.8.2
+Tested up to: 6.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.8.1
+Stable tag: 5.8.2
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -162,6 +162,10 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 5.8.2**
+*   Fixed SQL error in `get_signup_ids()` function where `ORDER BY signup_date` was using a non-existent alias. Changed to use the actual column name `$signup_table.date` instead.
+*   Tested with PHP 8.5.0 and WordPress 6.9.0
+
 **Version 5.8.1**
 *   Fix for date format passed to the output function on the View/Export All Data admin page that could cause issues with the displayed date for languages other than English.
 *   Fixed: Updated the registration of the Text Registry action hook to match changes in the Customizer so that Validation text filters and other newer text filters will show up in the Customizer now.

@@ -182,7 +182,7 @@ class PTA_SUS_Signup_Functions {
 	        INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
 	        WHERE $sheet_table.trash = 0";
 		$sql .= self::build_where_clauses($where, $show_expired);
-		$sql .= " ORDER BY signup_date, time_start";
+		$sql .= " ORDER BY $signup_table.date, $task_table.time_start";
 		return $wpdb->get_col( $sql );
 	}
 	public static function validate_signup($signup_id) {
