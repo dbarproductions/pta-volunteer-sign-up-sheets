@@ -179,19 +179,19 @@ class PTA_SUS_Signup_Functions {
 		return stripslashes_deep($results);
 	}
 
-	public static function get_signup_ids($where=array(),$show_expired=false) {
-		global $wpdb;
-		$signup_table = self::$signup_table;
-		$task_table = self::$task_table;
-		$sheet_table = self::$sheet_table;
-		$sql = "SELECT $signup_table.id FROM $signup_table
+    public static function get_signup_ids($where=array(),$show_expired=false) {
+        global $wpdb;
+        $signup_table = self::$signup_table;
+        $task_table = self::$task_table;
+        $sheet_table = self::$sheet_table;
+        $sql = "SELECT $signup_table.id FROM $signup_table
 	        INNER JOIN $task_table ON $signup_table.task_id = $task_table.id
 	        INNER JOIN $sheet_table ON $task_table.sheet_id = $sheet_table.id
 	        WHERE $sheet_table.trash = 0";
-		$sql .= self::build_where_clauses($where, $show_expired);
-		$sql .= " ORDER BY signup_date, time_start";
-		return $wpdb->get_col( $sql );
-	}
+        $sql .= self::build_where_clauses($where, $show_expired);
+        $sql .= " ORDER BY $signup_table.date, $task_table.time_start";
+        return $wpdb->get_col( $sql );
+    }
 
     /**
      * Get signups for a specific task
