@@ -681,11 +681,26 @@ class PTA_SUS_Activation {
 	}
 
 	/**
+	 * Public wrapper to migrate Customizer extension email templates
+	 *
+	 * Can be called manually from admin tools page to re-run the migration
+	 * if the Customizer extension was activated after the initial upgrade.
+	 *
+	 * @since 6.2.0
+	 * @return void
+	 */
+	public static function run_customizer_template_migration() {
+		$email_options = get_option( 'pta_volunteer_sus_email_options', array() );
+		$from_email = isset( $email_options['from_email'] ) ? $email_options['from_email'] : get_bloginfo( 'admin_email' );
+		self::migrate_customizer_templates( $from_email );
+	}
+
+	/**
 	 * Migrate Customizer extension email templates
-	 * 
+	 *
 	 * Converts Customizer's custom email templates to PTA_SUS_Email_Template records
 	 * and maps sheet assignments to new template IDs.
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @param string $from_email Default from email
 	 * @return void
