@@ -277,7 +277,7 @@ class PTA_SUS_Admin {
 			// Settings, CRON, and Add Ons pages require manage_others_signup_sheets (Admins and Managers only, not Authors)
 			if($this->show_settings && (current_user_can('manage_options') || current_user_can('manage_others_signup_sheets'))) {
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta-volunteer-sign-up-sheets'), __('Settings', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
-				add_submenu_page($this->admin_settings_slug.'_sheets', __('CRON Functions', 'pta-volunteer-sign-up-sheets'), __('CRON Functions', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
+				add_submenu_page($this->admin_settings_slug.'_sheets', __('Tools', 'pta-volunteer-sign-up-sheets'), __('Tools', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta-volunteer-sign-up-sheets'), __('Add Ons', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
 			}
 			add_action( "load-$all_sheets", array( $this, 'screen_options' ) );
@@ -484,6 +484,15 @@ class PTA_SUS_Admin {
 				echo '<div class="updated"><p>' . __('Debug log cleared successfully.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
 			}
 		}
+		// Handle migrate customizer templates action
+		$migrate_message = '';
+		if (isset($_GET['action']) && 'migrate_customizer' === $_GET['action']) {
+			check_admin_referer('pta-sus-migrate-customizer', '_sus_nonce');
+			$main_options = get_option('pta_volunteer_sus_main_options', array());
+			$from_email = isset($main_options['from_email']) ? $main_options['from_email'] : get_option('admin_email');
+			PTA_SUS_Activation::migrate_customizer_templates($from_email);
+			$migrate_message = '<div class="updated"><p>' . __('Customizer email templates have been migrated. Check the Email Templates page to verify.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
+		}
 		$reminders_link = add_query_arg(array('action' => 'reminders'));
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
         $reschedule_link = add_query_arg(array('action' => 'reschedule'));
@@ -496,7 +505,8 @@ class PTA_SUS_Admin {
 		$clear_log_url = add_query_arg(array('action' => 'clear_debug_log'));
 		$nonced_clear_log_url = wp_nonce_url($clear_log_url, 'pta-sus-clear-debug-log', '_sus_nonce');
 		echo '<div class="wrap pta_sus">';
-		echo '<h2>'.__('CRON Functions', 'pta-volunteer-sign-up-sheets').'</h2>';
+		echo '<h2>'.__('Tools', 'pta-volunteer-sign-up-sheets').'</h2>';
+		echo '<h2 class="title">'.__('CRON Functions', 'pta-volunteer-sign-up-sheets').'</h2>';
 		echo '<h3>'.__('Volunteer Reminders', 'pta-volunteer-sign-up-sheets').'</h3>';
 		echo '<p>'.__("The system automatically checks if it needs to send reminders hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the reminders function with the button below.", "pta_volunteer_sus") . '</p>';
 		echo $messages;
@@ -519,7 +529,6 @@ class PTA_SUS_Admin {
 		echo '<hr/>';
 		echo '<h3>' . __('Debug Log', 'pta-volunteer-sign-up-sheets') . '</h3>';
 		echo '<p>'.__("This log file will show results of any actions taken during CRON functions, and can be helpful for debugging issues. Use the button below the textarea to clear/reset the log.", "pta_volunteer_sus") . '</p>';
-		echo '</div>';
 		// Display log contents
 		$log_file = WP_CONTENT_DIR . '/uploads/pta-logs/pta_debug.log';
 		$log_contents = '';
@@ -528,6 +537,23 @@ class PTA_SUS_Admin {
 		}
 		echo '<textarea readonly style="width: 100%; height: 300px; font-family: monospace;">' . esc_textarea($log_contents) . '</textarea>';
 		echo '<p><a href="' . esc_url($nonced_clear_log_url) . '" class="button-secondary">' . __('Clear Debug Log', 'pta-volunteer-sign-up-sheets') . '</a></p>';
+
+		// Other Tools Section - only show if there are tools to display
+		if (class_exists('PTA_SUS_Customizer')) {
+			echo '<hr/>';
+			echo '<h2 class="title">'.__('Other Tools', 'pta-volunteer-sign-up-sheets').'</h2>';
+
+			// Migrate Customizer Templates button
+			echo '<h3>'.__('Migrate Customizer Email Templates', 'pta-volunteer-sign-up-sheets').'</h3>';
+			echo '<p>'.__("If you have custom email templates created in the Customizer extension that were not automatically imported during the version 6.0 update, or if you added new templates in the Customizer after upgrading to version 6.0, use this button to migrate those templates to the new Email Templates system.", "pta-volunteer-sign-up-sheets") . '</p>';
+			echo '<p><strong>'.__("Note:", "pta-volunteer-sign-up-sheets").'</strong> '.__("This will import templates from the Customizer extension. Existing templates with the same name will not be duplicated.", "pta-volunteer-sign-up-sheets").'</p>';
+			echo $migrate_message;
+			$migrate_link = add_query_arg(array('action' => 'migrate_customizer'));
+			$nonced_migrate_link = wp_nonce_url($migrate_link, 'pta-sus-migrate-customizer', '_sus_nonce');
+			echo '<p><a href="'.esc_url($nonced_migrate_link).'" class="button-secondary">'.__('Migrate Customizer Templates', 'pta-volunteer-sign-up-sheets').'</a></p>';
+		}
+
+		echo '</div>'; // Close wrap div
 	}
 	
 	/**

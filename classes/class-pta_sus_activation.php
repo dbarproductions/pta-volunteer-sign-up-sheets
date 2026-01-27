@@ -690,7 +690,7 @@ class PTA_SUS_Activation {
 	 * @param string $from_email Default from email
 	 * @return void
 	 */
-	private static function migrate_customizer_templates( $from_email ) {
+	public static function migrate_customizer_templates( $from_email ) {
 		global $wpdb;
 		
 		$custom_emails = get_option( 'pta_volunteer_sus_customizer_custom_emails', array() );
