@@ -33,55 +33,109 @@ class PTA_SUS_AJAX {
 		}
 	}
 
-	public static function live_search() {
-		if (isset($_POST['pta_pub_action']) && $_POST['pta_pub_action']=='autocomplete_volunteer' && current_user_can('manage_signup_sheets')) {
-			check_ajax_referer( 'ajax-pta-nonce', 'security' );
-			$main_options = get_option( 'pta_volunteer_sus_main_options' );
-			$return=array();
-			if (!$main_options['enable_signup_search'] || !isset($_POST["q"])) {
-			  wp_send_json($return);
-			  exit;
-			}
+    /**
+     * AJAX handler for live search - validates security and calls search method
+     */
+    public static function live_search() {
+        // Verify action and capability
+        if (!isset($_POST['pta_pub_action']) || $_POST['pta_pub_action'] !== 'autocomplete_volunteer' || !current_user_can('manage_signup_sheets')) {
+            wp_send_json_error(array('message' => __('Unauthorized request.', 'pta-volunteer-sign-up-sheets')));
+            return;
+        }
 
-			$tables = $main_options['signup_search_tables'];
+        check_ajax_referer('ajax-pta-nonce', 'security');
 
-			$user_ids = array();
-			global $pta_sus;
-			$search = sanitize_text_field( $_POST["q"]);
-			if('signups' === $tables || 'both' === $tables) {
-				$results = $pta_sus->data->get_signups2($search);
-				foreach($results as $item) {
-					$record = array();
-					$record['user_id'] = $user_ids[]  = absint($item->user_id);
-					$record['lastname']  = esc_html($item->lastname);
-					$record['firstname'] = esc_html($item->firstname);
-					$record['email']     = esc_html($item->email);
-					$record['phone']     = esc_html($item->phone);
-					$record = apply_filters('pta_sus_signups_table_search_record', $record);
-					$return[]  = $record;
-				}
-			}
+        // Perform the actual search
+        $results = self::perform_live_search();
+        wp_send_json_success($results);
+    }
 
-			if('users' === $tables || 'both' === $tables) {
-				$users = $pta_sus->data->get_users($search);
-				foreach($users as $user) {
-					if(!in_array($user->ID, $user_ids)) {
-						$record = array();
-						$record['user_id'] = absint($user->ID);
-						$record['lastname']  = esc_html(get_user_meta($user->ID, 'last_name', true));
-						$record['firstname'] = esc_html(get_user_meta($user->ID, 'first_name', true));
-						$record['email']     = esc_html($user->user_email);
-						$record['phone']     = esc_html(get_user_meta($user->ID, 'billing_phone', true));
-						// get additional user meta
-						$record = apply_filters('pta_sus_users_table_search_record', $record);
-						$return[]  = $record;
-					}
-				}
-			}
+    /**
+     * Perform the live search logic (without security checks)
+     * This method can be called by other plugins/extensions after they've done their own security validation
+     * 
+     * @return array Array of search results
+     */
+    public static function perform_live_search() {
+        $main_options = get_option('pta_volunteer_sus_main_options');
+        $return = array();
 
-			wp_send_json($return);
-			exit;
-		}
+        // Check if search is enabled and query exists
+        if (empty($main_options['enable_signup_search']) || !isset($_POST['q'])) {
+            return $return;
+        }
+
+        $search = sanitize_text_field($_POST['q']);
+
+        // Don't search if query is too short (optional - prevents excessive queries)
+        if (strlen($search) < 2) {
+            return $return;
+        }
+
+        $tables = $main_options['signup_search_tables'] ?? 'both';
+        $user_ids = array();
+
+        // Search signups table
+        if ('signups' === $tables || 'both' === $tables) {
+            $results = PTA_SUS_Signup_Functions::search_signups_by_name($search);
+
+            foreach ($results as $signup) {
+                // Fix: Properly track user_ids to avoid duplicates
+                $user_id = absint($signup->user_id);
+                if ($user_id > 0 && !in_array($user_id, $user_ids)) {
+                    $user_ids[] = $user_id;
+                }
+
+                $record = array();
+                $record['user_id'] = $user_id;
+                $record['lastname'] = esc_html($signup->lastname);
+                $record['firstname'] = esc_html($signup->firstname);
+                $record['email'] = esc_html($signup->email);
+                $record['phone'] = esc_html($signup->phone);
+                
+                // DEBUG: Set breakpoint here (before filter) to see record before Custom Fields adds data
+                // Check: $record should have user_id, firstname, lastname, email, phone
+                
+                $record = apply_filters('pta_sus_signups_table_search_record', $record, $signup);
+                
+                // DEBUG: Set breakpoint here (after filter) to see record after Custom Fields adds data
+                // Check: $record should now include custom field keys if hook was called
+                
+                $return[] = $record;
+            }
+        }
+
+        // Search WordPress users table
+        if ('users' === $tables || 'both' === $tables) {
+            $users = pta_sus_search_users($search);
+
+            foreach ($users as $user) {
+                // Skip if already found in signups
+                if (in_array($user->ID, $user_ids)) {
+                    continue;
+                }
+
+                $record = array();
+                $record['user_id'] = absint($user->ID);
+                $record['lastname'] = esc_html(get_user_meta($user->ID, 'last_name', true));
+                $record['firstname'] = esc_html(get_user_meta($user->ID, 'first_name', true));
+                $record['email'] = esc_html($user->user_email);
+                $record['phone'] = esc_html(get_user_meta($user->ID, 'billing_phone', true));
+
+                // DEBUG: Set breakpoint here (before filter) to see record before Custom Fields adds data
+                // Check: $record should have user_id, firstname, lastname, email, phone
+                
+                // Get additional user meta
+                $record = apply_filters('pta_sus_users_table_search_record', $record, $user);
+                
+                // DEBUG: Set breakpoint here (after filter) to see record after Custom Fields adds data
+                // Check: $record should now include custom field keys if hook was called
+                
+                $return[] = $record;
+            }
+        }
+
+        return $return;
     }
 
 	public static function get_tasks_for_sheet() {
@@ -92,10 +146,10 @@ class PTA_SUS_AJAX {
 		$old_signup_id = isset($_POST['old_signup_id']) ? absint($_POST['old_signup_id']) : 0;
 		$qty = isset($_POST['qty']) ? absint( $_POST['qty']) : 1;
 		global $pta_sus;
-		$sheet = $pta_sus->get_sheet($sheet_id);
+		$sheet = pta_sus_get_sheet($sheet_id);
 		if($sheet) {
 
-			$sheet_tasks = $pta_sus->get_tasks($sheet_id);
+			$sheet_tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
 			$available_task_ids = array();
 
 
@@ -104,7 +158,7 @@ class PTA_SUS_AJAX {
 				foreach ($sheet_tasks as $sheet_task) {
 					if($old_task_id == $sheet_task->id) {
 						// if task IDs are the same, don't use if not recurring type sheet (can't move to same task unless it has more than 1 date)
-		                $sheet = $pta_sus->get_sheet($sheet_task->sheet_id);
+		                $sheet = pta_sus_get_sheet($sheet_task->sheet_id);
 		                if($sheet && 'Recurring' !== $sheet->type) {
 		                    continue; // skip so can't select same task
 		                }
@@ -116,10 +170,10 @@ class PTA_SUS_AJAX {
 						$time = sprintf(__(' - starting at: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime( get_option('time_format'), strtotime($sheet_task->time_start)));
 					}
 
-					$task_dates = $pta_sus->data->get_sanitized_dates($sheet_task->dates);
+					$task_dates = pta_sus_sanitize_dates($sheet_task->dates);
 					$check_date = false;
 					if($old_task_id == $sheet_task->id && count($task_dates) > 1) {
-						$old_signup = $pta_sus->get_signup($old_signup_id);
+						$old_signup = pta_sus_get_signup($old_signup_id);
 						if($old_signup) {
 							$check_date = $old_signup->date;
 						}
@@ -131,7 +185,7 @@ class PTA_SUS_AJAX {
 		            		continue;
 			            }
 						// Check available qty
-			            $available = $pta_sus->data->get_available_qty($sheet_task->id, $date, $sheet_task->qty);
+			            $available = $sheet_task->get_available_spots($date);
 						if(!$available || $qty > $available) {
 							continue; // not enough left
 						}

@@ -22,7 +22,7 @@ if($this->success) {
     return;
 }
 
-$available_sheets = $this->data->get_sheets(false,true);
+$available_sheets = PTA_SUS_Sheet_Functions::get_sheets(false,true);
 foreach($available_sheets as $i => $available_sheet) {
     if($available_sheet->no_signups) {
         unset($available_sheets[$i]);

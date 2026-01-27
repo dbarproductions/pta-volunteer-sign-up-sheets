@@ -178,3 +178,10 @@ span.pta-message-close {
     float: right;
     margin-left: auto;
 }
+
+/* Task list table - Drag column width */
+.pta-sus-task-list th.column-drag,
+.pta-sus-task-list td.column-drag {
+    width: 50px;
+    white-space: nowrap;
+}

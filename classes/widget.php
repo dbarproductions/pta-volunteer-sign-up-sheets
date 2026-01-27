@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class PTA_SUS_Widget extends WP_Widget
 {
-	private $data;
 	private $main_options;
 
 	/**
@@ -18,8 +17,6 @@ class PTA_SUS_Widget extends WP_Widget
 			'PTA Volunteer Sign-up Sheet List', // Name
 			array( 'description' => __( 'PTA Volunteer Sign-up Sheet list Widget.', 'pta-volunteer-sign-up-sheets' ), ) // Args
 		);
-        global $pta_sus;
-		$this->data = $pta_sus->data;
 		$this->main_options = get_option('pta_volunteer_sus_main_options');
 	}
 
@@ -51,7 +48,8 @@ class PTA_SUS_Widget extends WP_Widget
         $order = isset($instance['order']) && in_array($instance['order'], array('ASC', 'DESC')) ? $instance['order'] : 'ASC';
 
 		// Check if there are sheets first, if not, we won't show anything
-		$sheets = $this->data->get_sheets(false, true, $show_hidden, $sort_by, $order);
+		// Use new helper function instead of deprecated $this->data->get_sheets()
+		$sheets = PTA_SUS_Sheet_Functions::get_sheets(false, true, $show_hidden, $sort_by, $order);
         
         if (empty($sheets)) {
             return;
@@ -105,11 +103,11 @@ class PTA_SUS_Widget extends WP_Widget
 			if('events' === $show_what && !$sheet->no_signups) continue;
 
         	$sheet_url = $permalink.'?sheet_id='.$sheet->id;
-        	$first_date = ($sheet->first_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->first_date));
-        	$last_date = ($sheet->last_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->last_date));
+        	$first_date = (empty($sheet->first_date) || $sheet->first_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->first_date));
+        	$last_date = (empty($sheet->last_date) || $sheet->last_date == '0000-00-00') ? '' : date('M d', strtotime($sheet->last_date));
         	if ($first_date == $last_date) $single = true;
 
-        	$open_spots = ($this->data->get_sheet_total_spots($sheet->id) - $this->data->get_sheet_signup_count($sheet->id));
+        	$open_spots = (PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id) - PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id));
 
 			echo '<li><strong><a href="'.esc_url($sheet_url).'">'.esc_html($sheet->title).'</a></strong>'.$is_hidden.'<br/>';
         	if ($single) {

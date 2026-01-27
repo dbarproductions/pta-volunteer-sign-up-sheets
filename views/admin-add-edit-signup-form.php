@@ -13,7 +13,7 @@ if($this->success) {
 $signup_id = isset($_REQUEST['signup_id']) ? absint($_REQUEST['signup_id']) : 0;
 $edit = false;
 if($signup_id > 0) {
-	$signup=$this->data->get_signup($signup_id);
+	$signup=pta_sus_get_signup($signup_id);
 	if(empty($signup)) {
 		PTA_SUS_Messages::add_error(__('Invalid Signup', 'pta-volunteer-sign-up-sheets'));
         PTA_SUS_Messages::show_messages(true, 'admin');
@@ -40,10 +40,10 @@ if(0 === $task_id || 0 === $date) {
     PTA_SUS_Messages::show_messages(true, 'admin');
 	return;
 }
-$task = apply_filters( 'pta_sus_admin_signup_get_task', $this->data->get_task($task_id), $task_id);
+$task = apply_filters( 'pta_sus_admin_signup_get_task', pta_sus_get_task($task_id), $task_id);
 do_action( 'pta_sus_admin_before_signup_form', $task, $date );
 
-if ("0000-00-00" == $date) {
+if ("0000-00-00" === $date) {
 	$show_date = false;
 } else {
 	$show_date = pta_datetime(get_option('date_format'), strtotime($date));
@@ -86,7 +86,13 @@ $saved_values = array();
 if($edit) {
     foreach ($signup_fields as $key => $label) {
         if(in_array($key, array('user_id','firstname','lastname','email','phone','item','item_qty'))) {
-	        $saved_values[$key] = wp_kses_post(stripslashes($signup->$key));
+            $value = stripslashes($signup->$key);
+            // Handle arrays (e.g., multi-select fields from Custom Fields extension)
+            if (is_array($value)) {
+                $saved_values[$key] = $value;
+            } else {
+                $saved_values[$key] = wp_kses_post($value);
+            }
         }
     }
 }
@@ -96,13 +102,18 @@ $saved_values = apply_filters( 'pta_sus_admin_saved_signup_values', $saved_value
 foreach ($signup_fields as $key => $label) {
 	// get posted if form was submitted, but there were errors
 	if(isset($_POST['pta_admin_signup_form_mode']) && 'submitted' === $_POST['pta_admin_signup_form_mode'] && !empty($posted[$key])) {
-        $saved_values[$key] = wp_kses_post($posted[$key]);
+        // Handle arrays (e.g., multi-select fields from Custom Fields extension)
+        if (is_array($posted[$key])) {
+            $saved_values[$key] = $posted[$key];
+        } else {
+            $saved_values[$key] = wp_kses_post($posted[$key]);
+        }
     } elseif (empty($saved_values[$key])) {
         $saved_values[$key] = '';
     }
 }
 $loading_img = PTA_VOLUNTEER_SUS_URL.'assets/images/loading.gif';
-$required_fields = $this->get_required_signup_fields($task_id);
+$required_fields = PTA_SUS_Validation::get_required_signup_fields($task_id, $this->main_options);
 ?>
 <form name="pta_sus_admin_signup_form" id="pta_sus_admin_signup_form" method="post" action="">
     <table class="pta-sus admin widefat">
@@ -151,12 +162,12 @@ $required_fields = $this->get_required_signup_fields($task_id);
                     </td></tr><?php
                     break;
                 case 'item_qty':
-                    $available = $this->data->get_available_qty($task_id, $date, $task->qty);
+                    $available = $task->get_available_spots($date);
                     if($edit) {
                         // add back in the signup qty so can edit up to max available
                         $available += absint( $signup->item_qty);
                     }
-                    if ($task->enable_quantities == "YES") { ?>
+                    if ($task->enable_quantities === "YES") { ?>
                         <tr>
                             <th><label for="item_qty"><?php echo esc_html( sprintf(__('Item QTY (1 - %d): ', 'pta-volunteer-sign-up-sheets'), (int)$available) ); ?></label></th>
                             <td><input type="number" id="item_qty" name="item_qty" value="<?php echo esc_attr($saved_values[$key]); ?>" min="1" max="<?php echo absint($available); ?>"/></td>

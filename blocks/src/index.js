@@ -102,6 +102,21 @@ const Edit = ({ attributes, setAttributes }) => {
                         ]}
                         onChange={(value) => setAttributes({order: value})}
                     />
+                    <TextControl
+                        label={__('Author ID', 'pta-volunteer-sign-up-sheets')}
+                        value={attributes.author_id || ''}
+                        onChange={(value) => setAttributes({author_id: value})}
+                        type="number"
+                        min={0}
+                        help={__('Filter sheets by WordPress user ID. Leave empty to show all sheets.', 'pta-volunteer-sign-up-sheets')}
+                    />
+                    <TextControl
+                        label={__('Author Email', 'pta-volunteer-sign-up-sheets')}
+                        value={attributes.author_email || ''}
+                        onChange={(value) => setAttributes({author_email: value})}
+                        type="email"
+                        help={__('Filter sheets by author email address. Leave empty to show all sheets.', 'pta-volunteer-sign-up-sheets')}
+                    />
                 </PanelBody>
             </InspectorControls>
         </div>

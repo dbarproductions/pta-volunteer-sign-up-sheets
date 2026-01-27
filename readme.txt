@@ -4,10 +4,10 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.9.0
+Tested up to: 6.8.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 5.8.2
+Stable tag: 6.0.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -25,6 +25,7 @@ Read the documentation here:
 
 **Features:**
 
+*   Version 6.0 adds a new Author System that allows you to delegate sheet management to committee chairs or event coordinators, a comprehensive Email Template Management system where authors and administrators can create and manage custom email templates, and a completely redesigned task management interface with modal-based editing for easier task management.
 *   Version 5.0 add a new Validation option to validate signups via an email code, and to validate a user so that they can view and clear their signups without having to login to a WordPress user account. A validation form is also provided to allow validation at any time. See the documentation for more information.
 *   Version 4.6 adds HTML format emails, as well as per sheet options for recipients of signup confirmation and clear emails, along with a mobile CSS option to collapse the tables to a single column format for smaller screens, and many other new features and settings.
 *   Version 3.6 adds the ability to Reschedule a sheet to new date and times, copy a sheet with new dates and times, or create multiple copies of a sheet at specified day intervals. These new functions allow optionally copying the signups, and have a new email template to notify those signups of the new dates and times.
@@ -82,7 +83,7 @@ Committee/Event contact info can be entered for each sheet, or, if you are using
 
 Automatic Email reminders can be set for each sign-up sheet. You can specify the number of days before the event to send the reminder emails, and there can be two sets of reminders for each sheet (for example, first reminder can be sent 7 days before the event, and the second reminder can be sent the day before the event). You can set an hourly limit for reminder emails in case your hosting account limits the number of outgoing emails per hour.
 
-Simple to use custom email templates for all of the emails sent by the plugin.
+Simple to use custom email templates for all of the emails sent by the plugin. Version 6.0 adds a comprehensive Email Template Management system where you can create, edit, duplicate, and assign custom email templates at the sheet or task level. Authors can create their own templates for their sheets, while administrators can create templates available to all users.
 
 Admin can use an Email Volunteers form page to quickly send an email to all volunteers for a specific sheet, or to all volunteers.
 
@@ -162,6 +163,23 @@ This alone will not make your site GDPR compliant. You will need to study up on 
 If your site is going to be affected by GDPR, then you should contact a lawyer to make sure you do everything needed to be in compliance.
 
 == Changelog ==
+**Version 6.0.0**
+*   **NEW FEATURE: Author System** - Added a new "Signup Sheet Author" user role that allows users to create and manage only their own sign-up sheets. Administrators and Signup Sheet Managers can continue to manage all sheets, while Authors can only see and edit sheets they've created. This is perfect for organizations that want to delegate sheet management to committee chairs or event coordinators without giving them full admin access.
+*   **NEW FEATURE: Email Template Management** - Authors and administrators can now create, edit, and manage custom email templates for all email types (confirmation, reminders, clear, reschedule, and validation emails). Templates can be assigned at the sheet level or task level, giving you complete control over the emails sent for each event. Templates support all the same template tags as before, and you can create as many templates as needed. Authors can create their own templates for their sheets, while administrators can create templates available to all users.
+*   **NEW FEATURE: Improved Task Management** - Completely redesigned the task editing interface with a modern modal-based system. Tasks can now be edited individually in a pop-up window, making it much easier to manage sheets with many tasks. The task list shows essential information at a glance, and you can quickly edit, copy, or delete tasks with dedicated buttons. Drag-and-drop reordering is still available, with an improved "Save Order" button that appears when you rearrange tasks.
+*   **NEW FEATURE: Enhanced Date Management** - For Single and Recurring sheet types, dates are now managed in a dedicated section above the task list, making it clear that all tasks share the same date(s). The date input includes visual indicators showing whether dates are set, and prevents date changes when signups already exist (to protect existing volunteer commitments). For Multi-Day sheets, each task still has its own date field in the task editor.
+*   **NEW FEATURE: Task Copying** - When adding a new task, you can now select from a dropdown of existing tasks to quickly copy a task from any sheet. This makes it easy to reuse common tasks like "Setup" or "Cleanup" across multiple events without having to re-enter all the details each time.
+*   **NEW FEATURE: Author Filtering** - Added `author_id` and `author_email` parameters to the [pta_sign_up_sheet] shortcode and Sign Up Sheets block, allowing you to filter and display sheets by specific authors on the public side.
+*   **NEW FEATURE: Auto-fill Contact Info** - When creating a new sheet, the Chair Name and Chair Email fields are now automatically pre-filled with the current user's information, saving time when the author is also the contact person.
+*   **IMPROVEMENT: Task Description Editor** - Task descriptions now use a modern HTML editor (Quill) that works smoothly in the modal interface, making it easier to format task descriptions with HTML if needed.
+*   **IMPROVEMENT: Better Date Validation** - The system now prevents changing dates for Single sheet types when signups already exist, protecting volunteer commitments. For Recurring sheets, the system checks for signups on dates that are being removed before allowing the change.
+*   **IMPROVEMENT: Performance Optimization** - Refactored core code structure to improve performance and reduce resource usage. The plugin now uses more efficient database queries and optimized object caching to provide faster page loads, especially on sites with many sign-up sheets.
+*   **IMPROVEMENT: Enhanced Security** - Added permission checks throughout the admin interface to ensure users can only access and modify sheets they have permission to manage.
+*   **IMPROVEMENT: Better Bulk Operations** - Bulk actions (trash, delete, restore, toggle visibility) now respect author permissions, ensuring users can only perform bulk operations on sheets they're authorized to manage.
+*   **IMPROVEMENT: Export Filtering** - The View/Export All Data page now respects author permissions, so Authors only see data from their own sheets when exporting.
+*   **IMPROVEMENT: Email Template Consolidation** - Email template management has been consolidated into the main plugin, making it easier to manage all email templates in one place. Existing email templates from the Customizer extension are automatically migrated to the new system during upgrade.
+*   Database upgrade functions automatically add new features to existing installations without requiring plugin deactivation.
+
 **Version 5.8.2**
 *   Fixed SQL error in `get_signup_ids()` function where `ORDER BY signup_date` was using a non-existent alias. Changed to use the actual column name `$signup_table.date` instead.
 *   Tested with PHP 8.5.0 and WordPress 6.9.0

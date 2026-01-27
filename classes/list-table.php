@@ -12,8 +12,7 @@ if (!class_exists('PTA_SUS_Data')) require_once 'data.php';
 
 class PTA_SUS_List_Table extends WP_List_Table
 {
-    
-    private $data;
+
     private $rows = array();
     private $show_trash;
     
@@ -24,10 +23,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function __construct()
     {
-        global $status, $page, $pta_sus;
-        
-        // Set data and convert to array
-        $this->data = $pta_sus->data;
+        global $status, $page;
                 
         //Set parent defaults
         parent::__construct( array(
@@ -65,7 +61,7 @@ class PTA_SUS_List_Table extends WP_List_Table
             case 'last_date':
                 return ($item[$column_name] == '0000-00-00') ? __("N/A", 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
             case 'num_dates':
-                $dates = $this->data->get_all_task_dates($item['id']);
+                $dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($item['id']);
                 if(!$dates) {
                     return '0';
                 }
@@ -81,11 +77,11 @@ class PTA_SUS_List_Table extends WP_List_Table
                     return __("N/A", 'pta-volunteer-sign-up-sheets');
                 }
             case 'task_num':
-                return count($this->data->get_tasks($item['id']));
+                return count(PTA_SUS_Task_Functions::get_tasks($item['id']));
             case 'spot_num':
-                return (int)$this->data->get_sheet_total_spots($item['id'], '');
+                return PTA_SUS_Sheet_Functions::get_sheet_total_spots($item['id'], '');
             case 'filled_spot_num':
-                return (int)$this->data->get_sheet_signup_count($item['id']).' '.(($this->data->get_sheet_total_spots($item['id'], '') == $this->data->get_sheet_signup_count($item['id'])) ? '&#10004;' : '');
+                return PTA_SUS_Sheet_Functions::get_sheet_signup_count($item['id']);
             default:
                 // Allow extensions to add column content
                 return apply_filters( 'pta_sus_process_other_columns', '', $item, $column_name );
@@ -117,8 +113,28 @@ class PTA_SUS_List_Table extends WP_List_Table
         if('Ongoing' === $item['type'] || 'Recurring' === $item['type']) {
             unset($actions['reschedule']); // can't reschedule Ongoing or Recurring type sheets
         }
+        // Check permissions for actions - only show edit/delete if user is author or can manage others
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $current_user_id = get_current_user_id();
+        $is_author = false;
+        
+        // Check if current user is the author (need to get sheet object to check author_id)
+        if ( isset( $item['id'] ) ) {
+            $sheet = pta_sus_get_sheet( $item['id'] );
+            if ( $sheet && $sheet->author_id == $current_user_id ) {
+                $is_author = true;
+            }
+        }
+        
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {
+            // For edit/delete actions, check permissions
+            if ( in_array( $action_slug, array( 'edit_sheet', 'edit_tasks', 'trash', 'delete' ) ) ) {
+                if ( ! $can_manage_others && ! $is_author ) {
+                    continue; // Skip this action - user doesn't have permission
+                }
+            }
+            
             if ('edit_sheet' == $action_slug || 'edit_tasks' == $action_slug) {
                 $page = 'pta-sus-settings_modify_sheet';
             } else {
@@ -257,13 +273,28 @@ class PTA_SUS_List_Table extends WP_List_Table
             if ( ! wp_verify_nonce( $nonce, $action ) )
                 wp_die( 'Nope! Security check failed!' );
         }
+        // Check user permissions for bulk actions
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $current_user_id = get_current_user_id();
+        
         // Process bulk actions
         if('bulk_trash' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $trashed = $this->data->update_sheet(array('sheet_trash'=>true), $id);
-                if ($trashed) {
-                    $count++;
+                $sheet = pta_sus_get_sheet($id);
+                if ($sheet) {
+                    // Check permission: user must be able to manage others OR be the author
+                    if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                        echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                        continue;
+                    }
+                    $sheet->trash = true;
+                    $result = $sheet->save();
+                    if ($result !== false) {
+                        $count++;
+                    } else {
+                        echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    }
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error moving sheet# %d to trash.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
@@ -272,7 +303,13 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif ('bulk_delete' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $deleted = $this->data->delete_sheet($id);
+                $sheet = pta_sus_get_sheet($id);
+                // Check permission: user must be able to manage others OR be the author
+                if ($sheet && !$can_manage_others && $sheet->author_id != $current_user_id) {
+                    echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    continue;
+                }
+                $deleted = PTA_SUS_Sheet_Functions::delete_sheet($id);
                 if ($deleted) {
                     $count++;
                 } else {
@@ -283,9 +320,20 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif('bulk_restore' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $restored = $this->data->update_sheet(array('sheet_trash'=>false), $id);
-                if ($restored) {
-                    $count++;
+                $sheet = pta_sus_get_sheet($id);
+                if ($sheet) {
+                    // Check permission: user must be able to manage others OR be the author
+                    if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                        echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                        continue;
+                    }
+                    $sheet->trash = false;
+                    $result = $sheet->save();
+                    if ($result !== false) {
+                        $count++;
+                    } else {
+                        echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    }
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error restoring sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
                 }
@@ -294,8 +342,16 @@ class PTA_SUS_List_Table extends WP_List_Table
         } elseif('bulk_toggle_visibility' === $this->current_action()) {
             $count = 0;
             foreach ($_REQUEST['sheets'] as $key => $id) {
-                $toggled = $this->data->toggle_visibility($id);
-                if ($toggled) {
+                $sheet = pta_sus_get_sheet($id);
+                if(empty($sheet)) {
+                    continue;
+                }
+                // Check permission: user must be able to manage others OR be the author
+                if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+                    echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+                    continue;
+                }
+                if ($sheet->toggle_visibility()) {
                     $count++;
                 } else {
                     echo '<div class="error"><p>'.sprintf(__("Error toggling visibility for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
@@ -310,60 +366,75 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
     /**
-    * Get data and prepare for use
-    * 
-    */
+     * Get data and prepare for use
+     */
     function prepare_items() {
         $this->process_bulk_action();
-        $rows = (array)$this->data->get_sheets($this->show_trash, $active_only = false, $show_hidden = true);
-        foreach ($rows AS $k=>$v) {
-        	// if search is set, skip any that title doesn't match search string
-	        if(isset($_REQUEST['s']) && '' !== $_REQUEST['s']) {
-	        	if(false === stripos($v->title, $_REQUEST['s'])) {
-	        		continue;
-		        }
-	        }
-	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-visible-filter']) && in_array($_REQUEST['pta-visible-filter'], array('visible','hidden'))) {
-	            $compare = 'visible' === $_REQUEST['pta-visible-filter'] ? "1" : "0";
-	            if($compare != $v->visible) {
-	                continue;
+        
+        // Check if we need to filter by author (for Signup Sheet Authors)
+        $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
+        $author_id = $can_manage_others ? null : get_current_user_id();
+        
+        // Use get_sheets_by_args to support author filtering
+        $args = array(
+            'trash' => $this->show_trash,
+            'active_only' => false,
+            'show_hidden' => true,
+            'author_id' => $author_id,
+        );
+        $rows = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
+
+        foreach ($rows AS $k => $v) {
+            // if search is set, skip any that title doesn't match search string
+            if (isset($_REQUEST['s']) && '' !== $_REQUEST['s']) {
+                if (false === stripos($v->title, $_REQUEST['s'])) {
+                    continue;
                 }
             }
-	        if(isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring','Ongoing'))) {
-		        if($_REQUEST['pta-type-filter'] !== $v->type) {
-			        continue;
-		        }
-	        }
-            $this->rows[$k] = (array)$v;
+
+            if (isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-visible-filter']) && in_array($_REQUEST['pta-visible-filter'], array('visible','hidden'))) {
+                $compare = 'visible' === $_REQUEST['pta-visible-filter'] ? "1" : "0";
+                if ($compare != $v->visible) {
+                    continue;
+                }
+            }
+
+            if (isset($_REQUEST['pta-filter-submit']) && isset($_REQUEST['pta-type-filter']) && in_array($_REQUEST['pta-type-filter'], array('Single','Multi-Day','Recurring','Ongoing'))) {
+                if ($_REQUEST['pta-type-filter'] !== $v->type) {
+                    continue;
+                }
+            }
+
+            // Use to_array() method instead of casting
+            $this->rows[$k] = $v->to_array();
         }
-	    $this->rows = apply_filters( 'pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
-        $per_page     = $this->get_items_per_page( 'sheets_per_page', 20 );
+
+        $this->rows = apply_filters('pta_sus_list_table_prepare_items_filtered_rows', $this->rows);
+        $per_page = $this->get_items_per_page('sheets_per_page', 20);
 
         $this->_column_headers = $this->get_column_info();
 
         // Sort Data
-        function usort_reorder($a,$b)
-        {
-            $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title'; // If no sort, default to title
-            $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc'; // If no order, default to asc
-            $result = strcmp($a[$orderby], $b[$orderby]); // Determine sort order
-            // Allow extensions to do custom sorting
-            $result = apply_filters( 'pta_sus_list_table_usort', $result, $a, $b, $orderby );
-            return ($order === 'asc') ? $result : -$result; // Send final sort direction to usort
+        function usort_reorder($a, $b) {
+            $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title';
+            $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
+            $result = strcmp($a[$orderby], $b[$orderby]);
+            $result = apply_filters('pta_sus_list_table_usort', $result, $a, $b, $orderby);
+            return ($order === 'asc') ? $result : -$result;
         }
         usort($this->rows, 'usort_reorder');
-        
+
         $current_page = $this->get_pagenum();
         $total_items = count($this->rows);
-        $this->rows = array_slice($this->rows,(($current_page-1)*$per_page),$per_page);
+        $this->rows = array_slice($this->rows, (($current_page - 1) * $per_page), $per_page);
         $this->items = $this->rows;
-        
+
         // Register pagination calculations
-        $this->set_pagination_args( array(
-            'total_items'   => $total_items,
-            'per_page'      => $per_page,
-            'total_pages'   => ceil($total_items/$per_page)
-        ) );
+        $this->set_pagination_args(array(
+                'total_items' => $total_items,
+                'per_page' => $per_page,
+                'total_pages' => ceil($total_items / $per_page)
+        ));
     }
 
 	function extra_tablenav( $which ) {

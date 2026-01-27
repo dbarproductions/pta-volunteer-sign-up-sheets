@@ -34,8 +34,171 @@
             $loading.hide();
         });
 
+    /**
+     * Populate form fields with user data (handles all field types including Custom Fields)
+     * @param {Object} data - Object with field keys and values
+     */
+    function populateUserFields(data) {
+        if (!data || typeof data !== 'object') {
+            return;
+        }
+
+        $.each(data, function(key, value) {
+            // Skip user_id - handled separately
+            if (key === 'user_id') {
+                return;
+            }
+
+            // Skip standard fields that are handled separately
+            if (['firstname', 'lastname', 'email', 'phone'].includes(key)) {
+                return;
+            }
+
+            // Try to find field - handle different element types and multi-select with []
+            let $field = $('input[name="' + key + '"], select[name="' + key + '"], textarea[name="' + key + '"], select[name="' + key + '[]"]');
+            
+            if ($field.length) {
+                const fieldType = $field[0].tagName.toLowerCase();
+                const isMultiSelect = $field[0].multiple || $field[0].name.indexOf('[]') !== -1;
+                
+                if (fieldType === 'select' && isMultiSelect) {
+                    // Handle multi-select (Select2)
+                    // Value should be an array or comma-separated string
+                    let values = [];
+                    if (Array.isArray(value)) {
+                        values = value.map(v => String(v).trim()).filter(v => v);
+                    } else if (value) {
+                        values = String(value).split(',').map(v => v.trim()).filter(v => v);
+                    }
+                    
+                    // Set values on native select
+                    $field.find('option').prop('selected', false);
+                    values.forEach(function(val) {
+                        $field.find('option[value="' + val + '"]').prop('selected', true);
+                    });
+                    
+                    // Update Select2 if initialized
+                    if ($field.data('select2')) {
+                        $field.trigger('change');
+                    } else {
+                        // Select2 not initialized yet, try again after a short delay
+                        setTimeout(function() {
+                            if ($field.data('select2')) {
+                                $field.trigger('change');
+                            }
+                        }, 100);
+                    }
+                } else if (fieldType === 'select') {
+                    // Handle single select
+                    $field.val(value);
+                    // Update Select2 if initialized
+                    if ($field.data('select2')) {
+                        $field.trigger('change');
+                    }
+                } else if (fieldType === 'textarea') {
+                    // Handle textarea
+                    $field.val(value);
+                } else if (fieldType === 'input' && $field.attr('type') === 'checkbox') {
+                    // Handle checkbox
+                    $field.prop('checked', value == 1 || value === true || value === '1');
+                } else if (fieldType === 'input' && $field.attr('type') === 'radio') {
+                    // Handle radio buttons
+                    $('input[type="radio"][name="' + $field.attr('name') + '"][value="' + value + '"]').prop('checked', true);
+                } else if (fieldType === 'input' && $field.attr('data-quill-field') === 'true') {
+                    // Handle Quill editor fields (Custom Fields HTML fields)
+                    // For HTML fields, use raw value (don't decode - it's already HTML)
+                    // The value from the server should already be properly formatted HTML
+                    const htmlContent = value || '';
+                    
+                    // First set the hidden input value (raw HTML, no decoding)
+                    $field.val(htmlContent);
+                    
+                    const containerId = $field.attr('id') + '-quill-container';
+                    const $container = $('#' + containerId);
+                    
+                    if ($container.length && typeof Quill !== 'undefined') {
+                        // Try to get existing Quill instance
+                        let quill = $container.data('quill-instance');
+                        
+                        if (quill && quill.root) {
+                            // Quill already initialized, set content (raw HTML, no decoding)
+                            if (htmlContent) {
+                                const delta = quill.clipboard.convert({ html: htmlContent });
+                                quill.setContents(delta, 'silent');
+                            } else {
+                                quill.setText('');
+                            }
+                        } else {
+                            // Quill not initialized yet - initialize it now
+                            // This matches the initialization in Custom Fields admin JS
+                            var editorId = $field.attr('id');
+                            var initialContent = htmlContent;
+                            
+                            quill = new Quill('#' + containerId, {
+                                theme: 'snow',
+                                modules: {
+                                    toolbar: [
+                                        [{ 'header': [1, 2, 3, false] }],
+                                        ['bold', 'italic', 'underline', 'strike'],
+                                        ['blockquote', 'code-block'],
+                                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                                        [{ 'direction': 'rtl' }],
+                                        [{ 'color': [] }, { 'background': [] }],
+                                        [{ 'font': [] }],
+                                        [{ 'align': [] }],
+                                        ['clean'],
+                                        ['link']
+                                    ]
+                                }
+                            });
+                            
+                            // Set initial content if provided
+                            if (initialContent) {
+                                const delta = quill.clipboard.convert({ html: initialContent });
+                                quill.setContents(delta, 'silent');
+                            }
+                            
+                            // Store Quill instance on container
+                            $container.data('quill-instance', quill);
+                            
+                            // Sync Quill content to hidden input on text change
+                            quill.on('text-change', function() {
+                                var html = quill.root.innerHTML;
+                                // Only update if content actually changed (avoid infinite loops)
+                                if ($field.val() !== html) {
+                                    $field.val(html);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    // Handle regular input (text, email, etc.)
+                    $field.val(value);
+                }
+            }
+        });
+
+        // Handle standard fields (firstname, lastname, email, phone)
+        $.each(data, function(key, value) {
+            if (!['firstname', 'lastname', 'email', 'phone'].includes(key)) {
+                return;
+            }
+
+            let $input = $('input[name="' + key + '"]');
+            if ($input.length) {
+                $input.val(value);
+            }
+        });
+    }
+
     $('#user_id').on('change', function(){
         let userID = $(this).val();
+        if (!userID || userID === '0') {
+            return; // No user selected
+        }
+        
         let data = {
             'action': 'pta_sus_get_user_data',
             'security': PTASUS.ptaNonce,
@@ -43,53 +206,79 @@
         };
 
         $.post(ajaxurl, data, function(response) {
-            //console.log(response);
             if(response) {
-                $.each(response, function(key,value) {
-                    let input = $('input[name='+key+']');
-                    if(input.length) {
-                        input.val(value);
-                    }
-                });
+                populateUserFields(response);
             }
         });
     });
 
-    let userSearch = $('#firstname');
-    userSearch.autocomplete({
-        source: function(request, response){
+    // Admin live search - uses shared ptaVolunteer code
+    // Wait for both jQuery and ptaVolunteer to be available
+    (function() {
+        function initAdminLiveSearch() {
+            const firstnameField = document.querySelector('#firstname');
 
-            $.ajax({
-                type: 'POST',
-                url: ajaxurl,
-                data: {
-                action: 'pta_sus_user_search',
-                keyword: userSearch.val(),
-                security: PTASUS.ptaNonce
+            // Check if we're on a signup form page and field exists
+            if (!firstnameField) {
+                return; // Not on signup form page
+            }
+
+            // Check if ptaVolunteer is available
+            if (typeof ptaVolunteer === 'undefined') {
+                console.warn('ptaVolunteer not available for admin live search');
+                return;
+            }
+
+            // Get ajaxurl - try multiple sources
+            let ajaxUrl = '';
+            if (typeof ptaSUS !== 'undefined' && ptaSUS.ajaxurl) {
+                ajaxUrl = ptaSUS.ajaxurl;
+            } else if (typeof ajaxurl !== 'undefined') {
+                ajaxUrl = ajaxurl; // WordPress admin global
+            } else {
+                ajaxUrl = admin_url('admin-ajax.php'); // Fallback
+            }
+
+            // Get nonce - try multiple sources
+            let nonce = '';
+            if (typeof ptaSUS !== 'undefined' && ptaSUS.ptaNonce) {
+                nonce = ptaSUS.ptaNonce;
+            } else if (typeof ptaSUS !== 'undefined' && ptaSUS.ptanonce) {
+                nonce = ptaSUS.ptanonce; // lowercase version
+            } else if (typeof PTASUS !== 'undefined' && PTASUS.ptaNonce) {
+                nonce = PTASUS.ptaNonce; // Backend script version
+            } else {
+                console.warn('Nonce not found for admin live search');
+                return;
+            }
+
+            // Initialize live search for admin
+            ptaVolunteer.init({
+                ajaxUrl: ajaxUrl,
+                extraData: {
+                    action: 'pta_sus_live_search',
+                    security: nonce,
                 },
-                success:function(data) {
-                    //console.log(data);
-                    response(data);
-                },
-                error: function(errorThrown){
-                    console.log(errorThrown);
-                }
+                fieldPrefix: '', // No prefix for admin fields
+                updateUserDropdown: true // Also update user_id dropdown when selecting
             });
-        },
-    });
+        }
 
-    userSearch.on( "autocompleteselect", function( event, ui ) {
-        let userID = ui.item.user_id;
-        $('select[name=user_id] option[value='+userID+']').attr('selected','selected');
-        $.each(ui.item, function(key,value){
-            if('label' !== key && 'value' !== key && 'user_id' !== key) {
-                let input = $('input[name='+key+']');
-                if(input.length) {
-                    input.val(value);
+        // Try to initialize when ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAdminLiveSearch);
+        } else {
+            // DOM already loaded, wait a bit for scripts
+            setTimeout(function() {
+                if (typeof ptaVolunteer !== 'undefined') {
+                    initAdminLiveSearch();
+                } else {
+                    // Try again after a short delay
+                    setTimeout(initAdminLiveSearch, 200);
                 }
-            }
-        });
-    });
+            }, 100);
+        }
+    })();
 
     // Open details_text for checked values on page load
     $('input.details_checkbox', 'li').each(function() {
@@ -107,6 +296,17 @@
         e.preventDefault();
         let id = $(this).attr('id').split('_').pop();
         toggle_description(id);
+    });
+
+    function toggle_email_templates(id) {
+        $('#task_email_templates_'+id).toggle();
+        $('.pta_sus_task_email_templates').not('#task_email_templates_'+id).hide();
+    }
+
+    $('.task_email_templates_trigger').on('click', function(e){
+        e.preventDefault();
+        let id = $(this).attr('id').split('_').pop();
+        toggle_email_templates(id);
     });
 
     $('.details_checkbox').change(function() {
@@ -149,6 +349,15 @@
             if ($element.is('textarea')) {
                 $element.val('');
                 $element.closest('.pta_sus_task_description').attr('id', `task_description_${rowKey}`);
+            }
+
+            if ($element.is('select')) {
+                // Reset select to first option (0 = Use Sheet Template/System Default)
+                $element.prop('selectedIndex', 0);
+                // Update email templates div ID if this is an email template select
+                if ($element.attr('name') && $element.attr('name').includes('email_template_id')) {
+                    $element.closest('.pta_sus_task_email_templates').attr('id', `task_email_templates_${rowKey}`);
+                }
             }
 
             if ($element.hasClass('details_text')) {
@@ -202,11 +411,23 @@
                         toggle_description(id);
                     });
             });
+            
+            $row.find('a.task_email_templates_trigger').each(function() {
+                const newId = $(this).attr('id').replace(/\d+/, rowKey);
+                $(this)
+                    .attr('id', newId)
+                    .on('click', function(e) {
+                        e.preventDefault();
+                        const id = $(this).attr('id').split('_').pop();
+                        toggle_email_templates(id);
+                    });
+            });
         };
 
         $(document).on('click', '.add-task-after', function(e) {
             e.preventDefault();
             $('.pta_sus_task_description').hide();
+            $('.pta_sus_task_email_templates').hide();
 
             const rowKey = getNextRowKey();
             const $newRow = $(".tasks LI").last().clone();

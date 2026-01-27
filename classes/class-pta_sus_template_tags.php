@@ -5,6 +5,13 @@ class PTA_SUS_Template_Tags {
 	private static $extra_tags = array();
 	private static $registered_tag_callbacks = array();
 	private static $current_signup_id = null;
+	
+	/**
+	 * Cached validation options array
+	 * 
+	 * @var array|null
+	 */
+	private static $validation_options = null;
 
 	public static function register_tag_provider($callback) {
 		self::$registered_tag_callbacks[] = $callback;
@@ -66,8 +73,8 @@ class PTA_SUS_Template_Tags {
 			return array();
 		}
 
-		$date = ($signup->date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option('date_format'), strtotime($signup->date));
-		$item = (isset($signup->item) && $signup->item != " ") ? $signup->item : __('N/A', 'pta-volunteer-sign-up-sheets');
+		$date = ($signup->date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option('date_format'), strtotime($signup->date));
+		$item = (isset($signup->item) && $signup->item !== " ") ? $signup->item : __('N/A', 'pta-volunteer-sign-up-sheets');
 		$firstname = sanitize_text_field($signup->firstname);
 		$lastname = sanitize_text_field($signup->lastname);
 		$email = sanitize_email($signup->email);
@@ -85,21 +92,25 @@ class PTA_SUS_Template_Tags {
 			'{date}' => $date,
 			'{signup_date}' => $date,
 			'{item_details}' => sanitize_text_field($item),
-			'{item_qty}' => intval($signup->item_qty),
+			'{item_qty}' => (int)$signup->item_qty,
 			'{signup_time}' => $signup_time,
 		);
 	}
 
-	public static function get_task_tags($task, $date='') {
+    /**
+     * @param $task PTA_SUS_Task
+     * @param $date string
+     * @return array
+     */
+    public static function get_task_tags($task, $date='') {
 		if(empty($task)) {
 			return array();
 		}
 
-		$start_time = ($task->time_start == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
-		$end_time = ($task->time_end == "") ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
+		$start_time = empty($task->time_start) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
+		$end_time = empty($task->time_end) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
 
-		global $pta_sus;
-		$task_open_spots = $pta_sus->data->get_available_qty($task->id, '', $task->qty);
+		$task_open_spots = $task->get_available_spots($date);
 		$task_filled_spots = $task->qty - $task_open_spots;
 
 		// try to get the task date if not passed in
@@ -134,15 +145,15 @@ class PTA_SUS_Template_Tags {
 
 		global $pta_sus;
 		$main_options = get_option('pta_volunteer_sus_main_options', array());
-		$sheet_first_date = ($sheet->first_date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->first_date, $translate = true);
-		$sheet_last_date = ($sheet->last_date == '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->last_date, $translate = true);
+		$sheet_first_date = ($sheet->first_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->first_date, $translate = true);
+		$sheet_last_date = ($sheet->last_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->last_date, $translate = true);
 
-		$sheet_total_spots = $pta_sus->data->get_sheet_total_spots($sheet->id);
-		$sheet_filled_spots = $pta_sus->data->get_sheet_signup_count($sheet->id);
+		$sheet_total_spots = PTA_SUS_Sheet_Functions::get_sheet_total_spots($sheet->id);
+		$sheet_filled_spots = PTA_SUS_Sheet_Functions::get_sheet_signup_count($sheet->id);
 		$sheet_open_spots = $sheet_total_spots - $sheet_filled_spots;
 
 
-		if (isset($sheet->position) && '' != $sheet->position) {
+		if (isset($sheet->position) && '' !== $sheet->position) {
 			$chair_emails = self::get_member_directory_emails($sheet->position);
 		} else {
 			$chair_emails = !empty($sheet->chair_email) ? explode(',', $sheet->chair_email) : array();
@@ -150,14 +161,14 @@ class PTA_SUS_Template_Tags {
 		$contact_emails = !empty($chair_emails) ? implode("\r\n", $chair_emails) : __('N/A', 'pta-volunteer-sign-up-sheets');
 
 		$chair_names = '';
-		if (isset($sheet->position) && '' != $sheet->position) {
+		if (isset($sheet->position) && '' !== $sheet->position) {
 			$names = self::get_member_directory_names($sheet->position);
 			if($names) {
 				$chair_names = implode(', ', $names);
 			}
 		}
 		if(!$chair_names) {
-			$chair_names = $pta_sus->data->get_chair_names_html($sheet->chair_name);
+			$chair_names = pta_sus_get_chair_names_html($sheet->chair_name);
 		}
 
 		$volunteer_page_id = isset($main_options['volunteer_page_id']) ? absint( $main_options['volunteer_page_id']) : 0;
@@ -184,14 +195,13 @@ class PTA_SUS_Template_Tags {
 
 
 	public static function register_default_tags($signup) {
-		global $pta_sus;
 
 		// Initialize empty tags array
 		self::$tags = array();
 
 		// Get signup and related objects
 		if(is_numeric($signup)) {
-			$signup = $pta_sus->get_signup($signup);
+			$signup = pta_sus_get_signup($signup);
 		}
 
 		// Get signup tags if valid signup
@@ -199,12 +209,12 @@ class PTA_SUS_Template_Tags {
 			self::$tags = self::get_signup_tags($signup);
 
 			// Get associated task and its tags
-			$task = $pta_sus->get_task($signup->task_id);
+			$task = pta_sus_get_task($signup->task_id);
 			if(!empty($task)) {
 				self::$tags = array_merge(self::$tags, self::get_task_tags($task,$signup->date));
 
 				// Get associated sheet and its tags
-				$sheet = $pta_sus->get_sheet($task->sheet_id);
+				$sheet = pta_sus_get_sheet($task->sheet_id);
 				if(!empty($sheet)) {
 					self::$tags = array_merge(self::$tags, self::get_sheet_tags($sheet));
 				}
@@ -212,7 +222,7 @@ class PTA_SUS_Template_Tags {
 		}
 
 		// Add validation options tags
-		$validation_options = get_option('pta_volunteer_sus_validation_options');
+		$validation_options = self::get_validation_options();
 		self::$tags['{signup_expiration_hours}'] = ($validation_options['signup_expiration_hours'] ?? 1);
 		self::$tags['{validation_code_expiration_hours}'] = ($validation_options['validation_code_expiration_hours'] ?? 48);
 
@@ -244,9 +254,8 @@ class PTA_SUS_Template_Tags {
 	}
 
 	public static function process_text($text, $signup, $reminder=false, $clear=false, $reschedule=false) {
-		global $pta_sus;
 		if(is_numeric($signup)) {
-			$signup = $pta_sus->get_signup($signup);
+			$signup = pta_sus_get_signup($signup);
 		}
 		if(empty($signup)) {
 			return $text;
@@ -262,5 +271,19 @@ class PTA_SUS_Template_Tags {
 		$replace = apply_filters('pta_sus_email_replace', array_values(self::$tags), $signup, $reminder, $clear, $reschedule);
 
 		return str_replace($search, $replace, $text);
+	}
+
+	/**
+	 * Get validation options with static caching
+	 * 
+	 * Caches validation options to avoid multiple database queries.
+	 * 
+	 * @return array Validation options array
+	 */
+	private static function get_validation_options() {
+		if (self::$validation_options === null) {
+			self::$validation_options = get_option('pta_volunteer_sus_validation_options', array());
+		}
+		return self::$validation_options;
 	}
 }
