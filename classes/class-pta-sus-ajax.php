@@ -22,6 +22,8 @@ class PTA_SUS_AJAX {
 		$ajax_events = array(
 			'live_search'           => true,
 			'get_tasks_for_sheet'   => false,
+			'public_navigation'     => true,
+			'public_signup_submit'  => true,
 		);
 
 		foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -202,6 +204,66 @@ class PTA_SUS_AJAX {
 			}
 		}
 		wp_send_json( $response);
+	}
+
+	/**
+	 * AJAX handler for public navigation (SPA)
+	 */
+	public static function public_navigation() {
+		check_ajax_referer( 'ajax-pta-nonce', 'security' );
+
+		// Reconstruct attributes from request if possible, or use defaults
+		$atts = array();
+		if (isset($_POST['atts']) && is_array($_POST['atts'])) {
+			$atts = $_POST['atts'];
+		}
+
+		// Set up GET parameters for the display functions to pick up
+		if (isset($_POST['sheet_id'])) {
+			$_GET['sheet_id'] = absint($_POST['sheet_id']);
+		}
+		if (isset($_POST['date'])) {
+			$_GET['date'] = sanitize_text_field($_POST['date']);
+		}
+		if (isset($_POST['task_id'])) {
+			$_GET['task_id'] = absint($_POST['task_id']);
+		}
+
+		// Initialize display functions
+		PTA_SUS_Public_Display_Functions::initialize();
+		
+		// Get the output
+		$output = PTA_SUS_Public_Display_Functions::display_sheet($atts);
+
+		wp_send_json_success(array('html' => $output));
+	}
+
+	/**
+	 * AJAX handler for public signup form submission
+	 */
+	public static function public_signup_submit() {
+		check_ajax_referer( 'ajax-pta-nonce', 'security' );
+
+		if (!class_exists('PTA_SUS_Public')) {
+			require_once PTA_VOLUNTEER_SUS_DIR . 'classes/class-pta_sus_public.php';
+		}
+
+		$public = new PTA_SUS_Public();
+		$public->init();
+		// process_signup_form is called within init() or we can call it explicitly if needed
+		// Actually, PTA_SUS_Public::init() calls process_signup_form()
+
+		// After processing, we want to return the updated sheet/form view
+		$atts = array();
+		if (isset($_POST['atts']) && is_array($_POST['atts'])) {
+			$atts = $_POST['atts'];
+		}
+
+		// Re-initialize display functions to get updated state (success/errors)
+		PTA_SUS_Public_Display_Functions::initialize();
+		$output = PTA_SUS_Public_Display_Functions::display_sheet($atts);
+
+		wp_send_json_success(array('html' => $output));
 	}
 
 }

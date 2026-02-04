@@ -1608,6 +1608,10 @@ class PTA_SUS_Public_Display_Functions {
 	 * @return string HTML output
 	 */
 	public static function display_sheet($atts = array()) {
+		// Store attributes for AJAX use
+		if (!defined('DOING_AJAX')) {
+			wp_add_inline_script('pta-sus-ajax', 'pta_sus_vars.atts = ' . json_encode($atts) . ';', 'before');
+		}
 		$main_options = self::get_main_options();
 		$validation_options = self::get_validation_options();
 		$volunteer = self::get_volunteer();
@@ -1816,6 +1820,10 @@ class PTA_SUS_Public_Display_Functions {
 			$return .= self::get_single_sheet($id);
 		}
 		$return .= apply_filters('pta_sus_after_display_sheets', '', $id, $date_filter);
+		
+		// Wrap in AJAX container
+		$return = '<div id="pta-sus-container" class="pta-sus-ajax-container">' . $return . '</div>';
+		
 		return $return;
 	}
 
