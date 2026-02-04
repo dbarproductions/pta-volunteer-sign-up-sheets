@@ -4,10 +4,10 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Volunteer, Volunteers, Sign Up, Signup, Events
 Requires at least: 6.0
 Requires PHP: 7.4
-Tested up to: 6.9.0
+Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.0.0
+Stable tag: 6.0.1
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,11 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+
+= 6.0.1 =
+* Fixed sheet first/last dates not updating when editing dates for Single sheet types
+* Fixed admin signup edit validation incorrectly blocking edits when all task spots are filled
+* Tested with PHP 8.5.0 and WordPress 6.9.1
 
 = 6.0.0 =
 * NEW: Author System - "Signup Sheet Author" role for delegated sheet management

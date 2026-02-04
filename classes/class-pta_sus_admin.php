@@ -791,7 +791,12 @@ class PTA_SUS_Admin {
 		
 		// Use validation helper class for consistent validation
 		// Note: Admin form allows user_id which public form doesn't, but validation will handle other fields
-		$error_count = PTA_SUS_Validation::validate_signup_fields($posted, $task, $sheet, $this->main_options);
+		// Pass editing_signup_id when editing so validation can account for existing signup's spots
+		$validation_options = $this->main_options;
+		if ($edit) {
+			$validation_options['editing_signup_id'] = $signup_id;
+		}
+		$error_count = PTA_SUS_Validation::validate_signup_fields($posted, $task, $sheet, $validation_options);
 		if($error_count > 0) {
 			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
@@ -2985,39 +2990,25 @@ class PTA_SUS_Admin {
 		
 		// Restore original POST
 		$_POST = $original_post;
-		
-		// Update sheet first_date and last_date
-		$sheet = pta_sus_get_sheet( $sheet_id );
-		if ( $sheet ) {
-			if ( 'Ongoing' === $sheet_type ) {
-				// For Ongoing sheets, always set dates to '0000-00-00'
-				$needs_update = false;
-				if ( $sheet->first_date !== '0000-00-00' ) {
-					$sheet->first_date = '0000-00-00';
-					$needs_update = true;
-				}
-				if ( $sheet->last_date !== '0000-00-00' ) {
-					$sheet->last_date = '0000-00-00';
-					$needs_update = true;
-				}
-				if ( $needs_update ) {
-					$sheet->save();
-				}
-			} elseif ( in_array( $sheet_type, array( 'Recurring', 'Multi-Day' ) ) ) {
-				// For Recurring and Multi-Day sheets, calculate from task dates
+
+		// Update sheet first_date and last_date for Multi-Day sheets only
+		// (Single, Recurring, and Ongoing dates are managed via ajax_save_sheet_dates)
+		if ( 'Multi-Day' === $sheet_type ) {
+			$sheet = pta_sus_get_sheet( $sheet_id );
+			if ( $sheet ) {
 				$all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet( $sheet_id );
 				if ( ! empty( $all_task_dates ) ) {
 					// Filter out '0000-00-00' dates
 					$valid_dates = array_filter( $all_task_dates, function( $date ) {
 						return $date !== '0000-00-00' && ! empty( $date );
 					} );
-					
+
 					if ( ! empty( $valid_dates ) ) {
 						sort( $valid_dates );
 						$min_date = min( $valid_dates );
 						$max_date = max( $valid_dates );
 						$needs_update = false;
-						
+
 						if ( $sheet->first_date != $min_date ) {
 							$sheet->first_date = $min_date;
 							$needs_update = true;
@@ -3513,8 +3504,8 @@ class PTA_SUS_Admin {
 			}
 		}
 		
-		// Update sheet first_date and last_date (only for Recurring and Multi-Day sheets)
-		if ( in_array( $sheet_type, array( 'Recurring', 'Multi-Day' ) ) && ! empty( $dates_array ) ) {
+		// Update sheet first_date and last_date (not needed for Ongoing sheets)
+		if ( 'Ongoing' !== $sheet_type && ! empty( $dates_array ) ) {
 			$sheet = pta_sus_get_sheet( $sheet_id );
 			if ( $sheet ) {
 				// Filter out '0000-00-00' dates

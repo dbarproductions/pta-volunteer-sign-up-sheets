@@ -146,6 +146,11 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### Version 6.0.1
+- Fixed sheet first/last dates not updating when editing dates for Single sheet types
+- Fixed admin signup edit validation incorrectly blocking edits when all task spots are filled
+- Tested with PHP 8.5.0 and WordPress 6.9.1
+
 ### Version 6.0.0
 **Major Release - New Features:**
 - **Author System** - New "Signup Sheet Author" role for delegated management

@@ -225,6 +225,8 @@ class PTA_SUS_Validation {
 	 * @param PTA_SUS_Task|object $task Task object
 	 * @param PTA_SUS_Sheet|object $sheet Sheet object
 	 * @param array $options Main options array (for phone_required, no_phone, no_global_overlap)
+	 *                       Optional 'editing_signup_id' key: When editing an existing signup, pass the signup ID
+	 *                       to skip duplicate checks and account for existing spots in availability calculation
 	 * @return int Number of validation errors found
 	 */
 	public static function validate_signup_fields($posted, $task, $sheet, $options = array()) {
@@ -232,7 +234,7 @@ class PTA_SUS_Validation {
 
 		// Load options if not provided
 		if (empty($options)) {
-			$options = get_option('pta_volunteer_sus_main_options');
+			$options = get_option('pta_volunteer_sus_main_options',array());
 		}
 
 		$phone_required = $options['phone_required'] ?? true;
@@ -250,10 +252,20 @@ class PTA_SUS_Validation {
 
 		// Check availability (only if date is valid)
 		$available = 0;
+		$editing_signup_id = isset($options['editing_signup_id']) ? absint($options['editing_signup_id']) : 0;
 		if ($error_count === 0 && !empty($posted['signup_date'])) {
 			$available = $task->get_available_spots($posted['signup_date']);
 			// Allow extensions to modify available slots
 			$available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
+
+			// If editing an existing signup, add back the existing signup's quantity to available count
+			// This allows users to edit their signup even when all spots are filled (they already have spots)
+			if ($editing_signup_id > 0) {
+				$existing_signup = PTA_SUS_Signup_Functions::get_signup($editing_signup_id);
+				if ($existing_signup) {
+					$available += (int) ($existing_signup->item_qty ?? 1);
+				}
+			}
 
 			if ($available < 1) {
 				$error_count++;
@@ -307,9 +319,10 @@ class PTA_SUS_Validation {
 			}
 		}
 
-		// Check duplicates (only if no errors so far)
+		// Check duplicates (only if no errors so far and not editing an existing signup)
+		// When editing, duplicate checks would incorrectly flag the user's own existing signup
 		$perform_duplicate_checks = apply_filters('pta_sus_perform_duplicate_checks', true, $task, $sheet);
-		if ($perform_duplicate_checks && $error_count === 0) {
+		if ($perform_duplicate_checks && $error_count === 0 && $editing_signup_id === 0) {
 			$error_count += self::check_signup_duplicates($posted, $task, $sheet, $no_global_overlap);
 		}
 
