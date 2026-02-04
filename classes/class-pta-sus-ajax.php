@@ -218,6 +218,8 @@ class PTA_SUS_AJAX {
 			$atts = $_POST['atts'];
 		}
 
+		$container_id = isset($_POST['container_id']) ? sanitize_text_field($_POST['container_id']) : 'pta-sus-container-1';
+
 		// Set up GET parameters for the display functions to pick up
 		if (isset($_POST['sheet_id'])) {
 			$_GET['sheet_id'] = absint($_POST['sheet_id']);
@@ -235,7 +237,7 @@ class PTA_SUS_AJAX {
 		// Get the output
 		$output = PTA_SUS_Public_Display_Functions::display_sheet($atts);
 
-		wp_send_json_success(array('html' => $output));
+		wp_send_json_success(array('html' => $output, 'container_id' => $container_id));
 	}
 
 	/**
@@ -259,11 +261,13 @@ class PTA_SUS_AJAX {
 			$atts = $_POST['atts'];
 		}
 
+		$container_id = isset($_POST['container_id']) ? sanitize_text_field($_POST['container_id']) : 'pta-sus-container-1';
+
 		// Re-initialize display functions to get updated state (success/errors)
 		PTA_SUS_Public_Display_Functions::initialize();
 		$output = PTA_SUS_Public_Display_Functions::display_sheet($atts);
 
-		wp_send_json_success(array('html' => $output));
+		wp_send_json_success(array('html' => $output, 'container_id' => $container_id));
 	}
 
 }

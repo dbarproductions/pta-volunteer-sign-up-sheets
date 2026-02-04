@@ -1608,9 +1608,13 @@ class PTA_SUS_Public_Display_Functions {
 	 * @return string HTML output
 	 */
 	public static function display_sheet($atts = array()) {
+		static $instance_count = 0;
+		$instance_count++;
+		$container_id = 'pta-sus-container-' . $instance_count;
+
 		// Store attributes for AJAX use
 		if (!defined('DOING_AJAX')) {
-			wp_add_inline_script('pta-sus-ajax', 'pta_sus_vars.atts = ' . json_encode($atts) . ';', 'before');
+			wp_add_inline_script('pta-sus-ajax', "if(typeof pta_sus_instances === 'undefined') { var pta_sus_instances = {}; } pta_sus_instances['{$container_id}'] = " . json_encode($atts) . ";", 'before');
 		}
 		$main_options = self::get_main_options();
 		$validation_options = self::get_validation_options();
@@ -1822,7 +1826,7 @@ class PTA_SUS_Public_Display_Functions {
 		$return .= apply_filters('pta_sus_after_display_sheets', '', $id, $date_filter);
 		
 		// Wrap in AJAX container
-		$return = '<div id="pta-sus-container" class="pta-sus-ajax-container">' . $return . '</div>';
+		$return = '<div id="' . esc_attr($container_id) . '" class="pta-sus-ajax-container" data-pta-sus-instance="' . esc_attr($container_id) . '">' . $return . '</div>';
 		
 		return $return;
 	}

@@ -3,9 +3,6 @@
 
     var ptaSusAjax = {
         init: function() {
-            this.container = $('#pta-sus-container');
-            if (!this.container.length) return;
-
             this.bindEvents();
             this.handlePopState();
         },
@@ -14,67 +11,78 @@
             var self = this;
 
             // Intercept internal navigation links
-            $(document).on('click', '#pta-sus-container a.pta-sus-link', function(e) {
+            $(document).on('click', '.pta-sus-ajax-container a.pta-sus-link', function(e) {
                 var $link = $(this);
+                var $container = $link.closest('.pta-sus-ajax-container');
                 
-                // Skip external links or clear links (clear links might need full reload for nonce/cookie reasons, 
-                // but we can try to AJAX them too if we want. The requirement says "intercept all internal navigation links")
                 if ($link.hasClass('clear-signup')) return; 
 
                 e.preventDefault();
                 var url = $link.attr('href');
-                self.loadPage(url, true);
+                self.loadPage(url, true, $container);
             });
 
             // Intercept signup form submission
-            $(document).on('submit', '#pta-sus-container form[name="pta_sus_signup_form"]', function(e) {
+            $(document).on('submit', '.pta-sus-ajax-container form[name="pta_sus_signup_form"]', function(e) {
                 e.preventDefault();
-                self.submitSignupForm($(this));
+                var $form = $(this);
+                var $container = $form.closest('.pta-sus-ajax-container');
+                self.submitSignupForm($form, $container);
             });
         },
 
-        loadPage: function(url, pushState) {
+        loadPage: function(url, pushState, $container) {
             var self = this;
             var params = this.getQueryParams(url);
+            var containerId = $container.data('pta-sus-instance');
+            var atts = (typeof pta_sus_instances !== 'undefined' && pta_sus_instances[containerId]) ? pta_sus_instances[containerId] : {};
             
-            this.container.css('opacity', 0.5);
+            $container.css('opacity', 0.5);
 
             var data = {
                 action: 'pta_sus_public_navigation',
                 security: pta_sus_vars.nonce,
-                sheet_id: params.sheet_id || '',
-                date: params.date || '',
-                task_id: params.task_id || '',
-                atts: pta_sus_vars.atts || {}
+                atts: atts,
+                container_id: containerId
             };
+
+            // Add all query params to data
+            $.extend(data, params);
 
             $.post(pta_sus_vars.ajaxurl, data, function(response) {
                 if (response.success) {
-                    self.container.html($(response.data.html).html());
-                    self.container.css('opacity', 1);
+                    var $newContent = $(response.data.html);
+                    $container.html($newContent.html());
+                    $container.css('opacity', 1);
                     
                     if (pushState) {
-                        window.history.pushState(params, '', url);
+                        window.history.pushState({
+                            containerId: containerId,
+                            params: params
+                        }, '', url);
                     }
                     
                     // Scroll to top of container
                     $('html, body').animate({
-                        scrollTop: self.container.offset().top - 100
+                        scrollTop: $container.offset().top - 100
                     }, 500);
                 }
             });
         },
 
-        submitSignupForm: function($form) {
+        submitSignupForm: function($form, $container) {
             var self = this;
             var formData = $form.serializeArray();
+            var containerId = $container.data('pta-sus-instance');
+            var atts = (typeof pta_sus_instances !== 'undefined' && pta_sus_instances[containerId]) ? pta_sus_instances[containerId] : {};
             
-            this.container.css('opacity', 0.5);
+            $container.css('opacity', 0.5);
 
             var data = {
                 action: 'pta_sus_public_signup_submit',
                 security: pta_sus_vars.nonce,
-                atts: pta_sus_vars.atts || {}
+                atts: atts,
+                container_id: containerId
             };
 
             // Add form data to request
@@ -84,12 +92,13 @@
 
             $.post(pta_sus_vars.ajaxurl, data, function(response) {
                 if (response.success) {
-                    self.container.html($(response.data.html).html());
-                    self.container.css('opacity', 1);
+                    var $newContent = $(response.data.html);
+                    $container.html($newContent.html());
+                    $container.css('opacity', 1);
                     
                     // Scroll to top of container
                     $('html, body').animate({
-                        scrollTop: self.container.offset().top - 100
+                        scrollTop: $container.offset().top - 100
                     }, 500);
                 }
             });
@@ -98,8 +107,18 @@
         handlePopState: function() {
             var self = this;
             $(window).on('popstate', function(e) {
-                // If we have state, use it to reload the container
-                self.loadPage(window.location.href, false);
+                var state = e.originalEvent.state;
+                if (state && state.containerId) {
+                    var $container = $('[data-pta-sus-instance="' + state.containerId + '"]');
+                    if ($container.length) {
+                        self.loadPage(window.location.href, false, $container);
+                    }
+                } else {
+                    // Fallback for initial page state or non-SPA states
+                    $('.pta-sus-ajax-container').each(function() {
+                        self.loadPage(window.location.href, false, $(this));
+                    });
+                }
             });
         },
 
@@ -108,11 +127,12 @@
             var parser = document.createElement('a');
             parser.href = url;
             var query = parser.search.substring(1);
+            if (!query) return params;
             var vars = query.split('&');
             for (var i = 0; i < vars.length; i++) {
                 var pair = vars[i].split('=');
                 if (pair[0]) {
-                    params[pair[0]] = decodeURIComponent(pair[1]);
+                    params[pair[0]] = decodeURIComponent(pair[1] || '');
                 }
             }
             return params;
