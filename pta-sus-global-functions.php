@@ -308,6 +308,16 @@ function pta_sanitize_value($value, $type) {
                 // If it's an array, sanitize and serialize for database
                 $array = stripslashes_deep($value);
                 $sanitized_value = maybe_serialize(pta_sanitize_array($array));
+            } elseif (is_string($value) && is_serialized($value)) {
+                // Already serialized - don't double-serialize
+                // Unserialize, sanitize, then re-serialize to ensure it's clean
+                $array = maybe_unserialize($value);
+                if (is_array($array)) {
+                    $sanitized_value = maybe_serialize(pta_sanitize_array($array));
+                } else {
+                    // If unserialization didn't produce an array, return empty serialized array
+                    $sanitized_value = maybe_serialize(array());
+                }
             }
             break;
         case 'yesno':

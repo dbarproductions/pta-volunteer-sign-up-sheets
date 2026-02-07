@@ -146,6 +146,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### Version 6.0.2
+-Added checks to the pta_sanitize_value global function to see if an array is already serialized for the database before sanitizing and serializing possibly a second time, which could cause issues in extensions that use this global function.
+-Tested with PHP 8.5.0 and WordPress 6.9.1
+
 ### Version 6.0.1
 - Fixed sheet first/last dates not updating when editing dates for Single sheet types
 - Fixed admin signup edit validation incorrectly blocking edits when all task spots are filled

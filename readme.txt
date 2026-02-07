@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.0.1
+Stable tag: 6.0.2
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,10 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+
+= 6.0.2 =
+* Added checks to the pta_sanitize_value global function to see if an array is already serialized for the database before sanitizing and serializing possibly a second time, which could cause issues in extensions that use this global function.
+* Tested with PHP 8.5.0 and WordPress 6.9.1
 
 = 6.0.1 =
 * Fixed sheet first/last dates not updating when editing dates for Single sheet types
