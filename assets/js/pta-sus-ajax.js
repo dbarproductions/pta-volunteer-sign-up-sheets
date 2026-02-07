@@ -11,15 +11,19 @@
             var self = this;
 
             // Intercept internal navigation links
-            $(document).on('click', '.pta-sus-ajax-container a.pta-sus-link', function(e) {
+            // Use :not() to completely exclude clear/action links from this handler
+            $(document).on('click', '.pta-sus-ajax-container a.pta-sus-link:not(.clear-signup):not(.clear-signup-link)', function(e) {
                 var $link = $(this);
-                var $container = $link.closest('.pta-sus-ajax-container');
-                
-                if ($link.hasClass('clear-signup')) return; 
+                var href = $link.attr('href') || '';
 
+                // Extra safety check: skip if URL contains action parameters
+                if (href.indexOf('signup_id=') !== -1 || href.indexOf('action=clear') !== -1) {
+                    return; // Let browser handle normally
+                }
+
+                var $container = $link.closest('.pta-sus-ajax-container');
                 e.preventDefault();
-                var url = $link.attr('href');
-                self.loadPage(url, true, $container);
+                self.loadPage(href, true, $container);
             });
 
             // Intercept signup form submission
@@ -36,7 +40,7 @@
             var params = this.getQueryParams(url);
             var containerId = $container.data('pta-sus-instance');
             var atts = (typeof pta_sus_instances !== 'undefined' && pta_sus_instances[containerId]) ? pta_sus_instances[containerId] : {};
-            
+
             $container.css('opacity', 0.5);
 
             var data = {
@@ -46,22 +50,26 @@
                 container_id: containerId
             };
 
-            // Add all query params to data
-            $.extend(data, params);
+            // Add query params to data, but exclude action-related params
+            $.each(params, function(key, value) {
+                if (key !== 'signup_id' && key !== '_wpnonce' && key !== 'action') {
+                    data[key] = value;
+                }
+            });
 
             $.post(pta_sus_vars.ajaxurl, data, function(response) {
                 if (response.success) {
                     var $newContent = $(response.data.html);
                     $container.html($newContent.html());
                     $container.css('opacity', 1);
-                    
+
                     if (pushState) {
                         window.history.pushState({
                             containerId: containerId,
                             params: params
                         }, '', url);
                     }
-                    
+
                     // Scroll to top of container
                     $('html, body').animate({
                         scrollTop: $container.offset().top - 100
@@ -75,7 +83,7 @@
             var formData = $form.serializeArray();
             var containerId = $container.data('pta-sus-instance');
             var atts = (typeof pta_sus_instances !== 'undefined' && pta_sus_instances[containerId]) ? pta_sus_instances[containerId] : {};
-            
+
             $container.css('opacity', 0.5);
 
             var data = {
@@ -95,7 +103,7 @@
                     var $newContent = $(response.data.html);
                     $container.html($newContent.html());
                     $container.css('opacity', 1);
-                    
+
                     // Scroll to top of container
                     $('html, body').animate({
                         scrollTop: $container.offset().top - 100
@@ -108,16 +116,12 @@
             var self = this;
             $(window).on('popstate', function(e) {
                 var state = e.originalEvent.state;
+                // Only handle popstate if we have a valid SPA state
                 if (state && state.containerId) {
                     var $container = $('[data-pta-sus-instance="' + state.containerId + '"]');
                     if ($container.length) {
                         self.loadPage(window.location.href, false, $container);
                     }
-                } else {
-                    // Fallback for initial page state or non-SPA states
-                    $('.pta-sus-ajax-container').each(function() {
-                        self.loadPage(window.location.href, false, $(this));
-                    });
                 }
             });
         },

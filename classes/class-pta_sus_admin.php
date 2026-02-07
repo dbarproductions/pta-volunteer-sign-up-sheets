@@ -359,7 +359,7 @@ class PTA_SUS_Admin {
 			// Always enqueue Quill for task description editor (used on public side)
 			wp_enqueue_style('pta-quill');
 			wp_enqueue_script('pta-quill');
-			wp_enqueue_script( 'pta-sus-task-management', plugins_url( '../assets/js/task-management.js' , __FILE__ ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-sortable', 'pta-jquery-datepick', 'pta-jquery-ui-timepicker' ), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
+			wp_enqueue_script( 'pta-sus-task-management', plugins_url( '../assets/js/task-management.min.js' , __FILE__ ), array( 'jquery', 'jquery-ui-dialog', 'jquery-ui-sortable', 'pta-jquery-datepick', 'pta-jquery-ui-timepicker' ), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
 			wp_enqueue_style( 'pta-jquery-datepick');
 			wp_enqueue_style( 'pta-jquery.ui.timepicker', plugins_url( '../assets/css/jquery.ui.timepicker.css', __FILE__ ) );
 			wp_enqueue_style( 'pta-jquery-ui-1.10.0.custom', plugins_url( '../assets/css/jquery-ui-1.10.0.custom.min.css', __FILE__ ) );

@@ -143,6 +143,7 @@ class PTA_SUS_Options {
 	    add_settings_field('disable_grouping', __('Disable Grouping?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_grouping_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('show_all_slots_for_all_data', __('Show All Slots for All Data?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_all_slots_for_all_data_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+        add_settings_field('enable_ajax_navigation', __('Enable AJAX Navigation?', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_ajax_navigation_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
         register_setting( 'pta_volunteer_sus_email_options', 'pta_volunteer_sus_email_options', array($this, 'pta_sus_validate_email_options') );
@@ -301,7 +302,8 @@ class PTA_SUS_Options {
 		    'show_all_slots_for_all_data'          => 'bool',
 		    'skip_signups_check'                   => 'bool',
 		    'show_task_description_on_signup_form' => 'bool',
-            'hide_single_date_header'              => 'bool'
+            'hide_single_date_header'              => 'bool',
+            'enable_ajax_navigation'               => 'bool'
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -962,6 +964,18 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_main_options[hide_donation_button]" type="checkbox" value="1" <?php echo $checked; ?> />
         <?php
         echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Hides the donation button at bottom of settings pages.', 'pta-volunteer-sign-up-sheets').'</em>';
+    }
+
+    public function enable_ajax_navigation_checkbox() {
+        if(isset($this->main_options['enable_ajax_navigation']) && true === $this->main_options['enable_ajax_navigation']) {
+            $checked = 'checked="checked"';
+        } else {
+            $checked = '';
+        }
+        ?>
+        <input name="pta_volunteer_sus_main_options[enable_ajax_navigation]" type="checkbox" value="1" <?php echo $checked; ?> />
+        <?php
+        echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Enables SPA-style AJAX navigation for sign-up sheets. Pages load without full browser refresh.', 'pta-volunteer-sign-up-sheets').'</em>';
     }
 
 	public function enable_signup_search_checkbox() {

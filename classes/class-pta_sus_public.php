@@ -1258,14 +1258,17 @@ class PTA_SUS_Public {
 	    ";
 	    wp_add_inline_script('pta-sus-url-cleanup', $inline_script);
 
-	 // Enqueue AJAX SPA script
-	 wp_enqueue_script('pta-sus-ajax', plugins_url( '../assets/js/pta-sus-ajax.js', __FILE__ ), array('jquery'), PTA_VOLUNTEER_SUS_VERSION_NUM, true);
-	 wp_localize_script('pta-sus-ajax', 'pta_sus_vars', array(
-	  'ajaxurl' => admin_url('admin-ajax.php'),
-	  'nonce'   => wp_create_nonce('ajax-pta-nonce'),
-	  'atts'    => array(), // Default empty, will be updated by display_sheet
-	 ));
-	   }
+	    // Enqueue AJAX SPA script (only if enabled in settings)
+	    $main_options = get_option('pta_volunteer_sus_main_options');
+	    if (!empty($main_options['enable_ajax_navigation'])) {
+	        wp_enqueue_script('pta-sus-ajax', plugins_url( '../assets/js/pta-sus-ajax.min.js', __FILE__ ), array('jquery'), PTA_VOLUNTEER_SUS_VERSION_NUM, true);
+	        wp_localize_script('pta-sus-ajax', 'pta_sus_vars', array(
+	            'ajaxurl' => admin_url('admin-ajax.php'),
+	            'nonce'   => wp_create_nonce('ajax-pta-nonce'),
+	            'atts'    => array(), // Default empty, will be updated by display_sheet
+	        ));
+	    }
+    }
 
 } // End of class
 /* EOF */

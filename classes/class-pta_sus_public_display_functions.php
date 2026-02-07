@@ -500,7 +500,7 @@ class PTA_SUS_Public_Display_Functions {
 		$row_data['column-quantity'] = (int)($signup->item_qty);
 
 		if($show_clear && $volunteer && $volunteer->is_validated()) {
-			$row_data['column-clear'] = '<a class="pta-sus-link clear-signup" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
+			$row_data['column-clear'] = '<a class="clear-signup clear-signup-link" href="'.esc_url($clear_url).'">'.esc_html($clear_text).'</a>';
 		} else {
 			$row_data['column-clear'] = '';
 		}
@@ -1576,9 +1576,9 @@ class PTA_SUS_Public_Display_Functions {
 					}
 				}
 				if ($use_divs) {
-					$return .= '<div class="column-clear" ><a class="pta-sus-link clear-signup clear-signup-link" href="' . esc_url($clear_url) . '">' . esc_html($clear_text) . '</a></div>';
+					$return .= '<div class="column-clear" ><a class="clear-signup clear-signup-link" href="' . esc_url($clear_url) . '">' . esc_html($clear_text) . '</a></div>';
 				} else {
-					$return .= '<td class="pta-sus clear-td" data-label="" ><a class="pta-sus-link clear-signup clear-signup-link" href="' . esc_url($clear_url) . '">' . esc_html($clear_text) . '</a></td>';
+					$return .= '<td class="pta-sus clear-td" data-label="" ><a class="clear-signup clear-signup-link" href="' . esc_url($clear_url) . '">' . esc_html($clear_text) . '</a></td>';
 				}
 
 				$return .= apply_filters('pta_sus_user_signups_list_content_after_clear', '', $signup, $use_divs);
@@ -1608,15 +1608,21 @@ class PTA_SUS_Public_Display_Functions {
 	 * @return string HTML output
 	 */
 	public static function display_sheet($atts = array()) {
-		static $instance_count = 0;
-		$instance_count++;
-		$container_id = 'pta-sus-container-' . $instance_count;
-
-		// Store attributes for AJAX use
-		if (!defined('DOING_AJAX')) {
-			wp_add_inline_script('pta-sus-ajax', "if(typeof pta_sus_instances === 'undefined') { var pta_sus_instances = {}; } pta_sus_instances['{$container_id}'] = " . json_encode($atts) . ";", 'before');
-		}
 		$main_options = self::get_main_options();
+
+		// AJAX navigation setup (only if enabled)
+		$ajax_enabled = !empty($main_options['enable_ajax_navigation']);
+		$container_id = '';
+		if ($ajax_enabled) {
+			static $instance_count = 0;
+			$instance_count++;
+			$container_id = 'pta-sus-container-' . $instance_count;
+
+			// Store attributes for AJAX use
+			if (!defined('DOING_AJAX')) {
+				wp_add_inline_script('pta-sus-ajax', "if(typeof pta_sus_instances === 'undefined') { var pta_sus_instances = {}; } pta_sus_instances['{$container_id}'] = " . json_encode($atts) . ";", 'before');
+			}
+		}
 		$validation_options = self::get_validation_options();
 		$volunteer = self::get_volunteer();
 		$all_sheets_uri = self::get_display_option('all_sheets_uri', '');
@@ -1824,10 +1830,12 @@ class PTA_SUS_Public_Display_Functions {
 			$return .= self::get_single_sheet($id);
 		}
 		$return .= apply_filters('pta_sus_after_display_sheets', '', $id, $date_filter);
-		
-		// Wrap in AJAX container
-		$return = '<div id="' . esc_attr($container_id) . '" class="pta-sus-ajax-container" data-pta-sus-instance="' . esc_attr($container_id) . '">' . $return . '</div>';
-		
+
+		// Wrap in AJAX container (only if enabled)
+		if ($ajax_enabled && $container_id) {
+			$return = '<div id="' . esc_attr($container_id) . '" class="pta-sus-ajax-container" data-pta-sus-instance="' . esc_attr($container_id) . '">' . $return . '</div>';
+		}
+
 		return $return;
 	}
 
