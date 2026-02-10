@@ -1511,16 +1511,20 @@ class PTA_SUS_Public_Display_Functions {
 			foreach ($signups as $signup) {
 				$sheet = false;
 				$url = false;
+
+				// Get the sheet through the task (task_id is always available on signups)
+				// Both pta_sus_get_task() and pta_sus_get_sheet() use class-level caching
+				$task = pta_sus_get_task($signup->task_id);
+				if ($task) {
+					$sheet = pta_sus_get_sheet($task->sheet_id);
+				}
+
 				if (isset($main_options['volunteer_page_id']) && absint($main_options['volunteer_page_id']) > 0) {
 					$url = get_permalink(absint($main_options['volunteer_page_id']));
 				}
-				if ($url && $signup->sheet_id) {
-					// pta_sus_get_sheet() uses class-level caching, so repeated calls for same ID return cached object
-					$sheet = pta_sus_get_sheet($signup->sheet_id);
-					if ($sheet) {
-						$sheet_args = array('sheet_id' => $signup->sheet_id, 'date' => false, 'signup_id' => false, 'task_id' => false);
-						$url = apply_filters('pta_sus_view_sheet_url', add_query_arg($sheet_args, $url), $sheet);
-					}
+				if ($url && $sheet) {
+					$sheet_args = array('sheet_id' => $sheet->id, 'date' => false, 'signup_id' => false, 'task_id' => false);
+					$url = apply_filters('pta_sus_view_sheet_url', add_query_arg($sheet_args, $url), $sheet);
 				}
 
 				if ($sheet && pta_sus_show_clear($sheet, $signup->signup_date, $signup->time_start)) {

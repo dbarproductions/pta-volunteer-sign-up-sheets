@@ -744,8 +744,8 @@
 								});
 							}
 						} else if ($field.is('select')) {
-							// Regular select field
-							$field.val(value || '').trigger('change');
+							// Regular select field - use String() to preserve 0 as "0" (falsy but valid option value)
+							$field.val(value !== null && value !== undefined ? String(value) : '').trigger('change');
 							// Initialize Select2 if not already initialized
 							if (typeof $.fn.select2 !== 'undefined' && $field.hasClass('jq-select2') && !$field.hasClass('select2-hidden-accessible')) {
 								$field.select2({
@@ -828,7 +828,8 @@
 				if ($field.is('input[type="checkbox"]') || $field.is('input[type="radio"]')) {
 					$field.prop('checked', false);
 				} else if ($field.is('select')) {
-					$field.val('');
+					// Reset to first option value (e.g., "0" for template selector)
+					$field.prop('selectedIndex', 0);
 				} else {
 					// Text input, textarea, etc.
 					$field.val('');

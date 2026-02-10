@@ -114,19 +114,20 @@ class PTA_SUS_Email_Functions {
 	 * @param string|array $from From email address
 	 * @param string|array $replyto Reply-to email address(es)
 	 * @param bool $use_html Whether to use HTML content type
+	 * @param string $from_name Display name for From header (falls back to site name if empty)
 	 * @return array Array of email headers
 	 */
-	private static function get_email_headers($from, $replyto, $use_html = false) {
+	private static function get_email_headers($from, $replyto, $use_html = false, $from_name = '') {
 		$headers = array();
 		if($use_html) {
 			$headers[] = 'Content-Type: text/html; charset=UTF-8';
 		}
-		// Encode site name if it contains special characters to prevent header issues
-		$site_name = get_bloginfo('name');
+		// Use template from_name if provided, otherwise fall back to site name
+		$display_name = !empty($from_name) ? $from_name : get_bloginfo('name');
 		// Use sanitize_email to ensure from address is valid, but keep original for display
 		$from_email = is_email($from) ? $from : get_bloginfo('admin_email');
 		// Format From header with proper encoding for display name
-		$headers[] = "From: " . $site_name . " <" . $from_email . ">";
+		$headers[] = "From: " . $display_name . " <" . $from_email . ">";
 		if(is_array($replyto)) {
 			foreach ($replyto as $reply) {
 				// Validate each reply-to email before adding
@@ -209,84 +210,89 @@ class PTA_SUS_Email_Functions {
 
 		do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear, $reschedule );
 		
-		$from = apply_filters('pta_sus_from_email', $email_options['from_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule);
-		if (empty($from)) $from = get_bloginfo('admin_email');
-
 		$subject = $message = $validation_link = '';
 		$signup_validation = false;
 		$email_type = '';
+		$from = '';
+		$from_name = '';
 
+		// Determine email type
 		if($reminder) {
-			if( 2 == $reminder && isset($email_options['reminder2_email_subject']) && '' !== $email_options['reminder2_email_subject']) {
-				$subject = $email_options['reminder2_email_subject'];
-			} else {
-				$subject = $email_options['reminder_email_subject'];
-			}
-			if( 2 == $reminder && isset($email_options['reminder2_email_template']) && '' !== $email_options['reminder2_email_template']) {
-				$message = $email_options['reminder2_email_template'];
-			} else {
-				$message = $email_options['reminder_email_template'];
-			}
 			$email_type = ( 2 == $reminder ) ? 'reminder2' : 'reminder1';
 		} elseif ($clear) {
-			$subject = $email_options['clear_email_subject'];
-			$message = $email_options['clear_email_template'];
 			$email_type = 'clear';
 		} elseif ($reschedule) {
-			$subject = $email_options['reschedule_email_subject'];
-			$message = $email_options['reschedule_email_template'];
 			$email_type = 'reschedule';
 		} elseif($confirmation) {
-			$subject = $email_options['confirmation_email_subject'];
-			$message = $email_options['confirmation_email_template'];
 			$email_type = 'confirmation';
 		} elseif('validate_signup' === $action) {
-			// Get template ID from validation options (0 = use system default)
-			// Note: signup_validation is system-wide only, not sheet/task level
-			$template_id = isset( $validation_options['signup_validation_email_template_id'] ) ? absint( $validation_options['signup_validation_email_template_id'] ) : 0;
-			$template = self::get_email_template( $template_id, 'signup_validation' );
-			
-			if ( $template ) {
-				$subject = $template->subject;
-				$message = $template->body;
-				// Replace placeholders in validation template
-				$replaced = $template->replace_placeholders( $signup, $task, $sheet );
-				if ( ! empty( $replaced['subject'] ) ) {
-					$subject = $replaced['subject'];
-				}
-				if ( ! empty( $replaced['body'] ) ) {
-					$message = $replaced['body'];
-				}
+			$email_type = 'signup_validation';
+			$signup_validation = true;
+		}
+
+		// Look up email template using the proper cascade:
+		// Task template -> Sheet template -> System default
+		$template = null;
+		if ( ! empty( $email_type ) ) {
+			if ( 'signup_validation' === $email_type ) {
+				// Signup validation is system-wide only, not sheet/task level
+				$template_id = isset( $validation_options['signup_validation_email_template_id'] ) ? absint( $validation_options['signup_validation_email_template_id'] ) : 0;
+				$template = self::get_email_template( $template_id, 'signup_validation' );
 			} else {
-				// Fallback to old options if template not found
+				$template = self::get_active_email_template( $email_type, $sheet->id, $task->id );
+			}
+		}
+
+		// Use template for subject, body, from name, and from email
+		// Fall back to legacy $email_options only if no template is found
+		if ( $template ) {
+			$subject = $template->subject;
+			$message = $template->body;
+			$from = $template->get_from_email( $email_options['from_email'] ?? '' );
+			$from_name = $template->get_from_name();
+		} else {
+			// Legacy fallback to email options
+			if($reminder) {
+				if( 2 == $reminder && isset($email_options['reminder2_email_subject']) && '' !== $email_options['reminder2_email_subject']) {
+					$subject = $email_options['reminder2_email_subject'];
+				} else {
+					$subject = $email_options['reminder_email_subject'];
+				}
+				if( 2 == $reminder && isset($email_options['reminder2_email_template']) && '' !== $email_options['reminder2_email_template']) {
+					$message = $email_options['reminder2_email_template'];
+				} else {
+					$message = $email_options['reminder_email_template'];
+				}
+			} elseif ($clear) {
+				$subject = $email_options['clear_email_subject'];
+				$message = $email_options['clear_email_template'];
+			} elseif ($reschedule) {
+				$subject = $email_options['reschedule_email_subject'];
+				$message = $email_options['reschedule_email_template'];
+			} elseif($confirmation) {
+				$subject = $email_options['confirmation_email_subject'];
+				$message = $email_options['confirmation_email_template'];
+			} elseif('validate_signup' === $action) {
 				$subject = $validation_options['signup_validation_email_subject'] ?? '';
 				$message = $validation_options['signup_validation_email_template'] ?? '';
 			}
-			
+		}
+
+		// Handle validation link for signup validation emails
+		if ( $signup_validation ) {
 			$validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
-			// Format validation link for HTML emails if enabled
 			if ($use_html && !empty($validation_link)) {
 				$validation_link = '<a href="' . esc_url($validation_link) . '">' . esc_html($validation_link) . '</a>';
 			}
-			$signup_validation = true;
-			$email_type = 'signup_validation';
 		}
 
-		// If we have an email type, try to use a template (sheet-level or system default)
-		// Note: signup_validation and user_validation are system-wide only, handled separately above
-		if ( ! empty( $email_type ) && 'signup_validation' !== $email_type && 'user_validation' !== $email_type ) {
-			$template = self::get_active_email_template( $email_type, $sheet->id, $task->id );
-			if ( $template ) {
-				$replaced = $template->replace_placeholders( $signup, $task, $sheet );
-				// Only override if template returned non-empty values
-				if ( ! empty( $replaced['subject'] ) ) {
-					$subject = $replaced['subject'];
-				}
-				if ( ! empty( $replaced['body'] ) ) {
-					$message = $replaced['body'];
-				}
-			}
+		// Resolve from address with fallbacks
+		if ( empty($from) ) {
+			$from = $email_options['from_email'] ?? '';
 		}
+		$from = apply_filters('pta_sus_from_email', $from, $signup, $task, $sheet, $reminder, $clear, $reschedule);
+		if (empty($from)) $from = get_bloginfo('admin_email');
+
 		PTA_SUS_Template_Tags::add_tag('{validation_link}', $validation_link);
 
 		// Disable old Customizer email filters (subject/body) so the new template system is authoritative
@@ -453,7 +459,7 @@ class PTA_SUS_Email_Functions {
 		
 		if (empty($replyto)) $replyto = get_bloginfo('admin_email');
 
-		$headers = self::get_email_headers($from,$replyto,$use_html);
+		$headers = self::get_email_headers($from, $replyto, $use_html, $from_name);
 
 		if ( !$reminder && !$email_options['individual_emails'] ) {
 			if (!empty($cc_emails)) {
@@ -598,13 +604,19 @@ Please click on, or copy and paste, the link below to validate yourself:
 		$subject = str_replace($search, $replace, $subject);
 		$to = sanitize_text_field($firstname) . ' ' . sanitize_text_field($lastname) . ' <'. sanitize_email($email) . '>';
 		$to = str_replace( ',', '', $to);
-		// Get from email - use configured from_email if valid, otherwise use admin email
-		// Don't use no-reply@domain as it may not be a valid/verified email address
-		$from = apply_filters('pta_sus_from_email', $email_options['from_email'], null, null, null, false, false, false);
+		// Get from name/email from template if available, fall back to email options
+		$from_name = '';
+		if ( $template ) {
+			$from = $template->get_from_email( $email_options['from_email'] ?? '' );
+			$from_name = $template->get_from_name();
+		} else {
+			$from = $email_options['from_email'] ?? '';
+		}
+		$from = apply_filters('pta_sus_from_email', $from, null, null, null, false, false, false);
 		if (empty($from) || !is_email($from)) {
 			$from = get_bloginfo('admin_email');
 		}
-		$headers = self::get_email_headers($from, $from, $use_html);
+		$headers = self::get_email_headers($from, $from, $use_html, $from_name);
 		// Allow other plugins to determine if we should send this email -- return false to not send
 		$send_email = apply_filters( 'pta_sus_send_validation_email_check', true, $firstname, $lastname, $email );
 		if($send_email) {

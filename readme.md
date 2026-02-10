@@ -146,6 +146,14 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### Version 6.0.3
+- Fixed options initialization to properly handle fresh installs where options don't yet exist in the database
+- Added automatic creation of system default email templates during options initialization, ensuring templates exist for fresh installs, upgrades, and file-upload installs that bypass the activation hook
+- Fixed email sending to use the new template system as the primary source for subject, body, from name, and from email, with legacy email options as fallback only
+- Fixed from name and from email fields from email templates not being applied when sending emails
+- Fixed clear links not showing in the user signups list
+- Fixed task modal editor not properly selecting extension dropdown values of 0 (e.g., "Use Sheet Template" for Custom Fields signup template selector), causing a blank selection to appear instead
+
 ### Version 6.0.2
 -Added checks to the pta_sanitize_value global function to see if an array is already serialized for the database before sanitizing and serializing possibly a second time, which could cause issues in extensions that use this global function.
 -Tested with PHP 8.5.0 and WordPress 6.9.1

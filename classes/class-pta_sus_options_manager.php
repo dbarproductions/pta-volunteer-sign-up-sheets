@@ -16,13 +16,13 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Options version
-	 * 
+	 *
 	 * This version should be incremented whenever new options are added
 	 * to ensure existing installations get the new defaults during upgrades.
-	 * 
+	 *
 	 * @var string
 	 */
-	private static $options_version = '6.0.0';
+	private static $options_version = '6.0.3';
 
 	/**
 	 * Get options version
@@ -65,11 +65,14 @@ class PTA_SUS_Options_Manager {
 		self::init_email_options();
 		self::init_integration_options();
 		self::init_validation_options();
-		
+
+		// Ensure system default email templates exist in the database
+		self::ensure_system_default_email_templates();
+
 		if ( $save_version ) {
 			update_option( 'pta_sus_options_version', self::$options_version );
 		}
-		
+
 		do_action( 'pta_sus_options_init_all' );
 	}
 
@@ -463,9 +466,16 @@ Please click on, or copy and paste, the link below to validate yourself:
 	 * @return void
 	 */
 	public static function ensure_options_exist( $option_name, $defaults ) {
-		$options = get_option( $option_name, $defaults );
-		
-		// Make sure each option is set -- this helps if new options have been added during plugin upgrades
+		$options = get_option( $option_name, false );
+
+		// If option doesn't exist at all, create it with all defaults
+		if ( $options === false ) {
+			update_option( $option_name, $defaults );
+			return;
+		}
+
+		// Option exists - make sure each option is set
+		// This helps if new options have been added during plugin upgrades
 		$needs_update = false;
 		foreach ( $defaults as $key => $value ) {
 			if ( ! isset( $options[ $key ] ) ) {
@@ -473,9 +483,126 @@ Please click on, or copy and paste, the link below to validate yourself:
 				$needs_update = true;
 			}
 		}
-		
+
 		if ( $needs_update ) {
 			update_option( $option_name, $options );
+		}
+	}
+
+	/**
+	 * Ensure system default email templates exist in the database
+	 *
+	 * Creates system default email templates if they don't exist.
+	 * This handles fresh installs, upgrades, and cases where files were
+	 * uploaded without triggering the activation hook.
+	 *
+	 * @since 6.0.0
+	 * @return void
+	 */
+	public static function ensure_system_default_email_templates() {
+		// Only proceed if the Email Template class exists
+		if ( ! class_exists( 'PTA_SUS_Email_Template' ) ) {
+			return;
+		}
+
+		// Get current defaults
+		$defaults = get_option( 'pta_volunteer_sus_email_template_defaults', array() );
+		$email_options = get_option( 'pta_volunteer_sus_email_options', array() );
+		$validation_options = get_option( 'pta_volunteer_sus_validation_options', array() );
+		$from_email = isset( $email_options['from_email'] ) ? $email_options['from_email'] : get_bloginfo( 'admin_email' );
+
+		$needs_update = false;
+
+		// Define email types and their configuration
+		$email_types = array(
+			'confirmation' => array(
+				'title'       => __( 'Confirmation Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'confirmation_email_subject',
+				'body_key'    => 'confirmation_email_template',
+				'options'     => $email_options,
+				'fallback_subject' => 'Thank you for volunteering!',
+				'fallback_body'    => self::get_confirmation_email_template(),
+			),
+			'reminder1' => array(
+				'title'       => __( 'Reminder 1 Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'reminder_email_subject',
+				'body_key'    => 'reminder_email_template',
+				'options'     => $email_options,
+				'fallback_subject' => 'Volunteer Reminder',
+				'fallback_body'    => self::get_reminder_email_template(),
+			),
+			'clear' => array(
+				'title'       => __( 'Clear Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'clear_email_subject',
+				'body_key'    => 'clear_email_template',
+				'options'     => $email_options,
+				'fallback_subject' => 'Volunteer spot cleared!',
+				'fallback_body'    => self::get_clear_email_template(),
+			),
+			'reschedule' => array(
+				'title'       => __( 'Reschedule Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'reschedule_email_subject',
+				'body_key'    => 'reschedule_email_template',
+				'options'     => $email_options,
+				'fallback_subject' => 'Event Rescheduled',
+				'fallback_body'    => self::get_reschedule_email_template(),
+			),
+			'signup_validation' => array(
+				'title'       => __( 'Signup Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'signup_validation_email_subject',
+				'body_key'    => 'signup_validation_email_template',
+				'options'     => $validation_options,
+				'fallback_subject' => 'Your Sign Up Validation Link',
+				'fallback_body'    => self::get_signup_validation_email_template(),
+			),
+			'user_validation' => array(
+				'title'       => __( 'User Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'user_validation_email_subject',
+				'body_key'    => 'user_validation_email_template',
+				'options'     => $validation_options,
+				'fallback_subject' => 'Your Validation Link',
+				'fallback_body'    => self::get_user_validation_email_template(),
+			),
+		);
+
+		foreach ( $email_types as $type => $config ) {
+			// Check if this default already exists and is valid
+			if ( isset( $defaults[ $type ] ) && $defaults[ $type ] > 0 ) {
+				$existing = new PTA_SUS_Email_Template( $defaults[ $type ] );
+				if ( $existing->id > 0 ) {
+					continue; // Template exists and is valid
+				}
+			}
+
+			// Get subject and body from options or use fallback
+			$subject = ! empty( $config['options'][ $config['subject_key'] ] )
+				? $config['options'][ $config['subject_key'] ]
+				: $config['fallback_subject'];
+
+			$body = ! empty( $config['options'][ $config['body_key'] ] )
+				? $config['options'][ $config['body_key'] ]
+				: $config['fallback_body'];
+
+			// Create the template
+			$template = new PTA_SUS_Email_Template();
+			$template->title = $config['title'];
+			$template->subject = $subject;
+			$template->body = $body;
+			$template->from_email = $from_email;
+			$template->author_id = 0; // System default
+			$template->created_at = current_time( 'mysql' );
+			$template->updated_at = current_time( 'mysql' );
+
+			$template_id = $template->save();
+			if ( $template_id > 0 ) {
+				$defaults[ $type ] = $template_id;
+				$needs_update = true;
+			}
+		}
+
+		// Save updated defaults if any templates were created
+		if ( $needs_update ) {
+			update_option( 'pta_volunteer_sus_email_template_defaults', $defaults );
 		}
 	}
 

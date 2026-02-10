@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.0.2
+Stable tag: 6.0.3
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,14 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+
+= 6.0.3 =
+* Fixed options initialization to properly handle fresh installs where options don't yet exist in the database
+* Added automatic creation of system default email templates during options initialization, ensuring templates exist for fresh installs, upgrades, and file-upload installs that bypass the activation hook
+* Fixed email sending to use the new template system as the primary source for subject, body, from name, and from email, with legacy email options as fallback only
+* Fixed from name and from email fields from email templates not being applied when sending emails
+* Fixed clear links not showing in the user signups list
+* Fixed task modal editor not properly selecting extension dropdown values of 0 (e.g., "Use Sheet Template" for Custom Fields signup template selector), causing a blank selection to appear instead
 
 = 6.0.2 =
 * Added checks to the pta_sanitize_value global function to see if an array is already serialized for the database before sanitizing and serializing possibly a second time, which could cause issues in extensions that use this global function.
