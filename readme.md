@@ -146,6 +146,12 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### Version 6.1.0
+- **Centralized License Manager** - A new "Licenses" submenu page under Sign-up Sheets that lets you manage license keys for the main plugin and all extensions in one place. Includes an "Activate All" feature for All Access or bundle license keys.
+- Added new option to disable signups after a task's start time has passed (Settings > Main Settings). When enabled, volunteers cannot sign up for tasks once the task date and start time have passed. Tasks without a start time are not affected.
+- Added new sub-option to completely hide tasks from the public sign-up sheet once the task start time has passed (Settings > Main Settings). Only applies when the "Disable Signup After Task Start Time" option is also enabled. Tasks without a start time are not affected.
+- Fixed task copy feature in the modal task editor carrying over dates and signup restrictions from the original task, which caused incorrect "date cannot be changed" warnings and stale dates appearing when copying tasks to a new sheet
+
 ### Version 6.0.3
 - Fixed options initialization to properly handle fresh installs where options don't yet exist in the database
 - Added automatic creation of system default email templates during options initialization, ensuring templates exist for fresh installs, upgrades, and file-upload installs that bypass the activation hook

@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.0.3
+Stable tag: 6.1.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,12 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+
+= 6.1.0 =
+* NEW: Centralized License Manager - A new "Licenses" submenu page under Sign-up Sheets that lets you manage license keys for the main plugin and all extensions in one place. Includes an "Activate All" feature for All Access or bundle license keys.
+* Added new option to disable signups after a task's start time has passed (Settings > Main Settings). When enabled, volunteers cannot sign up for tasks once the task date and start time have passed. Tasks without a start time are not affected.
+* Added new sub-option to completely hide tasks from the public sign-up sheet once the task start time has passed (Settings > Main Settings). Only applies when the "Disable Signup After Task Start Time" option is also enabled. Tasks without a start time are not affected.
+* Fixed task copy feature in the modal task editor carrying over dates and signup restrictions from the original task, which caused incorrect "date cannot be changed" warnings and stale dates appearing when copying tasks to a new sheet
 
 = 6.0.3 =
 * Fixed options initialization to properly handle fresh installs where options don't yet exist in the database

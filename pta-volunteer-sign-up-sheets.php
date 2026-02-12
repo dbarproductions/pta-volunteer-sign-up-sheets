@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 6.0.3
+Version: 6.1.0
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.0.3');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.1.0');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -41,27 +41,8 @@ if( !class_exists( 'PTA_Plugin_Updater' ) ) {
 	include( __DIR__ . '/PTA_Plugin_Updater.php' );
 }
 
-function pta_vol_sus_updater() {
-	// To support auto-updates, this needs to run during the wp_version_check cron job for privileged users.
-	$doing_cron = defined( 'DOING_CRON' ) && DOING_CRON;
-	if ( ! current_user_can( 'manage_options' ) && ! $doing_cron ) {
-		return;
-	}
-
-	// retrieve our license key from the DB
-	$license_key = trim( get_option( 'pta_vol_sus_license_key' ) );
-
-	// setup the updater
-	$edd_updater = new PTA_Plugin_Updater( SS_PLUGINS_URL, __FILE__, array(
-			'version' 	=> PTA_VOLUNTEER_SUS_VERSION_NUM, 				// current version number
-			'license' 	=> $license_key, 		// license key (used get_option above to retrieve from DB)
-			'item_id' => SS_PLUGINS_PTA_VOLUNTEER_SUS_ID, 	// ID of this plugin
-			'author' 	=> 'Stephen Sherrard',  // author of this plugin
-			'beta' => false
-		)
-	);
-}
-add_action( 'admin_init', 'pta_vol_sus_updater' );
+// License Manager handles all updater setup via the registry
+// See PTA_SUS_License_Manager::setup_updaters()
 
 if (!class_exists('PTA_SUS_Data')) require_once 'classes/data.php';
 if (!class_exists('PTA_SUS_List_Table')) require_once 'classes/list-table.php';
@@ -87,6 +68,28 @@ if (!class_exists('PTA_SUS_Options_Manager')) require_once 'classes/class-pta_su
 if (!class_exists('PTA_SUS_Cron_Manager')) require_once 'classes/class-pta_sus_cron_manager.php';
 if (!class_exists('PTA_SUS_Blocks')) require_once 'classes/class-pta_sus_blocks.php';
 if (!class_exists('PTA_SUS_Assets')) require_once 'classes/class-pta_sus_assets.php';
+if (!class_exists('PTA_SUS_License_Manager')) require_once 'classes/class-pta_sus_license_manager.php';
+
+// Register the main plugin with the License Manager
+PTA_SUS_License_Manager::register( array(
+	'slug'           => 'pta-volunteer-sign-up-sheets',
+	'name'           => 'Volunteer Sign Up Sheets',
+	'version'        => PTA_VOLUNTEER_SUS_VERSION_NUM,
+	'item_id'        => SS_PLUGINS_PTA_VOLUNTEER_SUS_ID,
+	'file'           => __FILE__,
+	'license_key'    => 'pta_vol_sus_license_key',
+	'license_status' => 'pta_vol_sus_license_status',
+) );
+
+// Allow extensions to register with the License Manager.
+// Must fire on plugins_loaded so all extension plugin files have been included first.
+// Priority 8: after pta_sus_load_plugin_components (5), before init_hooks (10).
+add_action( 'plugins_loaded', function() {
+	do_action( 'pta_sus_register_extensions' );
+}, 8 );
+
+// Set up updaters for all registered extensions
+add_action( 'admin_init', array( 'PTA_SUS_License_Manager', 'setup_updaters' ) );
 
 if(!class_exists('PTA_Sign_Up_Sheet')):
 

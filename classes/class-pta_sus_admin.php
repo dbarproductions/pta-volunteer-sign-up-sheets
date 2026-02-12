@@ -279,6 +279,7 @@ class PTA_SUS_Admin {
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta-volunteer-sign-up-sheets'), __('Settings', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Tools', 'pta-volunteer-sign-up-sheets'), __('Tools', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_cron', array($this, 'admin_reminders_page'));
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Add Ons', 'pta-volunteer-sign-up-sheets'), __('Add Ons', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_addons', array($this, 'admin_addons_page'));
+				add_submenu_page($this->admin_settings_slug.'_sheets', __('Licenses', 'pta-volunteer-sign-up-sheets'), __('Licenses', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_licenses', array('PTA_SUS_License_Manager', 'render_licenses_page'));
 			}
 			add_action( "load-$all_sheets", array( $this, 'screen_options' ) );
 		}

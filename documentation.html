@@ -1,0 +1,718 @@
+<a href="https://stephensherrardplugins.com/wp-content/uploads/2025/01/VolunteerSUS.png"><img class="size-full wp-image-44614 aligncenter" src="https://stephensherrardplugins.com/wp-content/uploads/2025/01/VolunteerSUS.png" alt="Volunteer Sign Up Sheets plugin for WordPress" width="722" height="146" /></a>
+<h3><strong>IMPORTANT ANNOUNCEMENT:
+  The Volunteer Sign Up Sheets plugin is now being hosted here!
+  There have been no updates at wordpress.org since February 2025.
+  Version 6.0 is a major release with new features including the Author System, Email Template Management, and a redesigned task editor!</strong></h3>
+Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">Volunteer Sign Up Sheets plugin page</a> for more info.
+<h2>GENERAL INFO</h2>
+[ssp_accordion_start]
+<h3>Newest Features</h3>
+<div>
+
+  <strong>Version 6.1</strong>
+  <ul>
+    <li><strong>Centralized License Manager:</strong> A new "Licenses" page has been added under the Sign-up Sheets menu. You can now manage the license keys for the main plugin and all installed extensions from a single page. There is also an "Activate All" feature that lets you enter one license key and activate all extensions at once — perfect if you have an All Access or bundle key. The existing License tab in Settings continues to work as before. See the "Licenses" section under Settings for more details.</li>
+    <li><strong>Disable Signups After Task Start Time:</strong> New option in Settings > Main Settings that prevents volunteers from signing up once a task's start time has passed. An additional sub-option lets you completely hide those tasks from the public sign-up sheet.</li>
+  </ul>
+
+  <strong>Version 6.0</strong>
+  <ul>
+    <li><strong>Author System:</strong> A new "Signup Sheet Author" user role has been added that allows users to create and manage only their own sign-up sheets. Administrators and Signup Sheet Managers continue to manage all sheets, while Authors can only see and edit sheets they've created. This is perfect for organizations that want to delegate sheet management to committee chairs or event coordinators without giving them full admin access. See the new "Author System" section in Settings for more details.</li>
+    <li><strong>Email Template Management:</strong> A comprehensive new system for creating and managing custom email templates. Email templates have been moved out of the Email Settings page and into their own "Email Templates" submenu. Authors and administrators can now create, edit, duplicate, and delete custom templates for all email types (confirmation, reminders, clear, reschedule, and validation emails). Templates can be assigned at the sheet level or task level, giving you complete control over the emails sent for each event. Authors can create templates for their own sheets, while administrators can create templates available to all users. See the new "Email Templates" section for full details.</li>
+    <li><strong>Improved Task Management:</strong> The task editing interface has been completely redesigned with a modern modal-based system. Tasks are now displayed in a streamlined list showing essential information at a glance (title, times, quantity, options). Click the Edit button to open a task in a pop-up modal window for editing - no more scrolling through long forms. You can also copy existing tasks from any sheet when adding new tasks, making it easy to reuse common tasks like "Setup" or "Cleanup". Drag-and-drop reordering is still available with an improved "Save Order" button.</li>
+    <li><strong>Enhanced Date Management:</strong> For Single and Recurring sheet types, dates are now managed in a dedicated section above the task list, making it clear that all tasks share the same date(s). The system now prevents changing dates when signups already exist, protecting existing volunteer commitments.</li>
+    <li><strong>Author Filtering:</strong> New <code>author_id</code> and <code>author_email</code> parameters have been added to the [pta_sign_up_sheet] shortcode and Sign Up Sheets block, allowing you to filter and display sheets by specific authors on the public side.</li>
+    <li><strong>Auto-fill Contact Info:</strong> When creating a new sheet, the Chair Name and Chair Email fields are now automatically pre-filled with the current user's information, saving time when the author is also the contact person.</li>
+    <li><strong>Performance Improvements:</strong> The core plugin code has been significantly refactored for better performance, with more efficient database queries and optimized object caching.</li>
+    <li><strong>Email Template Migration:</strong> If you were using custom email templates from the Customizer extension, those templates are automatically migrated to the new built-in Email Templates system during the upgrade.</li>
+  </ul>
+
+  <strong>Version 5.0</strong>
+  <ul>
+    <li>New Validation system added, which allows volunteers to manage their signups without needing a WordPress user account. Check out the new Validation System tab for all the details and settings.</li>
+    <li>CRON event logging feature added, which will also be used by extensions (as they are updated). If you don't wish to receive email notifications of CRON actions, you can now view the log file on the CRON functions page, and can clear it manually at any time. Log files will be automatically cleared/reset every 30 days.</li>
+  </ul>
+  <strong>Version 4.6</strong>
+  <ul>
+    <li>New option added to email settings page to enable sending emails in HTML format. If this is checked, the simple textarea input will change to the WordPress TinyMCE visual/text editor for email message templates. Line breaks in email templates will be converted to HTML with the WordPress wpautop function before sending the email. Disabled by default.</li>
+    <li>New option added to enable automatic clear/deletion of expired <strong>sheets</strong>. This will delete the sheet from the database, <strong>along with all associated tasks and signups</strong>, a specified number of days after the sheet end date. You can also manually trigger this function from the CRON functions page to manually delete all expired sheets at any time. Previously there was only the option to clear expired signups, which did not remove old sheets and their tasks. This new option is disabled by default.</li>
+    <li>New option to specify the number of days after the signup date, or the last sheet date, before clearing the sheets or signups. Default is 1 to be consistent with previous functionality. But, now you can increase this if you wish to automatically clean up your database, but want to give your managers some more time to be able to view/export the data before it's cleared from the database.</li>
+    <li>New option to hide the date header above the task tables when the sheet type is "Single", as this might be considered redundant by showing the same date above each task table.</li>
+    <li>User Signup Lists now have the sheet title linked to the individual sheet, as long as you have the "Volunteer Sign Up Page" set in the main options. It will link to that page with the sheet_id URL argument added so that the specific sheet is displayed. If you are using the Calendar extension and have that sheet linked to a calendar for view, the title will open the associated calendar for that sheet.</li>
+    <li>Added a timestamp column to the signups table that will be set to the current timestamp based on your WordPress time zone when a signup is added. This field will be shown on the admin View Signups and View/Export All Data pages in a "Signup Time" column with date and time formatted as set in your WordPress general settings.</li>
+    <li>New select options added to the add/edit sheet page to specify the recipients of signup confirmation and clear emails, which will override global email settings if you select anything other than default for each. You can choose from Default, Chairs, User, Both, or None. There are separate selections for signup confirmation emails and clear emails. These will be set to "default" to begin with, so global settings will still apply to all sheets unless you set these differently when adding a new sheet, or editing an existing sheet.</li>
+    <li>Added code to prevent viewing or signup for a sheet that has been trashed. This is for those rare situations where a shortcode includes a specific sheet ID, or there was an old manual link that included the sheet ID, but that sheet has been trashed. Previously the sheet would still be shown (but not in the main list of sheets).</li>
+    <li>Made the chair name(s) and chair email(s) fields no longer required when adding or editing a sheet. Note that this will result in a message on the sheet saying "No Event Chair contact info provided" (message can be changed or disable with the Customizer extension), and the reply to address will be set to the Reply-To email in the email settings, or the admin email if the Reply-To email is not set.</li>
+    <li>data-label attribute added to each cell of tables, which is used in the mobile CSS added in this version (see below), but could also be used in any custom CSS or js to get the label/header for any cell.</li>
+    <li>Added option to include some simple mobile CSS that will style the tables to a one column display on screen sizes less than 600px wide. Table headers are hidden and table cells will be displayed in block format so each cell takes the full width, and a label will be added to the left from the data-label attribute added to each cell.</li>
+    <li>Modified and removed some of the default CSS table styling, and modified/added to some of the class names for elements, to work better with the new mobile CSS and Customizer extension.</li>
+  </ul>
+  <strong>Version 4.0</strong>
+  <ul>
+    <li>New Admin Function - <strong>Move Signup</strong>. On the admin View Signups page for a sheet, in the actions column there is now a third icon (which WordPress dashicons says in the "schedule" icon) that will open up a page to move that signup to a different Sheet/Task/Date. Click on that icon, then select a sheet from the dropdown list (only sheets that aren't expired will show, and only those that aren't "No Signups" sheets). When you select a sheet, the Select Task dropdown select will show and be populated with all available tasks &amp; dates for that sheet, with available meaning that there is at least as many open spots remaining as the quantity of the original signup. Once you select a task, a confirmation checkbox will appear that you must check to confirm you want to move the signup. <strong>NOTE! </strong>- This is a relatively simple function that ONLY changes the task ID and the date for the signup in the signups database table. If the Item Details, for example, doesn't match between the original task and the one you move to, you'll need to edit the signup to change the Item Details to make sense for the task you move the signup to. Similarly, if you are using Custom Fields and have created different signup templates to collect different information during signups, and the template for the task you move to doesn't have the same set of fields, then you will again need to edit the signup after moving to fill in the correct information for those custom fields.</li>
+    <li>New DataTables Feature - <strong>Save State</strong>. On the admin side, for the View Signups and the View/Export All Data tables, which use the DataTables plugin to view/filter/sort and export data, the Save State function has now been enabled via two new buttons. The "Create State" button will save the current state/view of the table into a new preset (there is no confirmation when you do this). The "Saved States" dropdown select button shows all the states you have saved for that particular table. Click the button then click on the State you wish to restore. You'll also notice there is a dropdown arrow for each saved state that gives you further functions for that state: Update, Rename, and Remove.</li>
+    <li>Two new checkboxes were added to the Email Settings section. One to disable Signup Confirmation emails and the other to disable Reminder Emails. This allows you to disable just those emails for any reason, without having to use the Disable ALL Emails checkbox.</li>
+    <li>Translation Text Domain changed to fit what wordpress.org wants it to be so that you can now work on translations in your language at wordpress.org.
+      Go to:<a href="https://translate.wordpress.org/projects/wp-plugins/pta-volunteer-sign-up-sheets/" target="_blank" rel="noopener"> https://translate.wordpress.org/projects/wp-plugins/pta-volunteer-sign-up-sheets/</a>
+      if you want to contribute to a translation in your language. Note there are old translation files in the /languages folder of my plugin that could make a good starting point. Most of them have not been updated in over a year, as they were all sent to me by people who took the time to create translations.</li>
+  </ul>
+  <strong>Version 3.6</strong>
+  <ul>
+    <li>New Admin functions - Reschedule/Copy, and Multi-Copy of Sheets. Reschedule allows you to change dates and times of sheet and tasks and associated signups. Copy (different than the simple copy) allows you to copy the sheet, tasks, and signups (optional) to new dates and times, without deleting the original sheet. Multi-Copy allows you to specify an interval in days (such as 7 days for a weekly event), and the number of copies you wish to make, and then it will make that many copies of the sheet with new dates at the specified interval, also copying tasks and optionally copying the signups as well.</li>
+    <li>New Reschedule Email Subject and Message template settings that will be used for the new Reschedule/Copy functions when you check the checkbox to send emails when using those functions. Since this could lead to a large number of emails for sheets with lots of tasks and signups, the signup IDs are saved in the database and the emails are sent out hourly during the same CRON job that sends out reminders. If you have a limit set for the max # of reminders to send out each hour, that limit is also used for Reschedule emails as well.</li>
+  </ul>
+</div>
+<h3>Security vs Convenience</h3>
+<div>
+
+  This plugins allows for several levels of security and privacy, each being a little less convenient for both the end user and the admin.
+
+  Here are the security &amp; privacy options from most strict to most relaxed, and how they affect convenience:
+  <ul>
+    <li><strong>User Account &amp; Login Required:</strong> This is the highest level of security &amp; privacy, and can be enhanced even more through the use of a Two-Factor Authentication plugin. In the Main Settings you can enable the first "Login Required?" option, which then require a user to be logged in to a WordPress user account before they can even view the signup sheets, let alone sign up for anything. This will ensure that no personal information you include on the sheets is ever seen by the public, unless they have an account on your site. You can enhance this even further by not showing phone numbers and emails in the lists of signup, or, even better, just showing a signup summary without showing anything at all about who else has signed up. Even if you display the names of people who have signed up, you can make sure you do NOT enable the function to show the full name, and then it only shows the first name and last initial. While this ensures the best security and privacy, it's the least convenient in that users must sign up for a WordPress user account, with another user name and password to remember. It is also less convenient for the admin who must maintain user accounts, and monitor them for spam registrations. Since user account info is stored in the database, it will also require more resources on your server, and can potentially slow things down if you have many thousands of user accounts. However, one positive of requiring login is that users can see a list of what they have signed up for, and can clear their own signups if they need to for any reason (and if you allow that option).</li>
+    <li><strong>User Account &amp; Login Required for Signup:</strong> Similar to above, but allows visitors to view the sign up sheets without having a user account, but forces them to login to a user account before they can sign up for anything. In this case, you need to be much more aware of privacy, and ensure that you do not show email or phone numbers in your signup lists. You probably should not show full names either, or, better yet, just show the signup summary to not show any personal info at all. This still allows users to view and clear their own signups when logged in, but still forces you to have user accounts.</li>
+    <li><strong>Validation &amp; Require Validation to View: </strong>With the new Validation system introduced in version 5.0, you now have an option that falls between User Accounts and having things completely open to the world. Validation works by generating a long, unique code, that is attached to a link sent to the user via an email. If you enable the Require Validation to View option, then users will not be able to view any sheets, or sign up for anything, until they have filled out the validation form and clicked on the link in the email to ensure they are using a real email address that they have access to. Once they follow that link, a cookie will be set in their browser, allowing them to view and sign up for things without having to validate again until the cookie expires (you can determine how long the cookie lasts). There is also a link that allows them to immediately clear the cookie from their browser, for situations where they may be using a public computer, or if they need to validate as a different person perhaps to manage signups for other family members. Certainly real person spammers could use the validation form with a throw-away email account and verify themselves, so you still want to be careful what info you display in these cases. By default, email and phone are never shown to the public, and there isn't even an option to show email in the main settings. You can only display the email column by using an argument in the shortcode or a setting in the new sign up sheet block. All the other security and privacy concerns from the above options still apply. Note that the validation form has a time limit that you can set before it can be submitted again by the same browser. The minimum time you can set is one minute. This would help to prevent rapid repeated form submissions by any real person spammers, as well as spambots that accept cookies, that find that page. At this time, it's just a cookie set in the browser that expires at the time you set, and the validation form will not be shown if that cookie is present. Certainly a real spammer could clear or block the cookie, and a spambot could do the same, but every little bit helps. You just don't want to overwhelm your email server with repeated rapid emails that get sent every time that form is filled out.</li>
+    <li><strong>Validation &amp; Enable Signup Validation: </strong>This is similar to the above, but if you want to enable the general public to view sheets without being validated, or logged in, then you un-check the "Require Validation to View" option, and check the "Enable Signup Validation" checkbox. Now anyone from the public can view sheets and see the signup links. If they click on a signup link without first being validated with the validation form, then an encoded link will be sent to their email that they must click on to validate that signup. Unvalidated signups are automatically deleted after a time you specify (default is 1 hour). This is even more convenient, but does open you up even more to the possibility of spam signups. So, again, be very careful of what you display in your signup lists, and strongly consider just using the signup summary, since spam signups could contain text in the name field (or any custom fields you add with the Custom Fields extension) that you might not want displayed on your site.</li>
+    <li><strong>Existing User Accounts + Validation: </strong>This is just a note that you can use the two methods together. If you already have been using user accounts, those can still be used and it is recommended that you encourage those users to continue to login before signing up for anything. However, with the new Validation system, you can now allow new users to use view and signup for events without having to create a user account first, via any of the methods above. If you want to use this combination, you need to disable the options in the Main Settings that specifically require login to view, or login to signup. Then you would enable the validation system and the validation options you prefer. <strong>A logged in user is always considered validated and will not need to be validated through any email links</strong>. Users who are not logged into a user account will either need to be validated via the validation form, if you are not requiring validation to view the sheets, or they can validate via the signup validation email if you allow them to sign up before being validated.</li>
+    <li><strong>No User Accounts &amp; No Validation: </strong>Obviously, this would be the least secure and would allow anyone, including spambots, to view and signup for things on your site, but it is the most convenient as it doesn't require any additional actions. You would certainly not want to show any personal information in the list of signups for any sheet, and preferably just use the signup summary feature. There is a hidden spambot field that may catch some spambots. However, most spambots would not find the signup form anyway, as it's not displayed by default anywhere. In order to get to the signup form, you have to click on the view link for a sheet first, and then click up on the signup link from one of the tasks. Only if those arguments are in the URL parameters will the signup form be displayed. Of course, you can use shortcode/block parameters to skip the first step, and show all the tasks/items for a sheet directly on a page, but they still need to follow one of the sign up links to sign up for something. You can also set it so the admin is sent an email whenever someone signs up, so they can monitor for spam signups and clear them at any time (admin can always clear signups from either the admin or the public side). In the future I'll be adding a reCAPTCHA option, possibly via an extension, to cut down on spambot signups, for those rare cases where it becomes an issue.</li>
+    <li><strong>NOTE: </strong><strong>To show ONLY a signup summary</strong>, that shows only the number of filled and open spots, there are two settings involved. First, check the option in the Main Settings that says "Hide volunteer names from public?". If that is checked by itself, you will see an individual row for each signup or open spot, but it will just say "Filled" for the filled spots, and then a "Sign up" link for each open spot. To consolidate all of that into one row, you need to also check the Main Settings option that says "Consolidate remaining slots?" This will give you the most compact view, requiring only one row per task, which will say something like "1 Filled, 4 Remaining: Sign up".</li>
+  </ul>
+</div>
+<h3>Feature Requests:</h3>
+<div>
+
+  Have a new feature to request? Please add your feature requests to the <a title="PTA Volunteer Sign-Up Sheet – Feature Requests" href="https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/">feature request forum</a>.I will use the feature request forum to try to keep track of the most popular feature requests, and will pick from those when (and if) I decide to add more features to the plugin.
+
+  Already this plugin has MANY more features than I originally intended, and MUCH more than we use for our school PTA site! It's simply not possible or even practical for me to include all the feature requests that get sent my way. If I tried to make everyone happy and include every feature that people requested, the options would be overwhelming, and the plugin would be bloated to the point of greatly slowing sites down.
+
+  Whenever possible, if a feature request is popular enough, and won't complicate or bloat the plugin too much, I will do my best to add it as I find time. <a title="Plugin development donations" href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=R4HF689YQ9DEE" target="_blank" rel="noopener noreferrer">Donations</a> and <a title="PTA Volunteer Sign-Up Sheets – Reviews" href="http://wordpress.org/support/view/plugin-reviews/pta-volunteer-sign-up-sheets" target="_blank" rel="noopener noreferrer">great reviews</a> are always encouraging!! Unfortunately, donations are extremely rare, and don't come anywhere close to paying for the time involved to add just one small feature. <a title="Custom Programming" href="https://stephensherrardplugins.com/services/custom-programming/" target="_blank" rel="noopener noreferrer"><strong>Paying jobs always take priority</strong></a>.
+
+  If there is something you need right away, and it's a feature that can be worked into an extension, or would be of benefit to many users, I will always consider <a href="https://stephensherrardplugins.com/services/subsidized-development/">subsidized development</a>.
+
+  Other times I may decide to add features via a paid <a title="Wordpress plugin extensions from Stephen Sherrard" href="https://stephensherrardplugins.com/plugins/category/extensions/">extension</a>, so that they don't over complicate and bloat the main plugin, and so they can help cover some of my development time. This way you can pick and choose only the extensions you need for the extra features you want. If you don't see an extension that covers the features you need, <a title="Custom Programming" href="https://stephensherrardplugins.com/services/custom-programming/">I can always be hired to custom program</a> one for you!
+
+  I also have been adding new features to the main plugin, as well as some of the extensions, as "subsidized" development jobs. If you have a feature that you absolutely need, and it's something that I think may benefit other users as well, then I may consider moving it up to the top of my work list for a smaller subsidized fee for my development time. I usually do this more for paid extensions, and hope to make back my development time through additional sales.
+
+</div>
+[ssp_accordion_end]
+<h2>SETTINGS</h2>
+[ssp_accordion_start]
+<h3>Main Settings</h3>
+<div>
+  <ul>
+    <li><strong>Enable Test Mode</strong> -- Pretty self-explanatory. Puts the entire system in test mode so that only admin level users can view sign-up sheets on the public side. All other users will see a message of your choosing</li>
+    <li><strong>Test Mode Message</strong> -- The message you want displayed to the public on the page with your sign-up-sheet shortcode while in test mode.</li>
+    <li><strong>Volunteer Sign Up Page</strong> -- Choose a page from the drop down select list where you have put the main volunteer short code. Links in the widget will go to this page, and this page needs to be set for those widget links to work correctly. However, you can now use the below option to bypass redirects to this page from sign-up links in task lists.</li>
+    <li><strong>Redirect Sign Ups to Main Page?</strong> -- When checked (default) and a volunteer clicks on a sign-up link from the task list, they will be redirected to the main volunteer page (set above) for the sign-up form. The above setting is required for the Widget links to work properly, but you can now un-check this setting if you are using different sign-up sheet shortcodes on different pages to display specific sheets and want to keep the volunteers on that particular page when they go to the sign-up form.</li>
+    <li><strong>Suppress Duplicate Output? </strong>-- When checked, the plugin will suppress duplicated signup forms and messages when you are using multiple shortcodes on the same page without using the redirect option (redirecting to a page with only one shortcode for signup). If you have a theme or plugin that is triggering shortcode functions more than once on a page, causing a blank page, or if you never use more than one shortcode on a page without redirecting, you can un-check this option.</li>
+    <li><strong>Use divs?</strong> -- If you check this option, the sheets lists, individual sheet tasks lists, and volunteer sign-up lists (list of things the volunteer signed up for if they are logged in), will be output using divs styled as a table instead of using tables. This makes it easier to style the output the way you want using custom CSS, as well as the ability with custom CSS to make the lists more responsive and mobile friendly. Each div has an appropriate class name (or several classes), making it very easy to target specific parts of the list for custom styling (or to hide them completely).</li>
+    <li><strong>Disable plugin CSS?</strong> -- Check this option to completely disable the output of the plugin's CSS stylesheet. This way you don't have to use things like "!important" to override the built-in styles. Use your browser inspector to get the classes for elements you want to style, or copy the plugin's style sheet (inside the assets/css folder, it is the style.css file) to your theme and modify as desired.</li>
+    <li><strong>Enable Mobile CSS?</strong> -- When checked, the plugin will queue a very small mobile CSS stylesheet to collapse plugin tables to a single column when screen width is less than 600px. This is independent of the above setting, so you can still disable the main css (above) and use custom CSS of your own, or from the Customizer extension, and still enqueue the mobile CSS. Disabled by default in case you are using something like my old Stacktables plugin to reformat tables for mobile. Note that this mobile CSS doesn't work well with Stacktables, so you should use one or the other. If you wish to use the mobile CSS for the volunteer sign up sheet tables, but still need Stacktables for other tables on your site, you can disable Stacktables globally and use the shortcode to queue it only on the pages where you need it.</li>
+    <li><strong>Disable User Signups List?</strong> -- When checked, the list that shows the loggged in user's signups will NOT be shown below the list of signup sheets. You can then use the separate shortcode for the user signups list to display that list anywhere you wish.</li>
+    <li><strong>Hide Volunteer names from public?</strong> -- When checked, it just shows a slot as "filled". When not checked, it will show the first name and last initial of the person who signed up for that slot (no last names or contact info are ever shown to the public)</li>
+    <li><strong>Show full name?</strong> -- When checked, and not hiding name (above), the full first and last names will be shown instead of first name and last initial.</li>
+    <li><strong>Consolidate remaining slots?</strong> -- Condenses the layout of empty slots on task/item lists... very helpful if you have a lot of slots for a particular task/item and don't want to show an empty row for each unfilled slot.</li>
+    <li><strong>Hide Details and Quantities</strong> -- This is a global option that affects all sheets. If you check this, the Details and Quantities columns will NOT be shown on any sheet (in case you are using the item details field to collect personal info you don't want to show to anyone else)</li>
+    <li><strong>Hide User Signups Details and Quantities </strong>-- If checked the item details and quantity fields will be hidden from the list of User Signups, when a user is signed in.</li>
+    <li><strong>Hide chair contact info from public?</strong> -- Although chairs and contact info are required when creating a sheet, you can check this option to not show the chairs and contact info to the public on your sheets.</li>
+    <li><strong>Hide Date header for Single date events?</strong> -- Check this to hide the date header above the table for each task on the view sheet page when the sheet type is Single. The default single sheet view of this plugin puts each task in its own table and put the date, task title, and start/end times in a "header" above each table. If all your tasks are the same date (Single sheet type), then you may consider showing the date above each table redundant, in which case you can check this option to not show the date above each table.</li>
+    <li><strong>Show Ongoing events in Widget?</strong> -- When checked, Ongoing event types will also be displayed in the sign-up sheets widget. Normally the widget will only show sheets with tasks that have dates that haven't passed yet. Ongoing events don't have dates, though, so if you include them in the widget they will always show up in the widget list of sheets.</li>
+    <li><strong>Show Ongoing events last?</strong> -- This works with the above option, and determines if ongoing events are shown first or last in the widget sheet list.</li>
+    <li><strong>Phone Required?</strong> -- Previously all sign-up form fields were required. Now with this option you can decide if the phone field is optional, without having to use the below option to completely remove it from the form. Default value is that phone is required.</li>
+    <li><strong>Remove Phone field from Signup form?</strong> -- If you don't need volunteers to provide a contact form number, you can check this box to remove the field from the signup form.</li>
+    <li><strong>Login Required?</strong> -- If checked, only logged in users of your site will be able to view and sign up for any volunteer sheets.</li>
+    <li><strong>Login Required for Signup?</strong> -- If you un-check the above box, but then check this box, visitors can view the sheets, but they will not be able sign-up until they login. An often asked for feature!</li>
+    <li><strong>Login Required Message</strong> -- The message non-logged-in users will see on the volunteer sign-up sheets page if the above option is checked</li>
+    <li><strong>Login to Sign-Up Message</strong> -- This message replaced the "sign up" text link when you have the "Login Required for Signup?" option checked.</li>
+    <li><strong>Read Only Signup?</strong> -- When requiring users to be logged in to view or sign-up, when you check this option, the name and email fields will be filled from their user account info, and they won't be able to modify it during the signup (input fields are set to read only).</li>
+    <li><strong>Show Login Link?</strong> -- If you have the login required option set, checking this will show a login link under the login required message.</li>
+    <li><strong>Disable Login Notices?</strong> -- Turns off the messages that strongly recommend they login before signing up (if they are not logged in and you are not requiring login).</li>
+    <li><strong>Prevent Global Overlapping Signups?</strong> -- Checking this will prevent users from signing up for tasks on the same date with overlapping times. As opposed to the per sheet option, this will check ALL user signups across ALL sheets and, when enabled, will always check for overlaps, regardless of the per sheet setting.</li>
+    <li><strong>Disable Signup After Task Start Time?</strong> -- If checked, volunteers will not be able to sign up for tasks after the task start time has passed. The sign-up link will be replaced with a message indicating that the signup period has ended. Tasks without a start time are not affected by this option. This is useful for preventing last-minute signups for tasks that have already begun.</li>
+    <li><strong>Hide Tasks After Start Time?</strong> -- If checked, tasks will be completely hidden from the public sign-up sheet once the task start time has passed, rather than showing them with a disabled sign-up link. This is a sub-option that only takes effect when the "Disable Signup After Task Start Time" option above is also enabled. Tasks without a start time are not affected. This is useful if you want a cleaner display that only shows tasks volunteers can still sign up for.</li>
+    <li><strong>Show Task Description on Signup Form? </strong>-- Check this to show the task description on the signup form, if you have entered any text in the task description field.</li>
+    <li><strong>Enable CRON Notifications?</strong> -- A CRON job is a scheduled action that happens in the background. This plugin sets up two CRON jobs that are checked hourly. One checks to see if any reminder emails need to be sent, and they other checks to see if there are any expired signups that should be cleared from the database. Wordpress has its own CRON function, which we use, but it will only get triggered when there is traffic to your site, so it's possible that the CRON jobs will not run every hour. If you check this box an email will be sent to your admin email address when a CRON job is run that has any results, meaning some reminders were sent or some signups were deleted from the database. If no reminders were sent or no signups were deleted, you will not get an email.</li>
+    <li><strong>Detailed Reminder Notifications?</strong> -- Admin reminder emails notification will include the message body of all reminders sent, useful for troubleshooting.</li>
+    <li><strong>Skip Signups Check? </strong>-- Skips the check that compares current task signup count against the task quantity entered on the Admin edit tasks page. This will allow you to change the quantity for a task to a number lower than the number already signed up (useful if you want to save old signups for a recurring task, but change the quantity for future occurrences). NOTE: This will also skip the check for existing signups when you remove a task from a sheet! If you remove the task, you will no longer be able to view any signups for that tasks (even though they are still in the signups table).<strong>
+    </strong></li>
+    <li><strong>Show Expired Tasks?</strong> -- If you want to view signup info even after the dates have expired, check this box. This ONLY affects the signup lists on the ADMIN side. The public sign up sheets will never show tasks/signups that have expired. Make sure the next option is NOT checked, or else old signups will be purged from the database and not viewable.</li>
+    <li><strong>Automatically clear expired signups?</strong> -- Enables the hourly CRON function that checks for and deletes expired signups from the database. If you want to save your signup data after a task date has passed be sure to uncheck this and then check the above option to be able to view the expired tasks/signups on the admin side. If later on you want to manually delete all your expired signups, use the button on the CRON Functions page. For example, it is useful to clear all signups so that you can alter the dates on a sheet and reuse it for the following school year.</li>
+    <li><strong>Automatically clear expired sheets?</strong> -- Automatically clears expired <strong>sheets</strong>, <strong>including all associated tasks and signups</strong>, from the database a specified number of days (below) after the last date for the sheet (runs with hourly CRON function). This is independent of the clear signups option above and will <strong>ALWAYS delete all associated tasks and signups</strong> from the database.</li>
+    <li><strong># of days before clear?</strong> -- # of days after the last sheet date (when clearing sheets automatically), or signup date (when clearing signups automatically), before clearing the sheet or signup from the database. Min/default is 1 calendar day. <strong>Note this is calendar days and NOT based on hours or task times</strong>. So, if you have a task that starts at 10pm on Tuesday, and it is the last date/time for the sheet, and you have this set to clear sheets one day after, then the next time the CRON functions gets triggered after midnight, the sheet will be cleared, along with all associated tasks and signups.</li>
+    <li><strong>Enable Sign-up form live search?</strong> -- If you check this box, admin users can use the public side to sign-up other volunteers for tasks. Start typing in a first or last name on the sign-up form, and matching users/volunteers will show in a drop down list you can select to automatically fill the fields. When you submit the sign-up, that sign-up gets assigned to that user (if they have a user account on your site) instead of to your admin account.</li>
+    <li><strong>Live Search Tables</strong> -- Select which tables to search for the above live search field. You can select WordPress Users, or the Sign-Ups table, or both.</li>
+    <li><strong>Admin Only Settings Access?</strong> -- Check this to only allow Admin to access the Settings and Tools pages for this plugin. This will prevent any users you gave the Sign Up Sheet Manager role to from changing any of the main plugin settings or manually triggering any of the CRON/tool functions, while still allowing them to create sheets and view sheet data on the admin side.</li>
+    <li><strong>Disable Date/Time Translation?</strong> -- This disables the WordPress date_i18n date/time translation function, instead uses the simple PHP date function to format dates and times. WordPress modified the way they do things in 5.3, and if any other plugin or theme is using the date_default_timezone_set function (WordPress specifically states that function should NOT be used any more), it could throw off the display times. This option will correct for that by using the simple PHP date function to format date and time displays. However, this will NOT allow translation, and so dates/times will be shown in the language locale set on your server.</li>
+    <li><strong>Disable Grouping? - </strong> Check this to disable the row grouping feature of DataTables on the admin side View Signups and View All Data pages. Checking this will completely disable that feature and show all columns by default.</li>
+    <li><strong>Show All Slots for All Data? - </strong>Check this to show each empty slot in its own row on the admin View/Export ALL Data page. Useful if you want to print a manual signup form for multiple sheets at once. NOTE that this will greatly slow down the load time and dataTables initialization time of that page.</li>
+  </ul>
+</div>
+<h3>Email Settings</h3>
+<div>
+  <p><strong>Note:</strong> As of version 6.0, email templates (subject lines and message bodies for confirmation, reminder, reschedule, clear, and validation emails) have been moved to the dedicated "Email Templates" submenu under Sign-Up Sheets. The settings below are for general email configuration. See the "Email Templates" section for information on creating and managing email templates.</p>
+  <ul>
+    <li><strong>Send HTML emails?</strong> -- If checked, emails will be sent in HTML format and you can use HTML tags in the email templates. When this is enabled (off by default), the email template editor will use an HTML editor for creating formatted messages. The WordPress wpautop function is used on templates to convert double line breaks to paragraph tags.</li>
+    <li><strong>FROM email</strong> -- Enter the email address that you want set as the From address for signup confirmation and reminder emails. NOTE: if you use an SMTP plugin, this address may be overridden by your SMTP settings.</li>
+    <li><strong>Reply-To email</strong> -- The reply-to email address for emails sent by the plugin.</li>
+    <li><strong>Reply-To Chairs?</strong> -- Check this to have the reply-to emails be set from the chair emails. When checked, the above reply-to option is ignored.</li>
+    <li><strong>Max Reminders per Hour</strong> -- If your hosting account places a limit on the number of outgoing emails per hour, it's a good idea to set a number here to limit how many emails this plugin can send out per hour. Make sure to give yourself some margin to allow for other system emails as well. Leave blank or set to zero for no limit.</li>
+    <li><strong>Separate CC/BCC to individual TO emails?</strong> -- If checked, any CC or BCC email addresses (chairs, global CC, admin) will be sent individually as separate emails, as opposed to one email with several CC or BCC addresses in the header. This could solve some email issues on some servers when using the built-in wp_mail function (PHP sendmail). Note, however, that this could send out a large number of emails at once, and you should be aware of any server limits on the number of emails sent per hour.</li>
+    <li><strong>Send emails when clear from admin?</strong> -- Check this option to send out the cleared signup email when a spot is cleared by the admin from the admin view signups page.</li>
+    <li><strong>Disable chair emails?</strong> -- Check this to disable sending copies of all the signup, reminder, and cleared emails to the chair emails. If you have a lot of spots and lots of volunteers signing up, you may want to check this box if the chair email boxes are getting flooded with notifications.</li>
+    <li><strong>Disable Confirmation emails?</strong> -- Check this to disable sending signup confirmation emails when someone signs up. <strong>NOTE:</strong> This will also disable emails to the sheet chairs or admin since those are just BCC fields in the confirmation email and not separate emails.</li>
+    <li><strong>Disable Reminder emails?</strong> -- Check this to disable the sending of ALL reminder emails.</li>
+    <li><strong>Disable ALL emails?</strong> -- If checked, ALL emails will be disabled (including reminder emails). Useful if you want to clear and manually sign up users without emails being sent (when making corrections, for example). Reminders will start to get checked and sent again after you turn this off.</li>
+  </ul>
+</div>
+<h3>Email Templates</h3>
+<div>
+  <p>Version 6.0 introduces a comprehensive Email Template Management system. Email templates are now managed in their own dedicated submenu under Sign-Up Sheets > Email Templates.</p>
+
+  <h4>Overview</h4>
+  <p>The Email Templates system allows you to create custom email templates for all email types sent by the plugin:</p>
+  <ul>
+    <li><strong>Confirmation</strong> - Sent when a volunteer signs up</li>
+    <li><strong>Reminder 1</strong> - First reminder email before the event</li>
+    <li><strong>Reminder 2</strong> - Second reminder email before the event</li>
+    <li><strong>Clear</strong> - Sent when a signup is cleared/cancelled</li>
+    <li><strong>Reschedule</strong> - Sent when a sheet is rescheduled</li>
+    <li><strong>Signup Validation</strong> - Sent to validate a signup (if validation is enabled)</li>
+    <li><strong>User Validation</strong> - Sent when using the validation form</li>
+  </ul>
+
+  <h4>Default vs Custom Templates</h4>
+  <p>The plugin includes built-in default templates for each email type. These defaults are always available and cannot be deleted. You can create custom templates to override the defaults at either the sheet level or task level:</p>
+  <ul>
+    <li><strong>Sheet Level:</strong> When you assign a template to a sheet, that template will be used for all tasks on that sheet (unless a task has its own template assigned).</li>
+    <li><strong>Task Level:</strong> You can assign different templates to individual tasks, which will override any sheet-level template for that specific task.</li>
+  </ul>
+
+  <h4>Template Ownership</h4>
+  <p>Templates have an "owner" which determines who can use them:</p>
+  <ul>
+    <li><strong>Global Templates:</strong> Created by Administrators with "All Users" visibility. These templates are available to everyone and can be assigned to any sheet or task.</li>
+    <li><strong>Author Templates:</strong> Created by Signup Sheet Authors for their own use. Authors can only see and use their own templates plus any global templates.</li>
+  </ul>
+
+  <h4>Creating Templates</h4>
+  <p>To create a new template:</p>
+  <ol>
+    <li>Go to Sign-Up Sheets > Email Templates</li>
+    <li>Click "Add New Template"</li>
+    <li>Enter a name for your template (this is for your reference in dropdown lists)</li>
+    <li>Select the email type (Confirmation, Reminder 1, etc.)</li>
+    <li>Enter the email subject line</li>
+    <li>Enter the email message body</li>
+    <li>If you're an administrator, choose whether this template should be available to "All Users" or just yourself</li>
+    <li>Click "Save Template"</li>
+  </ol>
+
+  <h4>Template Tags</h4>
+  <p>Email templates support template tags that are replaced with actual values when the email is sent. Use the Template Tags Helper (appears at the top right of the template editor) to view all available tags and copy them to your clipboard. Common tags include:</p>
+  <ul>
+    <li><code>{first_name}</code> - Volunteer's first name</li>
+    <li><code>{last_name}</code> - Volunteer's last name</li>
+    <li><code>{sheet_title}</code> - Name of the sign-up sheet</li>
+    <li><code>{task_title}</code> - Name of the task</li>
+    <li><code>{date}</code> - Date of the signup</li>
+    <li><code>{start_time}</code> - Task start time</li>
+    <li><code>{end_time}</code> - Task end time</li>
+    <li><code>{contact_names}</code> - Sheet contact names</li>
+    <li><code>{contact_emails}</code> - Sheet contact emails</li>
+    <li><code>{site_name}</code> - Your website name</li>
+    <li><code>{site_url}</code> - Your website URL</li>
+  </ul>
+  <p>Click on any tag in the Template Tags Helper to copy it to your clipboard, then paste it into your template.</p>
+
+  <h4>Assigning Templates to Sheets</h4>
+  <p>When editing a sheet, you'll find email template selection dropdowns in the sheet settings. For each email type, you can select:</p>
+  <ul>
+    <li><strong>Default:</strong> Uses the built-in default template</li>
+    <li><strong>Any custom template:</strong> Select from your own templates or global templates</li>
+  </ul>
+
+  <h4>Assigning Templates to Tasks</h4>
+  <p>When editing a task (in the task modal), you'll find email template dropdowns for Confirmation and Reminder emails. Task-level templates override sheet-level templates for that specific task only.</p>
+
+  <h4>Duplicating Templates</h4>
+  <p>To quickly create a new template based on an existing one, use the "Duplicate" action from the Email Templates list. This creates a copy with "(Copy)" appended to the name, which you can then edit.</p>
+
+  <h4>Migration from Customizer Extension</h4>
+  <p>If you were using custom email templates from the Customizer extension, those templates are automatically migrated to the new Email Templates system when you upgrade to version 6.0. Your existing template assignments will be preserved.</p>
+</div>
+<h3>Validation Settings</h3>
+<div>
+
+  A new "Validation Settings" tab is added to the Sign-up Sheets &gt; Settings page. Read the new Security vs Convenience section for more detail about Validation vs User Accounts and different levels of security &amp; privacy versus convenience.
+  Here are all the settings as of version 5.0.0, with more detailed explanation (if not obvious).
+  <ul>
+    <li><strong>Enable Validation</strong>: Check this to enable the validation features. Disabled by default. Must be enabled for any of the other settings/features below to apply.</li>
+    <li><strong>Require Validation to View</strong>: Similar to the main setting requiring login to view, this feature will require that a user be validated before they are even allowed to view, or sign up for, any sign up sheets. Note that users logged into a WordPress user account are also considered validated by default. So, if you are offering both methods on your site, you should un-check the main setting option that requires login to view as that will specifically require them to be logged into a user account. Using this setting instead will allow them to view the sign up sheets via either the validation system, or by logging in to an existing WordPress user account. Also note that <strong>if you enable this then you MUST enable the user validation form! </strong>You should also then select the page where you put the shortcode for the user validation form. In order to view and sign up for anything with this checkbox checked, they will need to fill out the user validation form and then click on the link sent in an email to them when they submit the form.</li>
+    <li><strong>Require Validation to Signup:</strong> Also similar to the main setting requiring login to signup, if you do NOT check the option above, then you can use this option to force visitors to be validated before they can sign up for anything. In order to do this, you MUST enable the validation for and select the Validation Page where you put the block or shortcode for the validation form. Validation links will get sent to that page. Note that if this is checked, then the Enable Signup Validation option below will be ignore since they must already be validated before they can sign up for anything.</li>
+    <li><strong>Validation Required Message:</strong> Define the message that will be shown if the above option is checked and the user is not validated or logged in.</li>
+    <li><strong>Validation Page link text:</strong> A link to your validation form page (set below) will be shown when validation is required. Here you can enter the text that will be used for that link.</li>
+    <li><strong>Validation Page: </strong>Select the page where you put the validation form shortcode [pta_validation_form], or where you added the Validation Form block. Note that you do not have to create a separate page, as you can add the shortcode or block to the main volunteer page, above or below the shortcode/block for the signup sheets. It could also be inserted on a page where you put the User Signups List shortcode or block, if you are using a separate page for that. The point is that <strong>you must select a page</strong>. Any validation links generated will use that page as the base URL for the link. If that page doesn't exist, the code won't be able to generate a link, and you'll get a blank line in the email where you put the template tag for the validation code. As a fallback, if you don't set a page here, then the link generator will automatically use the Volunteer Sign Up Page defined in the main settings. If that is also not set, then it will go to your home page. The links will be processed no matter what page it goes to, but success and error messages will only be shown on pages that contain a shortcode or block from this plugin.</li>
+    <li><strong>Enable Signup Validation: </strong>If this is enabled, and Enable Validation (first setting) is checked, then any user who is not logged in and not already validated, will be sent a validation email when they sign up for something. Of course, this doesn't matter if you have the either "Require Validation to View" or the "Require Validation to Signup" option checked since they can't get to the sign up form if they can't view anything, or sign up, before being validated. With this option enabled, signups will be marked as unvalidated until the link in the email is visited. If you are not requiring user accounts, and not requiring validation to view, then this gives you a small extra layer of spam protection. It will not prevent automated bots from signing up, but those signups will be deleted after a set amount of time (below) if not validated. Real person spammers can still sign up if they are using a temporary/throw-away email that they can use to validate the sign up. Also, there is currently no sign up form submission rate limit, so it's possible someone can quickly sign up multiple times and fill up sheets/tasks if left open to the public. However, since the form is only shown after first clicking on a sheet to view, and then clicking on the sign up link for an open spot, the chances of an automated bot signing up multiple times in a row is rare. Security nonces and hidden spambot fields are in the sign up form, and the page is redirected back to the sheet view after form submission, so it's not possible to submit the same form repeatedly. This won't stop a determined real person, though, although it's probably not worth their trouble if you don't reveal full names, phone, or email on the list of people who signed up.</li>
+    <li><strong>Signup Expiration (hours): </strong>If you enable signup validation (above), this determines how many hours the user has to validate their signup before it is deleted. The default/minimum is 1 hour. When the signup actually gets deleted depends on when the hourly CRON feature gets triggered (which also depends on website traffic, since the WordPress CRON system is not a true server CRON system). When the hourly CRON functions run, this plugin will look at any unvalidated signups in the signups database table, and delete any that are older than the time you set with this option. So, it will most likely be more than an hour until a signup actually gets deleted. A timestamp is saved with each signup to keep track of the time of the signup (which you can also view in the lists of signups on the admin side), and this is used to calculate when an unvalidated signup should be deleted.</li>
+    <li><strong>Signup Validation Email Subject: </strong>The subject of the signup validation email sent if Enable Signup Validation is enabled without the Require Validation to View setting enabled.</li>
+    <li><strong>Signup Validation Email Template:</strong> The template for the signup validation email sent. A very simple template is set by default. <strong>You MUST include the {validation_link} template tag</strong> in order for the user to be able to validate their signup. You can also use the other template tags listed at the bottom of the template editor.</li>
+    <li><strong>Disable CC for Signup Validation emails: </strong>Check this if you do NOT want to get copies the Signup Validation Emails, if you have a global CC email set. If the email is a signup validation email, and this option is checked, then that email will not get copied to the global CC email. If you want to get those notifications so that you know when unvalidated users are signing up for anything, then un-check this. If you are requiring validation to view or signup, then this won't matter as they will need to validate via the signup for, which is a separate email that is not copied to any other emails.</li>
+    <li><strong>Enable User Validation Form: </strong>This is separate from the User Validation Form shortcode or block. Using the shortcode or block for the validation form will ignore this setting. This setting is to enable the display of the User Validation Form in place of the User Signups List when a user is not validated and logged in to a user account. If you have not disabled the showing of the User Signups List at the bottom of the main list of sheets, and you enabled this setting, it will be shown there. If you use the User Signups List shortcode or block on anywhere on your site, and enable this setting, then the form will be shown there when they are not validated. NOTE that some browser will delete all cookies when you close the browser completely, so it's a good idea to have the Validation Form available and to maybe let your users know that they may need to change their privacy &amp; security settings in their browser if they find out they need to validate again every time the close and then open their browser again.</li>
+    <li><strong>Validation Code Expiration (hours):</strong> This sets how long the user validation codes and cookies are valid for. The default is 48 hours. When the user clicks on a user or signup validation link in an email, a cookie is set in their browser to keep track of them. Cookies are set to expire after this amount of time, and any validation codes in the database are also deleted (via CRON functions) if they are older than this amount of time.</li>
+    <li><strong>User Validation Form Header:</strong> Use this to create the text/HTML that will appear above the validation form before they submit it.</li>
+    <li><strong>User Validation Email Subject: </strong>The email subject for the email sent when a user fills out the User Validation form.</li>
+    <li><strong>User Validation Email Template: </strong>Similar to the Signup Validation Email Template, but this is what is used when the User Validation form is submitted. Again, <strong>you MUST include the {validation_link} template tag </strong>to allow them to complete the validation. Other available template tags are listed below the template editor.</li>
+    <li><strong>Validation Form Resubmission Time (minutes): </strong>The amount of time that must pass before the validation form will show again to the same browser. Minimum/default is 1 minute. This should help to slow down on spam form submissions which could put a big email load on your server. This is accomplished by a simple browser cookie that expires after the set amount of time. So, it won't work if the person clears their browser cookies, or if it's a spambot that doesn't accept and return the cookie.</li>
+    <li><strong>Enable Clear Validation link:</strong> This is something you should probably enable most of the time, and it will add a message and link in place of the validation form that allows the user to clear the validation cookie from their browser. This would be necessary if the user is using a public computer, or if they are signing up additional family members and need to validate with a different name or email.</li>
+    <li><strong>Clear Validation Message:</strong> If you enable the Clear Validation Link (above), you can create a text/html message to show above the clear validation link to give your users some details on what it does and when/why they should do it.</li>
+    <li><strong>Clear Validation link text: </strong>The text that will be used for the link to clear the user validation cookie from the browser. Default is "Clear Validation".</li>
+  </ul>
+</div>
+<h3>Integration Settings</h3>
+<div>
+  <p style="padding-left: 30px;">This page will show any options that are available for integrating with other supported plugins. Right now, this plugin only integrates with the <a title="PTA Member Directory &amp; Contact Form plugin at Wordpress.org" href="http://wordpress.org/plugins/pta-member-directory/" target="_blank" rel="noopener noreferrer">PTA Member Directory &amp; Contact Form plugin</a>.</p>
+
+  <h4 style="padding-left: 30px;">PTA Member Directory Integration settings</h4>
+  <p style="padding-left: 30px;">If you have the PTA Member Directory plugin, you can use it to specify a Position group of members to be the contacts for a volunteer sheet. For example, if you are having an Ice Cream Social and have the committee chairs for the ice cream social set up with the "position" of Ice Cream Social in your member directory, then you can specify that group as the contact for your Ice Cream Social volunteer sign-up sheet. If a volunteer clicks on the contact link on the Ice Cream Social volunteer page, they will be taken to the member directory contact form with that group pre-selected, and they can send a message to the group. Also, for the confirmation and reminder emails, the plugin will automatically extract the emails for all members of that group and list those emails in place of the {contact_emails} template tag.</p>
+
+  <ul>
+    <li><strong>Enable PTA Member Directory</strong> -- Turns on the integration with the Member Directory plugin</li>
+    <li><strong>Member Directory Page</strong> -- Select the page where you have put the shortcode for your member directory.</li>
+    <li><strong>Contact Form Page</strong> -- Select the page where you have put the shortcode for the PTA Member Directory contact form. This page will be linked to from the contact link on the sign-up sheet pages, and the group you specify as the contact for the sheet will be pre-selected in the contact form. Also works with the <a title="Gravity Forms extension for PTA Member Directory &amp; Contact Form" href="https://stephensherrardplugins.com/plugins/pta-member-directory-gravity-forms/">Gravity Forms extension</a>.</li>
+  </ul>
+</div>
+<h3>Licenses</h3>
+<div>
+  <p>Enter the license key from your <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase here</a> to enable automatic updates. As of May 2025, the main/free plugin has been moved to my own site after the wordpress.org repository got corrupted in February and the plugin team there was either unable, or unwilling, to fix it. In order to be able to release updates and security fixes, I moved the main/free plugin to my site and added the same licensing system I use for all my <a href="https://stephensherrardplugins.com/plugins/category/extensions/">extensions</a> to manage automatic updates. The license for the main plugin is free, but you need to make the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase</a> through my site to generate the license key.</p>
+
+  <h4>Licenses Page (New in Version 6.1)</h4>
+  <p>A new <strong>Licenses</strong> submenu page has been added under the Sign-up Sheets menu. This page gives you a single location to manage license keys for the main plugin and all installed extensions. You no longer need to visit each extension's settings page separately to activate or deactivate licenses.</p>
+
+  <p>The Licenses page has two sections:</p>
+
+  <p><strong>Activate All Extensions</strong> — At the top of the page, you can enter a single license key and click "Activate All Extensions." This will attempt to activate every installed extension that does not already have a valid license. This is especially useful if you have an All Access Pass or a bundle license key that covers multiple plugins. Extensions that are already activated will be skipped automatically.</p>
+
+  <p><strong>Individual Plugin Licenses</strong> — Below that, each registered plugin is shown with its own license key field and status. You can:</p>
+  <ul>
+    <li>Enter or change a license key for any individual plugin</li>
+    <li>See the current status at a glance — <span style="color:green;font-weight:bold;">Active</span> (green) or <span style="color:red;font-weight:bold;">Inactive</span> (red)</li>
+    <li>Activate or deactivate each license individually</li>
+  </ul>
+
+  <p><strong>Note:</strong> The existing License tab inside Settings still works for the main plugin's license. The new Licenses page simply provides a more convenient way to manage everything in one place, and is the only place where you can use the "Activate All" feature.</p>
+</div>
+<h3>User Roles</h3>
+<div>
+  <p>This plugin adds custom user roles to help you manage who can create and administer sign-up sheets:</p>
+
+  <h4>Sign-up Sheet Manager</h4>
+  <p>This role is the same as the WordPress "Author" role, except that it adds the "manage_signup_sheets" capability. Users with this role can create, edit, and manage ALL sign-up sheets on the admin side, similar to an Administrator but without full admin access. If you have users who you want to allow to manage all sheets, but don't want them to have full admin access, you can either assign them to the Sign-up Sheet Manager role, or use a role/capability editor plugin to assign the manage_signup_sheets capability to them.</p>
+
+  <h4>Signup Sheet Author (New in Version 6.0)</h4>
+  <p>This new role allows users to create and manage only their OWN sign-up sheets. Authors cannot see or edit sheets created by other users. This is ideal for organizations that want to delegate sheet creation to committee chairs or event coordinators without giving them access to all sheets.</p>
+  <p>See the "Author System" section below for full details on how sheet ownership and author permissions work.</p>
+
+  <h4>Role Comparison</h4>
+  <table style="border-collapse: collapse; width: 100%;">
+    <tr style="background: #f0f0f0;">
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Capability</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Administrator</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Sheet Manager</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Sheet Author</th>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Create new sheets</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Edit own sheets</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Edit ALL sheets</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">No</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">View signups for own sheets</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">View ALL signups</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">No</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Create global email templates</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">No</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Create own email templates</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #ddd; padding: 8px;">Access plugin settings</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Yes</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Optional*</td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">No</td>
+    </tr>
+  </table>
+  <p><em>* Sheet Managers can be blocked from Settings via the "Admin Only Settings Access?" option in Main Settings.</em></p>
+</div>
+<h3>Author System</h3>
+<div>
+  <p>Version 6.0 introduces a comprehensive Author System that allows organizations to delegate sign-up sheet management while maintaining control over who can access what.</p>
+
+  <h4>How Sheet Ownership Works</h4>
+  <p>Every sign-up sheet now has an "author" - the user who created it. This ownership determines who can view and edit the sheet:</p>
+  <ul>
+    <li><strong>Administrators and Sheet Managers:</strong> Can see and edit ALL sheets regardless of who created them.</li>
+    <li><strong>Sheet Authors:</strong> Can ONLY see and edit sheets they personally created. Other users' sheets are completely hidden from them.</li>
+  </ul>
+
+  <h4>What Authors Can Do</h4>
+  <p>Users with the "Signup Sheet Author" role can:</p>
+  <ul>
+    <li>Create new sign-up sheets (they automatically become the author)</li>
+    <li>Edit their own sheets and tasks</li>
+    <li>View and manage signups for their own sheets</li>
+    <li>Export data for their own sheets</li>
+    <li>Create email templates for use on their own sheets</li>
+    <li>Use global email templates created by administrators</li>
+    <li>Copy their own sheets</li>
+    <li>Trash and restore their own sheets</li>
+  </ul>
+
+  <h4>What Authors Cannot Do</h4>
+  <ul>
+    <li>See or edit sheets created by other users</li>
+    <li>View signups for other users' sheets</li>
+    <li>Access the View/Export All Data page (they only see their own data)</li>
+    <li>Create global email templates (only their own)</li>
+    <li>Access plugin Settings or Tools pages</li>
+    <li>Email all volunteers (only volunteers for their own sheets)</li>
+  </ul>
+
+  <h4>Assigning Users to the Author Role</h4>
+  <p>To make a user a Signup Sheet Author:</p>
+  <ol>
+    <li>Go to Users in WordPress admin</li>
+    <li>Edit the user you want to make an Author</li>
+    <li>Change their Role to "Signup Sheet Author"</li>
+    <li>Save the user</li>
+  </ol>
+  <p>The user will now see the Sign-Up Sheets menu in their admin dashboard, but will only be able to access their own sheets.</p>
+
+  <h4>Displaying Sheets by Author</h4>
+  <p>You can filter which sheets are displayed on the public side by author using the new shortcode/block parameters:</p>
+  <ul>
+    <li><code>author_id="123"</code> - Show only sheets created by the user with ID 123</li>
+    <li><code>author_email="chair@example.com"</code> - Show only sheets created by the user with that email</li>
+  </ul>
+  <p>This is useful if you want to create separate pages for different committees or coordinators, showing only their sheets.</p>
+
+  <h4>Use Cases</h4>
+  <p>The Author System is ideal for:</p>
+  <ul>
+    <li><strong>Schools/PTAs:</strong> Committee chairs can manage their own event sign-ups without seeing other committees' sheets</li>
+    <li><strong>Churches:</strong> Ministry leaders can manage their own volunteer opportunities</li>
+    <li><strong>Non-profits:</strong> Program coordinators can handle their own events</li>
+    <li><strong>Businesses:</strong> Department heads can manage their team's sign-ups</li>
+  </ul>
+</div>
+[ssp_accordion_end]
+<h2>CREATING SIGNUP SHEETS</h2>
+[ssp_accordion_start]
+<h3>Event Types</h3>
+<div>
+
+  When adding a new sign-up sheet, there are four Event Types you can choose from:
+  <ul>
+    <li><strong>Single</strong> -- This is for an event that happens on just one day. You will only be able to enter one date on the tasks screen that will apply to all items/tasks for this event type.</li>
+    <li><strong>Recurring</strong> -- This is for an event that recurs on multiple days, but has the exact same items/tasks needed for each occurrence. For example, our school has Popcorn Fridays almost every Friday, and we need two poppers and one cashier each Friday. On the tasks screen for this event type, there will be a multi-date select box to allow you to set all the dates for this event, and then all of the tasks you enter will show up for each one of those dates. NOTE, it is possible to eventually fill up all the space allocated to this dates field, so if you have an event that recurs a very large number of times, you may need to limit how many upcoming dates you list at one time and deselect old dates after they have passed. We came across this problem with our Popcorn Fridays event for our school, but after I figured out the problem, I more than doubled the available size for this field.</li>
+    <li><strong>Multi-Day</strong> -- This is an event that happens across more than one day, but that has different tasks/items needed for each day. For example, we use it for our Book Fairs, where we have a "set up" day and a "take down" day where we just need a certain number of bodies to help, and then for the week of the book fair we need a certain number of cashiers and book finders/floaters for each day. For these Multi-Day event types, each task/item has its own single date picker field to specify the date for that item/task.</li>
+    <li><strong>Onging</strong> -- This type of sheet doesn't have any dates associated with it. These are for more general volunteer type opportunities that don't have specific date/time type requirements, but are needed at various times throughout the year. For example, you could use it to get volunteers for Yearbook photographers, Webmasters, Art Docents, classroom helpers, etc.</li>
+  </ul>
+</div>
+<h3>Adding a new Sign-up Sheet</h3>
+<div>
+
+  From the admin dashboard, you can create a new sign-up sheet with the "Add New" submenu page under Sign-Up sheets, or by clicking on the "Add New" button at the top of the "All Sheets" list.The forms for entering a new sign-up sheet are split across 2 pages, the first being for the main event type and details, and the second is where you set up all the items/tasks needed. Once a sheet has been saved, there will be an "Edit Sheet" and an "Edit Tasks" link for each sheet when you hover over the name.
+  <h3>Add/Edit Sheet</h3>
+  This is the page where you set up the Event Title, Type of Event, Contact Info, and the Event Details. You can only select the Event Type when adding a new sheet. Once that sheet has been saved, you can't change its event type as the task data is saved differently for each type of event and would not translate properly to a different event type.
+
+  Most of the fields here should be self explanatory.
+
+  <strong>No Signup Event?</strong> Checking this box lets you create an event that doesn't need anyone to sign up, but still lets you create simple tasks/items. This is so you can show other types of events, which don't require volunteers, in the main sheet list, the widget, or the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets-calendar-display/">calendar extension</a>.
+
+  <strong>Reminders:</strong> You can have up to two automatic email reminders sent out to volunteers. To set up a reminder, simply enter the number of days before the task/event date that you want the email sent. For example, you may want to send out the first set of reminders 7 days before an event/task, and the second set of reminders the day before. If you don't want any reminders sent, just leave these fields blank or set them to 0. Note that the date that the reminder function checks against is the date for each task, so it works properly for recurring events or multi-day events. If you use an Ongoing even type, these fields won't have any effect and reminders won't be sent.
+
+  <strong>Show Clear links for signups?</strong> This is checked by default to be compatible with older versions. Un-checking this will remove the clear links from the public side, so that volunteers (if they were logged in when they signed up) can not clear their own sign-ups.
+
+  <strong>Clear links and # of days/hours: </strong>You can decide if you want to allow volunteers to be able to clear themselves from an item/task they signed up for. Uncheck the box to completely disable the clear links for all signups on the sheet. If you leave it checked, you can also specify a # of days, or hours, before the event after which they can no longer clear their signups. Version 5.2 adds a select box to let you choose if the clear time is days (default) or hours. If left as days, the calculation now uses 24 hours per day, instead of strict calendar days. Version 5.2 will now also look at the task start time, if there is one, and calculated the allowed clear time based on that start time. If there is no start time, then it defaults to midnight (time zero) of the signup date. This gives you much more control of exactly how long before a task they can be allowed to clear their signup.
+
+  <strong>Allow Duplicate Signup Times? </strong>Allows volunteers to sign-up for different tasks (on the same sheet) that have overlapping times.
+
+  <strong>Sheet Email Options:</strong> Added in version 4.6.0, you can now override the global email settings on a per sheet basis to determine who should receive confirmation and clear emails (separate select option for each). If you leave these to the default setting of "Default", then the global settings will apply. However, if you change them to anything else, then they will override any global settings (including the global setting to disable all emails).
+
+  <strong>Contact Info:</strong> Contact info is required. If you don't have the PTA Member Directory plugin and the integration enabled, then you must enter at least one name and email for the contact info. Multiple names and emails can be entered by separating each by a comma. If you do have the Member Directory plugin and integration is enabled, then you will see a select box with Positions from the Member Directory as choices. You may then select one of those Positions to act as the contact for the sheet/event. If the public clicks on the contact link on the sign-up sheet page for that event, they will be taken to the contact form with that position pre-selected as the recipient group. That contact message will be sent to all members who hold that position. Alternately, instead of selecting a position (in case you chose not to show positions in your contact form, for example, or you don't want to use them as contacts), you can still enter names and emails in the boxes provide. NOTE, you are not allowed to do both -- i.e., you can't select a Position and also enter names/emails.
+
+  <strong>Program/Event Details:</strong> Although this field is optional, it is probably the best place to put all your detailed info about an event that you want to present on a sign-up page. This will then be generated by the shortcode when a volunteer clicks through to this specific sign-up page. This way you can just have one page for ALL of your volunteer events that you put the main shortcode on. That will show a list of all available volunteer opportunities, and when they click through to one of the sheets/events they can see full details as well as a listing of all the tasks that they can sign up for.
+
+</div>
+<h3>Add/Edit Tasks/Items</h3>
+<div>
+  <p><strong>Note:</strong> Version 6.0 introduces a completely redesigned task management interface. Tasks are now displayed in a streamlined list and edited in a modal (pop-up) window for a much better user experience.</p>
+
+  <h4>Date Management (Single and Recurring Sheets)</h4>
+  <p>For <strong>Single</strong> and <strong>Recurring</strong> event types, dates are now managed in a dedicated section at the top of the tasks page, separate from the task list. This makes it clear that all tasks share the same date(s):</p>
+  <ul>
+    <li><strong>Single events:</strong> Select one date using the date picker. This date applies to all tasks.</li>
+    <li><strong>Recurring events:</strong> Select multiple dates. You MUST select at least 2 dates. All tasks will appear for each selected date.</li>
+  </ul>
+  <p><strong>Important:</strong> The system will prevent you from changing dates if signups already exist for those dates, to protect existing volunteer commitments. You'll see a warning if you try to modify dates that have signups.</p>
+
+  <p>For <strong>Multi-Day</strong> events, each task has its own date field in the task editor.</p>
+  <p>For <strong>Ongoing</strong> events, there are no date fields since these are date-independent volunteer opportunities.</p>
+
+  <h4>The Task List</h4>
+  <p>Tasks are displayed in a compact list showing essential information at a glance:</p>
+  <ul>
+    <li>Task title</li>
+    <li>Start and end times</li>
+    <li>Number needed (quantity)</li>
+    <li>Key options enabled (details, quantities, duplicates)</li>
+    <li>Action buttons: Edit, Copy, Delete</li>
+  </ul>
+  <p>You can drag and drop tasks to reorder them. When you change the order, a "Save Order" button will appear - click it to save the new order.</p>
+
+  <h4>Adding a New Task</h4>
+  <p>Click the "Add New Task" button to open the task editor modal. You can optionally select an existing task from the "Copy from existing task" dropdown to pre-fill the form with that task's settings - useful for reusing common tasks like "Setup" or "Cleanup" across sheets.</p>
+
+  <h4>The Task Editor Modal</h4>
+  <p>When you click Edit or Add New Task, a modal window opens with all task settings:</p>
+  <ul>
+    <li><strong>Title:</strong> The name of the task (required)</li>
+    <li><strong># Needed:</strong> How many volunteers or items needed (required, defaults to 1)</li>
+    <li><strong>Start Time / End Time:</strong> Optional time range for the task</li>
+    <li><strong>Date:</strong> Only shown for Multi-Day sheet types</li>
+    <li><strong>Description:</strong> Optional HTML description shown above the task on the public side. Uses a Quill HTML editor for easy formatting.</li>
+    <li><strong>Details Needed:</strong> Check this if you want volunteers to enter additional information (like what dish they're bringing). When checked, you can specify the label and whether it's required.</li>
+    <li><strong>Allow Quantities:</strong> Lets volunteers sign up for multiple spots at once</li>
+    <li><strong>Allow Duplicates:</strong> Allows the same volunteer to sign up multiple times for this task</li>
+    <li><strong>Email Templates:</strong> Optionally assign custom Confirmation and Reminder templates for this specific task</li>
+  </ul>
+  <p>Click "Save Task" to save your changes, or "Cancel" to close without saving.</p>
+
+  <h4>Copying Tasks</h4>
+  <p>Click the Copy button (duplicate icon) next to any task to create a copy. The copy will have "(Copy)" appended to the title. You can then edit the copy to customize it.</p>
+
+  <h4>Deleting Tasks</h4>
+  <p>Click the Delete button (trash icon) to remove a task. <strong>Warning:</strong> If the task has signups, you'll be warned before deletion. Deleting a task removes it permanently along with any associated signups.</p>
+
+  <h4>Move Tasks</h4>
+  <p>The "Move Tasks" feature allows you to move ALL tasks from the current sheet to another sheet. This is useful for merging events or reorganizing. Note that tasks are MOVED, not copied - once moved, the current sheet will have no tasks.</p>
+</div>
+[ssp_accordion_end]
+<h2>ADMIN</h2>
+[ssp_accordion_start]
+<h3>Administration - All Sheets</h3>
+<div>
+
+  Once you have some sheets added, there are several things you can do from the Admin section of this plugin. On the <strong>All Sheets</strong> page you will see a list-table of all sheets currently in the system, along with some basic info for each.If you hover over the title of any sheet, you will see the following option links:
+  <ul>
+    <li><strong>View Sign-ups</strong> -- Takes you to a detailed list table with a list of all volunteers who have signed up, along with their full contact info, and links to clear or edit each signup, or add signups manually.</li>
+    <li><strong>Edit Sheet</strong> -- Takes you to the edit sheet page for that event (see above)</li>
+    <li><strong>Edit Tasks</strong> -- Takes you to the edit tasks page for that event (see above)</li>
+    <li><strong>Copy</strong> -- Makes a copy of the sheet, appending "copy" to the name. Useful if you have a couple of events that have very similar requirements, as it will copy all sheet and tasks you have entered, and then you can change the name and any other details on the copy you created for the second event. Does NOT copy signups and does NOT change any dates or times (you need to manually edit and change those)</li>
+    <li><strong>Reschedule/Copy </strong>-- Opens a new form allowing you to choose from three methods: Reschedule, Copy, and Multi-Copy. These functions will change dates/times and will optionally copy signups as well. You can also optionally send the Reschedule emails. More details on each function below. Currently only works with Single and Multi-Day sheets</li>
+    <li><strong>Trash</strong> -- Moves the sheet to the trash, but does not permanently delete it (click on trash at the top of the table to view trashed sheets and permanently delete them)</li>
+  </ul>
+  <strong>Reschedule </strong>-- If you select this option from the Reschedule/Copy form, you can select a new sheet date for Single type sheets, or a new date for each task for Multi-Day type sheets. For either sheet type you can optionally also select new start and end times for each task (leave blank to keep the original start/end times). Reschedule does NOT create any new database entries. Instead it modifies the dates and times of the existing sheet, tasks, and signups. Other form options are below:
+  <ul>
+    <li><strong>Clear Signups - </strong>If you check this box, all of the current signups for the sheet and all tasks will be deleted.</li>
+    <li><strong>Send Emails - </strong>If you check this box, the Reschedule email will be sent to all current signups for the sheet/tasks (they will be queued up to be sent during the hourly CRON function)</li>
+  </ul>
+  <strong>Copy </strong>-- (from the Reschedule/Copy form page) -- With this, you can create an all new copy of the sheet, tasks, and optionally signups, to new dates and times. Works the same way as reschedule, with the same form options, except that the old sheet, tasks, and signups are not change. Instead it creates a new sheet (with the same name), new tasks, and optionally new signups. If you check the "Clear Signups" checkbox for the copy function, the signups will NOT be copied to the new sheet, but they will still remain for the old sheet.
+
+  <strong>Multi-Copy </strong>-- This function can be used as a sort of work around to create repeating style events, that repeat at a certain interval of days. You can optionally multi-copy the signups, or use the "clear signups" checkbox to create copies without any signups. If you select this option, then instead of specifying new dates for the sheet/tasks, you will be presented with two new inputs:
+  <ul>
+    <li><strong>Offset Interval in Days </strong>-- Specify the number of days to add to the dates for the sheet or tasks. For Single type sheets, this will be the main sheet date and is the same for all tasks. For Multi-Day sheets, this interval will be added to the date for each task. A good example would be if you had a Multi-Day sheet set up for some weekday events (Monday through Friday). If you want to repeat those every week, you could use Multi-Copy and set the interval to 7.</li>
+    <li><strong>Number of Copies </strong>-- Sets the number of copies to make at the specified intervals. You may be limited by your server as to how many copies you can make at once without the server timing out, but you can always use the function multiple times to create as many copies as you need.</li>
+  </ul>
+  <strong>Visibility </strong>-- There is a "Visible" column for each sheet on the All Sheets list table. If a sheet is hidden from the public, you will see a red "NO" listed in the column. If you go to the public side, those sheets will not show up in the main volunteer page list or in the widgets unless you are logged in as admin or volunteer sheet manager (in which case you will see the sheet listed, but there will be some red text below it to remind you that the sheet is hidden from the public). Click on "Yes" or "NO" to toggle the visibility of a sheet. It may be useful to have a sheet hidden while you are getting it set up and testing things out, or if you don't want to make sign-ups available until a certain date.
+
+  <strong>Bulk Actions</strong> -- From the main All Sheets list you can use bulk actions to trash or toggle the visibility of several sheets at once. While you are in the trash bin, you can use bulk actions to permanently delete or restore multiple sheets at once.
+
+  <strong>View/Export ALL Data </strong>-- The old button that exported all data to CSV has now been changed to this new View/Export ALL Data button. Clicking on this button will now load ALL existing signup data into one large table, using the jQuery DataTables plugin for display. From there you can sort, filter, search, and show/hide columns, to organize your data anyway that you want, and then direct print or export that data to Excel, CSV, or PDF formats. See the next section below for more details on how to use DataTables, as it works the same way as on the individual "View Sign-ups" page.
+
+</div>
+<h3>View Sign-ups Page and DataTables</h3>
+<div>
+
+  This is where you can view all your detailed sign-up information for an event. Full name and contact information is shown for each volunteer, and there is a "Clear Spot" link if you need to remove a volunteer from a spot.
+
+  The "Actions" column at the end of each row now includes a trash/delete icon, an edit (pencil) icon, and a move (schedule) icon for each signup. Clicking the trash icon will clear that signup (no undo!). Clicking the pencil icon allows you to edit the info for that signup. On empty slots, there will be a Plus (Add Signup) icon to allow you to manually add a signup for that task.
+
+  <strong>Move Signup</strong>. Added in version 4.0.0. On the admin View Signups page for a sheet, in the actions column there is now a third icon (which WordPress dashicons says in the "schedule" icon) that will open up a page to move that signup to a different Sheet/Task/Date. Click on that icon, then select a sheet from the dropdown list (only sheets that aren't expired will show, and only those that aren't "No Signups" sheets). When you select a sheet, the Select Task dropdown select will show and be populated with all available tasks &amp; dates for that sheet, with available meaning that there is at least as many open spots remaining as the quantity of the original signup. Once you select a task, a confirmation checkbox will appear that you must check to confirm you want to move the signup. <strong>NOTE! </strong>- This is a relatively simple function that ONLY changes the task ID and the date for the signup in the signups database table. If the Item Details, for example, doesn't match between the original task and the one you move to, you'll need to edit the signup to change the Item Details to make sense for the task you move the signup to. Similarly, if you are using Custom Fields and have created different signup templates to collect different information during signups, and the template for the task you move to doesn't have the same set of fields, then you will again need to edit the signup after moving to fill in the correct information for those custom fields.
+
+  <strong>DataTables display and functions</strong>
+
+  Version 3 changed the View Signups page display to use the <a href="https://datatables.net/">jQuery DataTables</a> plugin. By default, some columns will be hidden, such as Task/Item and Date, and the tasks will appear in the ordered entered for the sheet. Group Headings show the task title and date, but those are not printed/exported unless you make those columns visible. You can show or hide any columns using the "Column Visibility" button. If you want to print or export your data, I would suggest hiding the "Actions" column and showing the "Task/Item" and possibly the "Date" columns. If you do NOT want to view, export, or print empty slots, click on the "Hide Remaining" button, which will remove those from the table. If you need to see them again, you will need to reload the page. You can also click on the "Disable Grouping" button to remove the group heading rows, at which point you may wish to make the corresponding columns visible. You can also check the option in the main settings to disable grouping completely for the DataTables.
+
+  You can sort by clicking on any of the column headers, and clicking multiple times on the same header toggles between ascending and descending sort order. At the bottom of each column are select boxes that will allow you to select a value for that column, which will then only show entries that have that value. The search box allows you to search for any value within the table and filter to show only rows that match your search text. The searches and filter select boxes only hide/show items, so you don't need to reload a page if you want to see everything again (just clear the search box, or select "Show All" for the column select filter).
+
+  Starting with version 4.1.0 you can also drag and drop the column headers to reorder the columns in the order that you want them for printing or exporting. Note that the dropdown select filters at the bottom of each column need to be destroyed and recreated when you reorder the columns, so they will display the "Show All" value even if you have already filtered by a column value (table rows will still be filtered). It's best to do the column reordering first, and then do any filtering and sorting that you want.
+
+  Once you have your table showing things the way you want, you can use any of the first four buttons to export or print your table info.
+
+  <strong>New DataTables Feature - Save State</strong>. Added in version 4.0. On the admin side, for the View Signups and the View/Export All Data tables, which use the DataTables plugin to view/filter/sort and export data, the Save State function has now been enabled via two new buttons. The "Create State" button will save the current state/view of the table into a new preset (there is no confirmation when you do this). The "Saved States" dropdown select button shows all the states you have saved for that particular table. Click the button then click on the State you wish to restore. You'll also notice there is a dropdown arrow for each saved state that gives you further functions for that state: Update, Rename, and Remove.
+
+</div>
+<h3>Tools (admin)</h3>
+<div>
+  <p><strong>Note:</strong> As of version 6.0, this page has been renamed from "CRON Functions" to "Tools" and now includes additional utility functions beyond just CRON-related tasks.</p>
+
+  <h4>CRON Functions</h4>
+  <p>The CRON Functions section shows information about the automated background tasks and allows you to manually trigger them:</p>
+  <ul>
+    <li><strong>Volunteer Reminders:</strong> Shows when reminders were last sent and allows you to manually trigger the reminders check. The system automatically checks hourly via a CRON function.</li>
+    <li><strong>Rescheduled Event Emails:</strong> Shows when rescheduled event emails were last sent and allows you to manually trigger them.</li>
+    <li><strong>Clear Expired Signups:</strong> Manually clear ALL expired signups from ALL sheets. Only use this if you've disabled automatic clearing.</li>
+    <li><strong>Clear Expired Sheets:</strong> Manually clear ALL expired sheets (along with their tasks and signups) from the database.</li>
+    <li><strong>Debug Log:</strong> A readonly textarea that shows log messages generated by CRON functions, helpful for debugging. You can clear the log manually, and log files are automatically cleared every 30 days.</li>
+  </ul>
+
+  <h4>Other Tools</h4>
+  <p>This section appears when additional tools are available based on your installed extensions:</p>
+
+  <strong>Migrate Customizer Email Templates</strong>
+  <p>This tool only appears if you have the Customizer extension installed. Use this button if:</p>
+  <ul>
+    <li>Custom email templates from the Customizer extension were not automatically imported during the version 6.0 update</li>
+    <li>You added new templates in the Customizer extension after upgrading to version 6.0 and need to migrate them to the new Email Templates system</li>
+  </ul>
+  <p>Clicking "Migrate Customizer Templates" will import templates from the Customizer extension into the new Email Templates system. Existing templates with the same name will not be duplicated. After migration, check the Email Templates page to verify your templates were imported correctly.</p>
+</div>
+<h3>Email Volunteers</h3>
+<div>This is a simple email form that will allow admin users to send a message to all signed-up volunteers for a specific sheet, or to ALL volunteers currently in the sign-up database table (for ALL sheets). This form should be self explanatory, with the exception of the option at the bottom to either send emails individually (one email sent as a "to" email for each volunteer), or to use one email with BCC fields. The reason for one or the other is explained next to the option, and also above for a similar option for the email settings page. If you are using BCC (default), but not all the volunteers are getting the email, the preferred method is to install a SMTP mailer plugin and connect your WordPress site to a real SMTP account (which will be much more reliable anyway). But, if you can't do that, and your server's sendmail function doesn't like the formatting of the BCC headers, then check this box to loop through all volunteer emails and send to one email address at a time. Be aware, however, that this could generate a LOT of emails in a short period of time (if you have a lot of volunteers in the sign-up database), and your server may have spam protection in place that limits how many emails can be sent each other (check with your hosting company).</div>
+[ssp_accordion_end]
+<h2>VALIDATION SYSTEM</h2>
+[ssp_accordion_start]
+<h3>Validation System Overview</h3>
+<div>
+  <h4>Purpose and Benefits</h4>
+  The validation system allows volunteers to manage their signups without needing a WordPress user account. This feature provides several key benefits:
+  <ul>
+    <li>Volunteers can view and manage all their signups</li>
+    <li>Site owners don't need to maintain WordPress user accounts</li>
+    <li>Reduces spam signups through email validation</li>
+    <li>Maintains security while improving user experience</li>
+  </ul>
+  <h4>How It Works</h4>
+  When a volunteer signs up for their first event:
+  <ol>
+    <li>They provide their name and email</li>
+    <li>The system generates a unique validation code</li>
+    <li>An email containing a validation link is sent to their address</li>
+    <li>Clicking the link validates their identity</li>
+    <li>A cookie is set in their browser to maintain validation</li>
+  </ol>
+  Once validated:
+  <ul>
+    <li>Volunteers can sign up for additional events without re-validating</li>
+    <li>They can view all their signups</li>
+    <li>They can clear their own signups when needed</li>
+    <li>The validation remains active until the cookie expires</li>
+    <li>Volunteers can re-validate using the validation form.</li>
+    <li>Optionally, you can have volunteers use the validation form first to become validated before signing up for anything.</li>
+  </ul>
+</div>
+[ssp_accordion_end]
+<h2>PUBLIC SIDE</h2>
+[ssp_accordion_start]
+<h3>Blocks &amp; Shortcodes</h3>
+<div>
+
+  Version 5 adds updated blocks to replace shortcodes for the volunteer sign up sheets. These blocks are built around the latest WordPress blocks API, and will generate live previews of the current output as you adjust the parameters. The blocks can be found in the "Widgets" category, and they include the main "Sign Up Sheets" block, the "User Signups List" block, and the "User Validation Form" block. There is also a block to replace the old sidebar widget that shows a small list of upcoming events, which can also be found in "Widgets" with the title "Upcoming Events". The original Sign Up Sheets block from several version back will still show up with (Legacy) after its name. If you were using it on a page, it will still function, but if you edit that page you will see a notice that it has been deprecated and there will be a button you can press to convert it to the new version block.
+
+  <strong>Sign Up Sheets parameters:
+  </strong>Most of these are self-explanatory, and when you use the Sign Up Sheets block, you can see the changes in real time. Note that some of the parameters, such as Show Headers, Show Time, Show Phone and Show Email only apply to an individual sheet when you have the main settings to not hide volunteer names from the public. NOTE: These ONLY work on the default layout that the main plugin creates. If you are using the Customizer Extension to create custom layouts for the individual Sheet view, those layout templates will determine what is shown, and these parameters will have no effect. In order to see the effect of the parameters that affect the default single sheet view with the live block preview, just set the Sheet ID parameter to one of your existing sheets, and then you will see what that sheet with look like with the current block parameters. Just remember to set it back to blank in order to display the main list of sheets.
+
+  If you prefer the WordPress classic editor and using shortcodes, then all you really need to make all the features available to the public is to create a page for your Vounteer sign-up system and insert the main shortcode:
+
+  [pta_sign_up_sheet]
+
+  Additionally, there are shortcodes for the User Signups List and the new User Validation Form.
+
+  [pta_user_signups]
+
+  [pta_validation_form]
+
+  It is also recommended that you don't put any other content in the content area of the page or post that you insert the main block or shortcode since the shortcode will generate different content depending on actions that the user takes.
+
+</div>
+<h3>Public functionality</h3>
+<div>
+
+  On the page that you put the main block or shortcode, there will first appear a simple list-table of current volunteer sign-up sheets with start date, end date, and links to "View &amp; sign-up" for each sheet. The default heading of "Current Volunteer Sign-up Sheets" above that table can be changed by changing the List Title in the block, or adding a "list_title" argument to the shortcode, such as: list_title="My New Title"
+
+  This list will ONLY show sheets where there are still items/tasks whose dates have not already passed. If it's a recurring or multi-day event, the sheet will still be in the list as long as there still are some dates for items/tasks that have not expired yet. Expired tasks/items will not be counted in the "Open Slots" calculations.
+
+  If a user is logged in and has already signed up for anything, then below that main list will be another list showing everything they have signed up for along with a "clear" link that they can use to remove themselves from a sign-up. This is the User Signups list, which can also be displayed via its block or shortcode. If you want to put the User Signups List on another page, just use the block or shortcode. You can then use the option in the main settings to disable the User Signups List at the bottom of the main volunteer output.
+
+  When a volunteer clicks on a sheet title or the "View &amp; sign-up" link, the page refreshes and they will see the details for that specific sheet/event. Title, contact info, and any details will be shown at the top, followed by a table of all upcoming tasks/items. For each available spot that has not been filled yet, there will be a "Sign up" link.
+
+  When a volunteer clicks on the sign up link for an open spot, the page refreshes and they are shown a simple sign-up form where they enter first name, last name, email, and phone. If the task/item requires details, then there will be an input box for them to enter the task/item details (such as what dish they are bringing to a lunch). If the user is logged in, then their contact info will already be filled in for them if it has already been stored in their user profile (as a minimum, each user account needs an email, so that will always be filled in for logged in users). If they don't have first name, last name, or phone already stored in their user meta, then after they sign up for their first volunteer slot, that information will be added to the user's meta, and they won't have to fill it in for future volunteer sign-ups.
+
+  Note that there is a hidden "honeypot" style spambot field on the signup form to help reduce/prevent spam signups from bots (if your signup forms are open to the public). There is nothing to configure for the spambot field.
+
+  After a user signs-up for a slot, they will immediately be emailed a confirmation with all the details, and a copy of that will also be sent to the contacts specified for the event.
+
+</div>
+<h3>Displaying a Sign-up Sheet on its own page</h3>
+<div>
+
+  If you have a page where you always want to show the list of available sign-ups for a particular event/sheet, you can add the Sheet ID in the block editor, or add an "id" argument to the shortcode. You need to look at the All Sheets list on the admin side to find the ID for a sheet, and then you can add the argument the block or to the shortcode in the format:id="1"
+
+  With this argument included, the main list of all sign-up sheets will not be displayed, instead you will see the details and list of available sign-ups for that particular sheet. If you have the "Redirect Sign Ups to Main Page?" box check in the main settings, the volunteer will be redirected to the main "Volunteer Sign Up Page" you selected in the settings. If you want to keep them on the same page to signup, then you need to make sure the "Redirect Sign Ups to Main Page?" option is not checked.
+
+  Starting with version 2 of the plugin, you can use more than one shortcode on a page to display several single sheets on a page. If you put multiple shortcodes on one page, you will probably need to enable the option "Suppress Duplicate Output?" to avoid duplicate success/error messages, and/or use the redirect option to redirect to a main page for signups.
+
+</div>
+<h3>ALL Available Shortcode Arguments</h3>
+<div>
+
+  It is strongly recommended that you use the built-in blocks, instead of shortcodes, to see and properly use all the available arguments, but the shortcode versions are listed here for reference:
+  <ul>
+    <li>id - A specific sheet ID to display. ID is shown as the first column on the admin main list of sheets</li>
+    <li>date - Can be used on its own to only show sheets/tasks for a specific date, or can also be used in combination with the id argument to only show tasks for a specific sheet and a specific date (only really useful if that sheet has tasks on multiple dates). Dates need to be specified as: yyyy-mm-dd</li>
+    <li>group - This is used to specify one or more groups to show sheets for when used in conjunction with the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheet-groups/">Groups extension</a></li>
+    <li>list_title - Allows you to modify the default title shown above the main list of volunteer sheets</li>
+    <li>show_headers - This allows you to determine if headers should be shown on the individual sheet display. Headers include the sheet title, contact info, and description. Argument values are "yes" or "no". If not specified, headers will be shown by default ("yes" is default)</li>
+    <li>show_time - Allows you to show or hide the start and end time columns on the sheet display. Argument values are "yes" or "no". If not specified, times will be shown by default ("yes" is default)</li>
+    <li>show_date_start - Allows you to show or hide the start date column on the main sheets list display. Argument values are "yes" or "no". If not specified, the start date will be shown by default ("yes" is default)</li>
+    <li>show_date_end - Allows you to show or hide the end date column on the main sheets list display. Argument values are "yes" or "no". If not specified, the end date will be shown by default ("yes" is default)</li>
+    <li>show_phone - Allows you to show phone numbers on the list of signups. Only works if you are displaying each signup in the task list (versus a consolidated view). Argument values are "yes" or "no". If not specified, the phone column will NOT be shown ("no" is default)</li>
+    <li>show_email - Allows you to show emails on the list of signups. Only works if you are displaying each signup in the task list (versus a consolidated view). Argument values are "yes" or "no". If not specified, the email column will NOT be shown ("no" is default). Highly recommended to NOT show emails to the general public where they can be harvested by spambots. You should only use this on password protected pages or when only showing signups to logged in users.</li>
+    <li>order_by - Lets you define the sort order of the list of sheets shown. Can be set to "first_date" (default), "last_date", "title", or "id".</li>
+    <li>order - when used with the above order_by, lets you set the ordering as 'ASC' or 'DESC' (ascending or descending).</li>
+    <li>author_id - (New in v6.0) Only show sheets created by the user with this WordPress user ID. Useful for creating separate pages for different committee chairs or coordinators.</li>
+    <li>author_email - (New in v6.0) Only show sheets created by the user with this email address. An alternative to author_id if you don't know the user's ID.</li>
+  </ul>
+  For any of the arguments, the format is the argument id, followed by an equal sign and then the value in quotes. Here is a sample with all arguments shown:
+  <pre>[pta_sign_up_sheet id="" date="" group="" list_title="" show_headers="yes" show_time="yes" show_phone="no" show_date_start="yes" show_date_end="yes" order_by="first_date" order="ASC" author_id="" author_email=""]</pre>
+</div>
+[ssp_accordion_end]
