@@ -1800,6 +1800,7 @@ class PTA_SUS_Public_Display_Functions {
 			$sheets = apply_filters('pta_sus_display_active_sheets', $sheets, $atts);
 
 			if (empty($sheets)) {
+				$return .= apply_filters('pta_sus_before_sheet_list_table', '');
 				$return .= '<p>' . apply_filters('pta_sus_public_output', __('No sheets currently available at this time.', 'pta-volunteer-sign-up-sheets'), 'no_sheets_message') . '</p>';
 			} else {
 				$sheets_table = self::get_sheets_list($sheets, $atts);
