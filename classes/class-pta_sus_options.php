@@ -128,6 +128,8 @@ class PTA_SUS_Options {
         add_settings_field('show_login_link', __('Show Login Link?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_login_link_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('disable_signup_login_notice', __('Disable Login Notices?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_signup_login_notice_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('no_global_overlap', __('Prevent Global Overlapping Signups?', 'pta-volunteer-sign-up-sheets'), array($this, 'no_global_overlap_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('disable_signup_after_start_time', __('Disable Signup After Task Start Time?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_signup_after_start_time_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+	    add_settings_field('hide_task_after_start_time', __('Hide Tasks After Start Time?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_task_after_start_time_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('show_task_description_on_signup_form', __('Show Task Description on Signup Form?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_task_description_on_signup_form_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('enable_cron_notifications', __('Enable CRON Notifications?', 'pta-volunteer-sign-up-sheets'), array($this, 'enable_cron_notifications_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('detailed_reminder_admin_emails', __('Detailed Reminder Notifications?', 'pta-volunteer-sign-up-sheets'), array($this, 'detailed_reminder_admin_emails_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
@@ -301,7 +303,9 @@ class PTA_SUS_Options {
 		    'show_all_slots_for_all_data'          => 'bool',
 		    'skip_signups_check'                   => 'bool',
 		    'show_task_description_on_signup_form' => 'bool',
-            'hide_single_date_header'              => 'bool'
+            'hide_single_date_header'              => 'bool',
+		    'disable_signup_after_start_time'      => 'bool',
+		    'hide_task_after_start_time'           => 'bool'
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -866,6 +870,30 @@ class PTA_SUS_Options {
         <input name="pta_volunteer_sus_main_options[no_global_overlap]" type="checkbox" value="1" <?php echo $checked; ?> />
 		<?php
 		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('Checking this option will check ALL user signups, across ALL sheets, to see if the same user has already signed up for another task on the same date with overlapping times. If so, an error message will be shown and they will not be able to sign up. This is a global setting. If you only want to check for overlapping times on a single sheet, use the setting on that sheet. Checking this will ignore that per sheet setting and always check all signups for the user.', 'pta-volunteer-sign-up-sheets').'</em>';
+	}
+
+	public function disable_signup_after_start_time_checkbox() {
+		if(isset($this->main_options['disable_signup_after_start_time']) && true === $this->main_options['disable_signup_after_start_time']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[disable_signup_after_start_time]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('If checked, volunteers will not be able to sign up for tasks after the task start time has passed. Tasks without a start time are not affected.', 'pta-volunteer-sign-up-sheets').'</em>';
+	}
+
+	public function hide_task_after_start_time_checkbox() {
+		if(isset($this->main_options['hide_task_after_start_time']) && true === $this->main_options['hide_task_after_start_time']) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_main_options[hide_task_after_start_time]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('If checked, tasks will be completely hidden from the sign-up sheet once the task start time has passed. Only applies when the above option is also enabled. Tasks without a start time are not affected.', 'pta-volunteer-sign-up-sheets').'</em>';
 	}
 
     public function show_task_description_on_signup_form_checkbox() {

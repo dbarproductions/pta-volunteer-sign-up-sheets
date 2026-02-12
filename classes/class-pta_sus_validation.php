@@ -250,6 +250,12 @@ class PTA_SUS_Validation {
 			PTA_SUS_Messages::add_error(apply_filters('pta_sus_public_output', __('Hidden signup date field is invalid!  Please try again.', 'pta-volunteer-sign-up-sheets'), 'signup_date_error_message'));
 		}
 
+		// Check if task start time has already passed
+		if ($error_count === 0 && !empty($posted['signup_date']) && !pta_sus_allow_signup($task, $posted['signup_date'])) {
+			$error_count++;
+			PTA_SUS_Messages::add_error(apply_filters('pta_sus_public_output', __('Sign-up for this task is no longer available because the task start time has already passed.', 'pta-volunteer-sign-up-sheets'), 'signup_past_start_time_message'));
+		}
+
 		// Check availability (only if date is valid)
 		$available = 0;
 		$editing_signup_id = isset($options['editing_signup_id']) ? absint($options['editing_signup_id']) : 0;

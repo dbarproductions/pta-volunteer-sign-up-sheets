@@ -22,7 +22,7 @@ class PTA_SUS_Options_Manager {
 	 *
 	 * @var string
 	 */
-	private static $options_version = '6.0.3';
+	private static $options_version = '6.0.4';
 
 	/**
 	 * Get options version
@@ -147,8 +147,10 @@ class PTA_SUS_Options_Manager {
 			'skip_signups_check'                   => false,
 			'show_task_description_on_signup_form' => false,
 			'hide_single_date_header'              => false,
+			'disable_signup_after_start_time'      => false,
+			'hide_task_after_start_time'           => false,
 		);
-		
+
 		return apply_filters( 'pta_sus_main_options_defaults', $defaults );
 	}
 

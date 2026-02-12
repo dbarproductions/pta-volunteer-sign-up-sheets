@@ -597,7 +597,7 @@ class PTA_SUS_Public_Display_Functions {
 		$description = $default_data['column-description'];
 		$task_title = $default_data['column-task'];
 
-		$allow_signups = apply_filters( 'pta_sus_allow_signups', true, $task, $sheet_id, $date );
+		$allow_signups = apply_filters( 'pta_sus_allow_signups', pta_sus_allow_signup($task, $date), $task, $sheet_id, $date );
 		$task_qty      = $no_signups ? 1 : absint( $task->qty );
 		if(empty($signups)) {
 			$signups = apply_filters( 'pta_sus_task_get_signups', PTA_SUS_Signup_Functions::get_signups_for_task( $task->id, $date ), $task->id, $date );
@@ -774,6 +774,13 @@ class PTA_SUS_Public_Display_Functions {
 		// Give other plugins a chance to restrict signup access
 		if (!apply_filters('pta_sus_can_signup', true, $task, $date)) {
 			return '<p class="pta-sus error">' . apply_filters('pta_sus_public_output', __("You don't have permission to view this page.", 'pta-volunteer-sign-up-sheets'), 'no_permission_to_view_error_message') . '</p>';
+		}
+
+		// Check if task start time has already passed
+		if (!pta_sus_allow_signup($task, $date)) {
+			$message = '<p class="pta-sus error">' . apply_filters('pta_sus_public_output', __('Sign-up for this task is no longer available because the task start time has already passed.', 'pta-volunteer-sign-up-sheets'), 'signup_past_start_time_message') . '</p>';
+			$message .= '<p><a class="pta-sus-link go-back" href="' . esc_url($go_back_url) . '">' . esc_html(apply_filters('pta_sus_public_output', __('&laquo; go back to the Sign-Up Sheet', 'pta-volunteer-sign-up-sheets'), 'go_back_to_signup_sheet_text')) . '</a></p>';
+			return $message;
 		}
 
 		if ("0000-00-00" === $date) {
@@ -1137,6 +1144,11 @@ class PTA_SUS_Public_Display_Functions {
 			$task_dates = $task->get_dates_array();
 			// Don't show tasks that don't include our date, if one was passed in
 			if ($date && !in_array($date, $task_dates)) continue;
+
+			// Hide tasks whose start time has passed (when both options are enabled)
+			if (!empty($main_options['disable_signup_after_start_time']) && !empty($main_options['hide_task_after_start_time']) && !pta_sus_allow_signup($task, $date)) {
+				continue;
+			}
 
 			$columns = array();
 

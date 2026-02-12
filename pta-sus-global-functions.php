@@ -929,6 +929,30 @@ function pta_sus_show_clear($sheet, $date, $time='') {
 }
 
 /**
+ * Check if signup is allowed based on task start time
+ * When the setting is enabled, prevents signups after the task's date + start_time has passed.
+ * Fails open: returns true if the setting is off, the task has no start time, or the date/time can't be parsed.
+ *
+ * @param object $task Task object with time_start property
+ * @param string $date Task date in yyyy-mm-dd format
+ * @return bool True if signup is allowed, false if task start time has passed
+ */
+function pta_sus_allow_signup($task, $date) {
+	$main_options = get_option('pta_volunteer_sus_main_options');
+	if (empty($main_options['disable_signup_after_start_time'])) {
+		return true;
+	}
+	if ("0000-00-00" === $date || empty($task->time_start)) {
+		return true;
+	}
+	$task_start = strtotime($date . ' ' . $task->time_start);
+	if (false === $task_start) {
+		return true;
+	}
+	return $task_start > current_time('timestamp');
+}
+
+/**
  * Search WordPress users by name or email
  * Used for live search functionality in admin signup forms
  * Searches user_email directly and first_name/last_name via meta_query

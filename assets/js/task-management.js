@@ -567,6 +567,9 @@
 						var taskData = response.data.task;
 						// Clear task_id to make it a new task
 						taskData.task_id = 0;
+						// Clear dates and signup flag so the copy starts fresh
+						taskData.task_dates = '';
+						taskData.task_has_signups = false;
 						// Keep original title (no "(Copy)" suffix - tasks can have same name across sheets)
 						self.modal.dialog('open');
 						// Reset form first to clear any previous values
