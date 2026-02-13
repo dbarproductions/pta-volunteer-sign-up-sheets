@@ -41,7 +41,14 @@ class PTA_SUS_Activation {
 	 */
 	public static function activate( $networkwide = false ) {
 		global $wpdb;
-		
+
+		// Ensure global functions are available during activation
+		// (normally loaded on plugins_loaded, which hasn't fired yet)
+		$global_functions = dirname( __DIR__ ) . '/pta-sus-global-functions.php';
+		if ( ! function_exists( 'pta_sanitize_value' ) && file_exists( $global_functions ) ) {
+			require_once $global_functions;
+		}
+
 		if ( function_exists( 'is_multisite' ) && is_multisite() ) {
 			// Check if it is a network activation - if so, run the activation function for each blog id
 			if ( $networkwide ) {

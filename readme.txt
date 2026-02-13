@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.1.0
+Stable tag: 6.1.1
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,10 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+
+= 6.1.1 =
+* Fixed global functions file not being loaded during plugin activation, causing fallback sanitization to be used when creating/migrating email templates
+* Sign Up Sheets block now shows a groups multi-select field when the Groups extension is active, replacing the old plain text input
 
 = 6.1.0 =
 * NEW: Centralized License Manager - A new "Licenses" submenu page under Sign-up Sheets that lets you manage license keys for the main plugin and all extensions in one place. Includes an "Activate All" feature for All Access or bundle license keys.

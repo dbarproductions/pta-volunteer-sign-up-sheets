@@ -1,11 +1,51 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
+import { PanelBody, SelectControl, TextControl, FormTokenField } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 import { createBlock } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createElement } from '@wordpress/element';
+
+// Helper for groups FormTokenField (used if Groups extension is active)
+const GroupsTokenField = ({ group, onChange }) => {
+    const groupsData = window.ptaSusGroupsData || {};
+    const allGroups = groupsData.groups || [];
+
+    const slugToName = {};
+    const nameToSlug = {};
+    allGroups.forEach(g => {
+        slugToName[g.slug] = g.name;
+        nameToSlug[g.name] = g.slug;
+    });
+    const suggestions = allGroups.map(g => g.name);
+
+    const selectedSlugs = group ? group.split(',').map(s => s.trim()).filter(Boolean) : [];
+    const selectedNames = selectedSlugs.map(slug => slugToName[slug] || slug);
+
+    const sanitizeTitle = (str) => str.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+    const onTokenChange = (tokens) => {
+        const slugs = tokens.map(name => nameToSlug[name] || sanitizeTitle(name)).filter(Boolean);
+        onChange(slugs.join(','));
+    };
+
+    return (
+        <FormTokenField
+            label={__('Groups (leave empty to show all)', 'pta-volunteer-sign-up-sheets')}
+            value={selectedNames}
+            suggestions={suggestions}
+            onChange={onTokenChange}
+            __experimentalExpandOnFocus={true}
+            __experimentalAutoSelectFirstMatch={true}
+        />
+    );
+};
+
+const hasGroupsExtension = () => {
+    const data = window.ptaSusGroupsData;
+    return data && Array.isArray(data.groups) && data.groups.length > 0;
+};
 
 const Edit = ({ attributes, setAttributes }) => {
     const blockProps = useBlockProps();
@@ -36,11 +76,12 @@ const Edit = ({ attributes, setAttributes }) => {
                         value={attributes.date}
                         onChange={(value) => setAttributes({date: value})}
                     />
-                    <TextControl
-                        label={__('Group', 'pta-volunteer-sign-up-sheets')}
-                        value={attributes.group}
-                        onChange={(value) => setAttributes({group: value})}
-                    />
+                    {hasGroupsExtension() && (
+                        <GroupsTokenField
+                            group={attributes.group}
+                            onChange={(value) => setAttributes({group: value})}
+                        />
+                    )}
                     <TextControl
                         label={__('List Title', 'pta-volunteer-sign-up-sheets')}
                         value={attributes.list_title}
