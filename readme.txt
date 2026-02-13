@@ -69,6 +69,7 @@ https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-
 = 6.1.1 =
 * Fixed global functions file not being loaded during plugin activation, causing fallback sanitization to be used when creating/migrating email templates
 * Sign Up Sheets block now shows a groups multi-select field when the Groups extension is active, replacing the old plain text input
+* Tested with PHP 8.5.3 and WordPress 6.9.1
 
 = 6.1.0 =
 * NEW: Centralized License Manager - A new "Licenses" submenu page under Sign-up Sheets that lets you manage license keys for the main plugin and all extensions in one place. Includes an "Activate All" feature for All Access or bundle license keys.
