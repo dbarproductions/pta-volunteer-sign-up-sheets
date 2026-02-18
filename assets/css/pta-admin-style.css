@@ -68,6 +68,7 @@
 span.pta-center {
     display: block;
 }
+/* Deprecated: kept for backward compat with extensions still using hidden sort spans. Core now uses data-order attribute. */
 span.pta-sortdate {
     display: none;
 }

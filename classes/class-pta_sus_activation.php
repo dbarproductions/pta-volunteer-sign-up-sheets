@@ -18,7 +18,7 @@ class PTA_SUS_Activation {
 	 * 
 	 * @var string
 	 */
-	private static $db_version = '6.2.0';
+	private static $db_version = '6.3.0';
 
 	/**
 	 * Get database version
@@ -183,6 +183,7 @@ class PTA_SUS_Activation {
 			body TEXT NOT NULL,
 			from_name VARCHAR(255) NOT NULL DEFAULT '',
 			from_email VARCHAR(100) NOT NULL DEFAULT '',
+			reply_to VARCHAR(100) NOT NULL DEFAULT '',
 			author_id INT(11) NOT NULL DEFAULT 0,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
@@ -340,7 +341,11 @@ class PTA_SUS_Activation {
 		if ( version_compare( $current_version, '6.2.0', '<' ) ) {
 			self::upgrade_to_6_2_0();
 		}
-		
+
+		if ( version_compare( $current_version, '6.3.0', '<' ) ) {
+			self::upgrade_to_6_3_0();
+		}
+
 		// Check for missing user_validation template migration (runs regardless of version if templates were migrated)
 		// This handles cases where sites upgraded to 6.2.0 before user_validation migration was added
 		if ( get_option( 'pta_sus_email_templates_migrated', false ) ) {
@@ -520,9 +525,45 @@ class PTA_SUS_Activation {
 		
 		// Migrate existing email templates from options to database
 		self::migrate_email_templates();
-		
+
 		// Update database version
 		update_option( "pta_sus_db_version", '6.2.0' );
+	}
+
+	/**
+	 * Upgrade database to version 6.3.0
+	 *
+	 * Adds reply_to column to email templates table for per-template Reply-To
+	 * email address support. Supports {chair_email} tag for dynamic resolution.
+	 *
+	 * @since 6.3.0
+	 * @return void
+	 */
+	private static function upgrade_to_6_3_0() {
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'pta_sus_email_templates';
+
+		// Check if table exists
+		$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '" . esc_sql( $table_name ) . "'" );
+		if ( $table_exists !== $table_name ) {
+			// Table doesn't exist yet — activate_site() will create it with the column
+			update_option( 'pta_sus_db_version', '6.3.0' );
+			return;
+		}
+
+		// Check if reply_to column already exists
+		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$table_name}", ARRAY_A );
+		$column_names = array();
+		foreach ( $columns as $column ) {
+			$column_names[] = $column['Field'];
+		}
+
+		if ( ! in_array( 'reply_to', $column_names, true ) ) {
+			$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN reply_to VARCHAR(100) NOT NULL DEFAULT '' AFTER from_email" );
+		}
+
+		update_option( 'pta_sus_db_version', '6.3.0' );
 	}
 
 	/**

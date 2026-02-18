@@ -184,24 +184,24 @@ class PTA_SUS_Task_Functions {
      */
     public static function get_unique_task_titles($unique = true) {
         global $wpdb;
-        
+
         if ($unique) {
             // Get unique task titles with their first task ID
-            $sql = "SELECT MIN(id) as id, title 
-                    FROM " . self::$task_table . " 
+            $sql = "SELECT MIN(id) as id, title
+                    FROM " . self::$task_table . "
                     WHERE title != '' AND title IS NOT NULL
-                    GROUP BY title 
+                    GROUP BY title
                     ORDER BY title ASC";
             $results = $wpdb->get_results($sql, OBJECT);
         } else {
             // Get all task titles
-            $sql = "SELECT id, title 
-                    FROM " . self::$task_table . " 
+            $sql = "SELECT id, title
+                    FROM " . self::$task_table . "
                     WHERE title != '' AND title IS NOT NULL
                     ORDER BY title ASC";
             $results = $wpdb->get_results($sql, OBJECT);
         }
-        
+
         $tasks = array();
         foreach ($results as $row) {
             $tasks[] = (object) array(
@@ -209,8 +209,159 @@ class PTA_SUS_Task_Functions {
                 'title' => $row->title
             );
         }
-        
+
         return $tasks;
+    }
+
+    /**
+     * Get all task-date combinations across all visible, active sheets.
+     *
+     * Returns a flat array of objects, each representing one task on one specific date.
+     * For recurring and multi-day sheets, each date in a task's comma-separated dates
+     * field produces a separate entry. This is intended for building aggregate views
+     * of all upcoming tasks sorted by date.
+     *
+     * Results are NOT sorted — the caller handles sorting because sort order depends
+     * on display settings (ongoing position, no-time position) that the data layer
+     * should not be aware of.
+     *
+     * @param array $args {
+     *     Optional. Array of arguments for filtering.
+     *
+     *     @type string|array $sus_group       Filter sheets by group slug(s). Default ''.
+     *     @type bool         $show_past       Include past dates. Default false.
+     *     @type int          $days_ahead      Only include dates within N days from today.
+     *                                         0 = no limit. Default 0.
+     *     @type bool         $include_ongoing Include ongoing sheet tasks (date 0000-00-00).
+     *                                         Default true.
+     *     @type int          $author_id       Filter sheets by author user ID. Default 0.
+     *     @type string       $author_email    Filter sheets by author email. Default ''.
+     * }
+     * @return array Array of stdClass objects, each with properties:
+     *     sheet_id, sheet_title, sheet_type, sheet_position, sheet_no_signups,
+     *     sheet_chair_name, sheet_chair_email,
+     *     task_id, task_title, task_description, time_start, time_end,
+     *     task_qty, task_need_details, task_enable_quantities,
+     *     task_allow_duplicates, task_position,
+     *     date (Y-m-d string, '0000-00-00' for ongoing), is_ongoing (bool),
+     *     signup_count (int), available_spots (int)
+     *
+     * @since 6.2.0
+     */
+    public static function get_all_task_dates( $args = array() ) {
+        $defaults = array(
+            'sus_group'       => '',
+            'show_past'       => false,
+            'days_ahead'      => 0,
+            'include_ongoing' => true,
+            'author_id'       => 0,
+            'author_email'    => '',
+        );
+        $args = wp_parse_args( $args, $defaults );
+
+        // Build sheet query args
+        $sheet_args = array(
+            'trash'        => false,
+            'active_only'  => true,
+            'show_hidden'  => false,
+            'sus_group'    => $args['sus_group'],
+        );
+        if ( ! empty( $args['author_id'] ) ) {
+            $sheet_args['author_id'] = absint( $args['author_id'] );
+        }
+        if ( ! empty( $args['author_email'] ) ) {
+            $sheet_args['author_email'] = $args['author_email'];
+        }
+
+        $sheets = PTA_SUS_Sheet_Functions::get_sheets_by_args( $sheet_args );
+        if ( empty( $sheets ) ) {
+            return array();
+        }
+
+        $today = current_time( 'Y-m-d' );
+        $max_date = '';
+        if ( $args['days_ahead'] > 0 ) {
+            $max_date = gmdate( 'Y-m-d', strtotime( '+' . absint( $args['days_ahead'] ) . ' days', current_time( 'timestamp' ) ) );
+        }
+
+        $results = array();
+
+        foreach ( $sheets as $sheet ) {
+            // Skip ongoing sheets if not included
+            if ( 'Ongoing' === $sheet->type && ! $args['include_ongoing'] ) {
+                continue;
+            }
+
+            $tasks = self::get_tasks( $sheet->id );
+            if ( empty( $tasks ) ) {
+                continue;
+            }
+
+            foreach ( $tasks as $task ) {
+                $dates = $task->get_dates_array();
+                if ( empty( $dates ) ) {
+                    // Ongoing tasks have no dates in the field
+                    $dates = array( '0000-00-00' );
+                }
+
+                foreach ( $dates as $date ) {
+                    $is_ongoing = ( '0000-00-00' === $date );
+
+                    // Filter past dates (unless show_past or ongoing)
+                    if ( ! $is_ongoing && ! $args['show_past'] && $date < $today ) {
+                        continue;
+                    }
+
+                    // Filter by days_ahead (skip ongoing from this check)
+                    if ( ! $is_ongoing && $max_date && $date > $max_date ) {
+                        continue;
+                    }
+
+                    // Use the task model's built-in method for accurate spot calculation
+                    $available = $task->get_available_spots( $date );
+                    $signup_count = (int) $task->qty - $available;
+
+                    $row                        = new stdClass();
+                    $row->sheet_id              = $sheet->id;
+                    $row->sheet_title           = $sheet->title;
+                    $row->sheet_type            = $sheet->type;
+                    $row->sheet_position        = $sheet->position;
+                    $row->sheet_no_signups      = $sheet->no_signups;
+                    $row->sheet_chair_name      = $sheet->chair_name;
+                    $row->sheet_chair_email     = $sheet->chair_email;
+                    $row->task_id               = $task->id;
+                    $row->task_title            = $task->title;
+                    $row->task_description      = $task->description;
+                    $row->time_start            = $task->time_start;
+                    $row->time_end              = $task->time_end;
+                    $row->task_qty              = $task->qty;
+                    $row->task_need_details     = $task->need_details;
+                    $row->task_enable_quantities = $task->enable_quantities;
+                    $row->task_allow_duplicates = $task->allow_duplicates;
+                    $row->task_position         = $task->position;
+                    $row->date                  = $date;
+                    $row->is_ongoing            = $is_ongoing;
+                    $row->signup_count          = $signup_count;
+                    $row->available_spots       = $available;
+
+                    $results[] = $row;
+                }
+            }
+        }
+
+        /**
+         * Filter the all-task-dates results before they are returned.
+         *
+         * Extensions can modify, add, or remove task-date rows. For example,
+         * an extension could add extra properties (like waitlist_id) to each row,
+         * or filter out rows based on custom criteria.
+         *
+         * @since 6.2.0
+         *
+         * @param stdClass[] $results Array of task-date objects.
+         * @param array      $args    The original query arguments.
+         */
+        return apply_filters( 'pta_sus_all_task_dates', $results, $args );
     }
 
 }

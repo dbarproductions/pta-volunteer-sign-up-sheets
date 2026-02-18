@@ -26,6 +26,7 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 			'body' => 'textarea', // Single body field - format determined by global use_html setting
 			'from_name' => 'text',
 			'from_email' => 'email',
+			'reply_to' => 'email',
 			'author_id' => 'int',
 			'created_at' => 'datetime',
 			'updated_at' => 'datetime',
@@ -45,6 +46,7 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 			'body' => '',
 			'from_name' => '',
 			'from_email' => '',
+			'reply_to' => '',
 			'author_id' => 0,
 			'created_at' => current_time( 'mysql' ),
 			'updated_at' => current_time( 'mysql' ),
@@ -115,6 +117,10 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 	 */
 	public function get_from_name( $default = '' ) {
 		if ( ! empty( $this->from_name ) ) {
+			// Allow {chair_name} tag to pass through for dynamic resolution in send_mail()
+			if ( '{chair_name}' === trim( $this->from_name ) ) {
+				return '{chair_name}';
+			}
 			return wp_specialchars_decode( esc_html( $this->from_name ), ENT_QUOTES );
 		}
 		return $default;
@@ -128,12 +134,39 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 	 * @return string
 	 */
 	public function get_from_email( $default = '' ) {
-		if ( ! empty( $this->from_email ) && is_email( $this->from_email ) ) {
-			return sanitize_email( $this->from_email );
+		if ( ! empty( $this->from_email ) ) {
+			// Allow {chair_email} tag to pass through for dynamic resolution in send_mail()
+			if ( '{chair_email}' === trim( $this->from_email ) ) {
+				return '{chair_email}';
+			}
+			if ( is_email( $this->from_email ) ) {
+				return sanitize_email( $this->from_email );
+			}
 		}
 		return $default;
 	}
 	
+	/**
+	 * Get the Reply-To email for outgoing emails
+	 * Returns template's reply_to if set, otherwise returns default
+	 *
+	 * @since 6.3.0
+	 * @param string $default Default reply-to email to use if template doesn't have one
+	 * @return string
+	 */
+	public function get_reply_to( $default = '' ) {
+		if ( ! empty( $this->reply_to ) ) {
+			// Allow {chair_email} tag to pass through for dynamic resolution in send_mail()
+			if ( '{chair_email}' === trim( $this->reply_to ) ) {
+				return '{chair_email}';
+			}
+			if ( is_email( $this->reply_to ) ) {
+				return sanitize_email( $this->reply_to );
+			}
+		}
+		return $default;
+	}
+
 	/**
 	 * Get content type for email headers
 	 * Returns appropriate MIME type based on global use_html setting

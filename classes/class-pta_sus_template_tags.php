@@ -13,6 +13,13 @@ class PTA_SUS_Template_Tags {
 	 */
 	private static $validation_options = null;
 
+	/**
+	 * Register a callback to provide additional template tags.
+	 * Callback receives: ($signup, $task = null, $sheet = null, $context = array())
+	 * and should return an array of tag => value pairs.
+	 *
+	 * @param callable $callback Callback function.
+	 */
 	public static function register_tag_provider($callback) {
 		self::$registered_tag_callbacks[] = $callback;
 	}
@@ -79,7 +86,9 @@ class PTA_SUS_Template_Tags {
 		$lastname = sanitize_text_field($signup->lastname);
 		$email = sanitize_email($signup->email);
 		$datetime_format = get_option('date_format') . ' ' . get_option('time_format');
-		$signup_time = pta_datetime($datetime_format, $signup->ts);
+		$signup_time = ( isset( $signup->ts ) && $signup->ts !== null && $signup->ts !== '' )
+			? pta_datetime( $datetime_format, $signup->ts )
+			: __( 'N/A', 'pta-volunteer-sign-up-sheets' );
 
 		return array(
 			'{firstname}' => $firstname,
@@ -143,7 +152,6 @@ class PTA_SUS_Template_Tags {
 			return array();
 		}
 
-		global $pta_sus;
 		$main_options = get_option('pta_volunteer_sus_main_options', array());
 		$sheet_first_date = ($sheet->first_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->first_date, $translate = true);
 		$sheet_last_date = ($sheet->last_date === '0000-00-00') ? __('N/A', 'pta-volunteer-sign-up-sheets') : mysql2date(get_option('date_format'), $sheet->last_date, $translate = true);
@@ -189,7 +197,9 @@ class PTA_SUS_Template_Tags {
 			'{sheet_open_spots}' => $sheet_open_spots,
 			'{sheet_url}' => $sheet_url,
 			'{contact_emails}' => $contact_emails,
-			'{contact_names}' => $chair_names
+			'{contact_names}' => $chair_names,
+			'{chair_name}' => ! empty( $sheet->chair_name ) ? $sheet->chair_name : '',
+			'{chair_email}' => ! empty( $sheet->chair_email ) ? $sheet->chair_email : '',
 		);
 	}
 
@@ -203,6 +213,9 @@ class PTA_SUS_Template_Tags {
 		if(is_numeric($signup)) {
 			$signup = pta_sus_get_signup($signup);
 		}
+
+		$task = null;
+		$sheet = null;
 
 		// Get signup tags if valid signup
 		if(!empty($signup)) {
@@ -229,6 +242,7 @@ class PTA_SUS_Template_Tags {
 		// Add site info tags
 		self::$tags['{site_name}'] = get_bloginfo('name');
 		self::$tags['{site_url}'] = get_bloginfo('url');
+		self::$tags['{admin_email}'] = get_bloginfo('admin_email');
 
 		// Merge in any registered extra tags
 		foreach(self::$extra_tags as $tag => $value) {
@@ -237,9 +251,10 @@ class PTA_SUS_Template_Tags {
 			}
 		}
 
-		// Process registered callbacks only once per signup
+		// Process registered callbacks; pass signup, task, sheet, and context for extensions
+		$context = array();
 		foreach (self::$registered_tag_callbacks as $callback) {
-			$additional_tags = call_user_func($callback, $signup);
+			$additional_tags = call_user_func($callback, $signup, $task, $sheet, $context);
 			if (is_array($additional_tags)) {
 				self::$tags = array_merge(self::$tags, $additional_tags);
 			}

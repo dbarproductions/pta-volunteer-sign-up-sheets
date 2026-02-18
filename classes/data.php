@@ -15,7 +15,30 @@ class PTA_SUS_Data
      * @var array
      */
     public $tables = array();
-    
+
+    /**
+     * Static cache of table structures for use without global $pta_sus.
+     * Populated when constructor runs.
+     *
+     * @var array|null
+     */
+    private static $tables_cache = null;
+
+    /**
+     * Get table structure for an object type (sheet, task, signup).
+     * Used by PTA_SUS_Base_Object for backward compatibility with old filter format.
+     *
+     * @since 6.2.0
+     * @param string $object_type One of 'sheet', 'task', 'signup'.
+     * @return array Table structure with 'allowed_fields' etc., or empty array.
+     */
+    public static function get_table_structure( $object_type ) {
+        if ( null === self::$tables_cache ) {
+            return array();
+        }
+        return isset( self::$tables_cache[ $object_type ] ) ? self::$tables_cache[ $object_type ] : array();
+    }
+
     /**
      * Constructor
      * 
@@ -99,6 +122,7 @@ class PTA_SUS_Data
             )),
         );
 
+        self::$tables_cache = $this->tables;
     }
 
     /**

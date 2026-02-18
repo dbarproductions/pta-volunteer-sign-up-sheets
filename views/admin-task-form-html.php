@@ -59,7 +59,7 @@ if ($count < 3) $count = 3;
 	<?php
 	// Get available templates for dropdowns
 	$available_templates = PTA_SUS_Email_Functions::get_available_templates(true);
-	$email_types = PTA_SUS_Email_Functions::get_email_types();
+	$email_types = PTA_SUS_Email_Functions::get_task_email_types();
 	
 	// Get sheet to check its template assignments (for "Use Sheet Template" option)
 	$sheet = pta_sus_get_sheet($f['sheet_id']);
@@ -85,10 +85,7 @@ if ($count < 3) $count = 3;
 	<br/><a href="#" class="task_email_templates_trigger" id="email_templates_trigger_<?php echo $i; ?>"><?php _e('Email Template Options', 'pta-volunteer-sign-up-sheets'); ?></a>
 	<div class="pta_sus_task_email_templates" id="task_email_templates_<?php echo $i; ?>" style="display:none;">
 		<p><em><?php _e('Select email templates for this task. Leave as "Use Sheet Template" to use the template assigned to the sheet, or "Use System Default" if no sheet template is set.', 'pta-volunteer-sign-up-sheets'); ?></em></p>
-		<?php foreach ($email_types as $email_type => $email_type_label) : 
-			// Skip validation email types as they're system-wide only, not task/sheet level
-			if ('user_validation' === $email_type || 'signup_validation' === $email_type) continue;
-			
+		<?php foreach ($email_types as $email_type => $email_type_label) :
 			$property_name = $email_type . '_email_template_id';
 			$current_template_id = isset($task_template_ids[$email_type]) ? $task_template_ids[$email_type] : 0;
 			$sheet_template_id = isset($sheet_template_ids[$email_type]) ? $sheet_template_ids[$email_type] : 0;

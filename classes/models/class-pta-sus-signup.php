@@ -95,44 +95,26 @@ class PTA_SUS_Signup extends PTA_SUS_Base_Object {
 		if ( empty( $this->task_id ) ) {
 			return false;
 		}
-		
-		// Once Task class is fully integrated, use:
-		// return PTA_SUS_Task::get_by_id( $this->task_id );
-		
-		// For now, use the old method if available
-		global $pta_sus;
-		if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_task' ) ) {
-			return $pta_sus->data->get_task( $this->task_id );
-		}
-		
-		return false;
+		return pta_sus_get_task( $this->task_id );
 	}
 	
 	/**
 	 * Get the sheet for this signup (through the task)
 	 * Convenience method to get related sheet
 	 *
-	 * @return object|false Sheet object or false if not found
+	 * @return PTA_SUS_Sheet|false Sheet object or false if not found
 	 */
 	public function get_sheet() {
 		$task = $this->get_task();
 		if ( ! $task ) {
 			return false;
 		}
-		
-		// If task is a Task object, use its method
 		if ( is_object( $task ) && method_exists( $task, 'get_sheet' ) ) {
 			return $task->get_sheet();
 		}
-		
-		// Otherwise, use old method
 		if ( isset( $task->sheet_id ) ) {
-			global $pta_sus;
-			if ( isset( $pta_sus->data ) && method_exists( $pta_sus->data, 'get_sheet' ) ) {
-				return $pta_sus->data->get_sheet( $task->sheet_id );
-			}
+			return pta_sus_get_sheet( $task->sheet_id );
 		}
-		
 		return false;
 	}
 	

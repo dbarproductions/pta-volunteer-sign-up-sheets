@@ -469,14 +469,30 @@
         sheetInfoText = sheetInfo.replace(regex, "\n").replace('&nbsp;', " ").replace('&nbsp;', " ");
     }
 
+    // Shared export body formatter - strips HTML for clean export data
+    function ptaExportBodyFormatter( data, column, row ) {
+        var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace(/&nbsp;/g, " ");
+        var content = $('<div>' + a + '</div>');
+        content.find('a').replaceWith(function() { return this.childNodes; });
+        return content.text();
+    }
+
     let ptaTableParams = {
+        layout: {
+            topStart: ['buttons', 'pageLength'],
+            topEnd: 'search',
+            bottomStart: 'info',
+            bottomEnd: 'paging'
+        },
         order: [],
-        dom: '<B>lfrtip',
         colReorder: true,
         responsive: false,
         stateSave: false,
         pageLength: 100,
         lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, 'All']],
+        columnDefs: [
+            { orderSequence: ['asc', 'desc'], targets: '_all' }
+        ],
         buttons: [
             {
                 extend: 'excel',
@@ -485,18 +501,7 @@
                 message: sheetInfoText,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -506,18 +511,7 @@
                 message: sheetInfoText,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -528,18 +522,7 @@
                 orientation: 'landscape',
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -549,18 +532,7 @@
                 message: sheetInfo,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 },
                 customize: function (win) {
                     $(win.document.body).find('table').addClass('display').css('font-size', '11px');
@@ -579,13 +551,21 @@
     };
 
     let allTableParams = {
+        layout: {
+            topStart: ['buttons', 'pageLength'],
+            topEnd: 'search',
+            bottomStart: 'info',
+            bottomEnd: 'paging'
+        },
         order: [],
-        dom: '<B>lfrtip',
         colReorder: true,
         responsive: false,
         stateSave: false,
         pageLength: 100,
         lengthMenu: [[ 10, 25, 50, 100, 150, -1 ], [ 10, 25, 50, 100, 150, 'All']],
+        columnDefs: [
+            { orderSequence: ['asc', 'desc'], targets: '_all' }
+        ],
         buttons: [
             {
                 extend: 'excel',
@@ -594,18 +574,7 @@
                 message: sheetInfoText,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -615,18 +584,7 @@
                 message: sheetInfoText,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -637,18 +595,7 @@
                 orientation: 'landscape',
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 }
             },
             {
@@ -658,18 +605,7 @@
                 message: sheetInfo,
                 exportOptions: {
                     columns: ':visible',
-                    format: {
-                        body: function ( data, column, row ) {
-                            // remove hidden timestamp for date sorting
-                            if(data.match(/<span class="pta-sortdate">/)) {
-                                data = data.substring(45);
-                            }
-                            var a = data.replace( /<br\s*\/?>/ig, "\n" ).replace('&nbsp;', " ").replace('&nbsp;', " ");
-                            var content = $('<div>' + a + '</div>');
-                            content.find('a').replaceWith(function() { return this.childNodes; });
-                            return content.text();
-                        }
-                    }
+                    format: { body: ptaExportBodyFormatter }
                 },
                 customize: function (win) {
                     $(win.document.body).find('table').addClass('display').css('font-size', '11px');
@@ -694,7 +630,7 @@
                 return group;
             }
         };
-        ptaTableParams.columnDefs = [{targets: [ 0, 1 ], visible: false}]
+        ptaTableParams.columnDefs.push({targets: [ 0, 1 ], visible: false});
         ptaTableParams.buttons.push({
             text: PTASUS.disableGrouping,
             action: function ( e, dt, node, config ) {
@@ -708,7 +644,7 @@
                 return group;
             }
         };
-        allTableParams.columnDefs = [{targets: [ 0, 1, 2 ], visible: false}]
+        allTableParams.columnDefs.push({targets: [ 0, 1, 2 ], visible: false});
         allTableParams.buttons.push({
             text: PTASUS.disableGrouping,
             action: function ( e, dt, node, config ) {
@@ -720,7 +656,7 @@
 
     function createSelectFilters(table) {
         table.draw(); // draw to update search cache values for columns
-        // remove any existing select inputs first so that we don't get multiple select when move a column
+        // remove any existing select inputs first so that we don't get multiple selects when moving a column
         $('.pta-select-filter').remove();
 
         table.columns( '.select-filter' ).every( function () {
@@ -738,8 +674,7 @@
                     that.search( searchVal ? '^'+searchVal+'$' : '', true, false ).draw();
                 } );
 
-
-            // Get the search data for the first column and add to the select list
+            // Get the search data for the column and add to the select list
             select.append( $('<option value="">'+ PTASUS.showAll +'</option>') );
             this
                 .cache('search')
@@ -747,12 +682,7 @@
                 .unique()
                 .each( function ( d ) {
                     if('' !== d) {
-                        let showVal = d;
-                        // remove hidden timestamp for date sorting
-                        if(d.match(/\|/)) {
-                            showVal = d.substring(11);
-                        }
-                        select.append( $('<option value="'+d+'">'+showVal+'</option>') );
+                        select.append( $('<option value="'+d+'">'+d+'</option>') );
                     }
                 } );
         } );

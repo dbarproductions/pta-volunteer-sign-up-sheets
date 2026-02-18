@@ -145,6 +145,43 @@ class PTA_SUS_Email_Functions {
 	}
 
 	/**
+	 * Extract the first value from a potentially comma-separated chair field.
+	 *
+	 * Sheet chair_name and chair_email fields may contain multiple comma-separated
+	 * values. Email headers (From, Reply-To) only support a single address, so
+	 * this method extracts and returns just the first value.
+	 *
+	 * @since 6.2.0
+	 *
+	 * @param string $value     The raw chair field value (may be comma-separated).
+	 * @param string $field_type 'email' to sanitize as email, 'name' to sanitize as text.
+	 * @return string The first valid value, or empty string if none found.
+	 */
+	private static function get_first_chair_value( $value, $field_type = 'email' ) {
+		if ( empty( $value ) ) {
+			return '';
+		}
+
+		// Split on comma and take the first non-empty value
+		$parts = explode( ',', $value );
+		foreach ( $parts as $part ) {
+			$part = trim( $part );
+			if ( empty( $part ) ) {
+				continue;
+			}
+			if ( 'email' === $field_type ) {
+				if ( is_email( $part ) ) {
+					return sanitize_email( $part );
+				}
+			} else {
+				return sanitize_text_field( $part );
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * Send signup & reminder emails
 	 * 
 	 * @param int|array $signup_id The signup ID or signup data array
@@ -351,10 +388,10 @@ class PTA_SUS_Email_Functions {
 		}
 
 		// Get Chair emails
-		if (isset($sheet->position) && '' != $sheet->position) {
+		if (isset($sheet->position) && '' !== $sheet->position) {
 			$chair_emails = PTA_SUS_Template_Tags::get_member_directory_emails($sheet->position);
 		} else {
-			if('' == $sheet->chair_email) {
+			if('' === $sheet->chair_email) {
 				$chair_emails = false;
 			} else {
 				$chair_emails = explode(',', $sheet->chair_email);
@@ -382,7 +419,7 @@ class PTA_SUS_Email_Functions {
 		if(!$to_chair) {
 			// check if we should CC chairs
 			if($clear && in_array($sheet->clear_emails, array('default','chair','both'))) {
-				if('default' == $sheet->clear_emails) {
+				if('default' === $sheet->clear_emails) {
 					if( !isset($email_options['no_chair_emails']) || ! $email_options['no_chair_emails'] ) {
 						$cc_emails = $chair_emails;
 					}
@@ -390,7 +427,7 @@ class PTA_SUS_Email_Functions {
 					$cc_emails = $chair_emails;
 				}
 			} elseif($confirmation && in_array($sheet->signup_emails, array('default','chair','both'))) {
-				if('default' == $sheet->signup_emails) {
+				if('default' === $sheet->signup_emails) {
 					if( !isset($email_options['no_chair_emails']) || ! $email_options['no_chair_emails'] ) {
 						$cc_emails = $chair_emails;
 					}
@@ -451,13 +488,52 @@ class PTA_SUS_Email_Functions {
 		// Remove duplicates and reassign
 		$cc_emails = array_unique($valid_cc_emails);
 
-		if( isset($email_options['replyto_chairs']) && $email_options['replyto_chairs'] && !empty($chair_emails)) {
-			$replyto = apply_filters('pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule);
-		} else {
-			$replyto = apply_filters('pta_sus_replyto_email', $email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule );
+		// Determine reply-to address.
+		// Priority: template reply_to > global settings (chair checkbox or replyto_email) > admin email
+		$replyto = '';
+		if ( $template ) {
+			$replyto = $template->get_reply_to();
 		}
-		
-		if (empty($replyto)) $replyto = get_bloginfo('admin_email');
+		if ( empty( $replyto ) ) {
+			// Fall back to global email settings
+			if ( isset( $email_options['replyto_chairs'] ) && $email_options['replyto_chairs'] && ! empty( $chair_emails ) ) {
+				$replyto = apply_filters( 'pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule );
+			} else {
+				$replyto = apply_filters( 'pta_sus_replyto_email', $email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule );
+			}
+		}
+		if ( empty( $replyto ) ) {
+			$replyto = get_bloginfo( 'admin_email' );
+		}
+
+		// Resolve {chair_email} and {chair_name} tags in from/from_name/reply-to fields.
+		// These tags allow templates to dynamically use the sheet's chair contact info.
+		// Chair fields may be comma-separated; email headers only support a single From
+		// address, so we extract the first value.
+		if ( '{chair_email}' === $from ) {
+			$from = self::get_first_chair_value( $sheet->chair_email, 'email' );
+			if ( empty( $from ) ) {
+				$from = get_bloginfo( 'admin_email' );
+			}
+		}
+		if ( '{chair_name}' === $from_name ) {
+			$from_name = self::get_first_chair_value( $sheet->chair_name, 'name' );
+			if ( empty( $from_name ) ) {
+				$from_name = get_bloginfo( 'name' );
+			}
+		}
+		if ('{chair_email}' === $replyto) {
+			$replyto = self::get_first_chair_value( $sheet->chair_email, 'email' );
+			if ( empty( $replyto ) ) {
+				$replyto = get_bloginfo( 'admin_email' );
+			}
+		}
+
+		// Replace any remaining template tags in header fields (e.g. {site_name}, {admin_email}).
+		// Chair tags are already resolved above; this catches general tags like {site_name}.
+		$from      = PTA_SUS_Template_Tags::process_text( $from, $signup );
+		$from_name = PTA_SUS_Template_Tags::process_text( $from_name, $signup );
+		$replyto   = PTA_SUS_Template_Tags::process_text( $replyto, $signup );
 
 		$headers = self::get_email_headers($from, $replyto, $use_html, $from_name);
 
@@ -517,12 +593,12 @@ class PTA_SUS_Email_Functions {
 					}
 				}
 				// Return last_reminder if needed, otherwise return sent status
-				return $last_reminder ? $last_reminder : $sent;
+				return $last_reminder ?: $sent;
 			} else {
 				// sending with CC/BCC in headers
 				$sent = wp_mail($to, $subject, $message, $headers, $attachments);
 				// Return last_reminder if needed, otherwise return sent status
-				return $last_reminder ? $last_reminder : $sent;
+				return $last_reminder ?: $sent;
 			}
 
 		} else {
@@ -642,13 +718,15 @@ Please click on, or copy and paste, the link below to validate yourself:
 		if(isset($email_options['reminder_email_limit']) && '' != $email_options['reminder_email_limit'] && 0 < $email_options['reminder_email_limit']) {
 			$limit = (int)$email_options['reminder_email_limit'];
 			if ( $last_batch = get_option( 'pta_sus_reminders_last_batch' ) ) {
-				if( ( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] ) ) {
-					return false;
-				} elseif ( $now - $last_batch['time'] >= 60 * 60 ) {
-					$last_batch['num'] = 0;
-					$last_batch['time'] = $now;
-				}
-			} else {
+                if (( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] )) {
+                    return false;
+                }
+
+                if($now - $last_batch['time'] >= 60 * 60) {
+                    $last_batch['num'] = 0;
+                    $last_batch['time'] = $now;
+                }
+            } else {
 				$last_batch = array('num' => 0, 'time' => $now);
 			}
 		}
@@ -769,18 +847,20 @@ Please click on, or copy and paste, the link below to validate yourself:
 			return false;
 		};
 		// This function is used to check if we need to send out reminder emails or not
-		if(isset($email_options['reminder_email_limit']) && '' != $email_options['reminder_email_limit'] && 0 < $email_options['reminder_email_limit']) {
+		if(isset($email_options['reminder_email_limit']) && '' !== $email_options['reminder_email_limit'] && 0 < $email_options['reminder_email_limit']) {
 			$limit = (int)$email_options['reminder_email_limit'];
 			if ( $last_batch = get_option( 'pta_sus_reschedule_emails_last_batch' ) ) {
-				if( ( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] ) ) {
-					// past our limit and less than an hour, so return
-					return false;
-				} elseif ( $now - $last_batch['time'] >= 60 * 60 ) {
-					// more than an hour has passed, reset last batch
-					$last_batch['num'] = 0;
-					$last_batch['time'] = $now;
-				}
-			} else {
+                if (( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] )) {
+                    // past our limit and less than an hour, so return
+                    return false;
+                }
+
+                if($now - $last_batch['time'] >= 60 * 60) {
+                    // more than an hour has passed, reset last batch
+                    $last_batch['num'] = 0;
+                    $last_batch['time'] = $now;
+                }
+            } else {
 				// Option doesn't exist yet, set default
 				$last_batch = array();
 				$last_batch['num'] = 0;
@@ -1120,7 +1200,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 	 * Get list of email types
 	 * Returns an array of email types with their labels
 	 * Can be filtered by extensions to add custom email types
-	 * 
+	 *
 	 * @return array Associative array of email_type => label
 	 */
 	public static function get_email_types() {
@@ -1133,15 +1213,52 @@ Please click on, or copy and paste, the link below to validate yourself:
 			'signup_validation' => __('Signup Validation Email', 'pta-volunteer-sign-up-sheets'),
 			'user_validation' => __('User Validation Email', 'pta-volunteer-sign-up-sheets'),
 		);
-		
+
 		/**
 		 * Filter email types
 		 * Allows extensions to add custom email types
-		 * 
+		 *
 		 * @param array $email_types Associative array of email_type => label
 		 * @return array Filtered email types array
 		 */
 		return apply_filters('pta_sus_email_types', $email_types);
+	}
+
+	/**
+	 * Get email types applicable to task/sheet-level template assignment
+	 *
+	 * Only returns the types that correspond to actual task and sheet DB columns
+	 * (i.e. have a matching `{type}_email_template_id` column). Extension-owned email
+	 * types (e.g. waitlist emails) should NOT be added here; they are selected on
+	 * the extension's own settings form, not on the task editor.
+	 *
+	 * Extensions that legitimately need a per-task template slot can add to the
+	 * `pta_sus_task_email_types` filter.
+	 *
+	 * @since 6.2.1
+	 * @return array Associative array of email_type => label
+	 */
+	public static function get_task_email_types() {
+		$email_types = array(
+			'confirmation' => __('Confirmation Email', 'pta-volunteer-sign-up-sheets'),
+			'reminder1'    => __('Reminder 1 Email', 'pta-volunteer-sign-up-sheets'),
+			'reminder2'    => __('Reminder 2 Email', 'pta-volunteer-sign-up-sheets'),
+			'clear'        => __('Clear Email', 'pta-volunteer-sign-up-sheets'),
+			'reschedule'   => __('Reschedule Email', 'pta-volunteer-sign-up-sheets'),
+		);
+
+		/**
+		 * Filter task-level email types shown in the task editor.
+		 *
+		 * Only add to this filter if your extension adds a genuine per-task
+		 * template column. Do NOT add extension-scoped email types (e.g. waitlist
+		 * confirmation) — those are managed on the extension's own settings form.
+		 *
+		 * @since 6.2.1
+		 * @param array $email_types Associative array of email_type => label
+		 * @return array
+		 */
+		return apply_filters('pta_sus_task_email_types', $email_types);
 	}
 }
 

@@ -255,8 +255,8 @@ function pta_sanitize_value($value, $type) {
 			$sanitized_value = wpautop(wp_kses_post(stripslashes($value)));
 			break;
 		case 'email':
-			if('{chair_email}' === $value) {
-				$sanitized_value = '{chair_email}';
+			if ( '{chair_email}' === $value || '{admin_email}' === $value ) {
+				$sanitized_value = $value;
 			} else {
 				$sanitized_value = sanitize_email($value);
 			}

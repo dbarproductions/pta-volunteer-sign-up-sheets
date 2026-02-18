@@ -341,16 +341,16 @@ class PTA_SUS_Admin {
 		// only add scripts on our settings pages
 		if (strpos($hook, 'pta-sus-settings') !== false) {
 			wp_enqueue_style( 'pta-admin-style', plugins_url( '../assets/css/pta-admin-style.min.css', __FILE__ ) );
-			wp_enqueue_style( 'pta-datatables-style' );
+			wp_enqueue_style( 'pta-datatables2-style' );
 			wp_enqueue_script( 'jquery-plugin' );
 			wp_enqueue_script( 'pta-jquery-datepick' );
 			wp_enqueue_script( 'pta-jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
-			wp_enqueue_script('pta-datatables');
+			wp_enqueue_script('pta-datatables2');
 			wp_enqueue_script('jquery-ui-sortable');
 			wp_enqueue_script( 'jquery-ui-autocomplete');
 			// Use non-minified version for debugging (switch back to .min.js for production)
 			// Ensure pta-sus-autocomplete is a dependency so livesearch.js loads before backend.js
-			$backend_deps = array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables','jquery-ui-sortable','jquery-ui-autocomplete');
+			$backend_deps = array( 'jquery','pta-jquery-datepick','pta-jquery-ui-timepicker', 'pta-datatables2','jquery-ui-sortable','jquery-ui-autocomplete');
 			if (isset($this->main_options['enable_signup_search']) && $this->main_options['enable_signup_search']) {
 				$backend_deps[] = 'pta-sus-autocomplete'; // Ensure livesearch.js loads before backend.js
 			}
@@ -454,13 +454,13 @@ class PTA_SUS_Admin {
             $rescheduled_messages .= '<hr/>';
 
         }
-		if (isset($_GET['action']) && 'reminders' == $_GET['action']) {
+		if (isset($_GET['action']) && 'reminders' === $_GET['action']) {
 			check_admin_referer( 'pta-sus-reminders', '_sus_nonce');
 			$num = PTA_SUS_Email_Functions::send_reminders();
 			$results = sprintf( _n( '1 reminder sent', '%d reminders sent', $num, 'pta-volunteer-sign-up-sheets'), $num );
 			$messages .= '<div class="updated">'.$results.'</div>';
 		}
-        if (isset($_GET['action']) && 'reschedule' == $_GET['action']) {
+        if (isset($_GET['action']) && 'reschedule' === $_GET['action']) {
             check_admin_referer( 'pta-sus-reschedule', '_sus_nonce');
             $num = PTA_SUS_Email_Functions::send_reschedule_emails();
             $results = sprintf( _n( '1 email sent', '%d emails sent', $num, 'pta-volunteer-sign-up-sheets'), $num );
@@ -490,7 +490,7 @@ class PTA_SUS_Admin {
 		if (isset($_GET['action']) && 'migrate_customizer' === $_GET['action']) {
 			check_admin_referer('pta-sus-migrate-customizer', '_sus_nonce');
 			$main_options = get_option('pta_volunteer_sus_main_options', array());
-			$from_email = isset($main_options['from_email']) ? $main_options['from_email'] : get_option('admin_email');
+			$from_email = $main_options['from_email'] ?? get_option('admin_email');
 			PTA_SUS_Activation::migrate_customizer_templates($from_email);
 			$migrate_message = '<div class="updated"><p>' . __('Customizer email templates have been migrated. Check the Email Templates page to verify.', 'pta-volunteer-sign-up-sheets') . '</p></div>';
 		}
@@ -611,7 +611,7 @@ class PTA_SUS_Admin {
 				break;
 			case 'date':
 				$date = apply_filters('pta_sus_admin_signup_display_task_date', esc_html($show_date), $task);
-				echo '<span class="pta-sortdate">'.strtotime($task_date).'|</span><strong>'.esc_html($date).'</strong>';
+				echo '<strong>' . esc_html($date) . '</strong>';
 				break;
 			case 'start':
 				$start = apply_filters( 'pta_sus_admin_signup_display_start', ("" == $task->time_start) ? '' : pta_datetime(get_option("time_format"), strtotime($task->time_start)), $task );
@@ -660,7 +660,7 @@ class PTA_SUS_Admin {
 				$datetime = '';
 				if(!empty($signup->ts)) {
 					$ts = apply_filters('pta_sus_admin_signup_display_signup_time', $signup->ts, $sheet, $signup);
-					if(null != $ts) {
+					if(null !== $ts) {
 						$format = get_option('date_format') . ' ' . get_option('time_format');
 						$datetime = pta_datetime($format, $ts);
 					}
@@ -2389,7 +2389,11 @@ class PTA_SUS_Admin {
 		$template->subject = $subject;
 		$template->body = $body;
 		$template->from_name = isset($_POST['template_from_name']) ? sanitize_text_field($_POST['template_from_name']) : '';
-		$template->from_email = isset($_POST['template_from_email']) ? sanitize_email($_POST['template_from_email']) : '';
+		// Allow {chair_email} tag through — pta_sanitize_value() handles this on save
+		$from_email_raw = isset($_POST['template_from_email']) ? trim( sanitize_text_field($_POST['template_from_email']) ) : '';
+		$template->from_email = ( '{chair_email}' === $from_email_raw ) ? '{chair_email}' : sanitize_email( $from_email_raw );
+		$reply_to_raw = isset($_POST['template_reply_to']) ? trim( sanitize_text_field($_POST['template_reply_to']) ) : '';
+		$template->reply_to = ( '{chair_email}' === $reply_to_raw ) ? '{chair_email}' : sanitize_email( $reply_to_raw );
 
 		// Handle author assignment (only for Admins/Managers)
 		if (current_user_can('manage_others_signup_sheets')) {
@@ -2423,7 +2427,7 @@ class PTA_SUS_Admin {
 			// Set this template as system default for the selected email type (if any)
 			// Validate against filterable email types list
 			$valid_email_types = array_keys(PTA_SUS_Email_Functions::get_email_types());
-			if (!empty($system_default_email_type) && in_array($system_default_email_type, $valid_email_types)) {
+			if (!empty($system_default_email_type) && in_array($system_default_email_type, $valid_email_types, true)) {
 				$defaults[$system_default_email_type] = $saved_id;
 			}
 			
@@ -2526,10 +2530,10 @@ class PTA_SUS_Admin {
 			);
 			wp_safe_redirect(admin_url('admin.php?page=' . $this->admin_settings_slug . '_email_templates&action=edit&template_id=' . $new_id));
 			exit;
-		} else {
-			PTA_SUS_Messages::add_error(__('Error duplicating email template.', 'pta-volunteer-sign-up-sheets'));
 		}
-	}
+
+        PTA_SUS_Messages::add_error(__('Error duplicating email template.', 'pta-volunteer-sign-up-sheets'));
+    }
 
 	/**
 	 * Display email templates list table
@@ -2695,14 +2699,21 @@ class PTA_SUS_Admin {
 						<th scope="row"><label for="template_from_name"><?php _e('From Name', 'pta-volunteer-sign-up-sheets'); ?></label></th>
 						<td>
 							<input type="text" id="template_from_name" name="template_from_name" value="<?php echo esc_attr($template->from_name); ?>" class="regular-text" />
-							<p class="description"><?php _e('Optional custom "From" name for emails using this template. Leave blank to use default.', 'pta-volunteer-sign-up-sheets'); ?></p>
+							<p class="description"><?php printf( __('Optional custom "From" name. Leave blank to use default. Use %s to dynamically use the sheet chair\'s name.', 'pta-volunteer-sign-up-sheets'), '<code>{chair_name}</code>' ); ?></p>
 						</td>
 					</tr>
 					<tr>
 						<th scope="row"><label for="template_from_email"><?php _e('From Email', 'pta-volunteer-sign-up-sheets'); ?></label></th>
 						<td>
-							<input type="email" id="template_from_email" name="template_from_email" value="<?php echo esc_attr($template->from_email); ?>" class="regular-text" />
-							<p class="description"><?php _e('Optional custom "From" email address for emails using this template. Leave blank to use default.', 'pta-volunteer-sign-up-sheets'); ?></p>
+							<input type="text" id="template_from_email" name="template_from_email" value="<?php echo esc_attr($template->from_email); ?>" class="regular-text" />
+							<p class="description"><?php printf( __('Optional custom "From" email address. Leave blank to use default. Use %s to dynamically use the sheet chair\'s email.', 'pta-volunteer-sign-up-sheets'), '<code>{chair_email}</code>' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="template_reply_to"><?php _e('Reply-To Email', 'pta-volunteer-sign-up-sheets'); ?></label></th>
+						<td>
+							<input type="text" id="template_reply_to" name="template_reply_to" value="<?php echo esc_attr($template->reply_to); ?>" class="regular-text" />
+							<p class="description"><?php printf( __('Optional Reply-To email address. Leave blank to use the global Reply-To settings. Use %s to dynamically use the sheet chair\'s email.', 'pta-volunteer-sign-up-sheets'), '<code>{chair_email}</code>' ); ?></p>
 						</td>
 					</tr>
 					<?php if ($can_manage_others) : ?>
@@ -3114,12 +3125,12 @@ class PTA_SUS_Admin {
 			'task_details_text' => stripslashes($task->details_text),
 			'task_allow_duplicates' => $task->allow_duplicates,
 			'task_enable_quantities' => $task->enable_quantities,
-			'task_position' => isset( $task->position ) ? $task->position : 0,
-			'task_confirmation_email_template_id' => isset( $task->confirmation_email_template_id ) ? $task->confirmation_email_template_id : 0,
-			'task_reminder1_email_template_id' => isset( $task->reminder1_email_template_id ) ? $task->reminder1_email_template_id : 0,
-			'task_reminder2_email_template_id' => isset( $task->reminder2_email_template_id ) ? $task->reminder2_email_template_id : 0,
-			'task_clear_email_template_id' => isset( $task->clear_email_template_id ) ? $task->clear_email_template_id : 0,
-			'task_reschedule_email_template_id' => isset( $task->reschedule_email_template_id ) ? $task->reschedule_email_template_id : 0,
+			'task_position' => $task->position ?? 0,
+			'task_confirmation_email_template_id' => $task->confirmation_email_template_id ?? 0,
+			'task_reminder1_email_template_id' => $task->reminder1_email_template_id ?? 0,
+			'task_reminder2_email_template_id' => $task->reminder2_email_template_id ?? 0,
+			'task_clear_email_template_id' => $task->clear_email_template_id ?? 0,
+			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
 		
@@ -3164,12 +3175,12 @@ class PTA_SUS_Admin {
 			'task_details_text' => stripslashes($task->details_text),
 			'task_allow_duplicates' => $task->allow_duplicates,
 			'task_enable_quantities' => $task->enable_quantities,
-			'task_position' => isset( $task->position ) ? $task->position : 0,
-			'task_confirmation_email_template_id' => isset( $task->confirmation_email_template_id ) ? $task->confirmation_email_template_id : 0,
-			'task_reminder1_email_template_id' => isset( $task->reminder1_email_template_id ) ? $task->reminder1_email_template_id : 0,
-			'task_reminder2_email_template_id' => isset( $task->reminder2_email_template_id ) ? $task->reminder2_email_template_id : 0,
-			'task_clear_email_template_id' => isset( $task->clear_email_template_id ) ? $task->clear_email_template_id : 0,
-			'task_reschedule_email_template_id' => isset( $task->reschedule_email_template_id ) ? $task->reschedule_email_template_id : 0,
+			'task_position' => $task->position ?? 0,
+			'task_confirmation_email_template_id' => $task->confirmation_email_template_id ?? 0,
+			'task_reminder1_email_template_id' => $task->reminder1_email_template_id ?? 0,
+			'task_reminder2_email_template_id' => $task->reminder2_email_template_id ?? 0,
+			'task_clear_email_template_id' => $task->clear_email_template_id ?? 0,
+			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
 		
@@ -3289,11 +3300,11 @@ class PTA_SUS_Admin {
 					}
 					
 					$needs_update = false;
-					if ( $sheet->first_date != $min_date ) {
+					if ( $sheet->first_date !== $min_date ) {
 						$sheet->first_date = $min_date;
 						$needs_update = true;
 					}
-					if ( $sheet->last_date != $max_date ) {
+					if ( $sheet->last_date !== $max_date ) {
 						$sheet->last_date = $max_date;
 						$needs_update = true;
 					}
@@ -3323,7 +3334,7 @@ class PTA_SUS_Admin {
 		}
 		
 		$sheet_id = isset( $_POST['sheet_id'] ) ? absint( $_POST['sheet_id'] ) : 0;
-		$task_order = isset( $_POST['task_order'] ) ? $_POST['task_order'] : array();
+		$task_order = $_POST['task_order'] ?? array();
 		
 		if ( $sheet_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid sheet ID.', 'pta-volunteer-sign-up-sheets' ) ) );
@@ -3341,7 +3352,7 @@ class PTA_SUS_Admin {
 			}
 			
 			$task = pta_sus_get_task( $task_id );
-			if ( ! $task || $task->sheet_id != $sheet_id ) {
+			if ( ! $task || $task->sheet_id !== $sheet_id ) {
 				continue;
 			}
 			
@@ -3467,7 +3478,7 @@ class PTA_SUS_Admin {
 					foreach ( $tasks as $task ) {
 						foreach ( $removed_dates as $removed_date ) {
 							if ( PTA_SUS_Task_Functions::task_has_signups( $task->id, $removed_date ) ) {
-								if ( ! in_array( $removed_date, $dates_with_signups ) ) {
+								if ( !in_array($removed_date, $dates_with_signups, true)) {
 									$dates_with_signups[] = $removed_date;
 								}
 								// Break out of inner loop once we find signups for this date
@@ -3520,11 +3531,11 @@ class PTA_SUS_Admin {
 					$max_date = max( $valid_dates );
 					$needs_update = false;
 					
-					if ( $sheet->first_date != $min_date ) {
+					if ( $sheet->first_date !== $min_date ) {
 						$sheet->first_date = $min_date;
 						$needs_update = true;
 					}
-					if ( $sheet->last_date != $max_date ) {
+					if ( $sheet->last_date !== $max_date ) {
 						$sheet->last_date = $max_date;
 						$needs_update = true;
 					}

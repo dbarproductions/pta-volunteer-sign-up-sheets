@@ -146,6 +146,11 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### Version 6.2.0
+- Added a reply-to email address field to the email templates system
+- You can now use the {chair_name} and {chair_email} tags in the From name/email field and reply-to email field to automatically use the first valid chair name/email for a sheet with the email template
+- Updated the older version 1.x datatables library to the newest version 2.x, and updated admin view scripts to use the newer methods. Both versions are still registered for backward compatibility with extensions that make use of the registered datatables library (e.g. Customizer)
+
 ### Version 6.1.1
 - Fixed global functions file not being loaded during plugin activation, causing fallback sanitization to be used when creating/migrating email templates
 - Sign Up Sheets block now shows a groups multi-select field when the Groups extension is active, replacing the old plain text input 

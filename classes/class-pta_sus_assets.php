@@ -34,6 +34,7 @@ class PTA_SUS_Assets {
 	 */
 	public static function register_scripts() {
 		self::register_datatables();
+		self::register_datatables2();
 		self::register_datepicker();
 		self::register_select2();
 		self::register_quill();
@@ -64,6 +65,37 @@ class PTA_SUS_Assets {
 			$plugin_url . '/datatables/datatables.min.js',
 			array('jquery'),
 			'1.10.23',
+			true
+		);
+	}
+
+	/**
+	 * Register DataTables 2.x assets
+	 *
+	 * Registers DataTables 2.x CSS and JavaScript. These can be enqueued by
+	 * extensions using the handles 'pta-datatables2-style' and 'pta-datatables2'.
+	 *
+	 * The old 1.x assets remain registered as 'pta-datatables' / 'pta-datatables-style'
+	 * for backward compatibility with extensions that have not yet been updated.
+	 *
+	 * @since 6.2.0
+	 * @return void
+	 */
+	public static function register_datatables2() {
+		$plugin_url = defined('PTA_VOLUNTEER_SUS_URL') ? PTA_VOLUNTEER_SUS_URL : plugins_url('', dirname(__FILE__));
+
+		wp_register_style(
+			'pta-datatables2-style',
+			$plugin_url . '/datatables2/datatables.min.css',
+			array(),
+			'2.3.7'
+		);
+
+		wp_register_script(
+			'pta-datatables2',
+			$plugin_url . '/datatables2/datatables.min.js',
+			array('jquery'),
+			'2.3.7',
 			true
 		);
 	}

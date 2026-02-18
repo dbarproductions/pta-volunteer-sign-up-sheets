@@ -118,15 +118,6 @@ abstract class PTA_SUS_Base_Object {
         $object_type = $this->get_object_type();
         $defaults = apply_filters( "pta_sus_{$object_type}_property_defaults", $defaults, $this );
         
-        // Also check old filter format for backward compatibility
-        // Extensions using old filters may not set defaults, so we use null as fallback
-        // But we should check if there are any defaults defined in the old structure
-        global $pta_sus;
-        if ( isset( $pta_sus ) && isset( $pta_sus->data ) && isset( $pta_sus->data->tables[$object_type] ) ) {
-            // Old format doesn't typically include defaults, but we've already handled that above
-            // The new filter takes precedence, but old extensions can still add properties
-        }
-
         foreach ( $properties as $property => $type ) {
             // Only set default if not already set (allows new filter to override)
             if ( ! isset( $this->data[$property] ) ) {
@@ -195,23 +186,16 @@ abstract class PTA_SUS_Base_Object {
 		 * @param PTA_SUS_Base_Object $this The object instance
 		 */
 		$properties = apply_filters( "pta_sus_{$object_type}_properties", $properties, $this );
-		
+
 		// Also check old filter format for backward compatibility
 		// Old format: pta_sus_{type}_fields returns array with 'allowed_fields' key
 		// Extensions like Waitlist use this to add fields like 'waitlist_id'
-		// We need to check the old filter structure to merge in any extension-added fields
-		global $pta_sus;
-		if ( isset( $pta_sus ) && isset( $pta_sus->data ) && isset( $pta_sus->data->tables[$object_type] ) ) {
-			// Get the filtered table structure (which extensions may have modified via old filters)
-			$table_structure = $pta_sus->data->tables[$object_type];
-			if ( isset( $table_structure['allowed_fields'] ) && is_array( $table_structure['allowed_fields'] ) ) {
-				// Merge in any additional fields from the old filter format
-				// Use array_merge so new filter takes precedence, but old filter adds missing fields
-				// This ensures extensions using old filters (like Waitlist) still work
-				$properties = array_merge( $properties, $table_structure['allowed_fields'] );
-			}
+		$table_structure = PTA_SUS_Data::get_table_structure( $object_type );
+		if ( isset( $table_structure['allowed_fields'] ) && is_array( $table_structure['allowed_fields'] ) ) {
+			// Merge in any additional fields from the old filter format
+			$properties = array_merge( $properties, $table_structure['allowed_fields'] );
 		}
-		
+
 		return $properties;
 	}
 	
