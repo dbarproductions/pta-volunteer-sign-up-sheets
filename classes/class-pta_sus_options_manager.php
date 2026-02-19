@@ -22,7 +22,7 @@ class PTA_SUS_Options_Manager {
 	 *
 	 * @var string
 	 */
-	private static $options_version = '6.0.4';
+	private static $options_version = '6.2.0';
 
 	/**
 	 * Get options version
@@ -149,6 +149,9 @@ class PTA_SUS_Options_Manager {
 			'hide_single_date_header'              => false,
 			'disable_signup_after_start_time'      => false,
 			'hide_task_after_start_time'           => false,
+			// Server-side DataTables (6.2.0)
+			'admin_dt_server_side'                 => 'off',
+			'admin_dt_threshold'                   => 500,
 		);
 
 		return apply_filters( 'pta_sus_main_options_defaults', $defaults );

@@ -477,6 +477,21 @@
         return content.text();
     }
 
+    // State variables for server-side mode.
+    var ptaHideRemaining     = false;
+    var allHideRemaining     = false;
+    var ptaLastFilterOptions = {};
+    var allLastFilterOptions = {};
+    var ptaRowClasses        = [];
+    var allRowClasses        = [];
+
+    // Report Builder filter state (all-data view only).
+    var rfSheetIds    = [];
+    var rfStartDate   = '';
+    var rfEndDate     = '';
+    var rfShowExpired = PTASUS.rfShowExpired ? 1 : 0;
+    var rfShowEmpty   = PTASUS.rfShowEmpty   ? 1 : 0;
+
     let ptaTableParams = {
         layout: {
             topStart: ['buttons', 'pageLength'],
@@ -542,7 +557,12 @@
             {
                 text: PTASUS.hideRemaining,
                 action: function ( e, dt, node, config ) {
-                    ptaTable.rows('.remaining').remove().draw( false );
+                    if ( PTASUS.serverSide ) {
+                        ptaHideRemaining = true;
+                        dt.ajax.reload();
+                    } else {
+                        ptaTable.rows('.remaining').remove().draw( false );
+                    }
                     this.disable();
                 }
             },
@@ -615,7 +635,12 @@
             {
                 text: PTASUS.hideRemaining,
                 action: function ( e, dt, node, config ) {
-                    allTable.rows('.remaining').remove().draw( false );
+                    if ( PTASUS.serverSide ) {
+                        allHideRemaining = true;
+                        dt.ajax.reload();
+                    } else {
+                        allTable.rows('.remaining').remove().draw( false );
+                    }
                     this.disable();
                 }
             },
@@ -688,19 +713,371 @@
         } );
     }
 
+    /**
+     * Rebuild column select filters from server-provided distinct values.
+     *
+     * Called after every xhr.dt response in server-side mode instead of the
+     * client-side createSelectFilters() which relies on .cache('search').
+     *
+     * @param {DataTable} table         DataTable instance.
+     * @param {Object}    filterOptions Map of column data-index => string[] from the server.
+     */
+    function createSelectFiltersServerSide( table, filterOptions ) {
+        table.columns( '.select-filter' ).every( function () {
+            var that      = this;
+            var colIdx    = this.index();
+            var $footer   = $( this.footer() );
+
+            // Preserve any active selection before rebuilding.
+            var currentVal = $footer.find( 'select.pta-select-filter' ).val() || '';
+            $footer.find( 'select.pta-select-filter' ).remove();
+
+            var select = $( '<select class="pta-select-filter" />' )
+                .appendTo( $footer )
+                .on( 'change', function () {
+                    // Plain search — the PHP handler does exact-match; no regex needed.
+                    that.search( $( this ).val() ).draw();
+                } );
+
+            select.append( '<option value="">' + PTASUS.showAll + '</option>' );
+
+            var values = ( filterOptions[ colIdx ] || [] ).slice().sort();
+            values.forEach( function ( v ) {
+                if ( '' !== v ) {
+                    select.append( $( '<option>' ).val( v ).text( v ) );
+                }
+            } );
+
+            // Restore previous selection if still present in the new options.
+            if ( currentVal ) {
+                select.val( currentVal );
+            }
+        } );
+    }
+
+    // -------------------------------------------------------------------------
+    // Server-Side Mode: inject serverSide + ajax config when PTASUS.serverSide
+    // is truthy (set via wp_localize_script in Phase 5). Defaults to off so all
+    // existing client-side behavior is preserved when the flag is absent.
+    // -------------------------------------------------------------------------
+    if ( PTASUS.serverSide ) {
+        // colReorder conflicts with server-side numeric column indexing.
+        ptaTableParams.colReorder = false;
+        allTableParams.colReorder = false;
+
+        // Read column slugs from the data attribute stamped on each table at page-render
+        // time (when all extension filters were active). Sending these to the AJAX handler
+        // lets PHP build cells in the correct order even if extension filter hooks don't
+        // fire during wp_ajax_ requests (e.g. hooks registered inside admin_menu/admin_init).
+        var ptaColSlugs = ( $( '#pta-sheet-signups' ).data( 'column-slugs' ) || '' ).toString().split( ',' ).filter( Boolean );
+        var allColSlugs = ( $( '#pta-all-data' ).data( 'column-slugs' ) || '' ).toString().split( ',' ).filter( Boolean );
+
+        ptaTableParams.serverSide = true;
+        ptaTableParams.ajax = {
+            url: ajaxurl,
+            type: 'POST',
+            data: function ( d ) {
+                d.action         = 'PTA_SUS_ADMIN_DT_DATA';
+                d.ptaNonce       = PTASUS.ptaNonce;
+                d.view_type      = 'single_sheet';
+                d.sheet_id       = PTASUS.sheetId || 0;
+                d.hide_remaining = ptaHideRemaining ? 1 : 0;
+                d.column_slugs   = ptaColSlugs.join( ',' );
+            }
+        };
+        ptaTableParams.createdRow = function ( row, data, dataIndex ) {
+            if ( ptaRowClasses[ dataIndex ] ) {
+                $( row ).addClass( ptaRowClasses[ dataIndex ] );
+            }
+        };
+
+        allTableParams.serverSide = true;
+        allTableParams.ajax = {
+            url: ajaxurl,
+            type: 'POST',
+            data: function ( d ) {
+                d.action         = 'PTA_SUS_ADMIN_DT_DATA';
+                d.ptaNonce       = PTASUS.ptaNonce;
+                d.view_type      = 'all_data';
+                d.hide_remaining = allHideRemaining ? 1 : 0;
+                d.column_slugs   = allColSlugs.join( ',' );
+                // Report Builder params.
+                if ( rfSheetIds.length ) { d.sheet_ids = rfSheetIds; }
+                d.start_date   = rfStartDate;
+                d.end_date     = rfEndDate;
+                d.show_expired = rfShowExpired;
+                d.show_empty   = rfShowEmpty;
+            }
+        };
+        allTableParams.createdRow = function ( row, data, dataIndex ) {
+            if ( allRowClasses[ dataIndex ] ) {
+                $( row ).addClass( allRowClasses[ dataIndex ] );
+            }
+        };
+
+        // ── Server-side export helpers ────────────────────────────────────────────────
+        //
+        // In server-side mode the DataTables export buttons (excel/csv/pdf/print) cannot
+        // export the full dataset because they only see the current page. Instead we POST
+        // to our own wp-admin AJAX endpoint which fetches the full filtered/sorted dataset
+        // and returns a CSV download or a printable HTML page.
+
+        /**
+         * Collect the current DT state (search, sort, column filters, report builder) into
+         * a flat params object that can be serialised into a hidden form for the export POST.
+         *
+         * @param  {DataTables.Api} dt             DataTables instance.
+         * @param  {string}         viewType        'single_sheet' or 'all_data'.
+         * @param  {string[]}       colSlugs        Authoritative column slug array.
+         * @param  {Function}       getHideRemaining Returns current hide-remaining boolean.
+         * @return {Object}
+         */
+        function getExportParams( dt, viewType, colSlugs, getHideRemaining ) {
+            var params = {
+                action:         'PTA_SUS_ADMIN_EXPORT',
+                ptaNonce:       PTASUS.ptaNonce,
+                view_type:      viewType,
+                hide_remaining: getHideRemaining() ? 1 : 0,
+                column_slugs:   colSlugs.join( ',' ),
+                search:         dt.search(),
+                order_col:      ( dt.order()[0] ? dt.order()[0][0] : 0 ),
+                order_dir:      ( dt.order()[0] ? dt.order()[0][1] : 'asc' )
+            };
+
+            // Per-column select-filter values encoded as JSON: { "colIdx": "value", ... }.
+            var colFilters = {};
+            dt.columns( '.select-filter' ).every( function ( colIdx ) {
+                var sv = this.search();
+                if ( sv ) { colFilters[ colIdx ] = sv; }
+            } );
+            params.col_search = JSON.stringify( colFilters );
+
+            if ( 'single_sheet' === viewType ) {
+                params.sheet_id = PTASUS.sheetId || 0;
+            } else {
+                // Report builder params.
+                if ( rfSheetIds.length ) { params.sheet_ids = rfSheetIds; }
+                params.start_date   = rfStartDate;
+                params.end_date     = rfEndDate;
+                params.show_expired = rfShowExpired;
+                params.show_empty   = rfShowEmpty;
+            }
+
+            return params;
+        }
+
+        /**
+         * Create a temporary hidden form, populate it with the export params, and submit it.
+         * CSV/Excel downloads target the same window; print/PDF open in a new tab so that
+         * the auto-print script can run without navigating away.
+         *
+         * @param {string} format One of 'csv', 'excel', 'pdf', 'print'.
+         * @param {Object} params Key/value pairs to POST. Array values become key[]=val entries.
+         */
+        function doServerExport( format, params ) {
+            var isPrint = ( format === 'print' || format === 'pdf' );
+            var form = document.createElement( 'form' );
+            form.method = 'POST';
+            form.action = ajaxurl;
+            form.target = isPrint ? '_blank' : '_self';
+
+            params.format = format;
+
+            $.each( params, function ( key, val ) {
+                if ( $.isArray( val ) ) {
+                    $.each( val, function ( i, v ) {
+                        var inp = document.createElement( 'input' );
+                        inp.type  = 'hidden';
+                        inp.name  = key + '[]';
+                        inp.value = v;
+                        form.appendChild( inp );
+                    } );
+                } else {
+                    var inp = document.createElement( 'input' );
+                    inp.type  = 'hidden';
+                    inp.name  = key;
+                    inp.value = ( val === undefined || val === null ) ? '' : val;
+                    form.appendChild( inp );
+                }
+            } );
+
+            document.body.appendChild( form );
+            form.submit();
+            document.body.removeChild( form );
+        }
+
+        /**
+         * Replace the standard DT export buttons (excel/csv/pdf/print) in tableParams.buttons
+         * with custom action functions that POST to the server-side export endpoint.
+         * All other button definitions (colvis, hide-remaining, etc.) are left unchanged.
+         *
+         * @param {Object}   tableParams      DT init params object (mutated in place).
+         * @param {string}   viewType         'single_sheet' or 'all_data'.
+         * @param {string[]} colSlugs         Authoritative column slug array.
+         * @param {Function} getHideRemaining Returns current hide-remaining boolean.
+         */
+        function replaceExportButtons( tableParams, viewType, colSlugs, getHideRemaining ) {
+            var exportFormats = [ 'excel', 'csv', 'pdf', 'print' ];
+            tableParams.buttons = tableParams.buttons.map( function ( btn ) {
+                // Pass through string shorthand buttons ('createState', 'savedStates', etc.)
+                // and non-export objects (colvis, hide-remaining, group-toggle, etc.).
+                if ( typeof btn !== 'object' || ! btn.extend ) { return btn; }
+                if ( exportFormats.indexOf( btn.extend ) === -1 ) { return btn; }
+
+                var format  = btn.extend;
+                var btnText = btn.text;
+                return {
+                    text: btnText,
+                    action: function ( e, dt ) {
+                        var params = getExportParams( dt, viewType, colSlugs, getHideRemaining );
+                        doServerExport( format, params );
+                    }
+                };
+            } );
+        }
+
+        replaceExportButtons( ptaTableParams, 'single_sheet', ptaColSlugs, function () { return ptaHideRemaining; } );
+        replaceExportButtons( allTableParams, 'all_data',     allColSlugs, function () { return allHideRemaining; } );
+
+        // ── Hide Remaining button adjustments for server-side mode ────────────────────
+        //
+        // All-data view: The filter panel's "Show empty slots" checkbox replaces the DT
+        // button, so remove the button to avoid two conflicting controls.
+        allTableParams.buttons = allTableParams.buttons.filter( function ( btn ) {
+            return typeof btn !== 'object' || btn.text !== PTASUS.hideRemaining;
+        } );
+
+        // Single-sheet view: No filter panel exists here, so convert the one-way button
+        // into a proper toggle (Hide Remaining ↔ Show Remaining).
+        ptaTableParams.buttons = ptaTableParams.buttons.map( function ( btn ) {
+            if ( typeof btn !== 'object' || btn.text !== PTASUS.hideRemaining ) { return btn; }
+            return {
+                text: PTASUS.hideRemaining,
+                action: function ( e, dt, node ) {
+                    ptaHideRemaining = ! ptaHideRemaining;
+                    $( node ).text( ptaHideRemaining ? PTASUS.showRemaining : PTASUS.hideRemaining );
+                    dt.ajax.reload();
+                }
+            };
+        } );
+    }
+
     var ptaTable = $('#pta-sheet-signups').DataTable( ptaTableParams );
     ptaTable.on( 'column-reorder', function ( e, settings, details ) {
-        createSelectFilters(ptaTable);
+        if ( PTASUS.serverSide ) {
+            createSelectFiltersServerSide( ptaTable, ptaLastFilterOptions );
+        } else {
+            createSelectFilters( ptaTable );
+        }
     } );
-    createSelectFilters(ptaTable);
+    if ( PTASUS.serverSide ) {
+        // Rebuild column-filter selects from each AJAX response (includes initial load).
+        ptaTable.on( 'xhr.dt', function ( e, settings, json ) {
+            if ( json ) {
+                if ( json.rowClasses )    { ptaRowClasses = json.rowClasses; }
+                if ( json.filterOptions ) {
+                    ptaLastFilterOptions = json.filterOptions;
+                    createSelectFiltersServerSide( ptaTable, json.filterOptions );
+                }
+            }
+        } );
+    } else {
+        createSelectFilters( ptaTable );
+    }
 
     var allTable = $('#pta-all-data').DataTable( allTableParams );
     allTable.on( 'column-reorder', function ( e, settings, details ) {
-        createSelectFilters(allTable);
+        if ( PTASUS.serverSide ) {
+            createSelectFiltersServerSide( allTable, allLastFilterOptions );
+        } else {
+            createSelectFilters( allTable );
+        }
     } );
-    createSelectFilters(allTable);
+    if ( PTASUS.serverSide ) {
+        allTable.on( 'xhr.dt', function ( e, settings, json ) {
+            if ( json ) {
+                if ( json.rowClasses )    { allRowClasses = json.rowClasses; }
+                if ( json.filterOptions ) {
+                    allLastFilterOptions = json.filterOptions;
+                    createSelectFiltersServerSide( allTable, json.filterOptions );
+                }
+            }
+        } );
+    } else {
+        createSelectFilters( allTable );
+    }
 
+    // -------------------------------------------------------------------------
+    // Report Builder filter panel (#pta-report-filters-wrap)
+    // -------------------------------------------------------------------------
+    if ( $( '#pta-report-filters-wrap' ).length ) {
 
+        // Toggle collapse / expand.
+        $( '#pta-rf-toggle' ).on( 'click', function () {
+            var $caret = $( this ).find( '.dashicons' );
+            $( '#pta-rf-body' ).slideToggle( 150, function () {
+                $caret.toggleClass( 'dashicons-arrow-down-alt2 dashicons-arrow-up-alt2' );
+            } );
+        } );
+
+        // Enhance sheet multi-select with Select2 if available.
+        if ( $.fn && $.fn.select2 ) {
+            $( '#pta-rf-sheet-ids' ).select2( {
+                placeholder: PTASUS.rfAllSheets || 'All Sheets',
+                allowClear: true,
+                width: 'element'
+            } );
+        }
+
+        if ( PTASUS.serverSide ) {
+            // Show a loading state on the Apply button while the AJAX request is in flight.
+            // DataTables fires processing.dt(true) at the start of every request and
+            // processing.dt(false) when the response arrives.
+            var $rfApplyBtn      = $( '#pta-rf-apply' );
+            var rfApplyBtnLabel  = $rfApplyBtn.text();
+            allTable.on( 'processing.dt', function ( e, settings, processing ) {
+                $rfApplyBtn
+                    .prop( 'disabled', processing )
+                    .toggleClass( 'pta-rf-loading', processing )
+                    .text( processing ? rfApplyBtnLabel + '\u2026' : rfApplyBtnLabel );
+            } );
+
+            // Server-side: intercept form submit, update JS state, reload DT.
+            $( '#pta-rf-form' ).on( 'submit', function ( e ) {
+                e.preventDefault();
+                var rawIds = $( '#pta-rf-sheet-ids' ).val() || [];
+                rfSheetIds    = rawIds.map( Number ).filter( Boolean );
+                rfStartDate   = $( '#pta-rf-start-date' ).val() || '';
+                rfEndDate     = $( '#pta-rf-end-date' ).val() || '';
+                rfShowExpired = $( '#pta-rf-show-expired' ).is( ':checked' ) ? 1 : 0;
+                rfShowEmpty   = $( '#pta-rf-show-empty' ).is( ':checked' ) ? 1 : 0;
+                allTable.ajax.reload();
+            } );
+
+            // Reset: restore defaults and reload.
+            $( '#pta-rf-reset' ).on( 'click', function () {
+                if ( $.fn && $.fn.select2 ) {
+                    $( '#pta-rf-sheet-ids' ).val( null ).trigger( 'change' );
+                } else {
+                    $( '#pta-rf-sheet-ids option' ).prop( 'selected', false );
+                }
+                $( '#pta-rf-start-date, #pta-rf-end-date' ).val( '' );
+                $( '#pta-rf-show-expired' ).prop( 'checked', !! PTASUS.rfShowExpired );
+                $( '#pta-rf-show-empty' ).prop( 'checked', !! PTASUS.rfShowEmpty );
+                rfSheetIds    = [];
+                rfStartDate   = '';
+                rfEndDate     = '';
+                rfShowExpired = PTASUS.rfShowExpired ? 1 : 0;
+                rfShowEmpty   = PTASUS.rfShowEmpty   ? 1 : 0;
+                allTable.ajax.reload();
+            } );
+        } else {
+            // Client-side: Reset navigates to the base view_all URL (no rf_ params).
+            $( '#pta-rf-reset' ).on( 'click', function () {
+                window.location.href = $( this ).data( 'reset-url' );
+            } );
+        }
+    }
 
     let methodSelect = $('#pta-reschedule-sheet-form [name="method"]');
     methodSelect.on('change', function (e){

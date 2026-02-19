@@ -6,20 +6,40 @@
 	 * Time: 4:01 PM
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-// Filter sheets by author for Signup Sheet Authors (respect author permissions)
+$dt_mode     = $this->main_options['admin_dt_server_side'] ?? 'off';
+$server_side = ( 'on' === $dt_mode || 'auto' === $dt_mode );
+
+// Filter sheets by author for Signup Sheet Authors (respect author permissions).
 $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
-$author_id = $can_manage_others ? null : get_current_user_id();
-$args = array(
-	'trash' => false,
-	'active_only' => false,
-	'show_hidden' => true,
-	'author_id' => $author_id,
-);
-$sheets = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
-$sheets = apply_filters('pta_sus_admin_view_all_data_sheets', $sheets);
-if(empty($sheets)) {
-	echo '<div class="error"><p>'.__('No data to show.', 'pta-volunteer-sign-up-sheets').'</p></div>';
+$author_id         = $can_manage_others ? null : get_current_user_id();
+
+// Report Builder: read GET filter params submitted by the filter panel form.
+$rf_submitted    = isset( $_GET['rf_submitted'] );
+$rf_sheet_ids    = ( $rf_submitted && isset( $_GET['rf_sheet_ids'] ) ) ? array_map( 'absint', (array) $_GET['rf_sheet_ids'] ) : array();
+$rf_start_date   = ( $rf_submitted && isset( $_GET['rf_start_date'] ) ) ? sanitize_text_field( wp_unslash( $_GET['rf_start_date'] ) ) : '';
+$rf_end_date     = ( $rf_submitted && isset( $_GET['rf_end_date'] ) ) ? sanitize_text_field( wp_unslash( $_GET['rf_end_date'] ) ) : '';
+$rf_show_expired = $rf_submitted ? ! empty( $_GET['rf_show_expired'] ) : ! empty( $this->main_options['show_expired_tasks'] );
+$rf_show_empty   = $rf_submitted ? ! empty( $_GET['rf_show_empty'] ) : true;
+
+// Fetch all sheets once — used for the filter panel select options AND the data loop.
+$sheet_fetch_args = array( 'trash' => false, 'active_only' => false, 'show_hidden' => true, 'author_id' => $author_id );
+$all_sheets       = PTA_SUS_Sheet_Functions::get_sheets_by_args( $sheet_fetch_args );
+$all_sheets       = apply_filters( 'pta_sus_admin_view_all_data_sheets', $all_sheets );
+
+if ( empty( $all_sheets ) ) {
+	echo '<div class="error"><p>' . __( 'No data to show.', 'pta-volunteer-sign-up-sheets' ) . '</p></div>';
 }
+
+// Client-side mode: apply sheet-ID filter from report builder if specific sheets were chosen.
+// Server-side mode: sheet filtering is handled in the AJAX endpoint.
+if ( ! $server_side && ! empty( $rf_sheet_ids ) ) {
+	$sheets = array_values( array_filter( $all_sheets, function( $s ) use ( $rf_sheet_ids ) {
+		return in_array( (int) $s->id, $rf_sheet_ids, true );
+	} ) );
+} else {
+	$sheets = $all_sheets;
+}
+
 // Allow extensions to add columns
 $columns = apply_filters( 'pta_sus_admin_view_all_data_columns', array(
 	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
@@ -40,8 +60,81 @@ $columns = apply_filters( 'pta_sus_admin_view_all_data_columns', array(
 ) );
 $num_cols = count($columns);
 
+// Build reset URL (view_all with nonce, no rf_ params).
+$rf_page      = sanitize_text_field( wp_unslash( $_GET['page'] ?? '' ) );
+$rf_reset_url = wp_nonce_url( '?page=' . rawurlencode( $rf_page ) . '&action=view_all', 'view_all', '_sus_nonce' );
+// Open filter panel if filters were applied (client-side) or always in server-side mode.
+$rf_panel_open = $rf_submitted || $server_side;
+
 ?>
-<table id="pta-all-data" class="pta-signups-table widefat">
+<style>
+#pta-report-filters-wrap { margin-bottom: 12px; }
+#pta-rf-toggle { display: inline-flex; align-items: center; gap: 4px; }
+#pta-rf-toggle .dashicons { font-size: 16px; width: 16px; height: 16px; }
+.pta-rf-body { background: #fff; border: 1px solid #c3c4c7; padding: 12px 16px; margin-top: 6px; }
+.pta-rf-body .form-table th { width: 130px; padding: 10px 0; }
+.pta-rf-body .form-table td { padding: 8px 0; }
+.pta-rf-body .submit { margin: 0; padding: 10px 0 2px; }
+</style>
+
+<div id="pta-report-filters-wrap">
+	<button type="button" id="pta-rf-toggle" class="button button-secondary">
+		<span class="dashicons <?php echo $rf_panel_open ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>"></span>
+		<?php _e( 'Report Filters', 'pta-volunteer-sign-up-sheets' ); ?>
+	</button>
+	<div id="pta-rf-body" class="pta-rf-body" <?php if ( ! $rf_panel_open ) echo 'style="display:none;"'; ?>>
+		<form id="pta-rf-form" method="get" action="">
+			<input type="hidden" name="page" value="<?php echo esc_attr( $rf_page ); ?>">
+			<input type="hidden" name="action" value="view_all">
+			<input type="hidden" name="_sus_nonce" value="<?php echo esc_attr( wp_create_nonce( 'view_all' ) ); ?>">
+			<input type="hidden" name="rf_submitted" value="1">
+			<table class="form-table">
+				<tr>
+					<th scope="row"><label for="pta-rf-sheet-ids"><?php _e( 'Sheets', 'pta-volunteer-sign-up-sheets' ); ?></label></th>
+					<td>
+						<select id="pta-rf-sheet-ids" name="rf_sheet_ids[]" multiple="multiple" style="min-width:350px;max-width:600px;">
+							<?php foreach ( $all_sheets as $s ) : ?>
+								<option value="<?php echo esc_attr( $s->id ); ?>"<?php if ( in_array( (int) $s->id, $rf_sheet_ids, true ) ) echo ' selected'; ?>>
+									<?php echo esc_html( $s->title ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description"><?php _e( 'Leave blank to include all sheets.', 'pta-volunteer-sign-up-sheets' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Date Range', 'pta-volunteer-sign-up-sheets' ); ?></th>
+					<td>
+						<label for="pta-rf-start-date"><?php _e( 'From:', 'pta-volunteer-sign-up-sheets' ); ?></label>
+						<input type="date" id="pta-rf-start-date" name="rf_start_date" value="<?php echo esc_attr( $rf_start_date ); ?>">
+						<label for="pta-rf-end-date" style="margin-left:10px;"><?php _e( 'To:', 'pta-volunteer-sign-up-sheets' ); ?></label>
+						<input type="date" id="pta-rf-end-date" name="rf_end_date" value="<?php echo esc_attr( $rf_end_date ); ?>">
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php _e( 'Options', 'pta-volunteer-sign-up-sheets' ); ?></th>
+					<td>
+						<label>
+							<input type="checkbox" id="pta-rf-show-expired" name="rf_show_expired" value="1"<?php checked( $rf_show_expired ); ?>>
+							<?php _e( 'Include expired dates', 'pta-volunteer-sign-up-sheets' ); ?>
+						</label>
+						&nbsp;&nbsp;
+						<label>
+							<input type="checkbox" id="pta-rf-show-empty" name="rf_show_empty" value="1"<?php checked( $rf_show_empty ); ?>>
+							<?php _e( 'Show empty slots', 'pta-volunteer-sign-up-sheets' ); ?>
+						</label>
+					</td>
+				</tr>
+			</table>
+			<p class="submit">
+				<button type="submit" class="button button-primary" id="pta-rf-apply"><?php _e( 'Apply Filters', 'pta-volunteer-sign-up-sheets' ); ?></button>
+				<button type="button" class="button" id="pta-rf-reset" data-reset-url="<?php echo esc_attr( $rf_reset_url ); ?>"><?php _e( 'Reset', 'pta-volunteer-sign-up-sheets' ); ?></button>
+			</p>
+		</form>
+	</div>
+</div>
+
+<table id="pta-all-data" class="pta-signups-table widefat" data-column-slugs="<?php echo esc_attr( implode( ',', array_keys( $columns ) ) ); ?>">
 	<thead>
 		<tr>
 		<?php foreach ($columns as $slug => $label):
@@ -55,15 +148,21 @@ $num_cols = count($columns);
 		</tr>
 	</thead>
 	<tbody>
+    <?php if ( ! $server_side ) : ?>
     <?php foreach ($sheets as $sheet):
         $all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet((int)$sheet->id);
         $tasks=PTA_SUS_Task_Functions::get_tasks($sheet->id);
         if(empty($all_task_dates)) continue;
         ?>
 	    <?php foreach ($all_task_dates as $tdate):
-            // check if we want to show expired tasks and Skip any task whose date has already passed
-            if ( !$this->main_options['show_expired_tasks']) {
+            // Skip expired dates unless the report filter allows them.
+            if ( ! $rf_show_expired ) {
                 if ($tdate < date("Y-m-d") && "0000-00-00" !== $tdate) continue;
+            }
+            // Apply report builder date range.
+            if ( '0000-00-00' !== $tdate ) {
+                if ( '' !== $rf_start_date && $tdate < $rf_start_date ) continue;
+                if ( '' !== $rf_end_date   && $tdate > $rf_end_date )   continue;
             }
             if ("0000-00-00" === $tdate) {
                 $show_date = '';
@@ -95,7 +194,7 @@ $num_cols = count($columns);
                     </tr>
                 <?php endforeach; ?>
 
-                <?php if($i < $task->qty):
+                <?php if( $rf_show_empty && $i < $task->qty ):
                     $remaining = $task->qty - $i;
                     $sheet_title = apply_filters('pta_sus_admin_signup_display_sheet_title', esc_html($sheet->title), $sheet);
                     $task_title = apply_filters('pta_sus_admin_signup_display_task_title', esc_html($task->title), $task);
@@ -141,6 +240,7 @@ $num_cols = count($columns);
 	        <?php endforeach; ?>
         <?php endforeach; ?>
     <?php endforeach; ?>
+    <?php endif; // ! $server_side ?>
 
 	</tbody>
 	<tfoot>

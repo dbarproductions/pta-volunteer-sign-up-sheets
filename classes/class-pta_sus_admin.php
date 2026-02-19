@@ -130,6 +130,19 @@ class PTA_SUS_Admin {
 		add_action( 'wp_ajax_pta_sus_save_sheet_dates', array($this, 'ajax_save_sheet_dates' ) );
 		add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		// Server-side DataTables AJAX endpoint (admin-only).
+		add_action( 'wp_ajax_PTA_SUS_ADMIN_DT_DATA', array( $this, 'ajax_admin_dt_data' ) );
+		// Server-side export endpoint (admin-only, outputs CSV or print HTML).
+		add_action( 'wp_ajax_PTA_SUS_ADMIN_EXPORT', array( $this, 'ajax_admin_export' ) );
+		// Invalidate server-side DT cache on any CRUD operation.
+		$cache_invalidation_hooks = array(
+			'pta_sus_created_signup', 'pta_sus_updated_signup', 'pta_sus_deleted_signup',
+			'pta_sus_created_task',   'pta_sus_updated_task',   'pta_sus_deleted_task',
+			'pta_sus_created_sheet',  'pta_sus_updated_sheet',  'pta_sus_deleted_sheet',
+		);
+		foreach ( $cache_invalidation_hooks as $hook ) {
+			add_action( $hook, array( $this, 'invalidate_admin_dt_cache' ) );
+		}
 	}
 
 	/**
@@ -346,6 +359,8 @@ class PTA_SUS_Admin {
 			wp_enqueue_script( 'pta-jquery-datepick' );
 			wp_enqueue_script( 'pta-jquery-ui-timepicker', plugins_url( '../assets/js/jquery.ui.timepicker.js' , __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-position' ) );
 			wp_enqueue_script('pta-datatables2');
+			wp_enqueue_style('pta-select2');
+			wp_enqueue_script('pta-select2');
 			wp_enqueue_script('jquery-ui-sortable');
 			wp_enqueue_script( 'jquery-ui-autocomplete');
 			// Use non-minified version for debugging (switch back to .min.js for production)
@@ -377,6 +392,22 @@ class PTA_SUS_Admin {
                 // Ensure backend.js depends on pta-sus-autocomplete so livesearch.js loads first
                 // This is important because backend.js uses ptaVolunteer from livesearch.js
             }
+			// Determine server-side DataTables mode for this request.
+			$dt_mode        = $this->main_options['admin_dt_server_side'] ?? 'off';
+			$dt_threshold   = absint( $this->main_options['admin_dt_threshold'] ?? 500 );
+			$url_sheet_id   = absint( $_GET['sheet_id'] ?? 0 );
+			$url_action     = sanitize_text_field( $_GET['action'] ?? '' );
+
+			if ( 'on' === $dt_mode ) {
+				$server_side = true;
+			} elseif ( 'auto' === $dt_mode ) {
+				// Auto: estimate row count and compare to threshold.
+				// Phase 7 will add a proper estimate; for now treat auto as always on.
+				$server_side = true;
+			} else {
+				$server_side = false;
+			}
+
 			$translation_array = array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
 				'default_text' => __('Item you are bringing', 'pta-volunteer-sign-up-sheets'),
@@ -386,10 +417,18 @@ class PTA_SUS_Admin {
 				'pdfSave' => __('Save as PDF', 'pta-volunteer-sign-up-sheets'),
 				'toPrint' => __('Print', 'pta-volunteer-sign-up-sheets'),
 				'hideRemaining' => __('Hide Remaining', 'pta-volunteer-sign-up-sheets'),
+				'showRemaining' => __('Show Remaining', 'pta-volunteer-sign-up-sheets'),
 				'disableGrouping' => __('Disable Grouping', 'pta-volunteer-sign-up-sheets'),
 				'colvisText' => __('Column Visibility', 'pta-volunteer-sign-up-sheets'),
 				'showAll' => __('Show All', 'pta-volunteer-sign-up-sheets'),
 				'disableAdminGrouping' => $this->main_options['disable_grouping'] ?? false,
+				// Server-side DataTables (6.2.0).
+				'serverSide'     => $server_side,
+				'sheetId'        => $url_sheet_id,
+				// Report Builder defaults (passed to JS for filter panel initial state).
+				'rfShowExpired'  => ! empty( $this->main_options['show_expired_tasks'] ),
+				'rfShowEmpty'    => true,
+				'rfAllSheets'    => __( 'All Sheets', 'pta-volunteer-sign-up-sheets' ),
 			);
 			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
 
@@ -3556,6 +3595,796 @@ class PTA_SUS_Admin {
 			'dates' => $dates_to_set,
 			'tasks_updated' => $updated,
 		) );
+	}
+
+
+	// =========================================================================
+	// SERVER-SIDE DATATABLES — Phase 1
+	// =========================================================================
+
+	/**
+	 * AJAX handler for server-side DataTables admin views.
+	 *
+	 * Accepts standard DataTables server-side POST parameters plus view-specific
+	 * parameters. Returns paginated, sorted, filtered JSON data and distinct
+	 * filter-option values for the column select dropdowns.
+	 *
+	 * Action: wp_ajax_PTA_SUS_ADMIN_DT_DATA
+	 *
+	 * @since 6.2.0
+	 */
+	public function ajax_admin_dt_data() {
+		check_ajax_referer( 'ajax-pta-nonce', 'ptaNonce' );
+
+		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
+			wp_send_json_error( 'Permission denied.' );
+		}
+
+		// DataTables standard params.
+		$draw      = absint( isset( $_POST['draw'] ) ? $_POST['draw'] : 1 );
+		$start     = absint( isset( $_POST['start'] ) ? $_POST['start'] : 0 );
+		$length    = intval( isset( $_POST['length'] ) ? $_POST['length'] : 100 );
+		$search    = sanitize_text_field( isset( $_POST['search']['value'] ) ? $_POST['search']['value'] : '' );
+		$order_col = absint( isset( $_POST['order'][0]['column'] ) ? $_POST['order'][0]['column'] : 0 );
+		$order_dir = ( isset( $_POST['order'][0]['dir'] ) && 'desc' === $_POST['order'][0]['dir'] ) ? 'desc' : 'asc';
+
+		// View-specific params.
+		$view_type      = sanitize_text_field( isset( $_POST['view_type'] ) ? $_POST['view_type'] : 'all_data' );
+		$sheet_id       = absint( isset( $_POST['sheet_id'] ) ? $_POST['sheet_id'] : 0 );
+		$hide_remaining = ! empty( $_POST['hide_remaining'] );
+
+		// Report-builder params.
+		$sheet_ids = isset( $_POST['sheet_ids'] ) ? array_map( 'absint', (array) $_POST['sheet_ids'] ) : array();
+		$start_date = sanitize_text_field( isset( $_POST['start_date'] ) ? $_POST['start_date'] : '' );
+		$end_date   = sanitize_text_field( isset( $_POST['end_date'] ) ? $_POST['end_date'] : '' );
+
+		// Default show_expired / show_empty from main options when not provided explicitly.
+		if ( isset( $_POST['show_expired'] ) ) {
+			$show_expired = ! empty( $_POST['show_expired'] );
+		} else {
+			$show_expired = ! empty( $this->main_options['show_expired_tasks'] );
+		}
+		if ( isset( $_POST['show_empty'] ) ) {
+			$show_empty = ! empty( $_POST['show_empty'] );
+		} elseif ( 'single_sheet' === $view_type ) {
+			$show_empty = true; // Single-sheet view always shows remaining slots.
+		} else {
+			$show_empty = ! empty( $this->main_options['show_all_slots_for_all_data'] );
+		}
+
+		// Per-column search filters (from select-filter dropdowns).
+		// Also capture the total column count DT expects — used later to pad row data so DT
+		// never encounters a missing cell (e.g. when an extension adds columns via a filter
+		// that only fires on full admin page loads, not during wp_ajax_ requests).
+		$column_filters = array();
+		$expected_cols  = 0;
+		if ( isset( $_POST['columns'] ) && is_array( $_POST['columns'] ) ) {
+			$expected_cols = count( $_POST['columns'] );
+			foreach ( $_POST['columns'] as $idx => $col ) {
+				if ( ! empty( $col['search']['value'] ) ) {
+					$column_filters[ absint( $idx ) ] = sanitize_text_field( $col['search']['value'] );
+				}
+			}
+		}
+
+		// Authoritative column slug list from the client (captured at page-render time when all
+		// extension filters were active). Used to build cells in the correct column order, even
+		// when extension hooks are registered inside admin_menu/admin_init and don't fire here.
+		$client_column_slugs = array();
+		if ( ! empty( $_POST['column_slugs'] ) ) {
+			foreach ( explode( ',', sanitize_text_field( wp_unslash( $_POST['column_slugs'] ) ) ) as $slug ) {
+				$slug = sanitize_key( $slug );
+				if ( $slug ) {
+					$client_column_slugs[] = $slug;
+				}
+			}
+		}
+
+		// Build or retrieve cached full dataset.
+		$cache_args = array(
+			'view_type'    => $view_type,
+			'sheet_id'     => $sheet_id,
+			'sheet_ids'    => $sheet_ids,
+			'start_date'   => $start_date,
+			'end_date'     => $end_date,
+			'show_expired' => $show_expired,
+			'show_empty'   => $show_empty,
+			'column_slugs' => $client_column_slugs,
+		);
+		$cache_key = 'pta_adt_' . md5( wp_json_encode( $cache_args ) . '_' . get_current_user_id() );
+		$all_rows  = get_transient( $cache_key );
+
+		if ( false === $all_rows ) {
+			$all_rows = $this->build_admin_dt_rows( $cache_args );
+			set_transient( $cache_key, $all_rows, 5 * MINUTE_IN_SECONDS );
+		}
+
+		$records_total = count( $all_rows );
+
+		// Remove remaining rows if "Hide Remaining" button is active.
+		if ( $hide_remaining ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) {
+				return ! $row['is_remaining'];
+			} ) );
+		}
+
+		// Apply per-column exact-match filters.
+		foreach ( $column_filters as $col_idx => $filter_val ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) use ( $col_idx, $filter_val ) {
+				$cell_text = isset( $row['search_values'][ $col_idx ] ) ? $row['search_values'][ $col_idx ] : '';
+				return $cell_text === $filter_val;
+			} ) );
+		}
+
+		// Apply global search (case-insensitive, searches all cell text).
+		if ( '' !== $search ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) use ( $search ) {
+				return false !== stripos( implode( ' ', $row['search_values'] ), $search );
+			} ) );
+		}
+
+		$records_filtered = count( $all_rows );
+
+		// Sort by the requested column.
+		$all_rows = $this->sort_admin_dt_rows( $all_rows, $order_col, $order_dir );
+
+		// Build distinct column values for the select-filter dropdowns.
+		$filter_options = $this->build_filter_options( $all_rows );
+
+		// Paginate.
+		$page_rows = ( $length > 0 ) ? array_slice( $all_rows, $start, $length ) : $all_rows;
+
+		// Build the data array for DT. Use plain PHP arrays (→ JSON arrays) so DT
+		// treats each row as indexed cells. Row CSS classes are passed separately
+		// in rowClasses[]; the JS createdRow callback applies them.
+		// Pad each row to $expected_cols so DT never hits a missing-parameter warning
+		// (can happen when an extension adds columns via a filter that only fires on
+		// full page loads, not during wp_ajax_ requests).
+		$data        = array();
+		$row_classes = array();
+		foreach ( $page_rows as $row ) {
+			$cells = array_values( $row['cells'] );
+			while ( $expected_cols > 0 && count( $cells ) < $expected_cols ) {
+				$cells[] = '';
+			}
+			$data[]        = $cells;
+			$row_classes[] = $row['DT_RowClass'];
+		}
+
+		wp_send_json( array(
+			'draw'            => $draw,
+			'recordsTotal'    => $records_total,
+			'recordsFiltered' => $records_filtered,
+			'data'            => $data,
+			'filterOptions'   => $filter_options,
+			'rowClasses'      => $row_classes,
+		) );
+	}
+
+	/**
+	 * Server-side export endpoint.
+	 *
+	 * Accepts a POST with the same params as ajax_admin_dt_data (minus DT pagination params)
+	 * plus a `format` param ('csv', 'excel', 'print', 'pdf'). Outputs a CSV download or a
+	 * full print-HTML page.
+	 *
+	 * @since 6.2.0
+	 */
+	public function ajax_admin_export() {
+		if ( ! isset( $_POST['ptaNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ptaNonce'] ) ), 'ajax-pta-nonce' ) ) {
+			wp_die( 'Nonce verification failed.', 'Security Error', array( 'response' => 403 ) );
+		}
+
+		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
+			wp_die( 'Permission denied.', 'Permission Error', array( 'response' => 403 ) );
+		}
+
+		$format    = sanitize_key( isset( $_POST['format'] ) ? $_POST['format'] : 'csv' );
+		$search    = sanitize_text_field( isset( $_POST['search'] ) ? wp_unslash( $_POST['search'] ) : '' );
+		$order_col = absint( isset( $_POST['order_col'] ) ? $_POST['order_col'] : 0 );
+		$order_dir = ( isset( $_POST['order_dir'] ) && 'desc' === $_POST['order_dir'] ) ? 'desc' : 'asc';
+
+		$view_type      = sanitize_text_field( isset( $_POST['view_type'] ) ? $_POST['view_type'] : 'all_data' );
+		$sheet_id       = absint( isset( $_POST['sheet_id'] ) ? $_POST['sheet_id'] : 0 );
+		$hide_remaining = ! empty( $_POST['hide_remaining'] );
+
+		$sheet_ids  = isset( $_POST['sheet_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_POST['sheet_ids'] ) ) : array();
+		$start_date = sanitize_text_field( isset( $_POST['start_date'] ) ? wp_unslash( $_POST['start_date'] ) : '' );
+		$end_date   = sanitize_text_field( isset( $_POST['end_date'] ) ? wp_unslash( $_POST['end_date'] ) : '' );
+
+		if ( isset( $_POST['show_expired'] ) ) {
+			$show_expired = ! empty( $_POST['show_expired'] );
+		} else {
+			$show_expired = ! empty( $this->main_options['show_expired_tasks'] );
+		}
+		if ( isset( $_POST['show_empty'] ) ) {
+			$show_empty = ! empty( $_POST['show_empty'] );
+		} elseif ( 'single_sheet' === $view_type ) {
+			$show_empty = true;
+		} else {
+			$show_empty = ! empty( $this->main_options['show_all_slots_for_all_data'] );
+		}
+
+		// Per-column search filters sent as a JSON-encoded object: { "colIdx": "value", ... }.
+		$column_filters = array();
+		if ( ! empty( $_POST['col_search'] ) ) {
+			$raw = json_decode( wp_unslash( $_POST['col_search'] ), true );
+			if ( is_array( $raw ) ) {
+				foreach ( $raw as $idx => $val ) {
+					$column_filters[ absint( $idx ) ] = sanitize_text_field( $val );
+				}
+			}
+		}
+
+		// Authoritative column slug list from the client.
+		$client_column_slugs = array();
+		if ( ! empty( $_POST['column_slugs'] ) ) {
+			foreach ( explode( ',', sanitize_text_field( wp_unslash( $_POST['column_slugs'] ) ) ) as $slug ) {
+				$slug = sanitize_key( $slug );
+				if ( $slug ) {
+					$client_column_slugs[] = $slug;
+				}
+			}
+		}
+
+		// Build or retrieve cached full dataset (same cache as DT data endpoint).
+		$cache_args = array(
+			'view_type'    => $view_type,
+			'sheet_id'     => $sheet_id,
+			'sheet_ids'    => $sheet_ids,
+			'start_date'   => $start_date,
+			'end_date'     => $end_date,
+			'show_expired' => $show_expired,
+			'show_empty'   => $show_empty,
+			'column_slugs' => $client_column_slugs,
+		);
+		$cache_key = 'pta_adt_' . md5( wp_json_encode( $cache_args ) . '_' . get_current_user_id() );
+		$all_rows  = get_transient( $cache_key );
+		if ( false === $all_rows ) {
+			$all_rows = $this->build_admin_dt_rows( $cache_args );
+			set_transient( $cache_key, $all_rows, 5 * MINUTE_IN_SECONDS );
+		}
+
+		// Remove remaining rows if requested.
+		if ( $hide_remaining ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) {
+				return ! $row['is_remaining'];
+			} ) );
+		}
+
+		// Apply per-column exact-match filters.
+		foreach ( $column_filters as $col_idx => $filter_val ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) use ( $col_idx, $filter_val ) {
+				$cell_text = isset( $row['search_values'][ $col_idx ] ) ? $row['search_values'][ $col_idx ] : '';
+				return $cell_text === $filter_val;
+			} ) );
+		}
+
+		// Apply global search.
+		if ( '' !== $search ) {
+			$all_rows = array_values( array_filter( $all_rows, function( $row ) use ( $search ) {
+				return false !== stripos( implode( ' ', $row['search_values'] ), $search );
+			} ) );
+		}
+
+		// Sort.
+		$all_rows = $this->sort_admin_dt_rows( $all_rows, $order_col, $order_dir );
+
+		// Resolve column list.
+		$columns = $this->get_columns_for_view( $view_type, $sheet_id ? pta_sus_get_sheet( $sheet_id ) : null );
+		if ( ! empty( $client_column_slugs ) ) {
+			$override = array();
+			foreach ( $client_column_slugs as $slug ) {
+				$override[ $slug ] = isset( $columns[ $slug ] ) ? $columns[ $slug ] : $slug;
+			}
+			$columns = $override;
+		}
+
+		// Determine export format family.
+		$is_print = in_array( $format, array( 'print', 'pdf' ), true );
+
+		if ( $is_print ) {
+			$title = ( 'single_sheet' === $view_type && $sheet_id )
+				? get_the_title( $sheet_id )
+				: __( 'All Signups', 'pta-volunteer-sign-up-sheets' );
+			$this->export_as_print_html( $all_rows, $columns, $title );
+		} else {
+			$filename = ( 'single_sheet' === $view_type && $sheet_id )
+				? sanitize_file_name( get_the_title( $sheet_id ) . '-signups.csv' )
+				: 'all-signups.csv';
+			$this->export_as_csv( $all_rows, $columns, $filename );
+		}
+
+		exit;
+	}
+
+	/**
+	 * Output the row set as a UTF-8 CSV download.
+	 *
+	 * Uses search_values (plain text) for each cell so the download is free of HTML markup.
+	 * The 'actions' column is excluded.
+	 *
+	 * @since 6.2.0
+	 * @param array  $rows     Rows from build_admin_dt_rows().
+	 * @param array  $columns  Column slug => label map (ordered).
+	 * @param string $filename Suggested download filename.
+	 */
+	private function export_as_csv( $rows, $columns, $filename ) {
+		// Build the list of (slug, index) pairs excluding 'actions'.
+		$export_cols = array();
+		$idx         = 0;
+		foreach ( $columns as $slug => $label ) {
+			if ( 'actions' !== $slug ) {
+				$export_cols[] = array( 'idx' => $idx, 'label' => $label );
+			}
+			$idx++;
+		}
+
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+
+		$out = fopen( 'php://output', 'w' );
+		// UTF-8 BOM so Excel auto-detects the encoding.
+		fputs( $out, "\xEF\xBB\xBF" );
+
+		// Header row.
+		$header = array_column( $export_cols, 'label' );
+		fputcsv( $out, $header, ',', '"', '\\' );
+
+		// Data rows.
+		foreach ( $rows as $row ) {
+			$line = array();
+			foreach ( $export_cols as $col ) {
+				$line[] = isset( $row['search_values'][ $col['idx'] ] ) ? $row['search_values'][ $col['idx'] ] : '';
+			}
+			fputcsv( $out, $line, ',', '"', '\\' );
+		}
+
+		fclose( $out );
+	}
+
+	/**
+	 * Output the row set as a printable HTML page.
+	 *
+	 * The page auto-triggers window.print() on load and includes a manual Print button.
+	 * Uses cell HTML (from 'cells') so formatting is preserved; the 'actions' column is excluded.
+	 *
+	 * @since 6.2.0
+	 * @param array  $rows    Rows from build_admin_dt_rows().
+	 * @param array  $columns Column slug => label map (ordered).
+	 * @param string $title   Page/report title.
+	 */
+	private function export_as_print_html( $rows, $columns, $title ) {
+		// Build the list of (slug, index) pairs excluding 'actions'.
+		$export_cols = array();
+		$idx         = 0;
+		foreach ( $columns as $slug => $label ) {
+			if ( 'actions' !== $slug ) {
+				$export_cols[] = array( 'idx' => $idx, 'label' => $label, 'slug' => $slug );
+			}
+			$idx++;
+		}
+
+		$esc_title = esc_html( $title );
+		$now       = esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
+
+		header( 'Content-Type: text/html; charset=utf-8' );
+		?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title><?php echo $esc_title; ?></title>
+<style>
+body { font-family: Arial, sans-serif; font-size: 11px; margin: 20px; color: #333; }
+h1 { font-size: 16px; margin-bottom: 4px; }
+.report-meta { font-size: 10px; color: #666; margin-bottom: 12px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
+th { background: #f1f1f1; font-weight: bold; }
+tr.remaining td { color: #aaa; font-style: italic; }
+.no-print { margin-bottom: 12px; }
+@media print {
+	.no-print { display: none; }
+	body { margin: 0; }
+}
+</style>
+</head>
+<body>
+<div class="no-print">
+	<button onclick="window.print()"><?php esc_html_e( 'Print', 'pta-volunteer-sign-up-sheets' ); ?></button>
+	<button onclick="window.close()" style="margin-left:8px;"><?php esc_html_e( 'Close', 'pta-volunteer-sign-up-sheets' ); ?></button>
+</div>
+<h1><?php echo $esc_title; ?></h1>
+<p class="report-meta"><?php
+	/* translators: %s: date and time the report was generated */
+	printf( esc_html__( 'Generated: %s', 'pta-volunteer-sign-up-sheets' ), $now );
+?></p>
+<table>
+<thead>
+<tr>
+<?php foreach ( $export_cols as $col ) : ?>
+<th><?php echo esc_html( $col['label'] ); ?></th>
+<?php endforeach; ?>
+</tr>
+</thead>
+<tbody>
+<?php foreach ( $rows as $row ) :
+	$tr_class = ! empty( $row['DT_RowClass'] ) ? ' class="' . esc_attr( $row['DT_RowClass'] ) . '"' : '';
+	?>
+<tr<?php echo $tr_class; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already escaped above ?>>
+<?php foreach ( $export_cols as $col ) :
+	$cell_html = isset( $row['cells'][ $col['idx'] ] ) ? $row['cells'][ $col['idx'] ] : '';
+	?>
+<td><?php echo wp_kses_post( $cell_html ); ?></td>
+<?php endforeach; ?>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+<script>window.onload = function() { window.print(); };</script>
+</body>
+</html>
+		<?php
+	}
+
+	/**
+	 * Build the full row dataset for server-side DataTables.
+	 *
+	 * Each row contains:
+	 *   'cells'         => HTML strings, one per column.
+	 *   'search_values' => Plain-text strings for global search and column filters.
+	 *   'sort_values'   => Sortable values (timestamps for date/ts, lowercase strings otherwise).
+	 *   'is_remaining'  => bool — true for empty-slot rows.
+	 *   'DT_RowClass'   => CSS class for the <tr>.
+	 *
+	 * @since  6.2.0
+	 * @param  array $args {
+	 *     @type string $view_type    'single_sheet' or 'all_data'.
+	 *     @type int    $sheet_id     Sheet ID (single_sheet only).
+	 *     @type array  $sheet_ids    Allowed sheet IDs (empty = all).
+	 *     @type string $start_date   Date range start (Y-m-d).
+	 *     @type string $end_date     Date range end (Y-m-d).
+	 *     @type bool   $show_expired Include expired task-dates.
+	 *     @type bool   $show_empty   Include remaining-slot rows.
+	 * }
+	 * @return array Array of row associative arrays.
+	 */
+	private function build_admin_dt_rows( $args ) {
+		$rows      = array();
+		$view_type = $args['view_type'];
+
+		if ( 'single_sheet' === $view_type ) {
+			$sheet = pta_sus_get_sheet( (int) $args['sheet_id'] );
+			if ( ! $sheet ) {
+				return array();
+			}
+			$sheets  = array( $sheet );
+			$columns = $this->get_columns_for_view( $view_type, $sheet );
+		} else {
+			$sheet_args = array(
+				'trash'       => false,
+				'active_only' => false,
+				'show_hidden' => true,
+			);
+			if ( ! current_user_can( 'manage_others_signup_sheets' ) ) {
+				$sheet_args['author_id'] = get_current_user_id();
+			}
+			$sheets  = PTA_SUS_Sheet_Functions::get_sheets_by_args( $sheet_args );
+			$sheets  = apply_filters( 'pta_sus_admin_view_all_data_sheets', $sheets );
+			$columns = $this->get_columns_for_view( $view_type );
+
+			// Report-builder: filter to specific sheets.
+			if ( ! empty( $args['sheet_ids'] ) ) {
+				$allowed = array_map( 'intval', $args['sheet_ids'] );
+				$sheets  = array_filter( $sheets, function( $s ) use ( $allowed ) {
+					return in_array( (int) $s->id, $allowed, true );
+				} );
+			}
+		}
+
+		// If the client sent authoritative column slugs (from the page-render context where
+		// all extension filters fired), use those to override the column order/set. This
+		// ensures extension columns added via admin_menu/admin_init hooks — which don't fire
+		// during wp_ajax_ requests — are still included at their correct positions.
+		if ( ! empty( $args['column_slugs'] ) ) {
+			$override = array();
+			foreach ( $args['column_slugs'] as $slug ) {
+				$override[ $slug ] = isset( $columns[ $slug ] ) ? $columns[ $slug ] : $slug;
+			}
+			$columns = $override;
+		}
+
+		$show_expired   = ! empty( $args['show_expired'] );
+		$show_empty     = ! empty( $args['show_empty'] );
+		$show_all_slots = ! empty( $this->main_options['show_all_slots_for_all_data'] );
+		$today          = current_time( 'Y-m-d' );
+
+		foreach ( $sheets as $sheet ) {
+			$all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet( (int) $sheet->id );
+			$tasks          = PTA_SUS_Task_Functions::get_tasks( $sheet->id );
+
+			if ( empty( $all_task_dates ) || empty( $tasks ) ) {
+				continue;
+			}
+
+			foreach ( $all_task_dates as $tdate ) {
+				// Skip expired dates unless requested.
+				if ( '0000-00-00' !== $tdate ) {
+					if ( ! $show_expired && $tdate < $today ) {
+						continue;
+					}
+					// Date-range filtering (report builder).
+					if ( ! empty( $args['start_date'] ) && $tdate < $args['start_date'] ) {
+						continue;
+					}
+					if ( ! empty( $args['end_date'] ) && $tdate > $args['end_date'] ) {
+						continue;
+					}
+				}
+
+				foreach ( $tasks as $task ) {
+					$task_dates = explode( ',', $task->dates );
+					if ( ! in_array( $tdate, $task_dates, true ) ) {
+						continue;
+					}
+
+					$signups = PTA_SUS_Signup_Functions::get_signups_for_task( $task->id, $tdate );
+					$i       = 0;
+
+					foreach ( $signups as $signup ) {
+						$rows[] = $this->format_admin_dt_row( $sheet, $task, $signup, $tdate, $i + 1, false, $columns );
+						if ( 'YES' === $task->enable_quantities ) {
+							$i += (int) $signup->item_qty;
+						} else {
+							$i++;
+						}
+					}
+
+					// Remaining (empty) slots.
+					if ( $show_empty && $i < (int) $task->qty ) {
+						if ( $show_all_slots || 'single_sheet' === $view_type ) {
+							for ( $x = $i + 1; $x <= (int) $task->qty; $x++ ) {
+								$rows[] = $this->format_admin_dt_row( $sheet, $task, false, $tdate, $x, true, $columns );
+							}
+						} else {
+							$rows[] = $this->format_admin_dt_remaining_summary( $sheet, $task, $tdate, (int) $task->qty - $i, $columns );
+						}
+					}
+				}
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Format a single signup (or empty-slot) row for the server-side DT response.
+	 *
+	 * Uses output buffering on the existing output_signup_column_data() method so
+	 * that cell HTML is identical between client-side and server-side modes.
+	 *
+	 * @since  6.2.0
+	 * @param  object       $sheet       Sheet object.
+	 * @param  object       $task        Task object.
+	 * @param  object|false $signup      Signup object, or false for an empty slot.
+	 * @param  string       $tdate       Raw task date (Y-m-d or '0000-00-00').
+	 * @param  int          $slot_num    Slot number (1-based) to display in the # column.
+	 * @param  bool         $is_remaining True for an empty-slot row.
+	 * @param  array        $columns     Ordered slug => label column map.
+	 * @return array Row data array.
+	 */
+	private function format_admin_dt_row( $sheet, $task, $signup, $tdate, $slot_num, $is_remaining, $columns ) {
+		$cells         = array();
+		$search_values = array();
+		$sort_values   = array();
+
+		foreach ( $columns as $slug => $label ) {
+			ob_start();
+			$this->output_signup_column_data( $slug, $slot_num, $sheet, $task, $signup, $tdate );
+			$cell_html = ob_get_clean();
+
+			$cells[]         = $cell_html;
+			$search_values[] = wp_strip_all_tags( $cell_html );
+
+			if ( 'date' === $slug ) {
+				$sort_values[] = ( '0000-00-00' !== $tdate ) ? strtotime( $tdate ) : 0;
+			} elseif ( 'ts' === $slug ) {
+				$sort_values[] = ( $signup && ! empty( $signup->ts ) ) ? (int) $signup->ts : 0;
+			} else {
+				$sort_values[] = strtolower( wp_strip_all_tags( $cell_html ) );
+			}
+		}
+
+		return array(
+			'cells'         => $cells,
+			'search_values' => $search_values,
+			'sort_values'   => $sort_values,
+			'is_remaining'  => $is_remaining,
+			'DT_RowClass'   => $is_remaining ? 'remaining' : '',
+		);
+	}
+
+	/**
+	 * Format a summary "X remaining" row for the all-data view (show_all_slots off).
+	 *
+	 * Produces a single row representing all empty slots for one task-date, matching
+	 * the summary row rendered by admin-view-all-signups-html.php.
+	 *
+	 * @since  6.2.0
+	 * @param  object $sheet           Sheet object.
+	 * @param  object $task            Task object.
+	 * @param  string $tdate           Raw task date (Y-m-d or '0000-00-00').
+	 * @param  int    $remaining_count Number of empty slots.
+	 * @param  array  $columns         Ordered slug => label column map.
+	 * @return array Row data array.
+	 */
+	private function format_admin_dt_remaining_summary( $sheet, $task, $tdate, $remaining_count, $columns ) {
+		$cells         = array();
+		$search_values = array();
+		$sort_values   = array();
+
+		$remaining_text = sprintf( __( '%d remaining', 'pta-volunteer-sign-up-sheets' ), $remaining_count );
+
+		foreach ( $columns as $slug => $label ) {
+			if ( 'slot' === $slug ) {
+				$cell_html = '<strong>' . esc_html( $remaining_text ) . '</strong>';
+			} else {
+				ob_start();
+				$this->output_signup_column_data( $slug, 0, $sheet, $task, false, $tdate );
+				$cell_html = ob_get_clean();
+			}
+
+			$cells[]         = $cell_html;
+			$search_values[] = wp_strip_all_tags( $cell_html );
+
+			if ( 'date' === $slug ) {
+				$sort_values[] = ( '0000-00-00' !== $tdate ) ? strtotime( $tdate ) : 0;
+			} else {
+				$sort_values[] = strtolower( wp_strip_all_tags( $cell_html ) );
+			}
+		}
+
+		return array(
+			'cells'         => $cells,
+			'search_values' => $search_values,
+			'sort_values'   => $sort_values,
+			'is_remaining'  => true,
+			'DT_RowClass'   => 'remaining',
+		);
+	}
+
+	/**
+	 * Sort the full row dataset by a column index and direction.
+	 *
+	 * Uses sort_values (timestamps for date/ts columns, lowercase strings otherwise).
+	 * Numeric values are compared numerically; strings use strcmp.
+	 *
+	 * @since  6.2.0
+	 * @param  array  $rows      Array of row data arrays from build_admin_dt_rows().
+	 * @param  int    $order_col Column index (0-based) to sort by.
+	 * @param  string $order_dir 'asc' or 'desc'.
+	 * @return array Sorted rows.
+	 */
+	private function sort_admin_dt_rows( $rows, $order_col, $order_dir ) {
+		if ( count( $rows ) < 2 ) {
+			return $rows;
+		}
+		usort( $rows, function( $a, $b ) use ( $order_col, $order_dir ) {
+			$a_val = isset( $a['sort_values'][ $order_col ] ) ? $a['sort_values'][ $order_col ] : '';
+			$b_val = isset( $b['sort_values'][ $order_col ] ) ? $b['sort_values'][ $order_col ] : '';
+
+			if ( is_numeric( $a_val ) && is_numeric( $b_val ) ) {
+				if ( (float) $a_val < (float) $b_val ) {
+					$cmp = -1;
+				} elseif ( (float) $a_val > (float) $b_val ) {
+					$cmp = 1;
+				} else {
+					$cmp = 0;
+				}
+			} else {
+				$cmp = strcmp( (string) $a_val, (string) $b_val );
+			}
+
+			return 'desc' === $order_dir ? -$cmp : $cmp;
+		} );
+		return $rows;
+	}
+
+	/**
+	 * Build distinct column values for the server-side select-filter dropdowns.
+	 *
+	 * Iterates the filtered (post-search, post-filter) row set and collects unique
+	 * plain-text values per column index. The JS uses this to rebuild the footer
+	 * <select> elements without re-fetching all data.
+	 *
+	 * @since  6.2.0
+	 * @param  array $rows Filtered (but not yet paginated) row data arrays.
+	 * @return array Associative array of column_index => string[].
+	 */
+	private function build_filter_options( $rows ) {
+		$options = array();
+		foreach ( $rows as $row ) {
+			foreach ( $row['search_values'] as $idx => $val ) {
+				if ( ! isset( $options[ $idx ] ) ) {
+					$options[ $idx ] = array();
+				}
+				if ( '' !== $val && ! in_array( $val, $options[ $idx ], true ) ) {
+					$options[ $idx ][] = $val;
+				}
+			}
+		}
+		return $options;
+	}
+
+	/**
+	 * Return the ordered columns map for a given admin view type.
+	 *
+	 * Applies the same filters used by the PHP templates so that extensions which
+	 * add custom columns via those filters work identically in server-side mode.
+	 *
+	 * @since  6.2.0
+	 * @param  string      $view_type 'single_sheet' or 'all_data'.
+	 * @param  object|null $sheet     Sheet object passed to the single_sheet filter.
+	 * @return array Ordered associative array of slug => label.
+	 */
+	private function get_columns_for_view( $view_type, $sheet = null ) {
+		if ( 'single_sheet' === $view_type ) {
+			return apply_filters( 'pta_sus_admin_view_signups_columns', array(
+				'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
+				'task'        => __( 'Task/Item', 'pta-volunteer-sign-up-sheets' ),
+				'description' => __( 'Task Description', 'pta-volunteer-sign-up-sheets' ),
+				'start'       => __( 'Start Time', 'pta-volunteer-sign-up-sheets' ),
+				'end'         => __( 'End Time', 'pta-volunteer-sign-up-sheets' ),
+				'slot'        => '#',
+				'name'        => __( 'Name', 'pta-volunteer-sign-up-sheets' ),
+				'email'       => __( 'E-mail', 'pta-volunteer-sign-up-sheets' ),
+				'phone'       => __( 'Phone', 'pta-volunteer-sign-up-sheets' ),
+				'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
+				'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
+				'ts'          => __( 'Signup Time', 'pta-volunteer-sign-up-sheets' ),
+				'validated'   => __( 'Validated', 'pta-volunteer-sign-up-sheets' ),
+				'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' ),
+			), $sheet );
+		}
+
+		// all_data view.
+		return apply_filters( 'pta_sus_admin_view_all_data_columns', array(
+			'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
+			'sheet'       => __( 'Sheet', 'pta-volunteer-sign-up-sheets' ),
+			'task'        => __( 'Task/Item', 'pta-volunteer-sign-up-sheets' ),
+			'description' => __( 'Task Description', 'pta-volunteer-sign-up-sheets' ),
+			'start'       => __( 'Start Time', 'pta-volunteer-sign-up-sheets' ),
+			'end'         => __( 'End Time', 'pta-volunteer-sign-up-sheets' ),
+			'slot'        => '#',
+			'name'        => __( 'Name', 'pta-volunteer-sign-up-sheets' ),
+			'email'       => __( 'E-mail', 'pta-volunteer-sign-up-sheets' ),
+			'phone'       => __( 'Phone', 'pta-volunteer-sign-up-sheets' ),
+			'details'     => __( 'Item Details', 'pta-volunteer-sign-up-sheets' ),
+			'qty'         => __( 'Item Qty', 'pta-volunteer-sign-up-sheets' ),
+			'validated'   => __( 'Validated', 'pta-volunteer-sign-up-sheets' ),
+			'ts'          => __( 'Signup Time', 'pta-volunteer-sign-up-sheets' ),
+			'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' ),
+		) );
+	}
+
+	/**
+	 * Clear all server-side DataTables transient cache entries.
+	 *
+	 * Called on any signup, task, or sheet CRUD operation so cached datasets are
+	 * never stale after data changes.
+	 *
+	 * @since 6.2.0
+	 */
+	public function invalidate_admin_dt_cache() {
+		global $wpdb;
+		$wpdb->query(
+			"DELETE FROM {$wpdb->options}
+			 WHERE option_name LIKE '_transient_pta_adt_%'
+			    OR option_name LIKE '_transient_timeout_pta_adt_%'"
+		);
 	}
 
 } // End of Class

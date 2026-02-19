@@ -11,7 +11,10 @@
 	 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-$all_task_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet((int)$sheet->id);
+$dt_mode     = $this->main_options['admin_dt_server_side'] ?? 'off';
+$server_side = ( 'on' === $dt_mode || 'auto' === $dt_mode );
+
+$all_task_dates = $server_side ? array() : PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet((int)$sheet->id);
 // Allow extensions to add columns
 $columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
 	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
@@ -32,7 +35,7 @@ $columns = apply_filters( 'pta_sus_admin_view_signups_columns', array(
 $num_cols = count($columns);
 
 ?>
-<table id="pta-sheet-signups" class="pta-signups-table widefat">
+<table id="pta-sheet-signups" class="pta-signups-table widefat" data-column-slugs="<?php echo esc_attr( implode( ',', array_keys( $columns ) ) ); ?>">
 	<thead>
 		<tr>
 		<?php foreach ($columns as $slug => $label):
@@ -46,6 +49,7 @@ $num_cols = count($columns);
 		</tr>
 	</thead>
 	<tbody>
+	<?php if ( ! $server_side ) : ?>
 	<?php foreach ($all_task_dates as $tdate):
 		// check if we want to show expired tasks and Skip any task whose date has already passed
 		if ( !$this->main_options['show_expired_tasks']) {
@@ -111,6 +115,7 @@ $num_cols = count($columns);
 			<?php endif; ?>
 		<?php endforeach; ?>
 	<?php endforeach; ?>
+	<?php endif; // ! $server_side ?>
 	</tbody>
 	<tfoot>
 	<tr>

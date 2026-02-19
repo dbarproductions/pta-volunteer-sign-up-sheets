@@ -144,6 +144,8 @@ class PTA_SUS_Options {
 	    add_settings_field('disable_datei18n', __('Disable Date/Time Translation?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_datei18n_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('disable_grouping', __('Disable Grouping?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_grouping_settings_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 	    add_settings_field('show_all_slots_for_all_data', __('Show All Slots for All Data?', 'pta-volunteer-sign-up-sheets'), array($this, 'show_all_slots_for_all_data_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+        add_settings_field('admin_dt_server_side', __('Admin DataTables Mode', 'pta-volunteer-sign-up-sheets'), array($this, 'admin_dt_server_side_select'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
+        add_settings_field('admin_dt_threshold', __('Server-Side Row Threshold', 'pta-volunteer-sign-up-sheets'), array($this, 'admin_dt_threshold_number_input'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
         add_settings_field('hide_donation_button', __('Hide donation button?', 'pta-volunteer-sign-up-sheets'), array($this, 'hide_donation_button_checkbox'), 'pta_volunteer_sus_main', 'pta_volunteer_main');
 
         // Email Settings
@@ -305,7 +307,9 @@ class PTA_SUS_Options {
 		    'show_task_description_on_signup_form' => 'bool',
             'hide_single_date_header'              => 'bool',
 		    'disable_signup_after_start_time'      => 'bool',
-		    'hide_task_after_start_time'           => 'bool'
+		    'hide_task_after_start_time'           => 'bool',
+		    'admin_dt_server_side'                 => 'text',
+		    'admin_dt_threshold'                   => 'integer',
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -1176,6 +1180,33 @@ class PTA_SUS_Options {
 		<?php
 		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Check this to show each empty slot in its own row on the admin View/Export ALL Data page. Useful in you want to print a manual signup form for multiple sheets at once. NOTE that this will greatly slow down the load time and dataTables initialization time of that page.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
     }
+
+    public function admin_dt_server_side_select() {
+        $selected = isset( $this->main_options['admin_dt_server_side'] ) ? $this->main_options['admin_dt_server_side'] : 'off';
+        $options = array(
+            'off'  => __( 'Off — client-side (default)', 'pta-volunteer-sign-up-sheets' ),
+            'on'   => __( 'On — always server-side', 'pta-volunteer-sign-up-sheets' ),
+            'auto' => __( 'Auto — server-side when row count exceeds threshold', 'pta-volunteer-sign-up-sheets' ),
+        );
+        ?>
+        <select name="pta_volunteer_sus_main_options[admin_dt_server_side]">
+            <?php foreach ( $options as $value => $label ) : ?>
+                <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $selected, $value ); ?>><?php echo esc_html( $label ); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <?php
+        echo '<em> ' . __( 'Server-side mode loads admin signup views via AJAX, paginating and filtering on the server. Recommended for large sites with many sheets/slots.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
+    public function admin_dt_threshold_number_input() {
+        $val = isset( $this->main_options['admin_dt_threshold'] ) ? absint( $this->main_options['admin_dt_threshold'] ) : 500;
+        ?>
+        <input type="number" name="pta_volunteer_sus_main_options[admin_dt_threshold]"
+               value="<?php echo esc_attr( $val ); ?>" min="50" max="10000" step="50" style="width:80px;" />
+        <?php
+        echo '<em> ' . __( 'Auto mode activates server-side processing when the estimated row count exceeds this value. Ignored when mode is On or Off.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+    }
+
 
     public function enable_validation_checkbox() {
         if ( isset( $this->validation_options['enable_validation'] ) && true === $this->validation_options['enable_validation'] ) {
