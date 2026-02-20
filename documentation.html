@@ -9,12 +9,18 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 <h3>Newest Features</h3>
 <div>
 
+  <strong>Version 6.2</strong>
+  <ul>
+    <li><strong>Reply-To Email in Templates:</strong> Email templates now have a dedicated reply-to email address field, giving you per-template control over where replies go. You can also use the <code>{chair_name}</code> and <code>{chair_email}</code> template tags in the From name, From email, and reply-to fields to automatically use the sheet's first valid chair contact info when sending each email.</li>
+    <li><strong>Server-Side DataTables for Admin Views:</strong> The View Sheet Data and View All Data admin pages now support optional server-side DataTables processing for improved performance with large datasets. When enabled, only the current page of data is sent to the browser at a time. Three modes are available in Main Settings: <strong>Off</strong> (classic client-side, default), <strong>On</strong> (always server-side), and <strong>Auto</strong> (automatically switches when the total row count exceeds a configurable threshold). Results are transient-cached and automatically refreshed whenever signups, tasks, or sheets are added, changed, or removed.</li>
+    <li><strong>Report Builder for View All Data:</strong> An integrated filter panel has been added to the View All Data admin page. Filter by specific sheets (multi-select), a date range, and toggle whether to include expired task dates or empty slot rows — without reloading the page. Active filters also apply when exporting to Excel, CSV, PDF, or Print in server-side mode.</li>
+    <li><strong>Updated DataTables Library:</strong> The DataTables JavaScript library has been updated from version 1.x to the latest 2.x. Both versions remain registered for backward compatibility with extensions.</li>
+  </ul>
   <strong>Version 6.1</strong>
   <ul>
     <li><strong>Centralized License Manager:</strong> A new "Licenses" page has been added under the Sign-up Sheets menu. You can now manage the license keys for the main plugin and all installed extensions from a single page. There is also an "Activate All" feature that lets you enter one license key and activate all extensions at once — perfect if you have an All Access or bundle key. The existing License tab in Settings continues to work as before. See the "Licenses" section under Settings for more details. NOTE: Extensions will be gradually updated to take advantage of the new Licenses page and License Manager class, but their individual license pages will continue to work on their own.</li>
-    <li><strong>Disable Signups After Task Start Time:</strong> New option in Settings > Main Settings that prevents volunteers from signing up once a task's start time has passed. An additional sub-option lets you completely hide those tasks from the public sign-up sheet.</li>
+    <li><strong>Disable Signups After Task Start Time:</strong> New option in Settings &gt; Main Settings that prevents volunteers from signing up once a task's start time has passed. An additional sub-option lets you completely hide those tasks from the public sign-up sheet.</li>
   </ul>
-
   <strong>Version 6.0</strong>
   <ul>
     <li><strong>Author System:</strong> A new "Signup Sheet Author" user role has been added that allows users to create and manage only their own sign-up sheets. Administrators and Signup Sheet Managers continue to manage all sheets, while Authors can only see and edit sheets they've created. This is perfect for organizations that want to delegate sheet management to committee chairs or event coordinators without giving them full admin access. See the new "Author System" section in Settings for more details.</li>
@@ -26,7 +32,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><strong>Performance Improvements:</strong> The core plugin code has been significantly refactored for better performance, with more efficient database queries and optimized object caching.</li>
     <li><strong>Email Template Migration:</strong> If you were using custom email templates from the Customizer extension, those templates are automatically migrated to the new built-in Email Templates system during the upgrade.</li>
   </ul>
-
   <strong>Version 5.0</strong>
   <ul>
     <li>New Validation system added, which allows volunteers to manage their signups without needing a WordPress user account. Check out the new Validation System tab for all the details and settings.</li>
@@ -145,15 +150,18 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><strong>Disable Date/Time Translation?</strong> -- This disables the WordPress date_i18n date/time translation function, instead uses the simple PHP date function to format dates and times. WordPress modified the way they do things in 5.3, and if any other plugin or theme is using the date_default_timezone_set function (WordPress specifically states that function should NOT be used any more), it could throw off the display times. This option will correct for that by using the simple PHP date function to format date and time displays. However, this will NOT allow translation, and so dates/times will be shown in the language locale set on your server.</li>
     <li><strong>Disable Grouping? - </strong> Check this to disable the row grouping feature of DataTables on the admin side View Signups and View All Data pages. Checking this will completely disable that feature and show all columns by default.</li>
     <li><strong>Show All Slots for All Data? - </strong>Check this to show each empty slot in its own row on the admin View/Export ALL Data page. Useful if you want to print a manual signup form for multiple sheets at once. NOTE that this will greatly slow down the load time and dataTables initialization time of that page.</li>
+    <li><strong>Admin DataTables Mode</strong> -- <em>(Added in v6.2)</em> Controls how the View Sheet Data and View All Data admin pages load and display signup data. <strong>Off</strong> (default): classic client-side mode — all data for the current view is loaded into the browser at once, suitable for most sites. <strong>On</strong>: always uses server-side processing — only the currently visible page of results is fetched from the server at a time, recommended for sites with very large datasets. <strong>Auto</strong>: automatically uses server-side mode when the total row count exceeds the threshold set in the next option. Server-side results are cached for a few minutes and automatically cleared whenever signups, tasks, or sheets are added or changed.</li>
+    <li><strong>Server-Side Threshold</strong> -- <em>(Added in v6.2)</em> When Admin DataTables Mode is set to Auto, this is the number of rows at which server-side processing is automatically activated. Default is 500. Increase this value if you prefer classic client-side mode for moderately-sized datasets, or lower it to switch to server-side mode sooner.</li>
   </ul>
 </div>
 <h3>Email Settings</h3>
 <div>
-  <p><strong>Note:</strong> As of version 6.0, email templates (subject lines and message bodies for confirmation, reminder, reschedule, clear, and validation emails) have been moved to the dedicated "Email Templates" submenu under Sign-Up Sheets. The settings below are for general email configuration. See the "Email Templates" section for information on creating and managing email templates.</p>
+
+  <strong>Note:</strong> As of version 6.0, email templates (subject lines and message bodies for confirmation, reminder, reschedule, clear, and validation emails) have been moved to the dedicated "Email Templates" submenu under Sign-Up Sheets. The settings below are for general email configuration. See the "Email Templates" section for information on creating and managing email templates.
   <ul>
     <li><strong>Send HTML emails?</strong> -- If checked, emails will be sent in HTML format and you can use HTML tags in the email templates. When this is enabled (off by default), the email template editor will use an HTML editor for creating formatted messages. The WordPress wpautop function is used on templates to convert double line breaks to paragraph tags.</li>
-    <li><strong>FROM email</strong> -- Enter the email address that you want set as the From address for signup confirmation and reminder emails. NOTE: if you use an SMTP plugin, this address may be overridden by your SMTP settings.</li>
-    <li><strong>Reply-To email</strong> -- The reply-to email address for emails sent by the plugin.</li>
+    <li><strong>FROM email</strong> -- Enter the email address that you want set as the From address for signup confirmation and reminder emails. NOTE: if you use an SMTP plugin, this address may be overridden by your SMTP settings. <em>(v6.2)</em> You can use <code>{chair_name}</code> or <code>{chair_email}</code> here to automatically use the first valid chair name or email for the sheet associated with each email being sent.</li>
+    <li><strong>Reply-To email</strong> -- The global reply-to email address for emails sent by the plugin. <em>(v6.2)</em> You can use <code>{chair_name}</code> or <code>{chair_email}</code> here to automatically use the sheet's chair contact info. Note that individual email templates can now also have their own reply-to address set, which will override this global setting for that template.</li>
     <li><strong>Reply-To Chairs?</strong> -- Check this to have the reply-to emails be set from the chair emails. When checked, the above reply-to option is ignored.</li>
     <li><strong>Max Reminders per Hour</strong> -- If your hosting account places a limit on the number of outgoing emails per hour, it's a good idea to set a number here to limit how many emails this plugin can send out per hour. Make sure to give yourself some margin to allow for other system emails as well. Leave blank or set to zero for no limit.</li>
     <li><strong>Separate CC/BCC to individual TO emails?</strong> -- If checked, any CC or BCC email addresses (chairs, global CC, admin) will be sent individually as separate emails, as opposed to one email with several CC or BCC addresses in the header. This could solve some email issues on some servers when using the built-in wp_mail function (PHP sendmail). Note, however, that this could send out a large number of emails at once, and you should be aware of any server limits on the number of emails sent per hour.</li>
@@ -166,10 +174,12 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 </div>
 <h3>Email Templates</h3>
 <div>
-  <p>Version 6.0 introduces a comprehensive Email Template Management system. Email templates are now managed in their own dedicated submenu under Sign-Up Sheets > Email Templates.</p>
 
+  Version 6.0 introduces a comprehensive Email Template Management system. Email templates are now managed in their own dedicated submenu under Sign-Up Sheets &gt; Email Templates.
   <h4>Overview</h4>
-  <p>The Email Templates system allows you to create custom email templates for all email types sent by the plugin:</p>
+  <em>(v6.2)</em> Email templates now support a dedicated <strong>Reply-To email</strong> field, letting you set a per-template reply-to address that overrides the global reply-to setting in Email Settings. You can use the <code>{chair_name}</code> and <code>{chair_email}</code> tags in the Reply-To field, as well as in the From Name and From Email fields, to automatically use the sheet's chair contact info for each email sent. This is useful for organizations where volunteers should reply directly to the sheet chair rather than a generic address.
+
+  The Email Templates system allows you to create custom email templates for all email types sent by the plugin:
   <ul>
     <li><strong>Confirmation</strong> - Sent when a volunteer signs up</li>
     <li><strong>Reminder 1</strong> - First reminder email before the event</li>
@@ -179,25 +189,22 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><strong>Signup Validation</strong> - Sent to validate a signup (if validation is enabled)</li>
     <li><strong>User Validation</strong> - Sent when using the validation form</li>
   </ul>
-
   <h4>Default vs Custom Templates</h4>
-  <p>The plugin includes built-in default templates for each email type. These defaults are always available and cannot be deleted. You can create custom templates to override the defaults at either the sheet level or task level:</p>
+  The plugin includes built-in default templates for each email type. These defaults are always available and cannot be deleted. You can create custom templates to override the defaults at either the sheet level or task level:
   <ul>
     <li><strong>Sheet Level:</strong> When you assign a template to a sheet, that template will be used for all tasks on that sheet (unless a task has its own template assigned).</li>
     <li><strong>Task Level:</strong> You can assign different templates to individual tasks, which will override any sheet-level template for that specific task.</li>
   </ul>
-
   <h4>Template Ownership</h4>
-  <p>Templates have an "owner" which determines who can use them:</p>
+  Templates have an "owner" which determines who can use them:
   <ul>
     <li><strong>Global Templates:</strong> Created by Administrators with "All Users" visibility. These templates are available to everyone and can be assigned to any sheet or task.</li>
     <li><strong>Author Templates:</strong> Created by Signup Sheet Authors for their own use. Authors can only see and use their own templates plus any global templates.</li>
   </ul>
-
   <h4>Creating Templates</h4>
-  <p>To create a new template:</p>
+  To create a new template:
   <ol>
-    <li>Go to Sign-Up Sheets > Email Templates</li>
+    <li>Go to Sign-Up Sheets &gt; Email Templates</li>
     <li>Click "Add New Template"</li>
     <li>Enter a name for your template (this is for your reference in dropdown lists)</li>
     <li>Select the email type (Confirmation, Reminder 1, etc.)</li>
@@ -206,9 +213,8 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li>If you're an administrator, choose whether this template should be available to "All Users" or just yourself</li>
     <li>Click "Save Template"</li>
   </ol>
-
   <h4>Template Tags</h4>
-  <p>Email templates support template tags that are replaced with actual values when the email is sent. Use the Template Tags Helper (appears at the top right of the template editor) to view all available tags and copy them to your clipboard. Common tags include:</p>
+  Email templates support template tags that are replaced with actual values when the email is sent. Use the Template Tags Helper (appears at the top right of the template editor) to view all available tags and copy them to your clipboard. Common tags include:
   <ul>
     <li><code>{first_name}</code> - Volunteer's first name</li>
     <li><code>{last_name}</code> - Volunteer's last name</li>
@@ -222,23 +228,20 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><code>{site_name}</code> - Your website name</li>
     <li><code>{site_url}</code> - Your website URL</li>
   </ul>
-  <p>Click on any tag in the Template Tags Helper to copy it to your clipboard, then paste it into your template.</p>
-
+  Click on any tag in the Template Tags Helper to copy it to your clipboard, then paste it into your template.
   <h4>Assigning Templates to Sheets</h4>
-  <p>When editing a sheet, you'll find email template selection dropdowns in the sheet settings. For each email type, you can select:</p>
+  When editing a sheet, you'll find email template selection dropdowns in the sheet settings. For each email type, you can select:
   <ul>
     <li><strong>Default:</strong> Uses the built-in default template</li>
     <li><strong>Any custom template:</strong> Select from your own templates or global templates</li>
   </ul>
-
   <h4>Assigning Templates to Tasks</h4>
-  <p>When editing a task (in the task modal), you'll find email template dropdowns for Confirmation and Reminder emails. Task-level templates override sheet-level templates for that specific task only.</p>
-
+  When editing a task (in the task modal), you'll find email template dropdowns for Confirmation and Reminder emails. Task-level templates override sheet-level templates for that specific task only.
   <h4>Duplicating Templates</h4>
-  <p>To quickly create a new template based on an existing one, use the "Duplicate" action from the Email Templates list. This creates a copy with "(Copy)" appended to the name, which you can then edit.</p>
-
+  To quickly create a new template based on an existing one, use the "Duplicate" action from the Email Templates list. This creates a copy with "(Copy)" appended to the name, which you can then edit.
   <h4>Migration from Customizer Extension</h4>
-  <p>If you were using custom email templates from the Customizer extension, those templates are automatically migrated to the new Email Templates system when you upgrade to version 6.0. Your existing template assignments will be preserved.</p>
+  If you were using custom email templates from the Customizer extension, those templates are automatically migrated to the new Email Templates system when you upgrade to version 6.0. Your existing template assignments will be preserved.
+
 </div>
 <h3>Validation Settings</h3>
 <div>
@@ -283,37 +286,37 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 </div>
 <h3>Licenses</h3>
 <div>
-  <p>Enter the license key from your <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase here</a> to enable automatic updates. As of May 2025, the main/free plugin has been moved to my own site after the wordpress.org repository got corrupted in February and the plugin team there was either unable, or unwilling, to fix it. In order to be able to release updates and security fixes, I moved the main/free plugin to my site and added the same licensing system I use for all my <a href="https://stephensherrardplugins.com/plugins/category/extensions/">extensions</a> to manage automatic updates. The license for the main plugin is free, but you need to make the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase</a> through my site to generate the license key.</p>
 
+  Enter the license key from your <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase here</a> to enable automatic updates. As of May 2025, the main/free plugin has been moved to my own site after the wordpress.org repository got corrupted in February and the plugin team there was either unable, or unwilling, to fix it. In order to be able to release updates and security fixes, I moved the main/free plugin to my site and added the same licensing system I use for all my <a href="https://stephensherrardplugins.com/plugins/category/extensions/">extensions</a> to manage automatic updates. The license for the main plugin is free, but you need to make the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/">free purchase</a> through my site to generate the license key.
   <h4>Licenses Page (New in Version 6.1)</h4>
-  <p>A new <strong>Licenses</strong> submenu page has been added under the Sign-up Sheets menu. This page gives you a single location to manage license keys for the main plugin and all installed extensions. You no longer need to visit each extension's settings page separately to activate or deactivate licenses.</p>
+  A new <strong>Licenses</strong> submenu page has been added under the Sign-up Sheets menu. This page gives you a single location to manage license keys for the main plugin and all installed extensions. You no longer need to visit each extension's settings page separately to activate or deactivate licenses.
 
-  <p>The Licenses page has two sections:</p>
+  The Licenses page has two sections:
 
-  <p><strong>Activate All Extensions</strong> — At the top of the page, you can enter a single license key and click "Activate All Extensions." This will attempt to activate every installed extension that does not already have a valid license. This is especially useful if you have an All Access Pass or a bundle license key that covers multiple plugins. Extensions that are already activated will be skipped automatically.</p>
+  <strong>Activate All Extensions</strong> — At the top of the page, you can enter a single license key and click "Activate All Extensions." This will attempt to activate every installed extension that does not already have a valid license. This is especially useful if you have an All Access Pass or a bundle license key that covers multiple plugins. Extensions that are already activated will be skipped automatically.
 
-  <p><strong>Individual Plugin Licenses</strong> — Below that, each registered plugin is shown with its own license key field and status. You can:</p>
+  <strong>Individual Plugin Licenses</strong> — Below that, each registered plugin is shown with its own license key field and status. You can:
   <ul>
     <li>Enter or change a license key for any individual plugin</li>
-    <li>See the current status at a glance — <span style="color:green;font-weight:bold;">Active</span> (green) or <span style="color:red;font-weight:bold;">Inactive</span> (red)</li>
+    <li>See the current status at a glance — <span style="color: green; font-weight: bold;">Active</span> (green) or <span style="color: red; font-weight: bold;">Inactive</span> (red)</li>
     <li>Activate or deactivate each license individually</li>
   </ul>
+  <strong>Note:</strong> The existing License tab inside Settings still works for the main plugin's license. The new Licenses page simply provides a more convenient way to manage everything in one place, and is the only place where you can use the "Activate All" feature.
 
-  <p><strong>Note:</strong> The existing License tab inside Settings still works for the main plugin's license. The new Licenses page simply provides a more convenient way to manage everything in one place, and is the only place where you can use the "Activate All" feature.</p>
 </div>
 <h3>User Roles</h3>
 <div>
-  <p>This plugin adds custom user roles to help you manage who can create and administer sign-up sheets:</p>
 
+  This plugin adds custom user roles to help you manage who can create and administer sign-up sheets:
   <h4>Sign-up Sheet Manager</h4>
-  <p>This role is the same as the WordPress "Author" role, except that it adds the "manage_signup_sheets" capability. Users with this role can create, edit, and manage ALL sign-up sheets on the admin side, similar to an Administrator but without full admin access. If you have users who you want to allow to manage all sheets, but don't want them to have full admin access, you can either assign them to the Sign-up Sheet Manager role, or use a role/capability editor plugin to assign the manage_signup_sheets capability to them.</p>
-
+  This role is the same as the WordPress "Author" role, except that it adds the "manage_signup_sheets" capability. Users with this role can create, edit, and manage ALL sign-up sheets on the admin side, similar to an Administrator but without full admin access. If you have users who you want to allow to manage all sheets, but don't want them to have full admin access, you can either assign them to the Sign-up Sheet Manager role, or use a role/capability editor plugin to assign the manage_signup_sheets capability to them.
   <h4>Signup Sheet Author (New in Version 6.0)</h4>
-  <p>This new role allows users to create and manage only their OWN sign-up sheets. Authors cannot see or edit sheets created by other users. This is ideal for organizations that want to delegate sheet creation to committee chairs or event coordinators without giving them access to all sheets.</p>
-  <p>See the "Author System" section below for full details on how sheet ownership and author permissions work.</p>
+  This new role allows users to create and manage only their OWN sign-up sheets. Authors cannot see or edit sheets created by other users. This is ideal for organizations that want to delegate sheet creation to committee chairs or event coordinators without giving them access to all sheets.
 
+  See the "Author System" section below for full details on how sheet ownership and author permissions work.
   <h4>Role Comparison</h4>
   <table style="border-collapse: collapse; width: 100%;">
+    <tbody>
     <tr style="background: #f0f0f0;">
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Capability</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Administrator</th>
@@ -368,22 +371,23 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
       <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">Optional*</td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">No</td>
     </tr>
+    </tbody>
   </table>
-  <p><em>* Sheet Managers can be blocked from Settings via the "Admin Only Settings Access?" option in Main Settings.</em></p>
+  <em>* Sheet Managers can be blocked from Settings via the "Admin Only Settings Access?" option in Main Settings.</em>
+
 </div>
 <h3>Author System</h3>
 <div>
-  <p>Version 6.0 introduces a comprehensive Author System that allows organizations to delegate sign-up sheet management while maintaining control over who can access what.</p>
 
+  Version 6.0 introduces a comprehensive Author System that allows organizations to delegate sign-up sheet management while maintaining control over who can access what.
   <h4>How Sheet Ownership Works</h4>
-  <p>Every sign-up sheet now has an "author" - the user who created it. This ownership determines who can view and edit the sheet:</p>
+  Every sign-up sheet now has an "author" - the user who created it. This ownership determines who can view and edit the sheet:
   <ul>
     <li><strong>Administrators and Sheet Managers:</strong> Can see and edit ALL sheets regardless of who created them.</li>
     <li><strong>Sheet Authors:</strong> Can ONLY see and edit sheets they personally created. Other users' sheets are completely hidden from them.</li>
   </ul>
-
   <h4>What Authors Can Do</h4>
-  <p>Users with the "Signup Sheet Author" role can:</p>
+  Users with the "Signup Sheet Author" role can:
   <ul>
     <li>Create new sign-up sheets (they automatically become the author)</li>
     <li>Edit their own sheets and tasks</li>
@@ -394,7 +398,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li>Copy their own sheets</li>
     <li>Trash and restore their own sheets</li>
   </ul>
-
   <h4>What Authors Cannot Do</h4>
   <ul>
     <li>See or edit sheets created by other users</li>
@@ -404,27 +407,24 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li>Access plugin Settings or Tools pages</li>
     <li>Email all volunteers (only volunteers for their own sheets)</li>
   </ul>
-
   <h4>Assigning Users to the Author Role</h4>
-  <p>To make a user a Signup Sheet Author:</p>
+  To make a user a Signup Sheet Author:
   <ol>
     <li>Go to Users in WordPress admin</li>
     <li>Edit the user you want to make an Author</li>
     <li>Change their Role to "Signup Sheet Author"</li>
     <li>Save the user</li>
   </ol>
-  <p>The user will now see the Sign-Up Sheets menu in their admin dashboard, but will only be able to access their own sheets.</p>
-
+  The user will now see the Sign-Up Sheets menu in their admin dashboard, but will only be able to access their own sheets.
   <h4>Displaying Sheets by Author</h4>
-  <p>You can filter which sheets are displayed on the public side by author using the new shortcode/block parameters:</p>
+  You can filter which sheets are displayed on the public side by author using the new shortcode/block parameters:
   <ul>
     <li><code>author_id="123"</code> - Show only sheets created by the user with ID 123</li>
     <li><code>author_email="chair@example.com"</code> - Show only sheets created by the user with that email</li>
   </ul>
-  <p>This is useful if you want to create separate pages for different committees or coordinators, showing only their sheets.</p>
-
+  This is useful if you want to create separate pages for different committees or coordinators, showing only their sheets.
   <h4>Use Cases</h4>
-  <p>The Author System is ideal for:</p>
+  The Author System is ideal for:
   <ul>
     <li><strong>Schools/PTAs:</strong> Committee chairs can manage their own event sign-ups without seeing other committees' sheets</li>
     <li><strong>Churches:</strong> Ministry leaders can manage their own volunteer opportunities</li>
@@ -474,21 +474,21 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 </div>
 <h3>Add/Edit Tasks/Items</h3>
 <div>
-  <p><strong>Note:</strong> Version 6.0 introduces a completely redesigned task management interface. Tasks are now displayed in a streamlined list and edited in a modal (pop-up) window for a much better user experience.</p>
 
+  <strong>Note:</strong> Version 6.0 introduces a completely redesigned task management interface. Tasks are now displayed in a streamlined list and edited in a modal (pop-up) window for a much better user experience.
   <h4>Date Management (Single and Recurring Sheets)</h4>
-  <p>For <strong>Single</strong> and <strong>Recurring</strong> event types, dates are now managed in a dedicated section at the top of the tasks page, separate from the task list. This makes it clear that all tasks share the same date(s):</p>
+  For <strong>Single</strong> and <strong>Recurring</strong> event types, dates are now managed in a dedicated section at the top of the tasks page, separate from the task list. This makes it clear that all tasks share the same date(s):
   <ul>
     <li><strong>Single events:</strong> Select one date using the date picker. This date applies to all tasks.</li>
     <li><strong>Recurring events:</strong> Select multiple dates. You MUST select at least 2 dates. All tasks will appear for each selected date.</li>
   </ul>
-  <p><strong>Important:</strong> The system will prevent you from changing dates if signups already exist for those dates, to protect existing volunteer commitments. You'll see a warning if you try to modify dates that have signups.</p>
+  <strong>Important:</strong> The system will prevent you from changing dates if signups already exist for those dates, to protect existing volunteer commitments. You'll see a warning if you try to modify dates that have signups.
 
-  <p>For <strong>Multi-Day</strong> events, each task has its own date field in the task editor.</p>
-  <p>For <strong>Ongoing</strong> events, there are no date fields since these are date-independent volunteer opportunities.</p>
+  For <strong>Multi-Day</strong> events, each task has its own date field in the task editor.
 
+  For <strong>Ongoing</strong> events, there are no date fields since these are date-independent volunteer opportunities.
   <h4>The Task List</h4>
-  <p>Tasks are displayed in a compact list showing essential information at a glance:</p>
+  Tasks are displayed in a compact list showing essential information at a glance:
   <ul>
     <li>Task title</li>
     <li>Start and end times</li>
@@ -496,13 +496,11 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li>Key options enabled (details, quantities, duplicates)</li>
     <li>Action buttons: Edit, Copy, Delete</li>
   </ul>
-  <p>You can drag and drop tasks to reorder them. When you change the order, a "Save Order" button will appear - click it to save the new order.</p>
-
+  You can drag and drop tasks to reorder them. When you change the order, a "Save Order" button will appear - click it to save the new order.
   <h4>Adding a New Task</h4>
-  <p>Click the "Add New Task" button to open the task editor modal. You can optionally select an existing task from the "Copy from existing task" dropdown to pre-fill the form with that task's settings - useful for reusing common tasks like "Setup" or "Cleanup" across sheets.</p>
-
+  Click the "Add New Task" button to open the task editor modal. You can optionally select an existing task from the "Copy from existing task" dropdown to pre-fill the form with that task's settings - useful for reusing common tasks like "Setup" or "Cleanup" across sheets.
   <h4>The Task Editor Modal</h4>
-  <p>When you click Edit or Add New Task, a modal window opens with all task settings:</p>
+  When you click Edit or Add New Task, a modal window opens with all task settings:
   <ul>
     <li><strong>Title:</strong> The name of the task (required)</li>
     <li><strong># Needed:</strong> How many volunteers or items needed (required, defaults to 1)</li>
@@ -514,16 +512,14 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><strong>Allow Duplicates:</strong> Allows the same volunteer to sign up multiple times for this task</li>
     <li><strong>Email Templates:</strong> Optionally assign custom Confirmation and Reminder templates for this specific task</li>
   </ul>
-  <p>Click "Save Task" to save your changes, or "Cancel" to close without saving.</p>
-
+  Click "Save Task" to save your changes, or "Cancel" to close without saving.
   <h4>Copying Tasks</h4>
-  <p>Click the Copy button (duplicate icon) next to any task to create a copy. The copy will have "(Copy)" appended to the title. You can then edit the copy to customize it.</p>
-
+  Click the Copy button (duplicate icon) next to any task to create a copy. The copy will have "(Copy)" appended to the title. You can then edit the copy to customize it.
   <h4>Deleting Tasks</h4>
-  <p>Click the Delete button (trash icon) to remove a task. <strong>Warning:</strong> If the task has signups, you'll be warned before deletion. Deleting a task removes it permanently along with any associated signups.</p>
-
+  Click the Delete button (trash icon) to remove a task. <strong>Warning:</strong> If the task has signups, you'll be warned before deletion. Deleting a task removes it permanently along with any associated signups.
   <h4>Move Tasks</h4>
-  <p>The "Move Tasks" feature allows you to move ALL tasks from the current sheet to another sheet. This is useful for merging events or reorganizing. Note that tasks are MOVED, not copied - once moved, the current sheet will have no tasks.</p>
+  The "Move Tasks" feature allows you to move ALL tasks from the current sheet to another sheet. This is useful for merging events or reorganizing. Note that tasks are MOVED, not copied - once moved, the current sheet will have no tasks.
+
 </div>
 [ssp_accordion_end]
 <h2>ADMIN</h2>
@@ -580,13 +576,24 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 
   <strong>New DataTables Feature - Save State</strong>. Added in version 4.0. On the admin side, for the View Signups and the View/Export All Data tables, which use the DataTables plugin to view/filter/sort and export data, the Save State function has now been enabled via two new buttons. The "Create State" button will save the current state/view of the table into a new preset (there is no confirmation when you do this). The "Saved States" dropdown select button shows all the states you have saved for that particular table. Click the button then click on the State you wish to restore. You'll also notice there is a dropdown arrow for each saved state that gives you further functions for that state: Update, Rename, and Remove.
 
+  <strong>Server-Side Processing Mode</strong> <em>(Added in v6.2)</em>. For sites with a large number of signups, the admin data views now support optional server-side DataTables processing. When enabled (Settings &gt; Main Settings &gt; Admin DataTables Mode), only the current page of results is fetched from the server at a time, rather than loading the entire dataset into the browser at once. This dramatically reduces load time and browser memory usage for large datasets. Column filter dropdowns are automatically populated from the actual data in the current filtered view and update as you change pages or search. Results are cached server-side for a few minutes and automatically cleared whenever any signup, task, or sheet data changes. Three modes are available: <strong>Off</strong> (classic client-side, default), <strong>On</strong> (always server-side), and <strong>Auto</strong> (switches automatically when total rows exceed the configured threshold in Settings).
+
+  <strong>Report Builder Filter Panel</strong> <em>(Added in v6.2 — View All Data page only)</em>. The View All Data admin page now includes an integrated Report Builder panel above the DataTables table. Use it to:
+  <ul>
+    <li>Filter by specific sheets using a multi-select dropdown</li>
+    <li>Set a date range to show only signups within a particular period</li>
+    <li>Toggle whether to include expired task dates in the results</li>
+    <li>Toggle whether to include empty slot rows in the results</li>
+  </ul>
+  Filters apply automatically without reloading the page. When using server-side mode, active Report Builder filters are also passed to the export function, so your Excel, CSV, PDF, or Print export reflects exactly what you see on screen.
+
 </div>
 <h3>Tools (admin)</h3>
 <div>
-  <p><strong>Note:</strong> As of version 6.0, this page has been renamed from "CRON Functions" to "Tools" and now includes additional utility functions beyond just CRON-related tasks.</p>
 
+  <strong>Note:</strong> As of version 6.0, this page has been renamed from "CRON Functions" to "Tools" and now includes additional utility functions beyond just CRON-related tasks.
   <h4>CRON Functions</h4>
-  <p>The CRON Functions section shows information about the automated background tasks and allows you to manually trigger them:</p>
+  The CRON Functions section shows information about the automated background tasks and allows you to manually trigger them:
   <ul>
     <li><strong>Volunteer Reminders:</strong> Shows when reminders were last sent and allows you to manually trigger the reminders check. The system automatically checks hourly via a CRON function.</li>
     <li><strong>Rescheduled Event Emails:</strong> Shows when rescheduled event emails were last sent and allows you to manually trigger them.</li>
@@ -594,17 +601,18 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <li><strong>Clear Expired Sheets:</strong> Manually clear ALL expired sheets (along with their tasks and signups) from the database.</li>
     <li><strong>Debug Log:</strong> A readonly textarea that shows log messages generated by CRON functions, helpful for debugging. You can clear the log manually, and log files are automatically cleared every 30 days.</li>
   </ul>
-
   <h4>Other Tools</h4>
-  <p>This section appears when additional tools are available based on your installed extensions:</p>
+  This section appears when additional tools are available based on your installed extensions:
 
   <strong>Migrate Customizer Email Templates</strong>
-  <p>This tool only appears if you have the Customizer extension installed. Use this button if:</p>
+
+  This tool only appears if you have the Customizer extension installed. Use this button if:
   <ul>
     <li>Custom email templates from the Customizer extension were not automatically imported during the version 6.0 update</li>
     <li>You added new templates in the Customizer extension after upgrading to version 6.0 and need to migrate them to the new Email Templates system</li>
   </ul>
-  <p>Clicking "Migrate Customizer Templates" will import templates from the Customizer extension into the new Email Templates system. Existing templates with the same name will not be duplicated. After migration, check the Email Templates page to verify your templates were imported correctly.</p>
+  Clicking "Migrate Customizer Templates" will import templates from the Customizer extension into the new Email Templates system. Existing templates with the same name will not be duplicated. After migration, check the Email Templates page to verify your templates were imported correctly.
+
 </div>
 <h3>Email Volunteers</h3>
 <div>This is a simple email form that will allow admin users to send a message to all signed-up volunteers for a specific sheet, or to ALL volunteers currently in the sign-up database table (for ALL sheets). This form should be self explanatory, with the exception of the option at the bottom to either send emails individually (one email sent as a "to" email for each volunteer), or to use one email with BCC fields. The reason for one or the other is explained next to the option, and also above for a similar option for the email settings page. If you are using BCC (default), but not all the volunteers are getting the email, the preferred method is to install a SMTP mailer plugin and connect your WordPress site to a real SMTP account (which will be much more reliable anyway). But, if you can't do that, and your server's sendmail function doesn't like the formatting of the BCC headers, then check this box to loop through all volunteer emails and send to one email address at a time. Be aware, however, that this could generate a LOT of emails in a short period of time (if you have a lot of volunteers in the sign-up database), and your server may have spam protection in place that limits how many emails can be sent each other (check with your hosting company).</div>

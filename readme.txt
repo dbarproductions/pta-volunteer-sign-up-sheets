@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.1.1
+Stable tag: 6.2.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -70,6 +70,11 @@ https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-
 * Added a reply-to email address field to the email templates system
 * You can now use the {chair_name} and {chair_email} tags in the From name/email field and reply-to email field to automatically use the first valid chair name/email for a sheet with the email template
 * Updated the older version 1.x datatables library to the newest version 2.x, and updated admin view scripts to use the newer methods. Both versions are still registered for backward compatibility with extensions that make use of the registered datatables library (e.g. Customizer)
+* Added optional server-side DataTables processing for the View Sheet Data and View All Data admin pages. Three modes are available: off (client-side only, default), on (always server-side), and auto (server-side when the total row count exceeds a configurable threshold). Server-side mode uses transient caching (5-minute TTL, auto-invalidated on any data change) for improved performance with large datasets.
+* Added an integrated Report Builder filter panel to the View All Data admin page, allowing filtering by specific sheets (multi-select), date range, and toggles for showing expired dates and empty slots. Works in both client-side and server-side DataTables modes.
+* Admin DataTables export (Excel, CSV, PDF, Print) now supports server-side mode via a dedicated export endpoint, applying the same active filters as the data view.
+* Admin DataTables column filter dropdowns (in server-side mode) are now populated from the actual distinct values in the filtered dataset, refreshing automatically after each page/search change.
+* Added new developer API: PTA_SUS_Task_Functions::get_all_task_dates($args) - a new static method that returns all task-date combinations across all sheets as a flat array, with availability counts pre-calculated. Used by the upcoming All Tasks Date View in the Customizer extension.
 
 = 6.1.1 =
 * Fixed global functions file not being loaded during plugin activation, causing fallback sanitization to be used when creating/migrating email templates

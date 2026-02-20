@@ -150,6 +150,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - Added a reply-to email address field to the email templates system
 - You can now use the {chair_name} and {chair_email} tags in the From name/email field and reply-to email field to automatically use the first valid chair name/email for a sheet with the email template
 - Updated the older version 1.x datatables library to the newest version 2.x, and updated admin view scripts to use the newer methods. Both versions are still registered for backward compatibility with extensions that make use of the registered datatables library (e.g. Customizer)
+- **Server-Side Admin DataTables:** Added optional server-side processing for the View Sheet Data and View All Data admin pages. Three modes: off (client-side, default), on (always server-side), and auto (server-side when row count exceeds a configurable threshold). Uses transient caching with automatic invalidation on any CRUD operation.
+- **Integrated Report Builder:** Added a filter panel to the View All Data admin page with sheet multi-select, date range picker, and toggles for expired dates and empty slots. Works in both client-side and server-side DataTables modes.
+- **Server-Side Export:** Admin DataTables export (Excel, CSV, PDF, Print) now has a dedicated server-side endpoint that applies the same active filters as the data view.
+- **Developer API:** Added `PTA_SUS_Task_Functions::get_all_task_dates($args)` — a new static method returning all task-date combinations across all sheets as a flat array with availability counts. Used by the upcoming All Tasks Date View in the Customizer extension.
 
 ### Version 6.1.1
 - Fixed global functions file not being loaded during plugin activation, causing fallback sanitization to be used when creating/migrating email templates
