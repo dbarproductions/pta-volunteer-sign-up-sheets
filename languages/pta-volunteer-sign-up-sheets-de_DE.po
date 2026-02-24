@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PTA Volunteer Sign Up Sheets v1.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-24 14:06+0100\n"
-"PO-Revision-Date: 2026-02-24 15:56+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2026-02-24 16:08+0100\n"
+"PO-Revision-Date: 2026-02-24 16:09+0100\n"
+"Last-Translator: Bernd Wurst <bernd@bwurst.org>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -62,7 +62,7 @@ msgstr "ID der Helferliste"
 #: classes/class-pta_sus_admin.php:4355 classes/class-pta_sus_public.php:440
 #: views/admin-task-list-html.php:148
 msgid "Date"
-msgstr "Datum:"
+msgstr "Datum"
 
 # @ pta_volunteer_sus
 #: blocks/src/index.js:86
@@ -280,37 +280,31 @@ msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:34
-#| msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgid "Volunteer Sign Up Sheets Calendar Display"
 msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:40
-#| msgid "PTA Volunteer Sign-up Sheets Settings"
 msgid "Volunteer Sign-up Sheets Customizer"
 msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:46
-#| msgid "Volunteer Sign Up Page"
 msgid "Volunteer Sign Up Sheet Groups"
 msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:52
-#| msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgid "Volunteer Sign Up Sheets Automated and Conditional Emails"
 msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:58
-#| msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgid "Volunteer Sign Up Sheets Add To Calendar"
 msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/admin-addons-html.php:64
-#| msgid "Volunteer Sign-Up Sheets are in TEST MODE"
 msgid "Volunteer Sign Up Sheets Mailchimp"
 msgstr ""
 
@@ -577,7 +571,7 @@ msgid ""
 msgstr ""
 "Diese Option wird alle Helfer aus der Liste löschen, wenn du eine Neuplanung "
 "durchführst. Wenn du eine Kopie erstellst, werden die bestehenden Helfer "
-"NICHT in die neue Kopie übertragen."
+"NICHT in die neue Kopie übertragen"
 
 # @ pta_volunteer_sus
 #: classes/admin-reschedule-html.php:46
@@ -647,7 +641,7 @@ msgstr "Wähle neue Zeiten (optional) für jede Aufgabe"
 
 #: classes/admin-reschedule-html.php:81
 msgid "Leave times blank to keep original times"
-msgstr "Lasse die Zeiten leer um die bisherigen Zeiten zu behalten."
+msgstr "Lasse die Zeiten leer um die bisherigen Zeiten zu behalten"
 
 # @ pta_volunteer_sus
 #: classes/admin-reschedule-html.php:85
@@ -720,7 +714,7 @@ msgstr "Beginn"
 #: classes/class-pta_sus_public_display_functions.php:296
 #: views/admin-task-list-html.php:154
 msgid "End Time"
-msgstr "Ende\t"
+msgstr "Endzeit"
 
 # @ pta_volunteer_sus
 #: classes/admin-view-all-signups-html.php:52
@@ -796,7 +790,7 @@ msgstr "Alle Helferlisten"
 
 #: classes/admin-view-all-signups-html.php:102
 msgid "Leave blank to include all sheets."
-msgstr "Leer lassen für alle Listen"
+msgstr "Leer lassen für alle Listen."
 
 #: classes/admin-view-all-signups-html.php:106
 msgid "Date Range"
@@ -923,7 +917,7 @@ msgstr ""
 
 #: classes/class-pta_sus_activation.php:916
 msgid "Dismiss this notice."
-msgstr "Ignoriere diese Meldung"
+msgstr "Ignoriere diese Meldung."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:285 classes/class-pta_sus_admin.php:286
@@ -1115,7 +1109,7 @@ msgid ""
 msgstr ""
 "Das System prüft automatisch mit Hilfe von CRON, ob Erinnerungen versendet "
 "werden müssen. Falls Du testest oder nicht bis zum nächsten CRON-Lauf warten "
-"möchtest, kannst Du die Erinnerungen auch mit dem Knopf unten auslösen"
+"möchtest, kannst Du die Erinnerungen auch mit dem Knopf unten auslösen."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:553
@@ -1341,42 +1335,42 @@ msgstr "Fehler bei der Löschung (ID # %s)"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1153
 msgid "Spot has been cleared."
-msgstr "Gelöscht"
+msgstr "Gelöscht."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1183 classes/class-pta_sus_admin.php:1188
 msgid "Error restoring sheet."
-msgstr "Fehler bei der Wiederherstellung"
+msgstr "Fehler bei der Wiederherstellung."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1185
 msgid "Sheet has been restored."
-msgstr "Anmeldeformular wurde wiederhergestellt"
+msgstr "Anmeldeformular wurde wiederhergestellt."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1198 classes/class-pta_sus_admin.php:1203
 msgid "Error moving sheet to trash."
-msgstr "Fehler bei der Löschung des Anmeldeformulars"
+msgstr "Fehler bei der Löschung des Anmeldeformulars."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1200
 msgid "Sheet has been moved to trash."
-msgstr "Anmeldeformular wurde in den Papierkorb verschoben"
+msgstr "Anmeldeformular wurde in den Papierkorb verschoben."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1210
 msgid "Error permanently deleting sheet."
-msgstr "Fehler bei der endgültigen Löschung des Anmeldeformulars"
+msgstr "Fehler bei der endgültigen Löschung des Anmeldeformulars."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1212
 msgid "Sheet has been permanently deleted."
-msgstr "Anmeldeformular wurde endgültig gelöscht"
+msgstr "Anmeldeformular wurde endgültig gelöscht."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1219
 msgid "Error copying sheet."
-msgstr "Fehler beim Kopieren des Anmeldeformulars"
+msgstr "Fehler beim Kopieren des Anmeldeformulars."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1221
@@ -1393,7 +1387,7 @@ msgstr "Editieren"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1229
 msgid "Error toggling sheet visibility."
-msgstr "Fehler beim Umschalten der Sichtbarkeit"
+msgstr "Fehler beim Umschalten der Sichtbarkeit."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1285
@@ -1403,7 +1397,7 @@ msgstr "Anmelde-Details"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1285
 msgid "Sign-up Sheets "
-msgstr "Anmelde-Formulare"
+msgstr "Anmelde-Formulare."
 
 #: classes/class-pta_sus_admin.php:1287
 msgid "View/Export ALL Data"
@@ -1418,12 +1412,12 @@ msgstr "Alle Anmeldedaten"
 #: classes/class-pta_sus_admin.php:1302 classes/class-pta_sus_admin.php:1322
 #: classes/class-pta_sus_admin.php:1349
 msgid "No sign-up sheet found."
-msgstr "Kein Anmeldeformular gefunden\t"
+msgstr "Kein Anmeldeformular gefunden."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1309 classes/class-pta_sus_admin.php:1361
 msgid "No tasks were found."
-msgstr "Keine Aufgaben gefunden"
+msgstr "Keine Aufgaben gefunden."
 
 #: classes/class-pta_sus_admin.php:1315
 #, php-format
@@ -1448,7 +1442,7 @@ msgstr "Anmeldung verschieben für: %s"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1354
 msgid "Event Type: "
-msgstr "Ereignis Typ:"
+msgstr "Ereignis Typ: "
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1355
@@ -1458,12 +1452,12 @@ msgstr "Anmeldungen"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1413
 msgid "All "
-msgstr "Alle"
+msgstr "Alle "
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1414
 msgid "Trash "
-msgstr "Papierkorb"
+msgstr "Papierkorb "
 
 #: classes/class-pta_sus_admin.php:1480
 msgid ""
@@ -1610,7 +1604,7 @@ msgstr "Ereignistyp auswählen"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1847 classes/widget.php:144
 msgid "Title:"
-msgstr "Titel"
+msgstr "Titel:"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1849
@@ -1655,7 +1649,7 @@ msgstr ""
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1881
 msgid "2nd Reminder # of days:"
-msgstr "2. Erinnerung # Tage"
+msgstr "2. Erinnerung # Tage:"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:1883
@@ -1772,7 +1766,7 @@ msgstr "Nur Ansprechpartner"
 
 #: classes/class-pta_sus_admin.php:1931
 msgid "User Only"
-msgstr "nur Benutzer"
+msgstr "Nur Benutzer"
 
 #: classes/class-pta_sus_admin.php:1932
 msgid "Both Chair & User"
@@ -1970,16 +1964,14 @@ msgstr "Keine Anmeldungen für diese Helferliste gefunden"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2320
 #, php-format
-#| msgid "Email Settings"
 msgid "%s Emails Sent!"
 msgstr "%s E-Mails gesendet!"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2321
 #, php-format
-#| msgid "Email settings"
 msgid "Emails sent to: %s"
-msgstr "E-Mails an %s gesendet."
+msgstr "E-Mails an %s gesendet"
 
 #: classes/class-pta_sus_admin.php:2323
 msgid ""
@@ -2049,7 +2041,7 @@ msgstr ""
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2514
 msgid "Error deleting email template."
-msgstr "Fehler beim Löschen der Vorlage"
+msgstr "Fehler beim Löschen der Vorlage."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2539
@@ -2064,14 +2056,13 @@ msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2574
-#| msgid "Confirmation email template:"
 msgid "Error duplicating email template."
 msgstr "Fehler beim Duplizieren des Templates."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:2593
 msgid "No email templates found."
-msgstr "Keine Vorlagen gefunden"
+msgstr "Keine Vorlagen gefunden."
 
 #: classes/class-pta_sus_admin.php:2599 classes/class-pta_sus_admin.php:2707
 #: classes/models/class-pta-sus-email-template.php:80
@@ -2295,7 +2286,7 @@ msgstr "Fehler beim Erstellen einer Aufgabe."
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:3039
 msgid "Task created successfully."
-msgstr "Aufgabe erfolgreich erstellt!"
+msgstr "Aufgabe erfolgreich erstellt."
 
 #: classes/class-pta_sus_admin.php:3082
 msgid "Task saved but could not retrieve updated data."
@@ -2342,11 +2333,10 @@ msgstr "Fehler beim Entfernen einer Aufgabe."
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:3302
 msgid "Task deleted successfully."
-msgstr "Aufgaben erfolgreich gelöscht!"
+msgstr "Aufgaben erfolgreich gelöscht."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_admin.php:3383
-#| msgid "Invalid date."
 msgid "Invalid task order."
 msgstr ""
 
@@ -2458,7 +2448,7 @@ msgstr ""
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_cron_manager.php:114
 msgid "Volunteer Signup Housekeeping Completed!"
-msgstr "Bereinigung erledigt."
+msgstr "Bereinigung erledigt!"
 
 #: classes/class-pta_sus_email_functions.php:642
 msgid "Your Validation Link"
@@ -2528,7 +2518,6 @@ msgstr ""
 #: classes/class-pta_sus_license_manager.php:199
 #: classes/class-pta_sus_license_manager.php:407
 #: classes/class-pta_sus_options.php:1315
-#| msgid "Invalid date!"
 msgid "Invalid Referrer!"
 msgstr ""
 
@@ -2588,7 +2577,6 @@ msgstr ""
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_license_manager.php:377
 #: classes/class-pta_sus_options.php:1370
-#| msgid "Invalid date."
 msgid "Invalid license."
 msgstr ""
 
@@ -2710,7 +2698,7 @@ msgstr "Verbleibende Slots zusammenfassen?"
 
 #: classes/class-pta_sus_options.php:115
 msgid "Hide Details and Quantities"
-msgstr "Details und Anzahlen verstecken?"
+msgstr "Details und Anzahlen verstecken"
 
 #: classes/class-pta_sus_options.php:116
 msgid "Hide User Signups Details and Quantities"
@@ -2732,7 +2720,7 @@ msgstr "Laufende Ereignise im Widget zeigen?"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_options.php:120
 msgid "Show Ongoing events last?"
-msgstr "Permanente Ereignisse zuletzt zeigen? "
+msgstr "Permanente Ereignisse zuletzt zeigen?"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_options.php:121
@@ -2741,7 +2729,7 @@ msgstr "Telefon erforderlich?"
 
 #: classes/class-pta_sus_options.php:122
 msgid "Remove Phone field from Signup form?"
-msgstr "Telefon vom Anmeldeformular entfernen? "
+msgstr "Telefon vom Anmeldeformular entfernen?"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_options.php:123
@@ -2938,7 +2926,7 @@ msgstr "Seite für Kontaktformular:"
 
 #: classes/class-pta_sus_options.php:183
 msgid "Enable Validation:"
-msgstr "Validierung aktivieren?"
+msgstr "Validierung aktivieren:"
 
 #: classes/class-pta_sus_options.php:184
 msgid "Require Validation to View:"
@@ -3551,7 +3539,7 @@ msgid ""
 "reminders sent, useful for troubleshooting."
 msgstr ""
 "Admin-Benachrichtigung für Erinnerungs-Mails enthält den Mail-Text aller "
-"versendeten Erinnerungen. Hilfreich bei Fehlersuche. "
+"versendeten Erinnerungen. Hilfreich bei Fehlersuche."
 
 #: classes/class-pta_sus_options.php:948
 msgid ""
@@ -3653,7 +3641,6 @@ msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_options.php:1092
-#| msgid "%d reminder emails were sent."
 msgid "If checked, sign-up reminder emails will not be sent."
 msgstr ""
 
@@ -3814,7 +3801,7 @@ msgstr "Lizenz aktualisiert!"
 
 #: classes/class-pta_sus_options.php:1404
 msgid "Not A Valid License!"
-msgstr "keine valide Lizenz"
+msgstr "Keine gültige Lizenz!"
 
 #: classes/class-pta_sus_options.php:1444
 msgid "License Deactivated!"
@@ -3850,7 +3837,7 @@ msgstr "Beginn"
 #: classes/class-pta_sus_public.php:438
 #: classes/class-pta_sus_public_display_functions.php:293
 msgid "End Date"
-msgstr "Ende\t"
+msgstr "Enddatum"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public.php:439
@@ -3884,7 +3871,6 @@ msgstr ""
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public.php:478
-#| msgid "Spot has been cleared."
 msgid "Your validation code has been cleared."
 msgstr ""
 
@@ -3991,7 +3977,7 @@ msgstr ""
 
 #: classes/class-pta_sus_public.php:831
 msgid "Not a valid signup!"
-msgstr "keine valide Anmeldung"
+msgstr "Keine valide Anmeldung!"
 
 #: classes/class-pta_sus_public.php:833
 msgid "You are not allowed to do that!"
@@ -4075,7 +4061,7 @@ msgstr ""
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public_display_functions.php:796
 msgid "Sign Up"
-msgstr "Anmelden "
+msgstr "Anmelden"
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public_display_functions.php:797
@@ -4113,7 +4099,7 @@ msgstr ""
 #: views/admin-add-edit-signup-form.php:172
 #, php-format
 msgid "Item QTY (1 - %d): "
-msgstr "Anzahl (1 -%d):"
+msgstr "Anzahl (1 -%d): "
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public_display_functions.php:930
@@ -4232,7 +4218,7 @@ msgstr "Aktuelle Helferlisten"
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public_display_functions.php:1804
 msgid "No sheets currently available at this time."
-msgstr "Aktuell keine Anmeldeformulare"
+msgstr "Aktuell keine Helferlisten verfügbar."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_public_display_functions.php:1815
@@ -4530,7 +4516,7 @@ msgstr "%s ist ein erforderliches Feld."
 #: classes/class-pta_sus_validation.php:250
 msgid "Hidden signup date field is invalid!  Please try again."
 msgstr ""
-"Verstecktes Feld für Anmeldetermin nicht valide. Bitte nochmal versuchen!"
+"Verstecktes Feld für Anmeldetermin nicht valide! Bitte nochmal versuchen."
 
 # @ pta_volunteer_sus
 #: classes/class-pta_sus_validation.php:286
@@ -4675,19 +4661,19 @@ msgstr "Fehler beim verschieben von %d in den Papierkorb."
 #: classes/list-table.php:302
 #, php-format
 msgid "%d sheets have been moved to the trash."
-msgstr "%d Anmeldeformulare in den Papierkorb verschoben"
+msgstr "%d Anmeldeformulare in den Papierkorb verschoben."
 
 # @ pta_volunteer_sus
 #: classes/list-table.php:316
 #, php-format
 msgid "Error deleting sheet# %d."
-msgstr "Fehler beim Löschen von Anmeldeformular %d"
+msgstr "Fehler beim Löschen von Anmeldeformular %d."
 
 # @ pta_volunteer_sus
 #: classes/list-table.php:319
 #, php-format
 msgid "%d sheets have been deleted."
-msgstr "%d Anmeldeformulare wurden gelöscht"
+msgstr "%d Anmeldeformulare wurden gelöscht."
 
 # @ pta_volunteer_sus
 #: classes/list-table.php:335 classes/list-table.php:338
@@ -4699,7 +4685,7 @@ msgstr "Fehler beim Wiederherstellen von Anmeldeformular %d."
 #: classes/list-table.php:341
 #, php-format
 msgid "%d sheets have been restored."
-msgstr "%d Anmeldeformulare wiederhergestellt"
+msgstr "%d Anmeldeformulare wiederhergestellt."
 
 # @ pta_volunteer_sus
 #: classes/list-table.php:357
@@ -5114,7 +5100,7 @@ msgstr ""
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:36 views/admin-task-modal-html.php:47
 msgid "Task/Item:"
-msgstr "Aufgabe"
+msgstr "Aufgabe:"
 
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:41 views/admin-task-modal-html.php:68
@@ -5124,12 +5110,12 @@ msgstr "# erforderliche Helfer:"
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:43 views/admin-task-modal-html.php:78
 msgid "Start Time:"
-msgstr "Beginn"
+msgstr "Beginn:"
 
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:44 views/admin-task-modal-html.php:87
 msgid "End Time:"
-msgstr "Ende\t"
+msgstr "Ende:"
 
 #: views/admin-task-form-html.php:48
 msgid "Add/Edit Task Description"
@@ -5163,7 +5149,7 @@ msgstr "Anmeldeformular aktualisiert!"
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:121
 msgid "Allow Duplicates? "
-msgstr "Dopplungen zulassen?"
+msgstr "Dopplungen zulassen? "
 
 # @ pta_volunteer_sus
 #: views/admin-task-form-html.php:130
