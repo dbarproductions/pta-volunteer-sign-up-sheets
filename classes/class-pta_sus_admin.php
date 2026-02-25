@@ -719,6 +719,25 @@ class PTA_SUS_Admin {
 				$actions .= apply_filters('pta_sus_admin_signup_display_actions', '', $signup); // allow other extensions to add additional actions
 				echo $actions;
 				break;
+			case 'author':
+				if ( empty( $sheet->author_email ) ) {
+					echo '&#8212;';
+					break;
+				}
+				$author_display = $sheet->author_email;
+				$user = get_user_by( 'email', $sheet->author_email );
+				if ( $user ) {
+					$first = trim( $user->first_name );
+					$last  = trim( $user->last_name );
+					if ( ! empty( $first ) || ! empty( $last ) ) {
+						$author_display = trim( $first . ' ' . $last );
+					} else {
+						$author_display = $user->display_name;
+					}
+				}
+				$author_display = apply_filters( 'pta_sus_admin_signup_display_author', $author_display, $sheet );
+				echo esc_html( $author_display );
+				break;
 			default:
 				do_action('pta_sus_admin_signup_column_data', $slug, $i, $sheet, $task, $signup);
 				break;
@@ -3623,8 +3642,8 @@ class PTA_SUS_Admin {
 		// DataTables standard params.
 		$draw      = absint( isset( $_POST['draw'] ) ? $_POST['draw'] : 1 );
 		$start     = absint( isset( $_POST['start'] ) ? $_POST['start'] : 0 );
-		$length    = intval( isset( $_POST['length'] ) ? $_POST['length'] : 100 );
-		$search    = sanitize_text_field( isset( $_POST['search']['value'] ) ? $_POST['search']['value'] : '' );
+		$length    = (int)($_POST['length'] ?? 100);
+		$search    = sanitize_text_field($_POST['search']['value'] ?? '');
 		$order_col = absint( isset( $_POST['order'][0]['column'] ) ? $_POST['order'][0]['column'] : 0 );
 		$order_dir = ( isset( $_POST['order'][0]['dir'] ) && 'desc' === $_POST['order'][0]['dir'] ) ? 'desc' : 'asc';
 

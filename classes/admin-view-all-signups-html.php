@@ -19,7 +19,7 @@ $rf_sheet_ids    = ( $rf_submitted && isset( $_GET['rf_sheet_ids'] ) ) ? array_m
 $rf_start_date   = ( $rf_submitted && isset( $_GET['rf_start_date'] ) ) ? sanitize_text_field( wp_unslash( $_GET['rf_start_date'] ) ) : '';
 $rf_end_date     = ( $rf_submitted && isset( $_GET['rf_end_date'] ) ) ? sanitize_text_field( wp_unslash( $_GET['rf_end_date'] ) ) : '';
 $rf_show_expired = $rf_submitted ? ! empty( $_GET['rf_show_expired'] ) : ! empty( $this->main_options['show_expired_tasks'] );
-$rf_show_empty   = $rf_submitted ? ! empty( $_GET['rf_show_empty'] ) : true;
+$rf_show_empty   = !$rf_submitted || !empty($_GET['rf_show_empty']);
 
 // Fetch all sheets once — used for the filter panel select options AND the data loop.
 $sheet_fetch_args = array( 'trash' => false, 'active_only' => false, 'show_hidden' => true, 'author_id' => $author_id );
@@ -41,9 +41,14 @@ if ( ! $server_side && ! empty( $rf_sheet_ids ) ) {
 }
 
 // Allow extensions to add columns
-$columns = apply_filters( 'pta_sus_admin_view_all_data_columns', array(
+$_vad_columns = array(
 	'date'        => __( 'Date', 'pta-volunteer-sign-up-sheets' ),
 	'sheet'       => __( 'Sheet', 'pta-volunteer-sign-up-sheets' ),
+);
+if ( $can_manage_others ) {
+	$_vad_columns['author'] = __( 'Author', 'pta-volunteer-sign-up-sheets' );
+}
+$_vad_columns = array_merge( $_vad_columns, array(
 	'task'        => __( 'Task/Item', 'pta-volunteer-sign-up-sheets' ),
 	'description' => __( 'Task Description', 'pta-volunteer-sign-up-sheets' ),
 	'start'       => __( 'Start Time', 'pta-volunteer-sign-up-sheets' ),
@@ -58,6 +63,7 @@ $columns = apply_filters( 'pta_sus_admin_view_all_data_columns', array(
 	'ts'          => __( 'Signup Time', 'pta-volunteer-sign-up-sheets' ),
 	'actions'     => __( 'Actions', 'pta-volunteer-sign-up-sheets' )
 ) );
+$columns  = apply_filters( 'pta_sus_admin_view_all_data_columns', $_vad_columns );
 $num_cols = count($columns);
 
 // Build reset URL (view_all with nonce, no rf_ params).
@@ -75,6 +81,45 @@ $rf_panel_open = $rf_submitted || $server_side;
 .pta-rf-body .form-table th { width: 130px; padding: 10px 0; }
 .pta-rf-body .form-table td { padding: 8px 0; }
 .pta-rf-body .submit { margin: 0; padding: 10px 0 2px; }
+<?php if ( $server_side ) : ?>
+#pta-dt-loading-overlay {
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0,0,0,0.5);
+	z-index: 99998;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+#pta-dt-loading-box {
+	background: #fff;
+	padding: 36px 52px;
+	border-radius: 4px;
+	box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	text-align: center;
+	min-width: 280px;
+}
+#pta-dt-loading-box .spinner {
+	float: none;
+	margin: 0;
+	width: 40px;
+	height: 40px;
+	background-size: 40px 40px;
+}
+#pta-dt-loading-box .pta-dt-loading-text {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+}
+#pta-dt-loading-box .pta-dt-loading-sub {
+	font-size: 12px;
+	color: #646970;
+}
+<?php endif; ?>
 </style>
 
 <div id="pta-report-filters-wrap">
@@ -134,6 +179,16 @@ $rf_panel_open = $rf_submitted || $server_side;
 	</div>
 </div>
 
+<?php if ( $server_side ) : ?>
+<div id="pta-dt-loading-overlay">
+	<div id="pta-dt-loading-box">
+		<span class="spinner is-active"></span>
+		<span class="pta-dt-loading-text"><?php _e( 'Loading signup data&hellip;', 'pta-volunteer-sign-up-sheets' ); ?></span>
+		<span class="pta-dt-loading-sub"><?php _e( 'This may take a moment for large datasets.', 'pta-volunteer-sign-up-sheets' ); ?></span>
+	</div>
+</div>
+<?php endif; ?>
+
 <table id="pta-all-data" class="pta-signups-table widefat" data-column-slugs="<?php echo esc_attr( implode( ',', array_keys( $columns ) ) ); ?>">
 	<thead>
 		<tr>
@@ -171,7 +226,7 @@ $rf_panel_open = $rf_submitted || $server_side;
             }
             foreach ($tasks as $task):
                 $task_dates = explode(',', $task->dates);
-                if(!in_array($tdate, $task_dates)) continue;
+                if(!in_array($tdate, $task_dates, true)) continue;
                 $i=0;
                 $signups = PTA_SUS_Signup_Functions::get_signups_for_task($task->id, $tdate);
                 ?>

@@ -116,6 +116,9 @@ class PTA_SUS_Template_Tags {
 			return array();
 		}
 
+		// Capture raw date before any formatting — needed for signup URL query arg
+		$raw_date = $date;
+
 		$start_time = empty($task->time_start) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_start));
 		$end_time = empty($task->time_end) ? __('N/A', 'pta-volunteer-sign-up-sheets') : pta_datetime(get_option("time_format"), strtotime($task->time_end));
 
@@ -133,6 +136,17 @@ class PTA_SUS_Template_Tags {
 			}
 		}
 
+		// Build signup URL: requires a volunteer page and a specific date
+		$main_options = get_option('pta_volunteer_sus_main_options', array());
+		$volunteer_page_id = isset($main_options['volunteer_page_id']) ? absint($main_options['volunteer_page_id']) : 0;
+		if ($volunteer_page_id > 0 && !empty($raw_date)) {
+			$volunteer_url  = get_permalink($volunteer_page_id);
+			$task_args      = array('sheet_id' => $task->sheet_id, 'date' => $raw_date, 'task_id' => $task->id, 'signup_id' => false);
+			$task_signup_url = add_query_arg($task_args, $volunteer_url);
+		} else {
+			$task_signup_url = '';
+		}
+
 		return array(
 			'{task_title}' => $task->title,
 			'{task_description}' => $task->description,
@@ -144,6 +158,7 @@ class PTA_SUS_Template_Tags {
 			'{task_end_time}' => $end_time,
 			'{details_text}' => $task->details_text,
 			'{task_date}' => $date,
+			'{task_signup_url}' => $task_signup_url,
 		);
 	}
 

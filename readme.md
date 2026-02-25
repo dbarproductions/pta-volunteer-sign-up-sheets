@@ -146,6 +146,15 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### 6.3.0
+- Added sortable Author column to sheets list table as well as Author select to the sheet filters
+- Added Author column to the View/Export All Data admin view, but only shows for admin and Sign Up Sheet managers. Authors will still only see their own sheets and no Author column
+- Added new tasks template tag {task_signup_url} that will generate a direct link to the signup form for that task, as long as an associated date was also passed in by the function generating the email (a task date is needed for a signup)
+- Added a "loading" overlay to the View/Export All Data page when using the new server side ajax rendering to make it more obvious the data is being fetched initially when the table has a large number of rows and it takes some time to generate
+- Minor bug fixes and code optimization
+- German translation file updated (PR from GitHub)
+- Tested with PHP 8.5.3 and WordPress 6.9.1
+
 ### Version 6.2.0
 - Added a reply-to email address field to the email templates system
 - You can now use the {chair_name} and {chair_email} tags in the From name/email field and reply-to email field to automatically use the first valid chair name/email for a sheet with the email template

@@ -111,6 +111,11 @@ class PTA_SUS_Template_Tags_Helper {
 			'Task'
 		);
 		self::register_template_tag(
+			'{task_signup_url}',
+			__('Direct URL to sign up for this specific task (requires Volunteer Page to be set in main settings and a specific task date; empty otherwise)','pta-volunteer-sign-up-sheets'),
+			'Task'
+		);
+		self::register_template_tag(
 			'{firstname}',
 			__('Signup First Name','pta-volunteer-sign-up-sheets'),
 			'Signup'

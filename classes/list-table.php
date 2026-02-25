@@ -49,8 +49,8 @@ class PTA_SUS_List_Table extends WP_List_Table
     /**
     * Process columns if not defined in a specific column like column_title
     * 
-    * @param    array   one row of data
-    * @param    array   name of column to be processed
+    * @param    array   $item one row of data
+    * @param    string   $column_name name of column to be processed
     * @return   string  text that will go in the column's TD
     */
     function column_default($item, $column_name) {
@@ -59,7 +59,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                 return $item[$column_name];
             case 'first_date':
             case 'last_date':
-                return ($item[$column_name] == '0000-00-00') ? __("N/A", 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
+                return ($item[$column_name] === '0000-00-00') ? __("N/A", 'pta-volunteer-sign-up-sheets') : mysql2date( get_option('date_format'), $item[$column_name], $translate = true );
             case 'num_dates':
                 $dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($item['id']);
                 if(!$dates) {
@@ -73,9 +73,8 @@ class PTA_SUS_List_Table extends WP_List_Table
                 }
                 if ($count > 0) {
                     return $count;
-                } else {
-                    return __("N/A", 'pta-volunteer-sign-up-sheets');
                 }
+                return __("N/A", 'pta-volunteer-sign-up-sheets');
             case 'task_num':
                 return count(PTA_SUS_Task_Functions::get_tasks($item['id']));
             case 'spot_num':
@@ -129,13 +128,11 @@ class PTA_SUS_List_Table extends WP_List_Table
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {
             // For edit/delete actions, check permissions
-            if ( in_array( $action_slug, array( 'edit_sheet', 'edit_tasks', 'trash', 'delete' ) ) ) {
-                if ( ! $can_manage_others && ! $is_author ) {
-                    continue; // Skip this action - user doesn't have permission
-                }
+            if (!$can_manage_others && !$is_author && in_array($action_slug, array('edit_sheet', 'edit_tasks', 'trash', 'delete')) ) {
+                continue; // Skip this action - user doesn't have permission
             }
             
-            if ('edit_sheet' == $action_slug || 'edit_tasks' == $action_slug) {
+            if ('edit_sheet' === $action_slug || 'edit_tasks' === $action_slug) {
                 $page = 'pta-sus-settings_modify_sheet';
             } else {
                 $page = $_GET['page'];
@@ -154,7 +151,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
     function column_visible($item) {
-        if (true == $item['visible']) {
+        if ($item['visible']) {
             $display = __("Yes", 'pta-volunteer-sign-up-sheets');
         } else {
             $display = '<strong><span style="color:red;">'.__("NO", "pta_volunteer_sus").'</span></strong>';
@@ -168,7 +165,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
     function column_type($item) {
-        $sheet_types = apply_filters( 'pta_sus_sheet_form_sheet_types', 
+        $sheet_types = apply_filters( 'pta_sus_sheet_form_sheet_types',
         array(
             'Single' => __('Single', 'pta-volunteer-sign-up-sheets'),
             'Recurring' => __('Recurring', 'pta-volunteer-sign-up-sheets'),
@@ -178,7 +175,23 @@ class PTA_SUS_List_Table extends WP_List_Table
         $type = $item['type'];
         return esc_html($sheet_types[$type]);
     }
-    
+
+    function column_author( $item ) {
+        if ( empty( $item['author_email'] ) ) {
+            return '&#8212;';
+        }
+        $user = get_user_by( 'email', $item['author_email'] );
+        if ( $user ) {
+            $first = trim( $user->first_name );
+            $last  = trim( $user->last_name );
+            if ( ! empty( $first ) || ! empty( $last ) ) {
+                return esc_html( trim( $first . ' ' . $last ) );
+            }
+            return esc_html( $user->display_name );
+        }
+        return esc_html( $item['author_email'] );
+    }
+
     /**
     * Checkbox column method
     * 
@@ -208,7 +221,19 @@ class PTA_SUS_List_Table extends WP_List_Table
             'spot_num'          => __('Total Spots', 'pta-volunteer-sign-up-sheets'),
             'filled_spot_num'   => __('Filled Spots', 'pta-volunteer-sign-up-sheets'),
         ) );
-        
+
+        // Add Author column after Title for admins/managers who can view all sheets
+        if ( current_user_can( 'manage_others_signup_sheets' ) ) {
+            $new_columns = array();
+            foreach ( $columns as $key => $value ) {
+                $new_columns[ $key ] = $value;
+                if ( 'title' === $key ) {
+                    $new_columns['author'] = __( 'Author', 'pta-volunteer-sign-up-sheets' );
+                }
+            }
+            $columns = $new_columns;
+        }
+
         // Add checkbox if bulk actions is available
         if (count($this->get_bulk_actions()) > 0) {
             $columns = array_reverse($columns, true);
@@ -224,13 +249,17 @@ class PTA_SUS_List_Table extends WP_List_Table
     */
     function get_sortable_columns()
     {
-        return apply_filters( 'pta_sus_list_table_sortable_columns', array(
+        $columns = apply_filters( 'pta_sus_list_table_sortable_columns', array(
             'id'    => array('id',false),
             'visible'    => array('visible',false),
             'title' => array('title',false),
             'first_date'  => array('first_date',true),
             'last_date'  => array('last_date',false),
         ) );
+        if ( current_user_can( 'manage_others_signup_sheets' ) ) {
+            $columns['author'] = array( 'author_email', false );
+        }
+        return $columns;
     }
     
     /**
@@ -374,13 +403,20 @@ class PTA_SUS_List_Table extends WP_List_Table
         // Check if we need to filter by author (for Signup Sheet Authors)
         $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
         $author_id = $can_manage_others ? null : get_current_user_id();
-        
+
+        // Apply admin author filter when a manager selects a specific author
+        $filter_author_email = '';
+        if ( $can_manage_others && isset( $_REQUEST['pta-filter-submit'] ) && ! empty( $_REQUEST['pta-author-filter'] ) ) {
+            $filter_author_email = sanitize_email( wp_unslash( $_REQUEST['pta-author-filter'] ) );
+        }
+
         // Use get_sheets_by_args to support author filtering
         $args = array(
-            'trash' => $this->show_trash,
-            'active_only' => false,
-            'show_hidden' => true,
-            'author_id' => $author_id,
+            'trash'        => $this->show_trash,
+            'active_only'  => false,
+            'show_hidden'  => true,
+            'author_id'    => $author_id,
+            'author_email' => $filter_author_email,
         );
         $rows = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 
@@ -418,7 +454,10 @@ class PTA_SUS_List_Table extends WP_List_Table
         function usort_reorder($a, $b) {
             $orderby = (!empty($_REQUEST['orderby'])) ? $_REQUEST['orderby'] : 'title';
             $order = (!empty($_REQUEST['order'])) ? $_REQUEST['order'] : 'asc';
-            $result = strcmp($a[$orderby], $b[$orderby]);
+            // Coerce to string: array-type columns (e.g. sus_group) are handled by the filter below
+            $val_a = isset($a[$orderby]) && !is_array($a[$orderby]) ? (string)$a[$orderby] : '';
+            $val_b = isset($b[$orderby]) && !is_array($b[$orderby]) ? (string)$b[$orderby] : '';
+            $result = strcmp($val_a, $val_b);
             $result = apply_filters('pta_sus_list_table_usort', $result, $a, $b, $orderby);
             return ($order === 'asc') ? $result : -$result;
         }
@@ -438,9 +477,9 @@ class PTA_SUS_List_Table extends WP_List_Table
     }
 
 	function extra_tablenav( $which ) {
-		if ( $which == "top" ){
-		    $visible = isset($_REQUEST['pta-visible-filter']) ? $_REQUEST['pta-visible-filter'] : '';
-			$type = isset($_REQUEST['pta-type-filter']) ? $_REQUEST['pta-type-filter'] : '';
+		if ( $which === "top" ){
+		    $visible = $_REQUEST['pta-visible-filter'] ?? '';
+			$type = $_REQUEST['pta-type-filter'] ?? '';
 			?>
 			<div class="alignleft actions bulkactions">
                 <select name="pta-visible-filter" class="pta-filter">
@@ -458,6 +497,39 @@ class PTA_SUS_List_Table extends WP_List_Table
 			</div>
 			<?php
             do_action('pta_sus_sheets_list_table_after_filters');
+			// Author filter — only visible to admins/managers who can view all sheets
+			if ( current_user_can( 'manage_others_signup_sheets' ) ) :
+				global $wpdb;
+				$_sus_sheets_table  = $wpdb->prefix . 'pta_sus_sheets';
+				$_sus_author_emails = $wpdb->get_col(
+					"SELECT DISTINCT author_email FROM $_sus_sheets_table WHERE author_email IS NOT NULL AND author_email != '' AND trash = 0 ORDER BY author_email ASC"
+				);
+				if ( ! empty( $_sus_author_emails ) ) :
+					$_sus_selected_author = isset( $_REQUEST['pta-author-filter'] ) ? sanitize_email( wp_unslash( $_REQUEST['pta-author-filter'] ) ) : '';
+					?>
+					<div class="alignleft actions bulkactions">
+						<select name="pta-author-filter" class="pta-filter">
+							<option value=""><?php _e( 'Show All Authors', 'pta-volunteer-sign-up-sheets' ); ?></option>
+							<?php foreach ( $_sus_author_emails as $_sus_author_email ) :
+								$_sus_display = $_sus_author_email;
+								$_sus_user    = get_user_by( 'email', $_sus_author_email );
+								if ( $_sus_user ) {
+									$_sus_first = trim( $_sus_user->first_name );
+									$_sus_last  = trim( $_sus_user->last_name );
+									if ( ! empty( $_sus_first ) || ! empty( $_sus_last ) ) {
+										$_sus_display = esc_html( trim( $_sus_first . ' ' . $_sus_last ) ) . ' (' . $_sus_author_email . ')';
+									} else {
+										$_sus_display = esc_html( $_sus_user->display_name ) . ' (' . $_sus_author_email . ')';
+									}
+								}
+								?>
+								<option value="<?php echo esc_attr( $_sus_author_email ); ?>" <?php selected( $_sus_author_email, $_sus_selected_author ); ?>><?php echo esc_html( $_sus_display ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<?php
+				endif;
+			endif;
 			submit_button( __('Filter Sheets','pta-volunteer-sign-up-sheets'), '', 'pta-filter-submit', false, array( 'id' => 'filter-submit' ) );
 		}
 	}

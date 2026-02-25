@@ -222,6 +222,7 @@ function pta_sus_sanitize_dates($dates) {
  *
  * @param mixed $value Value to sanitize (string, int, array, etc.)
  * @param string $type Data type (e.g., 'text', 'email', 'int', 'bool', 'yesno', 'date', 'time', 'textarea', 'names', 'emails', 'dates', 'array')
+ * @param string $context 'db' (default) serializes arrays for storage; 'output' returns arrays as PHP arrays.
  * @return mixed Sanitized value (type depends on $type parameter)
  *
  * Supported types:
@@ -239,10 +240,14 @@ function pta_sus_sanitize_dates($dates) {
  * - 'bool': Boolean (converts to 1 or 0 for database)
  * - 'yesno': YES/NO string (converts to uppercase 'YES' or 'NO')
  * - 'names': Comma-separated names (sanitizes each name, removes empty)
- * - 'array': Array data (sanitizes recursively, serializes for database)
+ * - 'array': Array data (sanitizes recursively; serializes for DB by default, returns PHP array when $context='output')
  * - Custom types: Use 'pta_sanitize_value' filter for extension-added types
+ *
  */
-function pta_sanitize_value($value, $type) {
+function pta_sanitize_value($value, $type, $context = 'db') {
+    if(null === $value || '' === $value) {
+        return $value;
+    }
 	$sanitized_value = $value;
 	switch ($type) {
 		case 'text':
@@ -255,10 +260,8 @@ function pta_sanitize_value($value, $type) {
 			$sanitized_value = wpautop(wp_kses_post(stripslashes($value)));
 			break;
 		case 'email':
-			if ( '{chair_email}' === $value || '{admin_email}' === $value ) {
-				$sanitized_value = $value;
-			} else {
-				$sanitized_value = sanitize_email($value);
+			if ( '{chair_email}' !== $value && '{admin_email}' !== $value ) {
+                $sanitized_value = sanitize_email($value);
 			}
 			break;
 		case 'date':
@@ -289,41 +292,39 @@ function pta_sanitize_value($value, $type) {
             break;
 		case 'int':
 			// Make the value into absolute integer
-			$sanitized_value = null === $value ? null : absint($value);
+			$sanitized_value = absint($value);
 			break;
 		case 'intval':
 			// Make the value into a regular integer - positive or negative
-			$sanitized_value = null === $value ? null : intval($value);
+			$sanitized_value = (int)$value;
 			break;
 		case 'float':
-			$sanitized_value = null === $value ? null : floatval($value);
+			$sanitized_value = (float)$value;
 			break;
         case 'bool':
             // Convert to 1 or 0 for database storage
             $sanitized_value = $value ? 1 : 0;
             break;
         case 'array':
-            // Handle array - could be already serialized or an array
+            // Handle array - could be already serialized or a PHP array.
+            // For 'db' context (default): sanitize and serialize for storage.
+            // For 'output' context: sanitize and return as a PHP array.
             if (is_array($value)) {
-                // If it's an array, sanitize and serialize for database
-                $array = stripslashes_deep($value);
-                $sanitized_value = maybe_serialize(pta_sanitize_array($array));
+                $stripped = stripslashes_deep($value);
+                $sanitized = pta_sanitize_array($stripped);
             } elseif (is_string($value) && is_serialized($value)) {
-                // Already serialized - don't double-serialize
-                // Unserialize, sanitize, then re-serialize to ensure it's clean
+                // Unserialize, sanitize, then re-serialize (or return array) as needed.
                 $array = maybe_unserialize($value);
-                if (is_array($array)) {
-                    $sanitized_value = maybe_serialize(pta_sanitize_array($array));
-                } else {
-                    // If unserialization didn't produce an array, return empty serialized array
-                    $sanitized_value = maybe_serialize(array());
-                }
+                $sanitized = is_array($array) ? pta_sanitize_array($array) : array();
+            } else {
+                break; // Not an array or serialized string — leave $sanitized_value unchanged.
             }
+            $sanitized_value = ( 'output' === $context ) ? $sanitized : maybe_serialize($sanitized);
             break;
         case 'yesno':
             // YES/NO values (uppercase) used by task fields
             $value_upper = strtoupper($value);
-            if ($value_upper === 'YES' || $value === 'yes') {
+            if ($value_upper === 'YES') {
                 $sanitized_value = 'YES';
             } else {
                 $sanitized_value = 'NO';
@@ -338,7 +339,7 @@ function pta_sanitize_value($value, $type) {
                 $count = 1;
                 foreach ($names as $name) {
                     $name = !empty($name) ? trim($name) : '';
-                    if ('' != $name) {
+                    if ('' !== $name) {
                         if ($count > 1) {
                             $valid_names .= ',';
                         }

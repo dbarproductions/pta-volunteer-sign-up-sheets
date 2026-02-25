@@ -994,6 +994,16 @@
         }
     } );
     if ( PTASUS.serverSide ) {
+        // Dismiss the full-screen loading overlay after the initial AJAX response.
+        var $allLoadingOverlay = $( '#pta-dt-loading-overlay' );
+        if ( $allLoadingOverlay.length ) {
+            allTable.one( 'xhr.dt', function () {
+                $allLoadingOverlay.fadeOut( 300, function () {
+                    $allLoadingOverlay.remove();
+                } );
+            } );
+        }
+
         allTable.on( 'xhr.dt', function ( e, settings, json ) {
             if ( json ) {
                 if ( json.rowClasses )    { allRowClasses = json.rowClasses; }
