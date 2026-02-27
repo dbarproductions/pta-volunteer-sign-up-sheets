@@ -1245,19 +1245,27 @@ class PTA_SUS_Public {
 	        }
 	        
 	        document.addEventListener('DOMContentLoaded', function() {
-			    var clearLinks = document.querySelectorAll('.clear-signup-link');
-			    clearLinks.forEach(function(link) {
-			        link.addEventListener('click', function(e) {
-			            e.preventDefault();
-			            if(confirm('Are you sure you want to clear this signup?')) {
-			                window.location.href = this.href;
-			            }
-			        });
-			    });
-			});
+	      var clearLinks = document.querySelectorAll('.clear-signup-link');
+	      clearLinks.forEach(function(link) {
+	          link.addEventListener('click', function(e) {
+	              e.preventDefault();
+	              if(confirm('Are you sure you want to clear this signup?')) {
+	                  window.location.href = this.href;
+	              }
+	          });
+	      });
+	  });
 	    ";
 	    wp_add_inline_script('pta-sus-url-cleanup', $inline_script);
-    }
+
+	 // Enqueue AJAX SPA script
+	 wp_enqueue_script('pta-sus-ajax', plugins_url( '../assets/js/pta-sus-ajax.js', __FILE__ ), array('jquery'), PTA_VOLUNTEER_SUS_VERSION_NUM, true);
+	 wp_localize_script('pta-sus-ajax', 'pta_sus_vars', array(
+	  'ajaxurl' => admin_url('admin-ajax.php'),
+	  'nonce'   => wp_create_nonce('ajax-pta-nonce'),
+	  'atts'    => array(), // Default empty, will be updated by display_sheet
+	 ));
+	   }
 
 } // End of class
 /* EOF */
