@@ -438,7 +438,7 @@ class PTA_SUS_Public_Display_Functions {
 	 * @return array Associative array with keys: column-description, column-date, column-start-time, column-end-time, column-task
 	 */
 	public static function get_default_task_column_values($task, $date) {
-		$display_date = $date != "0000-00-00" ? mysql2date( get_option('date_format'), $date, $translate = true ) : '';
+		$display_date = $date !== "0000-00-00" ? mysql2date( get_option('date_format'), $date, $translate = true ) : '';
 		$start_time = !empty($task->time_start) ? pta_datetime(get_option("time_format"), strtotime($task->time_start)) : '';
 		$end_time = !empty($task->time_end) ? pta_datetime(get_option("time_format"), strtotime($task->time_end)) : '';
 		$description = wp_kses_post($task->description);
@@ -1342,7 +1342,7 @@ class PTA_SUS_Public_Display_Functions {
 					$count = count($names);
 					if ($count > 1) {
 						$display_chair = apply_filters('pta_sus_public_output', __('Event Chairs:', 'pta-volunteer-sign-up-sheets'), 'event_chairs_label_plural') . ' <a class="pta-sus-link contact" href="mailto:' . esc_attr($sheet->chair_email) . '">' . esc_html($chair_names) . '</a>';
-					} elseif (1 == $count && '' != $sheet->chair_name && '' != $sheet->chair_email) {
+					} elseif (1 == $count && '' !== $sheet->chair_name && '' !== $sheet->chair_email) {
 						$display_chair = apply_filters('pta_sus_public_output', __('Event Chair:', 'pta-volunteer-sign-up-sheets'), 'event_chair_label_singular') . ' <a class="pta-sus-link contact" href="mailto:' . esc_attr($sheet->chair_email) . '">' . esc_html($chair_names) . '</a>';
 					} else {
 						$display_chair = esc_html($no_contact_message);
@@ -1381,7 +1381,7 @@ class PTA_SUS_Public_Display_Functions {
 				// Make sure there are some future dates before showing anything
 				if ($future_dates) {
 					// Only show details if there is something to show, and show headers is true
-					if ('' != $sheet->details && $show_headers) {
+					if ('' !== $sheet->details && $show_headers) {
 						$return .= '<h3 class="pta-sus details-header">' . apply_filters('pta_sus_public_output', __('DETAILS:', 'pta-volunteer-sign-up-sheets'), 'sheet_details_heading') . '</h3>';
 						$return .= wp_kses_post($sheet->details);
 					}
@@ -1396,7 +1396,7 @@ class PTA_SUS_Public_Display_Functions {
 					$alt_view = apply_filters('pta_sus_display_alt_task_list', '', $sheet, $task_dates);
 					if ('' === $alt_view) {
 						foreach ($task_dates as $tdate) {
-							if ("0000-00-00" != $tdate && $tdate < current_time('Y-m-d')) continue; // Skip dates that have passed already
+							if ("0000-00-00" !== $tdate && $tdate < current_time('Y-m-d')) continue; // Skip dates that have passed already
 							// Pass the already-loaded sheet object to avoid redundant load
 							$return .= self::display_task_list($sheet->id, $tdate, $sheet->no_signups, $sheet);
 						}

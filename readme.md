@@ -146,6 +146,13 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 
+### 6.3.1 
+- Updated the datatables2 library to include the responsive extension for responsive displays of tables on the front-end that use datatables (mostly via the Customizer's custom layouts and new All Tasks View)
+- Added a filter hook to the pta_clean_redirect global function to allow extension to modify parameters
+- Minor code changes and optimizations for extensions
+- Added admin notices/messages system
+- Tested with PHP 8.5.3 and WordPress 6.9.1
+
 ### 6.3.0
 - Added sortable Author column to sheets list table as well as Author select to the sheet filters
 - Added Author column to the View/Export All Data admin view, but only shows for admin and Sign Up Sheet managers. Authors will still only see their own sheets and no Author column

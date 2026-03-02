@@ -14,7 +14,7 @@ if(!empty($row['extra-class'])) {
 ?>
 <div class="<?php echo esc_attr($row_class); ?>">
     <?php foreach($columns as $class => $label):
-        $value = isset($row[$class]) ? $row[$class] : '';
+        $value = $row[$class] ?? '';
         ?>
         <div class="<?php echo esc_attr($class); ?>">
             <?php echo wp_kses_post($value); ?>

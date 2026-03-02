@@ -894,9 +894,20 @@ function pta_clean_redirect( $url = '' ) {
 		}
 	}
 
-	// Only redirect if headers haven't been sent
+	/**
+	 * Allow extensions to modify the redirect URL before it fires.
+	 * The second argument is the original $_GET array so extensions can
+	 * inspect parameters that were stripped by the clean-up logic above.
+	 *
+	 * @since 6.2.1
+	 */
+	$clean_url = apply_filters( 'pta_sus_clean_redirect_url', $clean_url, $_GET );
+
+	// Only redirect if headers haven't been sent.
+	// esc_url_raw() is correct here — esc_url() encodes & as &amp; which breaks
+	// multi-param redirect URLs when sent as an HTTP Location header.
 	if ( ! headers_sent() ) {
-		wp_redirect(esc_url($clean_url));
+		wp_redirect( esc_url_raw( $clean_url ) );
 		exit;
 	}
 	// If headers already sent, messages will display on current page
@@ -1101,8 +1112,14 @@ function pta_sus_clean_prefixed_array($input = array(), $prefix = false) {
  * Add a new sheet from prefixed form fields
  * Handles cleaning of prefixed field names and creates a new sheet using the class object
  *
+ * NOTE: This function does not validate business rules (required fields, field formats).
+ * Callers are responsible for validating data first using PTA_SUS_Validation::validate_object_fields()
+ * before calling this function. This follows the validate-then-persist pattern used throughout
+ * the plugin — validation surfaces errors to the user; this function only persists clean data.
+ *
  * @param array $prefixed_fields Array of fields with "sheet_" prefix (e.g., "sheet_title", "sheet_type")
  * @return int|false New sheet ID on success, false on failure
+ * @see PTA_SUS_Validation::validate_object_fields()
  */
 function pta_sus_add_sheet($prefixed_fields) {
 	// Clean prefixed fields
@@ -1151,10 +1168,16 @@ function pta_sus_add_sheet($prefixed_fields) {
  * Add a new task from prefixed form fields
  * Handles cleaning of prefixed field names and creates a new task using the class object
  *
+ * NOTE: This function does not validate business rules (required fields, field formats).
+ * Callers are responsible for validating data first using PTA_SUS_Validation::validate_object_fields()
+ * before calling this function. This follows the validate-then-persist pattern used throughout
+ * the plugin — validation surfaces errors to the user; this function only persists clean data.
+ *
  * @param array $prefixed_fields Array of fields with "task_" prefix (e.g., "task_title", "task_qty")
  * @param int $sheet_id Parent sheet ID
  * @param bool $no_signups Whether to allow task with 0 qty (default: false)
  * @return int|false New task ID on success, false on failure
+ * @see PTA_SUS_Validation::validate_object_fields()
  */
 function pta_sus_add_task($prefixed_fields, $sheet_id, $no_signups = false) {
 	// Clean prefixed fields
@@ -1202,14 +1225,71 @@ function pta_sus_add_task($prefixed_fields, $sheet_id, $no_signups = false) {
 }
 
 /**
+
+ * Resolve the user_id for a signup from raw form data.
+ *
+ * Priority:
+ *  1. If a valid positive user_id is already provided (e.g., from autocomplete for a
+ *     known WP user), preserve it.
+ *  2. If not set and the user is logged in but NOT a manager/admin, use current user's ID.
+ *  3. If not set and the email matches a WP account, use that account's ID (covers both
+ *     admins signing up someone with an account, and logged-out submissions).
+ *  4. Otherwise return 0 (guest with no WP account).
+ *
+ * NOTE on the admin case: when an admin fills out the form for themselves the form's
+ * hidden `signup_user_id` field is pre-populated with their own user ID, so it arrives
+ * here as a valid positive integer and is preserved by rule 1. Rule 4 therefore applies
+ * only when the admin selects a guest (no WP account) via the live-search autocomplete —
+ * in that case the correct stored user_id is 0, not the admin's ID.
+ *
+ * @param int|string $user_id The user_id value from the form (may be 0 or empty string).
+ * @param string     $email   The email value from the form.
+ * @return int Resolved WP user ID, or 0 for guests / no matching account.
+ */
+
+function pta_sus_resolve_user_id( $user_id, $email = '' ) {
+
+	$user_id = absint( $user_id );
+
+	// Rule 1: valid user_id already provided — preserve it.
+	if ( $user_id > 0 ) {
+		return $user_id;
+	}
+
+	// Rule 2: non-admin logged-in user — always the current user.
+	if ( is_user_logged_in() && ! current_user_can( 'manage_signup_sheets' ) ) {
+		return get_current_user_id();
+	}
+
+	// Rule 3: look up the email in WP user accounts (applies to admins and guests alike).
+	if ( ! empty( $email ) ) {
+		$wp_user = get_user_by( 'email', $email );
+		if ( $wp_user ) {
+			return $wp_user->ID;
+		}
+	}
+
+	// Rule 4: no matching account — guest signup (user_id = 0).
+	return 0;
+}
+
+/**
  * Add a new signup from prefixed form fields
  * Handles cleaning of prefixed field names, user ID logic, user meta updates, and availability checking
  * Creates a new signup using the class object
+ *
+ * NOTE: This function does not validate business rules (required fields, format checks, duplicate
+ * detection, or availability). Callers are responsible for validating data first using
+ * PTA_SUS_Validation::validate_signup_fields() before calling this function. This follows the
+ * validate-then-persist pattern used throughout the plugin — validation surfaces errors to the
+ * user; this function only persists clean data. The admin flow may intentionally skip certain
+ * validation rules (e.g., allowing past-date signups or bypassing duplicate checks).
  *
  * @param array $prefixed_fields Array of fields with "signup_" prefix (e.g., "signup_firstname", "signup_email")
  * @param int $task_id Parent task ID
  * @param object|false $task Optional. Task object to avoid reloading (will use cache if not provided)
  * @return int|false New signup ID on success, false on failure (including if spots are full)
+ * @see PTA_SUS_Validation::validate_signup_fields()
  */
 function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 	// Clean prefixed fields
@@ -1236,47 +1316,11 @@ function pta_sus_add_signup($prefixed_fields, $task_id, $task = false) {
 		$clean_fields['validated'] = (bool)$clean_fields['validated'];
 	}
 	
-	// Handle user_id logic
-	// Priority:
-	// 1. If user_id is already set (from autocomplete/selected user), preserve it
-	// 2. If not set and user is logged in but NOT a manager, use current user
-	// 3. If not set and user is logged in AND is a manager, check email for user account first
-	// 4. If not set and user is NOT logged in, check email for user account
-	
-	// Convert user_id to integer if set
-	if (!empty($clean_fields['user_id'])) {
-		$clean_fields['user_id'] = absint($clean_fields['user_id']);
-		// If user_id is 0 or invalid, treat as empty
-		if ($clean_fields['user_id'] <= 0) {
-			$clean_fields['user_id'] = '';
-		}
-	}
-	
-	// Only set user_id if it's not already set (preserve from autocomplete/selected user)
-	if (empty($clean_fields['user_id'])) {
-		// For non-managers, always use current user if logged in
-		if (is_user_logged_in() && !current_user_can('manage_signup_sheets')) {
-			$clean_fields['user_id'] = get_current_user_id();
-		} 
-		// For managers/admins, check email first (in case they selected a user from signups table)
-		elseif (is_user_logged_in() && current_user_can('manage_signup_sheets')) {
-			// Check if email has a user account (for signups table search)
-			if (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
-				$clean_fields['user_id'] = $user->ID;
-			} else {
-				// No user account found for email, fall back to current user (admin)
-				$clean_fields['user_id'] = get_current_user_id();
-			}
-		}
-		// For non-logged-in users, check email for user account
-		elseif (!empty($clean_fields['email']) && ($user = get_user_by('email', $clean_fields['email']))) {
-			$clean_fields['user_id'] = $user->ID;
-		}
-	}
+	// Resolve user_id using shared helper (handles autocomplete, admin-for-guest, guest-with-account, etc.)
+	$clean_fields['user_id'] = pta_sus_resolve_user_id( $clean_fields['user_id'] ?? 0, $clean_fields['email'] ?? '' );
 	
 	// If we have a user_id, check to see if their meta fields are empty and update them so they can be pre-filled for future signups
-	$user = null;
-	if (!empty($clean_fields['user_id'])) {
+    if (!empty($clean_fields['user_id'])) {
 		$user = get_user_by('id', $clean_fields['user_id']);
 		if ($user) {
 			if (empty($user->first_name) && !empty($clean_fields['firstname'])) {

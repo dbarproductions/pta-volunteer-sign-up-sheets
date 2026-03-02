@@ -1,11 +1,11 @@
 <?php
 /**
  * Admin Pages Class
- * 
+ *
  * Handles all admin-facing functionality for the Volunteer Sign-Up Sheets plugin.
  * This class manages admin pages, form processing, list tables, and provides hooks
  * for extensions to customize admin behavior.
- * 
+ *
  * @package PTA_Volunteer_Sign_Up_Sheets
  * @since 1.0.0
  */
@@ -17,86 +17,86 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin settings page slug
-	 * 
+	 *
 	 * @var string
 	 */
 	private $admin_settings_slug = 'pta-sus-settings';
-	
+
 	/**
 	 * Options page object
-	 * 
+	 *
 	 * @var PTA_SUS_Options
 	 */
 	public $options_page;
-	
+
 	/**
 	 * Whether PTA Member Directory plugin is active
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $member_directory_active;
-	
+
 	/**
 	 * Main plugin options array
-	 * 
+	 *
 	 * @var array
 	 */
 	public $main_options;
-	
+
 	/**
 	 * Email options array
-	 * 
+	 *
 	 * @var array
 	 */
 	public $email_options;
-	
+
 	/**
 	 * List table object for sheets display
-	 * 
+	 *
 	 * @var PTA_SUS_List_Table
 	 */
 	public $table;
-	
+
 	/**
 	 * Whether to show settings menu items
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $show_settings;
 
 	/**
 	 * Whether last action was successful
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $success;
-	
+
 	/**
 	 * Current action being processed
-	 * 
+	 *
 	 * @var string
 	 */
 	private $action;
 
 	/**
 	 * Whether to filter sheets by author (for Signup Sheet Authors)
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $filter_by_author;
 
 	/**
 	 * Current author ID for filtering (null for admins, user ID for authors)
-	 * 
+	 *
 	 * @var int|null
 	 */
 	private $current_author_id;
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * Initializes the admin class, loads options, and sets up data access.
-	 * 
+	 *
 	 * @since 1.0.0
 	 */
 	public function __construct() {
@@ -111,10 +111,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Initialize admin hooks
-	 * 
+	 *
 	 * Registers all WordPress admin hooks for menu pages, scripts, AJAX handlers,
 	 * and screen options.
-	 * 
+	 *
 	 * @since 1.0.0
 	 */
 	public function init_admin_hooks() {
@@ -134,6 +134,9 @@ class PTA_SUS_Admin {
 		add_action( 'wp_ajax_PTA_SUS_ADMIN_DT_DATA', array( $this, 'ajax_admin_dt_data' ) );
 		// Server-side export endpoint (admin-only, outputs CSV or print HTML).
 		add_action( 'wp_ajax_PTA_SUS_ADMIN_EXPORT', array( $this, 'ajax_admin_export' ) );
+		// Remote admin notices.
+		add_action( 'admin_footer', array( $this, 'render_notices_panel' ) );
+		add_action( 'wp_ajax_pta_sus_dismiss_notice', array( $this, 'ajax_dismiss_notice' ) );
 		// Invalidate server-side DT cache on any CRUD operation.
 		$cache_invalidation_hooks = array(
 			'pta_sus_created_signup', 'pta_sus_updated_signup', 'pta_sus_deleted_signup',
@@ -147,9 +150,9 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Set screen option value
-	 * 
+	 *
 	 * WordPress filter callback for screen options. Returns the value to save.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param mixed $status Current status (ignored)
 	 * @param string $option Option name
@@ -162,10 +165,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Get user data via AJAX
-	 * 
+	 *
 	 * AJAX handler that returns user data (name, email, phone) for a given user ID.
 	 * Used by admin signup forms for autocomplete functionality.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void Sends JSON response and exits
 	 * @hook pta_sus_admin_ajax_get_user_data Filter to modify user data response
@@ -190,10 +193,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Search users via AJAX
-	 * 
+	 *
 	 * AJAX handler that searches WordPress users by first/last name and returns
 	 * matching user data. Used by admin signup forms for autocomplete functionality.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void Sends JSON response and exits
 	 * @hook pta_sus_admin_ajax_user_search_data Filter to modify user search results
@@ -245,9 +248,9 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin initialization
-	 * 
+	 *
 	 * WordPress admin_init hook callback. Processes list table actions and email template forms.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -262,10 +265,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Register admin menu pages
-	 * 
+	 *
 	 * Creates the main admin menu and all submenu pages. Checks for member directory
 	 * plugin and adjusts menu items based on user capabilities and settings.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -300,10 +303,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Set up screen options
-	 * 
+	 *
 	 * Configures screen options for the sheets list table, including per-page
 	 * pagination. Only adds options on the main list page, not on view/edit pages.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -327,11 +330,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Filter settings page capability
-	 * 
+	 *
 	 * WordPress filter callback to change the required capability for settings pages
 	 * from 'manage_options' to 'manage_others_signup_sheets' (so only Admins and Managers can access).
 	 * Authors (only manage_signup_sheets) should NOT be able to access settings.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param string $capability Current capability requirement
 	 * @return string Modified capability ('manage_others_signup_sheets')
@@ -342,10 +345,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Enqueue admin scripts and styles
-	 * 
+	 *
 	 * Registers and enqueues all CSS and JavaScript files needed for admin pages,
 	 * including DataTables, date/time pickers, autocomplete, and localization data.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param string $hook Current admin page hook
 	 * @return void
@@ -446,17 +449,53 @@ class PTA_SUS_Admin {
 				';
 				wp_add_inline_style( 'pta-admin-style', $custom_css );
 			}
+
+			// Remote admin notices — floating button + slide-out panel.
+			$notices   = $this->get_remote_notices();
+			$dismissed = get_user_meta( get_current_user_id(), 'pta_sus_dismissed_notices', true );
+			if ( ! is_array( $dismissed ) ) {
+				$dismissed = array();
+			}
+			$allowed_tags = array(
+				'a'      => array( 'href' => true, 'target' => true ),
+				'strong' => array(),
+				'em'     => array(),
+				'br'     => array(),
+			);
+			$unread = array_values( array_filter(
+				array_map( function ( $n ) use ( $allowed_tags ) {
+					if ( isset( $n['message'] ) ) {
+						$n['message'] = wp_kses( $n['message'], $allowed_tags );
+					}
+					return $n;
+				}, $notices ),
+				function ( $n ) use ( $dismissed ) {
+					return ! in_array( $n['id'] ?? '', $dismissed, true )
+						&& ( empty( $n['expires'] ) || strtotime( $n['expires'] ) > time() );
+				}
+			) );
+
+			wp_enqueue_style( 'pta-sus-admin-notices', plugins_url( '../assets/css/admin-notices.min.css', __FILE__ ), array(), PTA_VOLUNTEER_SUS_VERSION_NUM );
+			wp_enqueue_script( 'pta-sus-admin-notices', plugins_url( '../assets/js/admin-notices.min.js', __FILE__ ), array( 'jquery' ), PTA_VOLUNTEER_SUS_VERSION_NUM, true );
+			wp_localize_script( 'pta-sus-admin-notices', 'ptaSusNotices', array(
+				'notices'     => $unread,
+				'unreadCount' => count( $unread ),
+				'nonce'       => wp_create_nonce( 'pta_sus_dismiss_notice' ),
+				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+				'allRead'     => __( 'All caught up! No new notices.', 'pta-volunteer-sign-up-sheets' ),
+				'panelTitle'  => __( 'Volunteer Sign Up Sheets — News & Updates', 'pta-volunteer-sign-up-sheets' ),
+			) );
 		}
 	}
 
 
 	/**
 	 * Admin page: CRON Functions
-	 * 
+	 *
 	 * Displays the CRON Functions page (formerly "Reminders" page) which allows
 	 * manual triggering of reminder emails, reschedule emails, expired signup/sheet
 	 * clearing, and debug log management.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -465,7 +504,7 @@ class PTA_SUS_Admin {
 		if (!current_user_can('manage_options') && !current_user_can('manage_others_signup_sheets'))  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
 		}
-		
+
 		$messages = '';
         $rescheduled_messages = '';
 		$cleared_message = $cleared_sheets_message = '';
@@ -595,14 +634,14 @@ class PTA_SUS_Admin {
 
 		echo '</div>'; // Close wrap div
 	}
-	
+
 	/**
 	 * Output signup column data for admin list tables
-	 * 
+	 *
 	 * Generates HTML output for a specific column in the admin signups list table.
 	 * Handles various column types (slot, sheet, task, date, name, email, phone, etc.)
 	 * and provides filter hooks for extensions to customize output.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param string $slug Column identifier (slot, sheet, task, date, name, email, phone, details, qty, validated, ts, actions)
 	 * @param int $i Row number/index
@@ -746,7 +785,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Get required signup fields for a task
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Validation::get_required_signup_fields() instead
 	 * @param int $task_id Task ID
 	 * @return array Array of required field names
@@ -766,11 +805,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Process admin signup form submission
-	 * 
+	 *
 	 * Handles add/edit signup form submissions from the admin interface. Validates
 	 * form data, saves signup to database, and optionally sends confirmation email.
 	 * Supports both adding new signups and editing existing ones.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return bool True on success, false on failure
 	 * @hook pta_sus_admin_signup_posted_values Filter to modify posted form values
@@ -798,7 +837,7 @@ class PTA_SUS_Admin {
 		$edit = ($signup_id > 0);
 		$task_id = isset($_POST['task_id']) ? absint($_POST['task_id']) : 0;
 		$date = isset($_POST['date']) ? sanitize_text_field($_POST['date']) : '';
-		
+
 		// Get task and sheet objects for validation
 		$task = pta_sus_get_task($task_id);
 		if (!$task) {
@@ -812,13 +851,13 @@ class PTA_SUS_Admin {
 			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
-		
+
 		$posted = array();
 		// let extensions modify the posted values
 		$form_data = apply_filters('pta_sus_admin_signup_posted_values', $_POST);
 		// Make sure required fields are filled out
 		$send_mail = isset($form_data['send_email']) && 'yes' === $form_data['send_email'];
-		
+
 		// Build posted array with signup_ prefix for validation
 		foreach ($fields as $key) {
 			if('item_qty' === $key) {
@@ -841,13 +880,13 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
-		
+
 		// Admin form doesn't have validate_email field, but validation expects it
 		// Set it to the same value as email since admin doesn't need email confirmation
 		if (!isset($posted['signup_validate_email']) && isset($posted['signup_email'])) {
 			$posted['signup_validate_email'] = $posted['signup_email'];
 		}
-		
+
 		// Use validation helper class for consistent validation
 		// Note: Admin form allows user_id which public form doesn't, but validation will handle other fields
 		// Pass editing_signup_id when editing so validation can account for existing signup's spots
@@ -860,7 +899,7 @@ class PTA_SUS_Admin {
 			PTA_SUS_Messages::show_messages(true, 'admin');
 			return false;
 		}
-		
+
 		if($edit) {
 			$result = pta_sus_update_signup( $posted, $signup_id);
 		} else {
@@ -885,12 +924,12 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Process reschedule/copy form submission
-	 * 
+	 *
 	 * Handles the reschedule/copy sheet form submission. Supports three methods:
 	 * - 'reschedule': Updates existing sheet with new dates/times
 	 * - 'copy': Creates a single copy of the sheet with new dates/times
 	 * - 'multi-copy': Creates multiple copies with date intervals
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return bool True on success, false on failure
 	 * @see PTA_SUS_Sheet_Functions::reschedule_sheet()
@@ -1025,10 +1064,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Process move signup form submission
-	 * 
+	 *
 	 * Handles moving a signup from one task/date to another task/date. Validates
 	 * that the new task has available spots before moving.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return int|bool 1 on success, false on failure
 	 */
@@ -1092,11 +1131,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Redirect after sheet page action
-	 * 
+	 *
 	 * Stores messages in cookies and redirects to the sheets list page after
 	 * processing an action (trash, delete, copy, etc.). This allows messages to
 	 * persist across the redirect.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void Exits after redirect
 	 */
@@ -1128,12 +1167,12 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Process list table actions
-	 * 
+	 *
 	 * Handles all actions from the sheets list table including: clear signup,
 	 * trash/untrash sheet, delete sheet, copy sheet, toggle visibility, and form
 	 * submissions (signup, reschedule, move). Validates nonces and processes
 	 * each action appropriately.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 * @hook pta_sus_admin_clear_signup Action fired when signup is cleared
@@ -1256,7 +1295,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin page: Sheets list and details
-	 * 
+	 *
 	 * Main admin page for managing sheets. Displays either:
 	 * - List of all sheets (with search, filter, pagination)
 	 * - Single sheet details with signups
@@ -1264,7 +1303,7 @@ class PTA_SUS_Admin {
 	 * - Reschedule/copy sheet form
 	 * - Move signup form
 	 * - View all signups (export view)
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -1370,7 +1409,7 @@ class PTA_SUS_Admin {
 			} else {
 				echo '
 					<h2><span id="sheet_title">'.esc_html($sheet->title).'</span></h2>
-					<h4>'.__('Event Type: ', 'pta-volunteer-sign-up-sheets').esc_html($sheet->type).'</h4>                
+					<h4>'.__('Event Type: ', 'pta-volunteer-sign-up-sheets').esc_html($sheet->type).'</h4>
 					<h3>'.__('Signups', 'pta-volunteer-sign-up-sheets').'</h3>
 					';
 
@@ -1410,7 +1449,7 @@ class PTA_SUS_Admin {
 		// Get filtered counts based on user permissions (Authors only see their own sheets)
 		$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
 		$author_id = $can_manage_others ? null : get_current_user_id();
-		
+
 		$all_count_args = array(
 			'trash' => false,
 			'active_only' => false,
@@ -1423,10 +1462,10 @@ class PTA_SUS_Admin {
 			'show_hidden' => true,
 			'author_id' => $author_id,
 		);
-		
+
 		$all_count = PTA_SUS_Sheet_Functions::get_sheet_count( $all_count_args );
 		$trash_count = PTA_SUS_Sheet_Functions::get_sheet_count( $trash_count_args );
-		
+
 		echo '
 			<ul class="subsubsub">
 			<li class="all"><a href="admin.php?page='.$this->admin_settings_slug.'_sheets"'.(($show_all) ? ' class="current"' : '').'>'.__('All ', 'pta-volunteer-sign-up-sheets').'<span class="count">('.$all_count.')</span></a> |</li>
@@ -1446,15 +1485,15 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin page: Add/Edit Sheet and Tasks
-	 * 
+	 *
 	 * Handles the add/edit sheet page which includes:
 	 * - Sheet form (title, type, settings, contact info, details)
 	 * - Tasks form (multiple tasks with dates, times, quantities)
 	 * - Task moving between sheets
-	 * 
+	 *
 	 * Processes form submissions, validates data, saves sheets and tasks,
 	 * and manages the multi-step workflow (sheet first, then tasks).
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 * @hook pta_sus_admin_process_tasks_start Action fired before processing tasks
@@ -1484,16 +1523,16 @@ class PTA_SUS_Admin {
 		// Set mode vars
 		$edit = ! empty( $_GET['sheet_id'] );
 		$add = ! $edit;
-		
+
 		// Check author permissions for editing
 		if ( $edit ) {
 			$sheet_id = (int) $_GET['sheet_id'];
 			$sheet = pta_sus_get_sheet( $sheet_id );
-			
+
 			if ( $sheet ) {
 				$current_user_id = get_current_user_id();
 				$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
-				
+
 				// If user doesn't have manage_others_signup_sheets and is not the author, deny access
 				if ( ! $can_manage_others && $sheet->author_id != $current_user_id ) {
 					wp_die( __( 'You do not have permission to edit this sheet. You can only edit sheets that you created.', 'pta-volunteer-sign-up-sheets' ) );
@@ -1610,13 +1649,13 @@ class PTA_SUS_Admin {
 				$current_user_id = get_current_user_id();
 				$current_user = wp_get_current_user();
 				$can_manage_others = current_user_can( 'manage_others_signup_sheets' );
-				
+
 				// Add/Update Sheet
 				if ($add) {
 					// For new sheets, set author to current user
 					$sheet_fields['sheet_author_id'] = $current_user_id;
 					$sheet_fields['sheet_author_email'] = $current_user->user_email;
-					
+
 					$sheet_id = pta_sus_add_sheet($sheet_fields);
 					if(!$sheet_id) {
 						$sheet_err++;
@@ -1632,7 +1671,7 @@ class PTA_SUS_Admin {
 						if ( isset( $_POST['sheet_author_id'] ) ) {
 							$author_id = absint( $_POST['sheet_author_id'] );
 							$sheet_fields['sheet_author_id'] = $author_id;
-							
+
 							// If assigning to a WordPress user (author_id > 0), fetch their email
 							// If author_id is 0 (no author), use the email from form (for guest authors)
 							if ( $author_id > 0 ) {
@@ -1665,7 +1704,7 @@ class PTA_SUS_Admin {
 						}
 						// Don't include author fields - they should remain unchanged
 					}
-					
+
 					$updated = pta_sus_update_sheet($sheet_fields, (int)$_GET['sheet_id']);
 					$sheet_fields['sheet_id'] = (int)$_GET['sheet_id'];
 					if(false === $updated) {
@@ -1679,7 +1718,7 @@ class PTA_SUS_Admin {
 				if (!$sheet_err) {
 					// Sheet saved successfully, set flags to show tasks form
 					$sheet_success = true;
-					if($add) $add_tasks = true;                   
+					if($add) $add_tasks = true;
 				}
 			}
 		}
@@ -1690,7 +1729,7 @@ class PTA_SUS_Admin {
 		// Set field values for form
 		$fields = array();
 		// Check possible conditions
-		// 
+		//
 		// If a form was submitted, but no success yet, get fields from POST data
 		if($sheet_submitted && !$sheet_success) {
 			$fields = $_POST;
@@ -1705,7 +1744,7 @@ class PTA_SUS_Admin {
 				$sheet_id = (int)$_GET['sheet_id'];
 			}
 			$fields = $this->get_fields((int)$sheet_id);
-		} 
+		}
 
 		// Figure out which form to display
 		if ($edit_tasks || $add_tasks || $moved) {
@@ -1740,11 +1779,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Get sheet and task fields for form display
-	 * 
+	 *
 	 * Retrieves all sheet and task data from the database and formats it for
 	 * use in the admin forms. Handles different sheet types (Single, Recurring, etc.)
 	 * and formats dates appropriately.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param int|string $id Sheet ID (empty string returns false)
 	 * @return array|false Array of form fields with 'sheet_' and 'task_' prefixes, or false if invalid ID
@@ -1773,7 +1812,7 @@ class PTA_SUS_Admin {
 				$task_fields['task_need_details'][] = $task->need_details;
 				$task_fields['task_details_required'][] = $task->details_required;
 				$task_fields['task_details_text'][] = $task->details_text;
-				$task_fields['task_allow_duplicates'][] = $task->allow_duplicates;                
+				$task_fields['task_allow_duplicates'][] = $task->allow_duplicates;
 				$task_fields['task_enable_quantities'][] = $task->enable_quantities;
 				// Email template IDs
 				$task_fields['task_confirmation_email_template_id'][] = isset($task->confirmation_email_template_id) ? $task->confirmation_email_template_id : 0;
@@ -1795,11 +1834,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Display sheet form
-	 * 
+	 *
 	 * Outputs the HTML form for adding or editing a sheet. Includes all sheet
 	 * fields, email options, contact info, and details editor. Provides multiple
 	 * action hooks for extensions to add custom fields.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param array $f Form field values (with 'sheet_' prefix)
 	 * @param bool $edit Whether this is edit mode (true) or add mode (false)
@@ -1814,7 +1853,7 @@ class PTA_SUS_Admin {
 	 */
 	private function display_sheet_form($f=array(), $edit=false) {
 		// Allow other plugins to add/modify other sheet types
-		$sheet_types = apply_filters( 'pta_sus_sheet_form_sheet_types', 
+		$sheet_types = apply_filters( 'pta_sus_sheet_form_sheet_types',
 				array(
 					'Single' => __('Single', 'pta-volunteer-sign-up-sheets'),
 					'Recurring' => __('Recurring', 'pta-volunteer-sign-up-sheets'),
@@ -1855,7 +1894,7 @@ class PTA_SUS_Admin {
 		foreach ($sheet_types as $type => $display) {
 			$selected = '';
 			if ( isset($f['sheet_type']) && $type == $f['sheet_type'] ) {
-				$selected = "selected='selected'"; 
+				$selected = "selected='selected'";
 			}
 			$options[] = "<option value='{$type}' $selected >{$display}</option>";
 		}
@@ -1890,13 +1929,13 @@ class PTA_SUS_Admin {
 			<em>&nbsp;'.__('Check this for an event where no sign-ups are needed (display only). You can still enter tasks, which could be used to show a schedule, but you can not enter quantities and there will be no signup links.', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>';
 
-		echo '  
-			<p>    
+		echo '
+			<p>
 			<label for="sheet_reminder1_days">'.__('1st Reminder # of days:', 'pta-volunteer-sign-up-sheets').'</label>
 			<input type="text" id="sheet_reminder1_days" name="sheet_reminder1_days" value="'.((isset($f['sheet_reminder1_days']) ? esc_attr($f['sheet_reminder1_days']) : '')).'" size="5" >
 			<em>'.__('# of days before the event date to send the first reminder. Leave blank (or 0) for no automatic reminders', 'pta-volunteer-sign-up-sheets').'</em>
 			</p>
-			<p>    
+			<p>
 			<label for="sheet_reminder2_days">'.__('2nd Reminder # of days:', 'pta-volunteer-sign-up-sheets').'</label>
 			<input type="text" id="sheet_reminder2_days" name="sheet_reminder2_days" value="'.((isset($f['sheet_reminder2_days']) ? esc_attr($f['sheet_reminder2_days']) : '')).'" size="5" >
 			<em>'.__('# of days before the event date to send the second reminder. Leave blank (or 0) for no second reminder', 'pta-volunteer-sign-up-sheets').'</em>
@@ -1915,7 +1954,7 @@ class PTA_SUS_Admin {
 			<option value="hours" '.((isset($f['sheet_clear_type']) && 'hours' == $f['sheet_clear_type']) ? 'selected="selected"' : '').'>'.__('Hours', 'pta-volunteer-sign-up-sheets').'</option>
 			</select>
 			</p>
-			<p>    
+			<p>
 			<label for="sheet_clear_days">'.__('# of days/hours to allow clear:', 'pta-volunteer-sign-up-sheets').'</label>
 			<input type="text" id="sheet_clear_days" name="sheet_clear_days" value="'.((isset($f['sheet_clear_days']) ? esc_attr($f['sheet_clear_days']) : '')).'" size="5" >
 			<em>'.__('If the Show Clear option is checked, enter the MINIMUM # of days, or hours, before the signup event/item date during which volunteers can clear their signups. Leave blank (or 0) to allow them to clear themselves at any time.', 'pta-volunteer-sign-up-sheets').'</em>
@@ -2040,7 +2079,7 @@ class PTA_SUS_Admin {
 			foreach ($positions as $position) {
 				$selected = '';
 				if ( isset($f['sheet_position']) && $position->slug == $f['sheet_position'] ) {
-					$selected = "selected='selected'"; 
+					$selected = "selected='selected'";
 				}
 				$options[] = "<option value='{$position->slug}' $selected >{$position->name}</option>";
 			}
@@ -2056,7 +2095,7 @@ class PTA_SUS_Admin {
 		$current_user = wp_get_current_user();
 		$chair_name = isset($f['sheet_chair_name']) ? $f['sheet_chair_name'] : '';
 		$chair_email = isset($f['sheet_chair_email']) ? $f['sheet_chair_email'] : '';
-		
+
 		// Only prefill if fields are empty (for new sheets or when editing existing sheets with empty values)
 		if ( empty( $chair_name ) && ! empty( $current_user->first_name ) ) {
 			// Build name from firstname and lastname
@@ -2065,7 +2104,7 @@ class PTA_SUS_Admin {
 		if ( empty( $chair_email ) && ! empty( $current_user->user_email ) ) {
 			$chair_email = $current_user->user_email;
 		}
-		
+
 		echo '
 			<p>
 			<label for="sheet_chair_name">'.__('Chair Name(s):', 'pta-volunteer-sign-up-sheets').'</label>
@@ -2079,7 +2118,7 @@ class PTA_SUS_Admin {
 		    </p>';
 		// Allow other plugins to add fields to the form
 		do_action( 'pta_sus_sheet_form_after_contact_info', $f, $edit );
-		
+
 		// Author assignment section (only show if editing or if user can manage others)
 		$current_user_id = get_current_user_id();
 		$current_user = wp_get_current_user();
@@ -2087,16 +2126,16 @@ class PTA_SUS_Admin {
 		$is_author = false;
 		$sheet_author_id = isset( $f['sheet_author_id'] ) ? absint( $f['sheet_author_id'] ) : 0;
 		$sheet_author_email = isset( $f['sheet_author_email'] ) ? sanitize_email( $f['sheet_author_email'] ) : '';
-		
+
 		if ( $edit && $sheet_author_id == $current_user_id ) {
 			$is_author = true;
 		}
-		
+
 		// Show author section if: editing and (user can manage others OR user is the author)
 		if ( $edit && ( $can_manage_others || $is_author ) ) {
 			echo '<hr />';
 			echo '<h3>'.__('Author Information:', 'pta-volunteer-sign-up-sheets').'</h3>';
-			
+
 			if ( $can_manage_others ) {
 				// Admin/Manager can edit author - show dropdown and email field
 				// Get all users with manage_signup_sheets capability
@@ -2104,7 +2143,7 @@ class PTA_SUS_Admin {
 					'capability' => 'manage_signup_sheets',
 					'orderby' => 'display_name',
 				) );
-				
+
 				echo '<p>';
 				echo '<label for="sheet_author_id"><strong>'.__('Author:', 'pta-volunteer-sign-up-sheets').'</strong></label><br/>';
 				echo '<select id="sheet_author_id" name="sheet_author_id">';
@@ -2116,7 +2155,7 @@ class PTA_SUS_Admin {
 				echo '</select>';
 				echo '<em> '.__('Select the author of this sheet. Authors can only edit their own sheets.', 'pta-volunteer-sign-up-sheets').'</em>';
 				echo '</p>';
-				
+
 				echo '<p>';
 				echo '<label for="sheet_author_email"><strong>'.__('Author Email:', 'pta-volunteer-sign-up-sheets').'</strong></label><br/>';
 				echo '<input type="email" id="sheet_author_email" name="sheet_author_email" value="'.esc_attr( $sheet_author_email ).'" size="60">';
@@ -2126,7 +2165,7 @@ class PTA_SUS_Admin {
 				// Author can only view (read-only)
 				$author_name = __('No Author', 'pta-volunteer-sign-up-sheets');
 				$author_email_display = '';
-				
+
 				if ( $sheet_author_id > 0 ) {
 					$author_user = get_user_by( 'id', $sheet_author_id );
 					if ( $author_user ) {
@@ -2136,7 +2175,7 @@ class PTA_SUS_Admin {
 					$author_name = __('Guest Author', 'pta-volunteer-sign-up-sheets');
 					$author_email_display = $sheet_author_email;
 				}
-				
+
 				echo '<p>';
 				echo '<strong>'.__('Author:', 'pta-volunteer-sign-up-sheets').'</strong> ';
 				echo esc_html( $author_name );
@@ -2147,7 +2186,7 @@ class PTA_SUS_Admin {
 				echo '</p>';
 			}
 		}
-		
+
 		$content = isset($f['sheet_details']) ? wp_kses_post($f['sheet_details']) : '';
 		$editor_id = "sheet_details";
 		$settings = array( 'wpautop' => false, 'textarea_rows' => 10 );
@@ -2173,10 +2212,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Display tasks form
-	 * 
+	 *
 	 * Outputs the HTML form for adding or editing tasks. Includes template file
 	 * that handles the complex task entry interface with dates, times, quantities, etc.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @param array $f Form field values (with 'task_' prefix arrays)
 	 * @return void Outputs HTML directly
@@ -2190,11 +2229,11 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin page: Email Volunteers
-	 * 
+	 *
 	 * Displays the email volunteers page and processes form submissions.
 	 * Allows admins to send emails to all volunteers for a specific sheet
 	 * or all WordPress users.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -2210,9 +2249,9 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin page: Add Ons
-	 * 
+	 *
 	 * Displays information about available add-on plugins and extensions.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
@@ -2221,20 +2260,20 @@ class PTA_SUS_Admin {
 		if (!current_user_can('manage_options') && !current_user_can('manage_others_signup_sheets'))  {
 			wp_die( __( 'You do not have sufficient permissions to access this page.', 'pta-volunteer-sign-up-sheets' ) );
 		}
-		
+
 		include('admin-addons-html.php');
 	}
 
 	/**
 	 * Send emails to volunteers
-	 * 
+	 *
 	 * Processes the email volunteers form and sends emails to either:
 	 * - All volunteers signed up for a specific sheet
 	 * - All WordPress users
-	 * 
+	 *
 	 * Supports sending individually or via BCC. Validates all inputs and
 	 * provides user feedback on success/failure.
-	 * 
+	 *
 	 * @since 1.0.0
 	 * @return void
 	 * @see PTA_SUS_Signup_Functions::get_volunteer_emails()
@@ -2348,10 +2387,10 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Admin page: Email Templates
-	 * 
+	 *
 	 * Displays the Email Templates management page with list table and add/edit forms.
 	 * Allows users to create, edit, delete, and duplicate email templates.
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2363,7 +2402,7 @@ class PTA_SUS_Admin {
 
 		// Form submissions are processed in admin_init() to avoid header issues
 		// Messages from cookies are already retrieved by PTA_SUS_Public::init() which runs on admin pages too
-		
+
 		// Show messages
 		PTA_SUS_Messages::show_messages(true, 'admin');
 
@@ -2382,9 +2421,9 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Process email template form submissions
-	 * 
+	 *
 	 * Handles add, edit, delete, and duplicate actions for email templates.
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2417,7 +2456,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Save email template (add or edit)
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2466,14 +2505,14 @@ class PTA_SUS_Admin {
 
 		// Save template first to get the ID
 		$saved_id = $template->save();
-		
+
 		// Handle system default assignment (only for Admins/Managers, after template is saved)
 		if ($saved_id > 0 && current_user_can('manage_others_signup_sheets')) {
 			$system_default_email_type = isset($_POST['template_system_default_email_type']) ? sanitize_text_field($_POST['template_system_default_email_type']) : '';
-			
+
 			// Get current system defaults
 			$defaults = get_option('pta_volunteer_sus_email_template_defaults', array());
-			
+
 			// Remove this template from any email type it's currently set as default for
 			// Check both old template_id (for edits) and new saved_id
 			foreach ($defaults as $email_type => $default_template_id) {
@@ -2481,14 +2520,14 @@ class PTA_SUS_Admin {
 					unset($defaults[$email_type]);
 				}
 			}
-			
+
 			// Set this template as system default for the selected email type (if any)
 			// Validate against filterable email types list
 			$valid_email_types = array_keys(PTA_SUS_Email_Functions::get_email_types());
 			if (!empty($system_default_email_type) && in_array($system_default_email_type, $valid_email_types, true)) {
 				$defaults[$system_default_email_type] = $saved_id;
 			}
-			
+
 			// Update system defaults option
 			update_option('pta_volunteer_sus_email_template_defaults', $defaults);
 		}
@@ -2505,7 +2544,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Delete email template
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2536,7 +2575,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Duplicate email template
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2595,7 +2634,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Display email templates list table
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void
 	 */
@@ -2685,7 +2724,7 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Display email template add/edit form
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @param int $template_id Template ID (0 for new template)
 	 * @param string $action Action ('add' or 'edit')
@@ -2788,7 +2827,7 @@ class PTA_SUS_Admin {
 										break;
 									}
 								}
-								
+
 								// Get email types (filterable by extensions)
 								$email_types = PTA_SUS_Email_Functions::get_email_types();
 								$email_type_labels = array('' => __('None (Not a System Default)', 'pta-volunteer-sign-up-sheets'));
@@ -2855,33 +2894,33 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Save task via AJAX
-	 * 
+	 *
 	 * AJAX handler to save a single task (create or update)
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void Sends JSON response and exits
 	 */
 	public function ajax_save_task() {
 		check_ajax_referer( 'pta_sus_task_ajax', 'nonce' );
-		
+
 		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$sheet_id = isset( $_POST['task_sheet_id'] ) ? absint( $_POST['task_sheet_id'] ) : 0;
 		$task_id = isset( $_POST['task_id'] ) ? absint( $_POST['task_id'] ) : 0;
 		$sheet_type = isset( $_POST['task_sheet_type'] ) ? sanitize_text_field( $_POST['task_sheet_type'] ) : '';
 		$no_signups = isset( $_POST['task_no_signups'] ) ? absint( $_POST['task_no_signups'] ) : 0;
-		
+
 		if ( $sheet_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid sheet ID.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		// Build task data array from POST
 		$task_data = array();
 		$task = new PTA_SUS_Task();
 		$task_properties = $task->get_properties();
-		
+
 		foreach ( $task_properties as $field => $nothing ) {
 			$post_key = 'task_' . $field;
 			if ( isset( $_POST[ $post_key ] ) ) {
@@ -2891,7 +2930,7 @@ class PTA_SUS_Admin {
 				$task_data[ $post_key ] = 'NO';
 			}
 		}
-		
+
 		// Handle dates based on sheet type
 		if ( "Single" === $sheet_type ) {
 			// First try POST data, then check sheet's stored dates if no tasks exist
@@ -2942,7 +2981,7 @@ class PTA_SUS_Admin {
 					PTA_SUS_Messages::add_error( __( 'Invalid date format.', 'pta-volunteer-sign-up-sheets' ) );
 					wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 				}
-				
+
 				// Check if date is being changed and task has signups for old date
 				if ( $task_id > 0 ) {
 					$old_task = pta_sus_get_task( $task_id );
@@ -2950,9 +2989,9 @@ class PTA_SUS_Admin {
 						// Date is being changed - check for signups on old date
 						$main_options = get_option( 'pta_volunteer_sus_main_options', array() );
 						$skip_signups_check = isset( $main_options['skip_signups_check'] ) && true == $main_options['skip_signups_check'];
-						
+
 						if ( ! $skip_signups_check && PTA_SUS_Task_Functions::task_has_signups( $task_id, $old_task->dates ) ) {
-							PTA_SUS_Messages::add_error( sprintf( 
+							PTA_SUS_Messages::add_error( sprintf(
 								__( 'Cannot change the date for this task because it has signups on date %s. Please clear signups first, or use the reschedule function.', 'pta-volunteer-sign-up-sheets' ),
 								esc_html( $old_task->dates )
 							) );
@@ -2960,44 +2999,44 @@ class PTA_SUS_Admin {
 						}
 					}
 				}
-				
+
 				$task_data['task_dates'] = $task_date;
 			} else {
 				PTA_SUS_Messages::add_error( __( 'Date is required for Multi-Day sheet tasks.', 'pta-volunteer-sign-up-sheets' ) );
 				wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 			}
 		}
-		
+
 		// Validate task fields
 		$clean_task_fields = pta_sus_clean_prefixed_array( $task_data, 'task_' );
 		if ( false === $clean_task_fields ) {
 			PTA_SUS_Messages::add_error( __( 'Invalid task data.', 'pta-volunteer-sign-up-sheets' ) );
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
-		
+
 		$results = PTA_SUS_Task_Functions::validate_task_fields( $clean_task_fields );
 		if ( ! empty( $results['errors'] ) ) {
 			// Errors are already added to PTA_SUS_Messages by validation
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
-		
+
 		// Normalize POST data for extensions that expect array format (index 0 for modal)
 		// Extensions like Custom Fields expect $_POST['task_template_id'][0], $_POST['task_$slug'][0], etc.
 		$index = 0; // Modal always uses index 0 since there's only one task
 		$normalized_post = $_POST;
-		
+
 		// Standard task fields that should NOT be normalized (they're handled separately)
-		$standard_fields = array( 'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty', 'task_time_start', 'task_time_end', 
+		$standard_fields = array( 'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty', 'task_time_start', 'task_time_end',
 			'task_need_details', 'task_details_required', 'task_details_text', 'task_allow_duplicates', 'task_enable_quantities',
 			'task_confirmation_email_template_id', 'task_reminder1_email_template_id', 'task_reminder2_email_template_id',
 			'task_clear_email_template_id', 'task_reschedule_email_template_id', 'task_sheet_id', 'task_sheet_type', 'task_no_signups',
 			'action', 'nonce', 'single_date', 'recurring_dates' );
-		
+
 		// Normalize task_template_id if present (not already in array format)
 		if ( isset( $_POST['task_template_id'] ) && ! is_array( $_POST['task_template_id'] ) ) {
 			$normalized_post['task_template_id'] = array( $index => absint( $_POST['task_template_id'] ) );
 		}
-		
+
 		// Normalize any task_ prefixed custom fields (for extensions like Custom Fields)
 		// These fields might come in as simple names (task_$slug) or already in array format (task_$slug[0])
 		foreach ( $_POST as $key => $value ) {
@@ -3005,7 +3044,7 @@ class PTA_SUS_Admin {
 			if ( in_array( $key, $standard_fields ) ) {
 				continue;
 			}
-			
+
 			// Only process fields that start with 'task_'
 			if ( strpos( $key, 'task_' ) === 0 ) {
 				// If value is already an array, it's already in the correct format (e.g., from form fields with name="task_$slug[0]")
@@ -3013,17 +3052,17 @@ class PTA_SUS_Admin {
 					// Already normalized, keep as is
 					continue;
 				}
-				
+
 				// This is a simple field name (not array) - normalize to array format
 				// This handles cases where the extension outputs fields without array notation
 				$normalized_post[ $key ] = array( $index => $value );
 			}
 		}
-		
+
 		// Temporarily replace $_POST so extensions can read normalized data
 		$original_post = $_POST;
 		$_POST = $normalized_post;
-		
+
 		// Save task
 		if ( $task_id > 0 ) {
 			// Update existing task
@@ -3033,11 +3072,11 @@ class PTA_SUS_Admin {
 				PTA_SUS_Messages::add_error( __( 'Error updating task.', 'pta-volunteer-sign-up-sheets' ) );
 				wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 			}
-			
+
 			// BACKWARDS COMPATIBILITY: Fire old hook with indexed array format
 			// TODO: Remove after extensions are updated
 			do_action( 'pta_sus_update_task', $task_data, $sheet_id, $task_id, $index );
-			
+
 			$action = 'updated';
 			PTA_SUS_Messages::add_message( __( 'Task updated successfully.', 'pta-volunteer-sign-up-sheets' ) );
 		} else {
@@ -3049,15 +3088,15 @@ class PTA_SUS_Admin {
 				wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 			}
 			$task_id = $new_task_id;
-			
+
 			// BACKWARDS COMPATIBILITY: Fire old hook with indexed array format
 			// TODO: Remove after extensions are updated
 			do_action( 'pta_sus_add_task', $task_data, $sheet_id, $task_id, $index );
-			
+
 			$action = 'created';
 			PTA_SUS_Messages::add_message( __( 'Task created successfully.', 'pta-volunteer-sign-up-sheets' ) );
 		}
-		
+
 		// Restore original POST
 		$_POST = $original_post;
 
@@ -3094,28 +3133,28 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
-		
+
 		// Get updated task data for response
 		$saved_task = pta_sus_get_task( $task_id );
 		if ( ! $saved_task ) {
 			PTA_SUS_Messages::add_error( __( 'Task saved but could not retrieve updated data.', 'pta-volunteer-sign-up-sheets' ) );
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
-		
+
 		/**
 		 * NEW ACTION (6.0.0+): Task saved via modal form (fired after task is saved and retrieved)
-		 * 
+		 *
 		 * Extensions should read field values directly from $_POST (no array notation needed)
 		 * Field names should be simple (e.g., "task_template_id", not "task_template_id[0]")
 		 * This hook fires for both created and updated tasks, after the task object is available
-		 * 
+		 *
 		 * @param int $task_id Task ID
 		 * @param int $sheet_id Sheet ID
 		 * @param object $task Task object (PTA_SUS_Task instance)
 		 * @param string $action Either 'created' or 'updated'
 		 */
 		do_action( 'pta_sus_task_saved', $task_id, $sheet_id, $saved_task, $action );
-		
+
 		// Return full task data for JavaScript to build table row (using task_ prefix)
 		$task_response_data = array(
 			'task_id' => $saved_task->id,
@@ -3127,7 +3166,7 @@ class PTA_SUS_Admin {
 			'task_time_end' => $saved_task->time_end,
 			'task_position' => isset( $saved_task->position ) ? $saved_task->position : 0,
 		);
-		
+
 		wp_send_json_success( array(
 			'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 			'task_id' => $task_id,
@@ -3138,37 +3177,37 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Get task data via AJAX
-	 * 
+	 *
 	 * AJAX handler to retrieve task data for editing
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void Sends JSON response and exits
 	 */
 	public function ajax_get_task() {
 		check_ajax_referer( 'pta_sus_task_ajax', 'nonce' );
-		
+
 		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$task_id = isset( $_POST['task_id'] ) ? absint( $_POST['task_id'] ) : 0;
-		
+
 		if ( $task_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid task ID.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$task = pta_sus_get_task( $task_id );
 		if ( ! $task ) {
 			wp_send_json_error( array( 'message' => __( 'Task not found.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		// Check if task has signups (for Multi-Day tasks, to make date readonly)
 		$task_has_signups = false;
 		$sheet = pta_sus_get_sheet( $task->sheet_id );
 		if ( $sheet && 'Multi-Day' === $sheet->type && ! empty( $task->dates ) ) {
 			$task_has_signups = PTA_SUS_Task_Functions::task_has_signups( $task_id, $task->dates );
 		}
-		
+
 		// Build base task data array (using task_ prefix to match JavaScript expectations)
 		$task_data = array(
 			'task_id' => array( $task->id ), // Extension expects array format
@@ -3191,18 +3230,18 @@ class PTA_SUS_Admin {
 			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
-		
+
 		// BACKWARDS COMPATIBILITY: Apply old filter for extensions using indexed array format
 		// Extension expects task_id as array and will add task_template_id[0], task_$slug[0], etc.
 		// TODO: Remove after extensions are updated to use new filter
 		$task_data = apply_filters( 'pta_sus_admin_get_fields', $task_data, $task->sheet_id );
-		
+
 		/**
 		 * NEW FILTER (6.0.0+): Get extension field data for a single task
-		 * 
+		 *
 		 * Extensions should return field values as simple key-value pairs (not arrays)
 		 * Example: array('task_template_id' => 123, 'task_custom_field' => 'value')
-		 * 
+		 *
 		 * @param array $field_data Array of field values (key => value)
 		 * @param int $task_id Task ID
 		 * @param int $sheet_id Sheet ID
@@ -3210,14 +3249,14 @@ class PTA_SUS_Admin {
 		 * @return array Modified field data array
 		 */
 		$extension_fields = apply_filters( 'pta_sus_task_get_extension_fields', array(), $task_id, $task->sheet_id, $task );
-		
+
 		// Merge new extension fields into task data (overrides old array format if present)
 		if ( ! empty( $extension_fields ) ) {
 			foreach ( $extension_fields as $key => $value ) {
 				$task_data[ $key ] = $value;
 			}
 		}
-		
+
 		// Convert extension field data from array format to single values for modal (index 0)
 		// Extensions return arrays like task_template_id[0], task_$slug[0], but modal needs single values
 		$modal_task_data = array(
@@ -3241,7 +3280,7 @@ class PTA_SUS_Admin {
 			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
-		
+
 		// Extract extension fields from array format (index 0) to single values
 		// The extension returns arrays like: task_template_id => array(0 => 'value')
 		foreach ( $task_data as $key => $value ) {
@@ -3262,64 +3301,64 @@ class PTA_SUS_Admin {
 				$modal_task_data[ $key ] = $value;
 			}
 		}
-		
+
 		wp_send_json_success( array( 'task' => $modal_task_data ) );
 	}
 
 	/**
 	 * Delete task via AJAX
-	 * 
+	 *
 	 * AJAX handler to delete a task
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void Sends JSON response and exits
 	 */
 	public function ajax_delete_task() {
 		check_ajax_referer( 'pta_sus_task_ajax', 'nonce' );
-		
+
 		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$task_id = isset( $_POST['task_id'] ) ? absint( $_POST['task_id'] ) : 0;
-		
+
 		if ( $task_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid task ID.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$task = pta_sus_get_task( $task_id );
 		if ( ! $task ) {
 			wp_send_json_error( array( 'message' => __( 'Task not found.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		// Check for signups (unless skip_signups_check option is enabled)
 		$main_options = get_option( 'pta_volunteer_sus_main_options', array() );
 		$skip_signups_check = isset( $main_options['skip_signups_check'] ) && true == $main_options['skip_signups_check'];
-		
+
 		if ( ! $skip_signups_check ) {
 			$signups = PTA_SUS_Signup_Functions::get_signups_for_task( $task_id );
 			if ( count( $signups ) > 0 ) {
 				$people = _n( 'person', 'people', count( $signups ), 'pta-volunteer-sign-up-sheets' );
-				PTA_SUS_Messages::add_error( sprintf( 
+				PTA_SUS_Messages::add_error( sprintf(
 					__( 'The task "%1$s" cannot be removed because it has %2$d %3$s signed up. Please clear all spots first before removing this task.', 'pta-volunteer-sign-up-sheets' ),
 					esc_html( $task->title ),
 					count( $signups ),
 					$people
 				) );
-				wp_send_json_error( array( 
+				wp_send_json_error( array(
 					'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 				) );
 			}
 		}
-		
+
 		$result = $task->delete();
 		if ( false === $result ) {
 			PTA_SUS_Messages::add_error( __( 'Error removing task.', 'pta-volunteer-sign-up-sheets' ) );
 			wp_send_json_error( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 		}
-		
+
 		PTA_SUS_Messages::add_message( __( 'Task deleted successfully.', 'pta-volunteer-sign-up-sheets' ) );
-		
+
 		// Update sheet first_date and last_date after task deletion
 		$sheet_id = $task->sheet_id;
 		$sheet = pta_sus_get_sheet( $sheet_id );
@@ -3346,7 +3385,7 @@ class PTA_SUS_Admin {
 					$valid_dates = array_filter( $all_task_dates, function( $date ) {
 						return $date !== '0000-00-00' && ! empty( $date );
 					} );
-					
+
 					if ( ! empty( $valid_dates ) ) {
 						sort( $valid_dates );
 						$min_date = min( $valid_dates );
@@ -3356,7 +3395,7 @@ class PTA_SUS_Admin {
 						$min_date = null;
 						$max_date = null;
 					}
-					
+
 					$needs_update = false;
 					if ( $sheet->first_date !== $min_date ) {
 						$sheet->first_date = $min_date;
@@ -3372,55 +3411,55 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
-		
+
 		wp_send_json_success( array( 'message' => PTA_SUS_Messages::show_messages( false, 'admin' ) ) );
 	}
 
 	/**
 	 * Reorder tasks via AJAX
-	 * 
+	 *
 	 * AJAX handler to update task positions after drag/drop
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void Sends JSON response and exits
 	 */
 	public function ajax_reorder_tasks() {
 		check_ajax_referer( 'pta_sus_task_ajax', 'nonce' );
-		
+
 		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$sheet_id = isset( $_POST['sheet_id'] ) ? absint( $_POST['sheet_id'] ) : 0;
 		$task_order = $_POST['task_order'] ?? array();
-		
+
 		if ( $sheet_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid sheet ID.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		if ( ! is_array( $task_order ) || empty( $task_order ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid task order.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$updated = 0;
 		foreach ( $task_order as $position => $task_id ) {
 			$task_id = absint( $task_id );
 			if ( $task_id <= 0 ) {
 				continue;
 			}
-			
+
 			$task = pta_sus_get_task( $task_id );
 			if ( ! $task || $task->sheet_id !== $sheet_id ) {
 				continue;
 			}
-			
+
 			$task->position = absint( $position );
 			if ( $task->save() !== false ) {
 				$updated++;
 			}
 		}
-		
-		wp_send_json_success( array( 
+
+		wp_send_json_success( array(
 			'message' => sprintf( _n( '%d task position updated.', '%d task positions updated.', $updated, 'pta-volunteer-sign-up-sheets' ), $updated ),
 			'updated' => $updated,
 		) );
@@ -3428,35 +3467,35 @@ class PTA_SUS_Admin {
 
 	/**
 	 * Save sheet dates and update all tasks via AJAX
-	 * 
+	 *
 	 * For Single sheets: Updates all tasks with the single date
 	 * For Recurring sheets: Updates all tasks with comma-separated dates
 	 * For Ongoing sheets: Updates all tasks with '0000-00-00'
-	 * 
+	 *
 	 * @since 6.2.0
 	 * @return void Sends JSON response and exits
 	 */
 	public function ajax_save_sheet_dates() {
 		check_ajax_referer( 'pta_sus_task_ajax', 'nonce' );
-		
+
 		if ( ! current_user_can( 'manage_signup_sheets' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to perform this action.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$sheet_id = isset( $_POST['sheet_id'] ) ? absint( $_POST['sheet_id'] ) : 0;
 		$sheet_type = isset( $_POST['sheet_type'] ) ? sanitize_text_field( $_POST['sheet_type'] ) : '';
-		
+
 		if ( $sheet_id <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid sheet ID.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		if ( ! in_array( $sheet_type, array( 'Single', 'Recurring', 'Ongoing' ) ) ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid sheet type. Dates can only be set for Single, Recurring, or Ongoing sheets.', 'pta-volunteer-sign-up-sheets' ) ) );
 		}
-		
+
 		$dates_to_set = '';
 		$dates_array = array();
-		
+
 		// Validate and set dates based on sheet type
 		if ( 'Single' === $sheet_type ) {
 			$single_date = isset( $_POST['single_date'] ) ? sanitize_text_field( $_POST['single_date'] ) : '';
@@ -3482,7 +3521,7 @@ class PTA_SUS_Admin {
 			$dates_to_set = '0000-00-00';
 			$dates_array = array( '0000-00-00' );
 		}
-		
+
 		// Get all existing tasks for this sheet
 		$tasks = PTA_SUS_Task_Functions::get_tasks( $sheet_id );
 		if ( empty( $tasks ) ) {
@@ -3503,28 +3542,28 @@ class PTA_SUS_Admin {
 				$sheet->save();
 			}
 			PTA_SUS_Messages::add_message( __( 'Dates saved. Add tasks and they will be assigned these dates.', 'pta-volunteer-sign-up-sheets' ) );
-			wp_send_json_success( array( 
+			wp_send_json_success( array(
 				'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 				'dates' => $dates_to_set,
 				'tasks_updated' => 0,
 			) );
 		}
-		
+
 		// Get main options to check skip_signups_check
 		$main_options = get_option( 'pta_volunteer_sus_main_options', array() );
 		$skip_signups_check = isset( $main_options['skip_signups_check'] ) && true == $main_options['skip_signups_check'];
-		
+
 		// For Single sheets: Check if ANY tasks have signups before allowing date change
 		if ( 'Single' === $sheet_type && ! $skip_signups_check ) {
 			if ( PTA_SUS_Sheet_Functions::sheet_has_signups( $sheet_id ) ) {
 				PTA_SUS_Messages::add_error( __( 'Cannot change the date for this sheet because tasks already have signups. Please clear all signups first, or use the reschedule function to change dates.', 'pta-volunteer-sign-up-sheets' ) );
-				wp_send_json_error( array( 
+				wp_send_json_error( array(
 					'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 					'has_signups' => true,
 				) );
 			}
 		}
-		
+
 		// For Recurring sheets: Check for signups on removed dates
 		if ( 'Recurring' === $sheet_type && ! $skip_signups_check ) {
 			$old_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet( $sheet_id );
@@ -3548,14 +3587,14 @@ class PTA_SUS_Admin {
 							break;
 						}
 					}
-					
+
 					if ( ! empty( $dates_with_signups ) ) {
 						$dates_list = implode( ', ', $dates_with_signups );
-						PTA_SUS_Messages::add_error( sprintf( 
+						PTA_SUS_Messages::add_error( sprintf(
 							__( 'Cannot remove the following date(s) because tasks have signups: %s. Please clear signups for these dates first, or use the reschedule function.', 'pta-volunteer-sign-up-sheets' ),
 							esc_html( $dates_list )
 						) );
-						wp_send_json_error( array( 
+						wp_send_json_error( array(
 							'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 							'has_signups' => true,
 							'dates_with_signups' => $dates_with_signups,
@@ -3564,7 +3603,7 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
-		
+
 		// Update all tasks with new dates
 		$updated = 0;
 		foreach ( $tasks as $task ) {
@@ -3573,7 +3612,7 @@ class PTA_SUS_Admin {
 				$updated++;
 			}
 		}
-		
+
 		// Update sheet first_date and last_date (not needed for Ongoing sheets)
 		if ( 'Ongoing' !== $sheet_type && ! empty( $dates_array ) ) {
 			$sheet = pta_sus_get_sheet( $sheet_id );
@@ -3582,13 +3621,13 @@ class PTA_SUS_Admin {
 				$valid_dates = array_filter( $dates_array, function( $date ) {
 					return $date !== '0000-00-00' && ! empty( $date );
 				} );
-				
+
 				if ( ! empty( $valid_dates ) ) {
 					sort( $valid_dates );
 					$min_date = min( $valid_dates );
 					$max_date = max( $valid_dates );
 					$needs_update = false;
-					
+
 					if ( $sheet->first_date !== $min_date ) {
 						$sheet->first_date = $min_date;
 						$needs_update = true;
@@ -3603,13 +3642,13 @@ class PTA_SUS_Admin {
 				}
 			}
 		}
-		
-		PTA_SUS_Messages::add_message( sprintf( 
+
+		PTA_SUS_Messages::add_message( sprintf(
 			_n( 'Dates saved. %d task updated.', 'Dates saved. %d tasks updated.', $updated, 'pta-volunteer-sign-up-sheets' ),
 			$updated
 		) );
-		
-		wp_send_json_success( array( 
+
+		wp_send_json_success( array(
 			'message' => PTA_SUS_Messages::show_messages( false, 'admin' ),
 			'dates' => $dates_to_set,
 			'tasks_updated' => $updated,
@@ -4404,6 +4443,106 @@ tr.remaining td { color: #aaa; font-style: italic; }
 			 WHERE option_name LIKE '_transient_pta_adt_%'
 			    OR option_name LIKE '_transient_timeout_pta_adt_%'"
 		);
+	}
+
+	/**
+	 * Fetch remote notices JSON from stephensherrardplugins.com.
+	 *
+	 * Results are cached in a transient for 12 hours. On failure, an empty
+	 * array is cached for 1 hour to avoid hammering the remote server.
+	 *
+	 * @since  6.3.2
+	 * @return array Array of notice objects (associative arrays).
+	 */
+	private function get_remote_notices() {
+		$key    = 'pta_sus_remote_notices';
+		$cached = get_transient( $key );
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$response = wp_remote_get(
+			'https://stephensherrardplugins.com/plugin-data/pta-sus-notices.json',
+			array(
+				'timeout'   => 5,
+				'sslverify' => true,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			set_transient( $key, array(), HOUR_IN_SECONDS );
+			return array();
+		}
+
+		$notices = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $notices ) ) {
+			$notices = array();
+		}
+
+		set_transient( $key, $notices, 12 * HOUR_IN_SECONDS );
+		return $notices;
+	}
+
+	/**
+	 * Render the floating notices button into the admin footer.
+	 *
+	 * Only fires on plugin settings pages. The JS populates the panel and badge
+	 * count from the localized ptaSusNotices data object.
+	 *
+	 * @since  6.3.2
+	 * @return void
+	 */
+	public function render_notices_panel() {
+		$screen = get_current_screen();
+		if ( ! $screen || strpos( $screen->id, 'pta-sus-settings' ) === false ) {
+			return;
+		}
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		?>
+		<button id="pta-sus-notices-btn" type="button" aria-label="<?php esc_attr_e( 'PTA Suite Notices', 'pta-volunteer-sign-up-sheets' ); ?>">
+			<span class="dashicons dashicons-megaphone"></span>
+			<span class="pta-sus-notice-badge"></span>
+		</button>
+		<?php
+	}
+
+	/**
+	 * AJAX handler: mark a single remote notice as dismissed for the current user.
+	 *
+	 * Stores the dismissed notice ID in user meta so it is excluded from the
+	 * unread count on subsequent page loads.
+	 *
+	 * @since  6.3.2
+	 * @return void Sends JSON response and exits.
+	 */
+	public function ajax_dismiss_notice() {
+		check_ajax_referer( 'pta_sus_dismiss_notice', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Permission denied.' );
+			return;
+		}
+
+		$notice_id = sanitize_text_field( wp_unslash( $_POST['notice_id'] ?? '' ) );
+		if ( empty( $notice_id ) ) {
+			wp_send_json_error( 'Invalid notice ID.' );
+			return;
+		}
+
+		$user_id   = get_current_user_id();
+		$dismissed = get_user_meta( $user_id, 'pta_sus_dismissed_notices', true );
+		if ( ! is_array( $dismissed ) ) {
+			$dismissed = array();
+		}
+
+		if ( ! in_array( $notice_id, $dismissed, true ) ) {
+			$dismissed[] = $notice_id;
+			update_user_meta( $user_id, 'pta_sus_dismissed_notices', $dismissed );
+		}
+
+		wp_send_json_success();
 	}
 
 } // End of Class
