@@ -145,6 +145,9 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.3.2
+- Missing CSS file added to repo
+- Tested with PHP 8.5.3 and WordPress 6.9.1
 
 ### 6.3.1 
 - Updated the datatables2 library to include the responsive extension for responsive displays of tables on the front-end that use datatables (mostly via the Customizer's custom layouts and new All Tasks View)

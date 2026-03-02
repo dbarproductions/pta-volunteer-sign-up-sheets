@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: http://wordpress.org/plugins/pta-volunteer-sign-up-sheets
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 6.3.1
+Version: 6.3.2
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.3.1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.3.2');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -94,13 +94,13 @@ add_action( 'admin_init', array( 'PTA_SUS_License_Manager', 'setup_updaters' ) )
 if(!class_exists('PTA_Sign_Up_Sheet')):
 
 class PTA_Sign_Up_Sheet {
-	
+
     public $data;
     public $public = null;
     public $emails;
     /**
      * Database version
-     * 
+     *
      * @deprecated 6.0.0 Use PTA_SUS_Activation::get_db_version() instead
      * @var string
      */
@@ -108,7 +108,7 @@ class PTA_Sign_Up_Sheet {
     public $main_options;
 	public $validation_options;
     public $admin = null;
-    
+
     public function __construct() {
 	    $this->data = new PTA_SUS_Data();
         $this->emails = new PTA_SUS_Emails();
@@ -159,7 +159,7 @@ class PTA_Sign_Up_Sheet {
 
 	/**
 	 * Register scripts and styles
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Assets::register_scripts() instead
 	 * @return void
 	 */
@@ -173,7 +173,7 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Assets::register_scripts() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		PTA_SUS_Assets::register_scripts();
     }
 
@@ -223,7 +223,7 @@ class PTA_Sign_Up_Sheet {
         _deprecated_function( __FUNCTION__, '6.0.0', 'PTA_SUS_Task_Functions::get_tasks() '.sprintf('Called from %s line %s', $file, $line) );
 		return PTA_SUS_Task_Functions::get_tasks($sheet_id, $date);
 	}
-	
+
 	/**
 	 * Get task by id
 	 *
@@ -238,7 +238,7 @@ class PTA_Sign_Up_Sheet {
         _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_task() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_task($task_id);
 	}
-	
+
 	/**
 	 * Get signup by id
 	 *
@@ -253,7 +253,7 @@ class PTA_Sign_Up_Sheet {
         _deprecated_function( __FUNCTION__, '5.8.0', 'pta_sus_get_signup() '.sprintf('Called from %s line %s', $file, $line) );
         return pta_sus_get_signup($signup_id);
 	}
-	
+
 	/**
 	 * Get detailed signup by id
 	 * @deprecated 6.0.0 use PTA_SUS_Signup_Functions::get_detailed_signups instead
@@ -301,7 +301,7 @@ class PTA_Sign_Up_Sheet {
 		);
 		return PTA_SUS_Signup_Functions::get_signups_for_task($task_id, $date);
 	}
-	
+
 	/**
 	 * Get html output of sheets
 	 *
@@ -322,7 +322,7 @@ class PTA_Sign_Up_Sheet {
 		// Use helper class directly - no need to go through public class instance
 		return PTA_SUS_Public_Display_Functions::get_sheets_list($sheets);
 	}
-	
+
 	/**
 	 * Get html output of a single sheet
 	 *
@@ -344,7 +344,7 @@ class PTA_Sign_Up_Sheet {
 		// Use helper class directly - no need to go through public class instance
 		return PTA_SUS_Public_Display_Functions::get_single_sheet($id);
 	}
-	
+
 	/**
 	 * Get html table output of all tasks/items user has signed up for
 	 *
@@ -365,7 +365,7 @@ class PTA_Sign_Up_Sheet {
 		// Use helper class directly - no need to go through public class instance
 		return PTA_SUS_Public_Display_Functions::get_user_signups_list($atts);
 	}
-	
+
 	/**
 	 * Get html signup form for a specific task and date
 	 *
@@ -374,7 +374,7 @@ class PTA_Sign_Up_Sheet {
 	 * @param string $date Date (YYYY-MM-DD format)
 	 * @param bool $skip_filled_check Whether to skip checking if spots are filled
 	 * @return string html signup form
-	 * 
+	 *
 	 * Note: For best performance when called via AJAX (e.g., from extensions),
 	 * call PTA_SUS_Public_Display_Functions::initialize() first. The method
 	 * will work without it thanks to lazy-loading fallbacks, but initializing
@@ -402,7 +402,7 @@ class PTA_Sign_Up_Sheet {
 
 	/**
 	 * Run hourly CRON job
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Cron_Manager::run_hourly_cron() instead
 	 * @return void
 	 */
@@ -416,7 +416,7 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Cron_Manager::run_hourly_cron() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		// Call the new static method
 		PTA_SUS_Cron_Manager::run_hourly_cron();
     }
@@ -450,14 +450,14 @@ class PTA_Sign_Up_Sheet {
         }
     }
 
-      
- 
+
+
     /*
     *   Run activation procedure to set up tables and options when a new blog is added
      */
     /**
      * Handle new blog creation in multi-site
-     * 
+     *
      * @deprecated 6.0.0 Use PTA_SUS_Activation::new_blog() instead
      * @param int $blog_id New blog ID
      * @param int $user_id User ID who created the blog
@@ -479,10 +479,10 @@ class PTA_Sign_Up_Sheet {
         );
         PTA_SUS_Activation::new_blog($blog_id, $user_id, $domain, $path, $site_id, $meta);
     }
-    
+
     /**
      * Activate the plugin
-     * 
+     *
      * @deprecated 6.0.0 Use PTA_SUS_Activation::activate() instead
      * @param bool $networkwide Whether this is a network-wide activation
      * @return void
@@ -502,7 +502,7 @@ class PTA_Sign_Up_Sheet {
 
     /**
      * Activate plugin for single site
-     * 
+     *
      * @deprecated 6.0.0 Use PTA_SUS_Activation::activate_site() instead
      * @return void
      */
@@ -518,10 +518,10 @@ class PTA_Sign_Up_Sheet {
         );
         PTA_SUS_Activation::activate_site();
     }
-    
+
     /**
      * Deactivate the plugin
-     * 
+     *
      * @deprecated 6.0.0 Use PTA_SUS_Activation::deactivate() instead
      * @return void
      */
@@ -540,7 +540,7 @@ class PTA_Sign_Up_Sheet {
 
 	/**
 	 * Register Gutenberg block assets
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Blocks::register_blocks() instead
 	 * @return void
 	 */
@@ -554,13 +554,13 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Blocks::register_blocks() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		PTA_SUS_Blocks::register_blocks();
 	}
 
 	/**
 	 * Render volunteer signup sheet block
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Blocks::render_volunteer_signup_block() instead
 	 * @param array $attributes Block attributes
 	 * @return string HTML output
@@ -575,13 +575,13 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Blocks::render_volunteer_signup_block() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		return PTA_SUS_Blocks::render_volunteer_signup_block($attributes);
 	}
 
 	/**
 	 * Render user signups block
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Blocks::render_user_signups_block() instead
 	 * @param array $attributes Block attributes
 	 * @return string HTML output
@@ -596,13 +596,13 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Blocks::render_user_signups_block() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		return PTA_SUS_Blocks::render_user_signups_block($attributes);
 	}
 
 	/**
 	 * Render upcoming events block
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Blocks::render_upcoming_events_block() instead
 	 * @param array $attributes Block attributes
 	 * @return string HTML output
@@ -617,13 +617,13 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Blocks::render_upcoming_events_block() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		return PTA_SUS_Blocks::render_upcoming_events_block($attributes);
 	}
 
 	/**
 	 * Render validation form block
-	 * 
+	 *
 	 * @deprecated 6.0.0 Use PTA_SUS_Blocks::render_validation_form_block() instead
 	 * @param array $attributes Block attributes
 	 * @return string HTML output
@@ -638,7 +638,7 @@ class PTA_Sign_Up_Sheet {
 			'6.0.0',
 			'PTA_SUS_Blocks::render_validation_form_block() ' . sprintf('Called from %s line %s', $file, $line)
 		);
-		
+
 		return PTA_SUS_Blocks::render_validation_form_block($attributes);
 	}
 

@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.3.1
+Stable tag: 6.3.2
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,10 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.3.2 =
+* Missing CSS file added to repo
+* Tested with PHP 8.5.3 and WordPress 6.9.1
+
 = 6.3.1 =
 * Updated the datatables2 library to include the responsive extension for responsive displays of tables on the front-end that use datatables (mostly via the Customizer's custom layouts and new All Tasks View)
 * Added a filter hook to the pta_clean_redirect global function to allow extension to modify parameters

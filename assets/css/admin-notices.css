@@ -1,0 +1,260 @@
+/**
+ * PTA Volunteer Sign-Up Sheets — Remote Admin Notices
+ * Floating trigger button + slide-out panel styles.
+ *
+ * @package PTA_Volunteer_Sign_Up_Sheets
+ * @since   6.3.2
+ */
+
+/* -----------------------------------------------------------------------
+   Floating trigger button — fixed bottom-right, avoids all existing UI
+----------------------------------------------------------------------- */
+#pta-sus-notices-btn {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: 9990;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #2271b1;
+	color: #fff;
+	border: none;
+	border-radius: 24px;
+	padding: 10px 16px;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	transition: background 0.2s ease;
+}
+
+#pta-sus-notices-btn:hover,
+#pta-sus-notices-btn:focus {
+	background: #135e96;
+	outline: none;
+}
+
+#pta-sus-notices-btn .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+/* -----------------------------------------------------------------------
+   Unread-count badge — absolutely positioned on the button
+----------------------------------------------------------------------- */
+.pta-sus-notice-badge {
+	position: absolute;
+	top: -6px;
+	right: -6px;
+	background: #d63638;
+	color: #fff;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+	min-width: 18px;
+	height: 18px;
+	display: none; /* shown by JS when count > 0 */
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px;
+	line-height: 1;
+}
+
+/* -----------------------------------------------------------------------
+   Overlay — semi-transparent backdrop behind the panel
+----------------------------------------------------------------------- */
+#pta-sus-notices-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 9991;
+	background: rgba(0, 0, 0, 0.4);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+#pta-sus-notices-overlay.is-visible {
+	opacity: 1;
+}
+
+/* -----------------------------------------------------------------------
+   Slide-out panel — slides in from the right edge
+----------------------------------------------------------------------- */
+#pta-sus-notices-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 380px;
+	max-width: 90vw;
+	height: 100vh;
+	z-index: 9992;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+	transform: translateX(100%);
+	transition: transform 0.3s ease;
+}
+
+#pta-sus-notices-panel.is-open {
+	transform: translateX(0);
+}
+
+/* Push panel below the WP admin bar when it is visible */
+body.admin-bar #pta-sus-notices-panel {
+	top: 32px;
+	height: calc(100vh - 32px);
+}
+
+/* Panel header */
+.pta-sus-notices-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	background: #2271b1;
+	color: #fff;
+	flex-shrink: 0;
+}
+
+.pta-sus-notices-header h3 {
+	margin: 0;
+	font-size: 15px;
+	color: #fff;
+	font-weight: 600;
+}
+
+.pta-sus-notices-close {
+	background: none;
+	border: none;
+	color: #fff;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+	opacity: 0.8;
+	transition: opacity 0.2s ease;
+}
+
+.pta-sus-notices-close:hover,
+.pta-sus-notices-close:focus {
+	opacity: 1;
+	outline: none;
+}
+
+/* Scrollable panel body */
+.pta-sus-notices-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 16px;
+}
+
+/* -----------------------------------------------------------------------
+   Empty state — "All caught up!"
+----------------------------------------------------------------------- */
+.pta-sus-notices-empty {
+	text-align: center;
+	color: #8c8f94;
+	margin-top: 40px;
+	font-size: 14px;
+}
+
+.pta-sus-notices-empty .dashicons {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	display: block;
+	margin: 0 auto 12px;
+	color: #c3c4c7;
+}
+
+/* -----------------------------------------------------------------------
+   Notice cards
+----------------------------------------------------------------------- */
+.pta-sus-notice-card {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 14px 16px;
+	margin-bottom: 12px;
+}
+
+.pta-sus-notice-card:last-child {
+	margin-bottom: 0;
+}
+
+/* Type badge */
+.pta-sus-notice-type {
+	display: inline-block;
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	padding: 2px 8px;
+	border-radius: 3px;
+	margin-bottom: 8px;
+}
+
+.pta-sus-notice-type-new {
+	background: #00a32a;
+	color: #fff;
+}
+
+.pta-sus-notice-type-info {
+	background: #2271b1;
+	color: #fff;
+}
+
+.pta-sus-notice-type-warning {
+	background: #dba617;
+	color: #fff;
+}
+
+/* Card content */
+.pta-sus-notice-card-title {
+	font-size: 14px;
+	font-weight: 600;
+	margin: 0 0 4px;
+	color: #1d2327;
+}
+
+.pta-sus-notice-card-date {
+	font-size: 12px;
+	color: #8c8f94;
+	margin: 0 0 8px;
+}
+
+.pta-sus-notice-card-message {
+	font-size: 13px;
+	color: #3c434a;
+	line-height: 1.5;
+	margin: 0 0 10px;
+}
+
+.pta-sus-notice-card-message a {
+	color: #2271b1;
+}
+
+.pta-sus-notice-card-message a:hover {
+	color: #135e96;
+}
+
+/* Dismiss button */
+.pta-sus-notice-dismiss {
+	background: none;
+	border: none;
+	color: #8c8f94;
+	font-size: 12px;
+	cursor: pointer;
+	padding: 0;
+	text-decoration: underline;
+	transition: color 0.2s ease;
+}
+
+.pta-sus-notice-dismiss:hover,
+.pta-sus-notice-dismiss:focus {
+	color: #d63638;
+	outline: none;
+}
