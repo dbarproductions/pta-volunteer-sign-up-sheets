@@ -206,8 +206,9 @@ class PTA_SUS_Options {
         foreach ($fields as $field => $type) {
         	switch ($type) {
         		case 'integer':
-        			if( is_numeric($inputs[$field]) || '' === $inputs[$field] ) {
-		                $this->{$options}[$field] = (int)$inputs[$field];
+        			$field_value = $inputs[$field] ?? '';
+        			if( is_numeric($field_value) || '' === $field_value ) {
+		                $this->{$options}[$field] = (int)$field_value;
 		            } else {
 		                $err++;
 		                $message = sprintf(__('Invalid entry for %s!', 'pta-volunteer-sign-up-sheets'), $field);
@@ -215,13 +216,14 @@ class PTA_SUS_Options {
 		            }
         			break;
     			case 'email':
+    				$field_value = $inputs[$field] ?? '';
                     // Allow cc_email to be blank
-                    if ('cc_email' === $field && '' == $inputs[$field]) {
+                    if ('cc_email' === $field && '' == $field_value) {
 	                    $this->{$options}[$field] = '';
 	                    break;
                     }
-    				if(is_email($inputs[$field])) {
-		                $this->{$options}[$field] = $inputs[$field];
+    				if(is_email($field_value)) {
+		                $this->{$options}[$field] = $field_value;
 		            } else {
 		                $err++;
 		                $message = sprintf(__('Invalid email for %s!', 'pta-volunteer-sign-up-sheets'), $field);
@@ -229,7 +231,7 @@ class PTA_SUS_Options {
 		            }
 		            break;
         		case 'text':
-		                $this->{$options}[$field] = sanitize_text_field( $inputs[$field] );
+		                $this->{$options}[$field] = sanitize_text_field( $inputs[$field] ?? '' );
 		            break;
 	            case 'bool':
 	                if( isset($inputs[$field]) && $inputs[ $field ] ) {
@@ -239,7 +241,7 @@ class PTA_SUS_Options {
                     }
 	            	break;
 	            case 'textarea':
-	            	$this->{$options}[$field] = wp_kses_post($inputs[$field]);
+	            	$this->{$options}[$field] = wp_kses_post($inputs[$field] ?? '');
 	            	break;
         		default:
         			$err++;

@@ -282,25 +282,18 @@ class PTA_SUS_Activation {
 	}
 
 	/**
-	 * Handle new blog creation in multi-site
-	 * 
-	 * WordPress action hook callback for when a new blog is created in a
-	 * multi-site installation. Activates the plugin for the new blog.
-	 * 
+	 * Handle new blog creation in multi-site.
+	 *
+	 * Callback for the wp_initialize_site action (WP 5.1+).
+	 * Activates the plugin tables and options for the new blog.
+	 *
 	 * @since 6.0.0
-	 * @param int $blog_id New blog ID
-	 * @param int $user_id User ID who created the blog
-	 * @param string $domain Blog domain
-	 * @param string $path Blog path
-	 * @param int $site_id Site ID
-	 * @param array $meta Blog meta data
+	 * @param WP_Site $new_site Newly created site object.
 	 * @return void
 	 */
-	public static function new_blog( $blog_id, $user_id, $domain, $path, $site_id, $meta ) {
-		global $wpdb;
-
+	public static function new_blog( $new_site ) {
 		if ( is_plugin_active_for_network( 'pta-volunteer-sign-up-sheets/pta-volunteer-sign-up-sheets.php' ) ) {
-			switch_to_blog( $blog_id );
+			switch_to_blog( $new_site->id );
 			self::activate_site();
 			restore_current_blog();
 		}

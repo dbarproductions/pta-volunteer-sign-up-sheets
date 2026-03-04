@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.3.3
+- Minor update for new site initialization hooks on multi-site installs
+- Tested with PHP 8.5.3 and WordPress 6.9.1
+
 ### 6.3.2
 - Missing CSS file added to repo
 - Tested with PHP 8.5.3 and WordPress 6.9.1
