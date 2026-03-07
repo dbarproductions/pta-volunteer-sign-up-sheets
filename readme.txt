@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.3.3
+Stable tag: 6.4.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,11 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.4.0 =
+* New Bulk Assignments page added to admin menu to allow you to quickly assign email templates to multiple sheets at once.
+* Bulk Assignments API for extensions to add their own items to the Bulk Assignment functions, such as Signup Templates from Custom Fields, Layout Templates from Customizer, Waitlists, Locations, and Groups (updates needed for each of those extensions)
+* Tested with PHP 8.5.3 and WordPress 6.9.1
+
 = 6.3.3 =
 * Minor update for new site initialization hooks on multi-site installs
 * Tested with PHP 8.5.3 and WordPress 6.9.1

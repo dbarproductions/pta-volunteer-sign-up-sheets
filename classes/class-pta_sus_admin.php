@@ -12,6 +12,8 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 if (!class_exists('PTA_SUS_Options')) include_once(dirname(__FILE__).'/class-pta_sus_options.php');
+if (!class_exists('PTA_SUS_Bulk_Assignments_Helper')) include_once(dirname(__FILE__).'/class-pta-sus-bulk-assignments-helper.php');
+if (!class_exists('PTA_SUS_Admin_Bulk_Assignments')) include_once(dirname(__FILE__).'/class-pta-sus-admin-bulk-assignments.php');
 
 class PTA_SUS_Admin {
 
@@ -28,6 +30,13 @@ class PTA_SUS_Admin {
 	 * @var PTA_SUS_Options
 	 */
 	public $options_page;
+
+	/**
+	 * Bulk Assignments page object
+	 *
+	 * @var PTA_SUS_Admin_Bulk_Assignments
+	 */
+	public $bulk_assignments_page;
 
 	/**
 	 * Whether PTA Member Directory plugin is active
@@ -102,7 +111,8 @@ class PTA_SUS_Admin {
 	public function __construct() {
 		global $pta_sus_sheet_page_suffix, $pta_sus;
 
-		$this->options_page = new PTA_SUS_Options();
+		$this->options_page           = new PTA_SUS_Options();
+		$this->bulk_assignments_page  = new PTA_SUS_Admin_Bulk_Assignments();
 
 		$this->main_options = get_option( 'pta_volunteer_sus_main_options' );
 		$this->email_options = get_option( 'pta_volunteer_sus_email_options' );
@@ -261,6 +271,10 @@ class PTA_SUS_Admin {
 		if (isset($_POST['pta_email_template_mode']) && 'submitted' === $_POST['pta_email_template_mode']) {
 			$this->process_email_template_form();
 		}
+		// Process bulk assignment form submission.
+		if ( isset( $_POST['pta_sus_bulk_assign_mode'] ) && 'submitted' === $_POST['pta_sus_bulk_assign_mode'] ) {
+			$this->bulk_assignments_page->process_form();
+		}
 	}
 
 	/**
@@ -290,6 +304,7 @@ class PTA_SUS_Admin {
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Add New Sheet', 'pta-volunteer-sign-up-sheets'), __('Add New', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_modify_sheet', array($this, 'admin_modify_sheet_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Volunteers', 'pta-volunteer-sign-up-sheets'), __('Email Volunteers', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_email', array($this, 'email_volunteers_page'));
 			add_submenu_page($this->admin_settings_slug.'_sheets', __('Email Templates', 'pta-volunteer-sign-up-sheets'), __('Email Templates', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_email_templates', array($this, 'admin_email_templates_page'));
+			add_submenu_page($this->admin_settings_slug.'_sheets', __('Bulk Assignments', 'pta-volunteer-sign-up-sheets'), __('Bulk Assignments', 'pta-volunteer-sign-up-sheets'), 'manage_signup_sheets', $this->admin_settings_slug.'_bulk_assignments', array($this->bulk_assignments_page, 'render_page'));
 			// Settings, CRON, and Add Ons pages require manage_others_signup_sheets (Admins and Managers only, not Authors)
 			if($this->show_settings && (current_user_can('manage_options') || current_user_can('manage_others_signup_sheets'))) {
 				add_submenu_page($this->admin_settings_slug.'_sheets', __('Settings', 'pta-volunteer-sign-up-sheets'), __('Settings', 'pta-volunteer-sign-up-sheets'), 'manage_others_signup_sheets', $this->admin_settings_slug.'_settings', array($this->options_page, 'admin_options'));
