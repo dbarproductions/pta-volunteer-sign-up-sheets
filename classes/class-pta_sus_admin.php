@@ -2937,6 +2937,11 @@ class PTA_SUS_Admin {
 		$task_properties = $task->get_properties();
 
 		foreach ( $task_properties as $field => $nothing ) {
+			// Skip 'position' — display order is managed by drag-and-drop only, not the modal form.
+			// This also prevents collision with any extension custom field named 'position'.
+			if ( 'position' === $field ) {
+				continue;
+			}
 			$post_key = 'task_' . $field;
 			if ( isset( $_POST[ $post_key ] ) ) {
 				$task_data[ $post_key ] = $_POST[ $post_key ];
@@ -3274,6 +3279,9 @@ class PTA_SUS_Admin {
 
 		// Convert extension field data from array format to single values for modal (index 0)
 		// Extensions return arrays like task_template_id[0], task_$slug[0], but modal needs single values
+		// Note: task_position is intentionally omitted here. It is managed by drag-and-drop only
+		// and is not shown in the modal form. Omitting it allows any extension custom field also
+		// named 'position' (slug) to populate task_position from $task_data via the merge below.
 		$modal_task_data = array(
 			'task_id' => $task->id,
 			'task_title' => stripslashes($task->title),
@@ -3287,7 +3295,6 @@ class PTA_SUS_Admin {
 			'task_details_text' => stripslashes($task->details_text),
 			'task_allow_duplicates' => $task->allow_duplicates,
 			'task_enable_quantities' => $task->enable_quantities,
-			'task_position' => $task->position ?? 0,
 			'task_confirmation_email_template_id' => $task->confirmation_email_template_id ?? 0,
 			'task_reminder1_email_template_id' => $task->reminder1_email_template_id ?? 0,
 			'task_reminder2_email_template_id' => $task->reminder2_email_template_id ?? 0,
