@@ -624,7 +624,7 @@ class PTA_SUS_Public {
 		if ($validation_errors > 0) {
 			// Check if filled flag should be set (spots were full)
 			$available = $task->get_available_spots($posted['signup_date']);
-		$available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
+		    $available = apply_filters('pta_sus_process_signup_available_slots', $available, $posted, $sheet, $task);
 			if ($available < 1) {
 			$this->filled = true;
 			}
