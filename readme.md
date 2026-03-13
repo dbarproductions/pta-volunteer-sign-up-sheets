@@ -146,9 +146,11 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 
 ## Changelog
 ### 6.4.0
-- New Bulk Assignments page added to admin menu to allow you to quickly assign email templates to multiple sheets at once.
+- New Bulk Assignments page added to admin menu to allow you to quickly assign email templates to multiple sheets or tasks at once.
 - Bulk Assignments API for extensions to add their own items to the Bulk Assignment functions, such as Signup Templates from Custom Fields, Layout Templates from Customizer, Waitlists, Locations, and Groups (updates needed for each of those extensions)
-- Tested with PHP 8.5.3 and WordPress 6.9.1
+- Fix: Task modal editor no longer attempts to read or validate the task's display-order `position` property from POST data. Position is managed exclusively by drag-and-drop reordering and should not be included in modal form saves. This also prevents a "Numbers only" validation error when an extension has a custom field whose slug is `position`.
+- Fix: Task modal load (`ajax_get_task`) no longer pre-populates `task_position` in the base response array, allowing extension custom fields with a slug of `position` to correctly supply their value via the extension fields filter.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
 
 ### 6.3.3
 - Minor update for new site initialization hooks on multi-site installs

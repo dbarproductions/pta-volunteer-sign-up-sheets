@@ -147,6 +147,8 @@ class PTA_SUS_Admin {
 		// Remote admin notices.
 		add_action( 'admin_footer', array( $this, 'render_notices_panel' ) );
 		add_action( 'wp_ajax_pta_sus_dismiss_notice', array( $this, 'ajax_dismiss_notice' ) );
+		add_action( 'wp_ajax_pta_sus_bulk_assign_get_tasks',  array( $this->bulk_assignments_page, 'ajax_get_tasks' ) );
+		add_action( 'wp_ajax_pta_sus_bulk_assign_save_tasks', array( $this->bulk_assignments_page, 'ajax_save_tasks' ) );
 		// Invalidate server-side DT cache on any CRUD operation.
 		$cache_invalidation_hooks = array(
 			'pta_sus_created_signup', 'pta_sus_updated_signup', 'pta_sus_deleted_signup',
