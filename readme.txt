@@ -65,6 +65,9 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.4.1 =
+* Added code to strip out any table type tags (tr, td, th, etc.) from inside task row cell content to prevent potential issues with datatables2.
+* Tested with PHP 8.5.3 and WordPress 6.9.4
 
 = 6.4.0 =
 * New Bulk Assignments page added to admin menu to allow you to quickly assign email templates to multiple sheets or tasks at once.
