@@ -357,15 +357,18 @@ class PTA_SUS_Validation {
 		}
 
 		// Check for duplicate time signups (sheet-level)
+		$time_conflict_found = false;
 		if (!$sheet->duplicate_times) {
 			if (PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'])) {
 				$error_count++;
+				$time_conflict_found = true;
 				PTA_SUS_Messages::add_error(apply_filters('pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message'));
 			}
 		}
 
-		// Check for global overlap if enabled
-		if ($no_global_overlap) {
+		// Check for global overlap if enabled — skip if sheet-level check already found a conflict
+		// to avoid showing the same message twice (both checks use the same error text).
+		if ($no_global_overlap && !$time_conflict_found) {
 			if (PTA_SUS_Signup_Functions::check_duplicate_time_signup($sheet, $task, $posted['signup_date'], $posted['signup_firstname'], $posted['signup_lastname'], $check_all = true)) {
 				$error_count++;
 				PTA_SUS_Messages::add_error(apply_filters('pta_sus_public_output', __('You are already signed up for another task in this time frame!', 'pta-volunteer-sign-up-sheets'), 'signup_duplicate_time_error_message'));

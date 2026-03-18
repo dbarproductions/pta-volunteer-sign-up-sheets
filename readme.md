@@ -145,6 +145,12 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.4.2
+- Fix: Volunteers who are allowed to sign up for the same task more than once were incorrectly blocked with a "You are already signed up for another task in this time frame!" error when attempting their second signup. The time-overlap check was failing to recognize that the existing signup was for the very same task, causing it to treat it as a conflicting booking.
+- Fix: When both the sheet-level "no duplicate times" setting and the global "Prevent Overlapping Signups" option were active, the time-conflict error message could appear twice. The duplicate message is now suppressed.
+- Improvement: Internal object caching (used to avoid loading the same sheet, task, or signup from the database more than once per page load) has been refactored to use a dedicated cache registry. This resolves a conflict where the previous implementation could interfere with reading task or sheet settings during signup validation.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+
 ### 6.4.1
 - Added code to strip out any table type tags (tr, td, th, etc.) from inside task row cell content to prevent potential issues with datatables2.
 - Tested with PHP 8.5.3 and WordPress 6.9.4
