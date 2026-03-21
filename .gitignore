@@ -1,4 +1,4 @@
-!blocks/src/
+blocks/src/
 
 # PHPStorm/IntelliJ IDEA files
 .idea/
@@ -24,9 +24,10 @@ Thumbs.db
 /DATE_SYSTEM_IMPROVEMENT_PLAN.txt
 /REFACTORING_REFERENCE.md
 /TASK_DATE_HANDLING_PLAN.txt
-搯捯浵湥慴楴湯栮浴੬瀯畬楧⵮湩潦栮浴੬
+/documentation.html
+/plugin-info.html
 /index.html
-汢捯獫港摯彥潭畤敬⽳ഊ਀⌀ 渀瀀洀 氀漀挀欀昀椀氀攀 ⴀ 搀攀瘀 搀攀瀀攀渀搀攀渀挀礀 漀渀氀礀Ⰰ 挀愀甀猀攀猀 䐀攀瀀攀渀搀愀戀漀琀 昀愀氀猀攀 瀀漀猀椀琀椀瘀攀猀ഀ਀戀氀漀挀欀猀⼀瀀愀挀欀愀最攀ⴀ氀漀挀欀⸀樀猀漀渀ഀ਀
+blocks/node_modules/
 
 # npm lockfile - dev dependency only, causes Dependabot false positives
 blocks/package-lock.json
