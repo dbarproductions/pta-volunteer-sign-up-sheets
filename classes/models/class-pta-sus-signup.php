@@ -11,7 +11,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class PTA_SUS_Signup extends PTA_SUS_Base_Object {
-	
+
 	/**
 	 * Get property definitions
 	 * Defines all signup properties and their types for sanitization

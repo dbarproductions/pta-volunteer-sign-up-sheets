@@ -12,7 +12,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
-	
+
 	/**
 	 * Get property definitions
 	 * Defines all email template properties and their types for sanitization

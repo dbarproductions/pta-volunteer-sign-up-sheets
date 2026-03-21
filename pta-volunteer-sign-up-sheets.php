@@ -3,7 +3,7 @@
 Plugin Name: Volunteer Sign Up Sheets
 Plugin URI: https://stephensherrardplugins.com/plugins/pta-volunteer-sign-up-sheets/
 Description: Volunteer Sign Up Sheets and Management from Stephen Sherrard Plugins
-Version: 6.4.1
+Version: 6.4.2
 Author: Stephen Sherrard
 Author URI: https://stephensherrardplugins.com
 License: GPLv2 or later
@@ -20,7 +20,7 @@ if (!defined('PTA_VOLUNTEER_SUS_VERSION_KEY'))
     define('PTA_VOLUNTEER_SUS_VERSION_KEY', 'pta_volunteer_sus_version');
 
 if (!defined('PTA_VOLUNTEER_SUS_VERSION_NUM'))
-    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.4.1');
+    define('PTA_VOLUNTEER_SUS_VERSION_NUM', '6.4.2');
 
 if (!defined('PTA_VOLUNTEER_SUS_DIR'))
 	define('PTA_VOLUNTEER_SUS_DIR', plugin_dir_path( __FILE__ ) );
@@ -48,6 +48,9 @@ if (!class_exists('PTA_SUS_Data')) require_once 'classes/data.php';
 if (!class_exists('PTA_SUS_List_Table')) require_once 'classes/list-table.php';
 if (!class_exists('PTA_SUS_Widget')) require_once 'classes/widget.php';
 if (!class_exists('PTA_SUS_Emails')) require_once 'classes/class-pta_sus_emails.php';
+
+// Object cache registry — must load before model classes
+if (!class_exists('PTA_SUS_Object_Cache')) require_once 'classes/class-pta-sus-object-cache.php';
 
 // Load new model classes
 if (!class_exists('PTA_SUS_Base_Object')) require_once 'classes/models/class-pta-sus-base-object.php';

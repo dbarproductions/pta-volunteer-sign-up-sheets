@@ -47,61 +47,32 @@ abstract class PTA_SUS_Base_Object {
 	 * @var bool
 	 */
 	protected $is_new = true;
-	
-	/**
-	 * Static cache for object instances
-	 * Prevents duplicate queries and ensures data consistency across extensions
-	 * Format: 'ClassName:ID' => object_instance
-	 *
-	 * @var array
-	 */
-	protected static $instance_cache = array();
-	
+
 	/**
 	 * Constructor
 	 *
-	 * @param int|object|array $data Object ID, stdClass object, or array of properties
+	 * Accepts an ID (loads from DB), a stdClass/array (populates from data), or
+	 * no argument (creates an empty new object ready for property assignment + save).
+	 *
+	 * Caching is NOT handled here — it lives in PTA_SUS_Object_Cache and is managed
+	 * by get_by_id() and the pta_sus_get_* global helper functions. This keeps the
+	 * object itself a plain data container with no internal cache references.
+	 *
+	 * @param int|object|array|null $data Object ID, stdClass object, array of properties, or null.
 	 */
 	public function __construct( $data = null ) {
 		global $wpdb;
 		$this->wpdb = $wpdb;
-		
+
 		// Initialize properties with defaults
 		$this->init_properties();
-		
+
 		// Load data if provided
 		if ( ! empty( $data ) ) {
 			if ( is_numeric( $data ) ) {
-				// Check cache first
-				$class = get_class( $this );
-				$cache_key = $class . ':' . absint( $data );
-				
-				if ( isset( self::$instance_cache[$cache_key] ) ) {
-					// Populate from cached instance
-					$cached = self::$instance_cache[$cache_key];
-					$this->data = $cached->data;
-					$this->id = $cached->id;
-					$this->is_new = $cached->is_new;
-					return;
-				}
-				
-				// Load from database by ID
 				$this->load( $data );
-				
-				// Cache it if successfully loaded
-				if ( ! $this->is_new && ! empty( $this->id ) ) {
-					self::$instance_cache[$cache_key] = $this;
-				}
 			} elseif ( is_object( $data ) || is_array( $data ) ) {
-				// Populate from existing data
 				$this->populate( $data );
-				
-				// Cache it if it has an ID
-				if ( ! $this->is_new && ! empty( $this->id ) ) {
-					$class = get_class( $this );
-					$cache_key = $class . ':' . $this->id;
-					self::$instance_cache[$cache_key] = $this;
-				}
 			}
 		}
 	}
@@ -378,11 +349,10 @@ abstract class PTA_SUS_Base_Object {
 				$this->id = $this->wpdb->insert_id;
 				$this->data['id'] = $this->id;
 				$this->is_new = false;
-				
-				// Add to cache
-				$cache_key = get_class( $this ) . ':' . $this->id;
-				self::$instance_cache[$cache_key] = $this;
-				
+
+				// Cache the newly-created object
+				PTA_SUS_Object_Cache::set( get_class( $this ), $this->id, $this );
+
 				/**
 				 * Action after creating new object
 				 *
@@ -390,23 +360,22 @@ abstract class PTA_SUS_Base_Object {
 				 * @param PTA_SUS_Base_Object $this The object instance
 				 */
 				do_action( "pta_sus_created_{$object_type}", $this->id, $this );
-				
+
 				return $this->id;
 			}
 		} else {
 			// UPDATE
-			$result = $this->wpdb->update( 
-				$table_name, 
-				$db_data, 
+			$result = $this->wpdb->update(
+				$table_name,
+				$db_data,
 				array( 'id' => $this->id ),
 				$formats,
 				array( '%d' )
 			);
 			if ( false !== $result ) {
-				// Update cache with current instance
-				$cache_key = get_class( $this ) . ':' . $this->id;
-				self::$instance_cache[$cache_key] = $this;
-				
+				// Update the cache so subsequent get_by_id() calls get fresh data
+				PTA_SUS_Object_Cache::set( get_class( $this ), $this->id, $this );
+
 				/**
 				 * Action after updating object
 				 *
@@ -414,7 +383,7 @@ abstract class PTA_SUS_Base_Object {
 				 * @param PTA_SUS_Base_Object $this The object instance
 				 */
 				do_action( "pta_sus_updated_{$object_type}", $this->id, $this );
-				
+
 				return $this->id;
 			}
 		}
@@ -587,9 +556,8 @@ abstract class PTA_SUS_Base_Object {
 		
 		if ( $result ) {
 			// Remove from cache
-			$cache_key = get_class( $this ) . ':' . $this->id;
-			unset( self::$instance_cache[$cache_key] );
-			
+			PTA_SUS_Object_Cache::invalidate( get_class( $this ), $this->id );
+
 			/**
 			 * Action after deleting object
 			 *
@@ -641,58 +609,47 @@ abstract class PTA_SUS_Base_Object {
 	}
 	
 	/**
-	 * Static method to get object by ID with caching
-	 * Returns cached instance if available, otherwise loads from database
+	 * Get object by ID, using PTA_SUS_Object_Cache to avoid repeat DB hits.
+	 *
+	 * This is the preferred retrieval path. The pta_sus_get_task/sheet/signup()
+	 * global helpers call this internally.
 	 *
 	 * @param int $id Object ID
-	 * @return static|false Object instance or false if not found
+	 * @return static|false Object instance, or false if not found.
 	 */
 	public static function get_by_id( $id ) {
 		$id = absint( $id );
 		if ( empty( $id ) ) {
 			return false;
 		}
-		
-		$class = get_called_class(); // Gets the actual child class name
-		$cache_key = $class . ':' . $id;
-		
-		// Return cached instance if exists
-		if ( isset( self::$instance_cache[$cache_key] ) ) {
-			return self::$instance_cache[$cache_key];
+
+		$class = get_called_class();
+
+		// Return cached instance if available
+		$cached = PTA_SUS_Object_Cache::get( $class, $id );
+		if ( $cached !== null ) {
+			return $cached;
 		}
-		
+
 		// Load from database
 		$object = new static();
-		if ( $object->load( $id ) ) {
-			// Store in cache
-			self::$instance_cache[$cache_key] = $object;
-			return $object;
+		if ( ! $object->load( $id ) ) {
+			return false;
 		}
-		
-		return false;
+
+		// Store in cache and return
+		PTA_SUS_Object_Cache::set( $class, $id, $object );
+		return $object;
 	}
-	
+
 	/**
-	 * Clear object cache
-	 * Useful for testing or when external database changes occur
+	 * Remove this class's entry (or all entries) from the object cache.
+	 * Useful after direct DB modifications that bypass the model layer.
 	 *
-	 * @param int|null $id Specific ID to clear, or null to clear all instances of this class
+	 * @param int|null $id Specific ID to clear, or null to clear all for this class.
 	 */
 	public static function clear_cache( $id = null ) {
-		$class = get_called_class();
-		
-		if ( $id !== null ) {
-			// Clear specific instance
-			$cache_key = $class . ':' . absint( $id );
-			unset( self::$instance_cache[$cache_key] );
-		} else {
-			// Clear all instances of this class
-			foreach ( self::$instance_cache as $key => $value ) {
-				if ( strpos( $key, $class . ':' ) === 0 ) {
-					unset( self::$instance_cache[$key] );
-				}
-			}
-		}
+		PTA_SUS_Object_Cache::invalidate( get_called_class(), $id );
 	}
 }
 

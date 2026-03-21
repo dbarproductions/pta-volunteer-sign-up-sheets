@@ -416,7 +416,9 @@ class PTA_SUS_Signup_Functions {
             }
 
             // Skip if it's the same task (allow_duplicates handles this separately)
-            if ($signup->task_id === $task->id) {
+            // Cast to int: get_detailed_signups() returns stdClass with string values from wpdb,
+            // while $task->id is an int (absint'd in populate()), so === would always fail.
+            if ( (int) $signup->task_id === (int) $task->id ) {
                 continue;
             }
 
