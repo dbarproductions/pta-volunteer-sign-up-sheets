@@ -99,6 +99,26 @@ class PTA_SUS_Signup extends PTA_SUS_Base_Object {
 	}
 	
 	/**
+	 * Get detailed signup data (signup + task + sheet in one query)
+	 * Convenience wrapper around PTA_SUS_Signup_Functions::get_detailed_signups()
+	 * for use on an existing signup instance. Returns a plain stdClass with
+	 * flattened properties from all three tables — see that method for the
+	 * full property list.
+	 *
+	 * @return object|false Detailed signup stdClass, or false if not found
+	 */
+	public function get_detailed_signup() {
+		if ( empty( $this->id ) ) {
+			return false;
+		}
+		$results = PTA_SUS_Signup_Functions::get_detailed_signups(
+			array( 'id' => $this->id ),
+			true // show_expired: we already hold this signup, skip the date filter
+		);
+		return ! empty( $results ) ? $results[0] : false;
+	}
+
+	/**
 	 * Get the sheet for this signup (through the task)
 	 * Convenience method to get related sheet
 	 *

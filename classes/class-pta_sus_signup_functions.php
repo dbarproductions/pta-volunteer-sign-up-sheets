@@ -10,6 +10,7 @@ class PTA_SUS_Signup_Functions {
 	private static $main_options;
 
 	private static $signup_properties = array(
+        'id' => 'int',
 		'task_id' => 'int',
 		'date'  => 'date',
 		'user_id' => 'int',
@@ -142,6 +143,44 @@ class PTA_SUS_Signup_Functions {
         return $signups;
 	}
 
+	/**
+	 * Get detailed signups — signup + task + sheet data in a single JOIN query
+	 *
+	 * Returns an array of plain stdClass objects (not PTA_SUS_Signup instances).
+	 * Each object has the following properties:
+	 *
+	 * From the signups table:
+	 *   int    $id           Signup ID
+	 *   int    $task_id      ID of the parent task
+	 *   int    $user_id      WordPress user ID (0 if guest signup)
+	 *   string $signup_date  Date of the signup (aliased from signups.date to avoid collision)
+	 *   string $item         Item description if task uses items
+	 *   int    $item_qty     Quantity of items if task uses quantities
+	 *
+	 * From the tasks table:
+	 *   string $task_title   Task title
+	 *   string $time_start   Task start time
+	 *   string $time_end     Task end time
+	 *   int    $task_qty     Total quantity of spots for the task
+	 *   string $task_dates   Comma separated task dates
+	 *
+	 * From the sheets table:
+	 *   int    $sheet_id     Sheet ID
+	 *   string $title        Sheet title
+	 *   string $sheet_details Sheet details/description
+	 *   string $chair_name   Chair name(s) (may be comma-separated)
+	 *   string $chair_email  Chair email(s) (may be comma-separated)
+	 *   int    $clear        Whether auto-clear is enabled for this sheet
+	 *   int    $clear_days   Number of days after event to auto-clear
+	 *
+	 * Results are ordered by signup_date, then time_start.
+	 *
+	 * @param array $where        Associative array of filters. Keys may be any property
+	 *                            from $signup_properties, $task_properties, or $sheet_properties.
+	 *                            Use 'id' to fetch a single signup by its primary key.
+	 * @param bool  $show_expired Include signups for past dates (default false)
+	 * @return object[] Array of stdClass detailed signup objects
+	 */
 	public static function get_detailed_signups($where=array(), $show_expired = false) {
 		global $wpdb;
 		$signup_table = self::$signup_table;
