@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.4.3
+- Compatibility update to allow for signup ID to be used as a parameter in the get_detailed_signups function. get_detailed_signup method added to the Signup class object.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+
 ### 6.4.2
 - Fix: Volunteers who are allowed to sign up for the same task more than once were incorrectly blocked with a "You are already signed up for another task in this time frame!" error when attempting their second signup. The time-overlap check was failing to recognize that the existing signup was for the very same task, causing it to treat it as a conflicting booking.
 - Fix: When both the sheet-level "no duplicate times" setting and the global "Prevent Overlapping Signups" option were active, the time-conflict error message could appear twice. The duplicate message is now suppressed.
