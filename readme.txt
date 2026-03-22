@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.4.3
+Stable tag: 6.4.4
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,10 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.4.4 =
+* Fix: Modal task editor time display and validation fixes. Implemented automatic reformatting of entered times to the expected database format before validation.
+* Tested with PHP 8.5.3 and WordPress 6.9.4
+
 = 6.4.3 =
 * Compatibility update to allow for signup ID to be used as a parameter in the get_detailed_signups function. get_detailed_signup method added to the Signup class object.
 * Tested with PHP 8.5.3 and WordPress 6.9.4

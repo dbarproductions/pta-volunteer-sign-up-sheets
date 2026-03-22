@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.4.4
+- Fix: Modal task editor time display and validation fixes. Implemented automatic reformatting of entered times to the expected database format before validation.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+- 
 ### 6.4.3
 - Compatibility update to allow for signup ID to be used as a parameter in the get_detailed_signups function. get_detailed_signup method added to the Signup class object.
 - Tested with PHP 8.5.3 and WordPress 6.9.4

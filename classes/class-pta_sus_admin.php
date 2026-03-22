@@ -3029,6 +3029,18 @@ class PTA_SUS_Admin {
 			}
 		}
 
+		// Normalize time fields to canonical format (h:i A = "09:30 AM") before validation.
+		// This handles legacy DB values with inconsistent formats (lowercase am/pm, missing leading
+		// zero, or manually typed times) and ensures validation always passes for valid time strings.
+		foreach ( array( 'task_time_start', 'task_time_end' ) as $time_key ) {
+			if ( ! empty( $task_data[ $time_key ] ) ) {
+				$ts = strtotime( $task_data[ $time_key ] );
+				if ( false !== $ts ) {
+					$task_data[ $time_key ] = date( 'h:i A', $ts );
+				}
+			}
+		}
+
 		// Validate task fields
 		$clean_task_fields = pta_sus_clean_prefixed_array( $task_data, 'task_' );
 		if ( false === $clean_task_fields ) {
@@ -3177,16 +3189,21 @@ class PTA_SUS_Admin {
 		 */
 		do_action( 'pta_sus_task_saved', $task_id, $sheet_id, $saved_task, $action );
 
-		// Return full task data for JavaScript to build table row (using task_ prefix)
+		// Return full task data for JavaScript to build table row (using task_ prefix).
+		// task_time_start_display / task_time_end_display are pre-formatted using the WP time
+		// format so the JS table row matches what the PHP page-load renders (no JS conversion needed).
+		$time_format = get_option( 'time_format' );
 		$task_response_data = array(
-			'task_id' => $saved_task->id,
-			'task_title' => stripslashes($saved_task->title),
-			'task_description' => stripslashes($saved_task->description),
-			'task_dates' => $saved_task->dates,
-			'task_qty' => $saved_task->qty,
-			'task_time_start' => $saved_task->time_start,
-			'task_time_end' => $saved_task->time_end,
-			'task_position' => isset( $saved_task->position ) ? $saved_task->position : 0,
+			'task_id'                => $saved_task->id,
+			'task_title'             => stripslashes( $saved_task->title ),
+			'task_description'       => stripslashes( $saved_task->description ),
+			'task_dates'             => $saved_task->dates,
+			'task_qty'               => $saved_task->qty,
+			'task_time_start'        => $saved_task->time_start,
+			'task_time_end'          => $saved_task->time_end,
+			'task_time_start_display' => ! empty( $saved_task->time_start ) ? pta_datetime( $time_format, strtotime( $saved_task->time_start ) ) : '',
+			'task_time_end_display'   => ! empty( $saved_task->time_end )   ? pta_datetime( $time_format, strtotime( $saved_task->time_end ) )   : '',
+			'task_position'          => isset( $saved_task->position ) ? $saved_task->position : 0,
 		);
 
 		wp_send_json_success( array(

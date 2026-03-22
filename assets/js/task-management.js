@@ -1387,28 +1387,41 @@
 			var self = this;
 			var sheetType = this.sheetType;
 			var noSignups = this.noSignups;
-			
-			// Format times - use simple format for now (can be enhanced later)
-			// Times come from server as HH:MM:SS, we'll format them simply
-			var startTime = task.task_time_start || '';
-			var endTime = task.task_time_end || '';
-			
-			// Simple time formatting function
+
+			// Use server-provided display strings when available (added in 6.2.x).
+			// These are pre-formatted by PHP using the WP time format, matching the page-load render.
+			// Fall back to formatTime() for any older AJAX response that lacks the display fields.
+			var startTime = (task.task_time_start_display !== undefined && task.task_time_start_display !== null)
+				? task.task_time_start_display
+				: formatTime(task.task_time_start || '');
+			var endTime = (task.task_time_end_display !== undefined && task.task_time_end_display !== null)
+				? task.task_time_end_display
+				: formatTime(task.task_time_end || '');
+
+			// Fallback time formatter. Handles both 12-hour AM/PM strings (as stored in the DB)
+			// and 24-hour strings. The DB canonical format is "09:30 AM" (h:i A).
 			function formatTime(timeStr) {
 				if (!timeStr) return '';
+				timeStr = timeStr.trim();
+				// If already in 12-hour format with AM/PM, normalise and return directly.
+				// This prevents the old bug of appending a second "AM"/"PM".
+				var ampmMatch = timeStr.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+				if (ampmMatch) {
+					var h = parseInt(ampmMatch[1], 10);
+					var m = ampmMatch[2];
+					var period = ampmMatch[3].toUpperCase();
+					return (h < 10 ? '0' : '') + h + ':' + m + ' ' + period;
+				}
+				// Treat as 24-hour (HH:MM or HH:MM:SS).
 				var parts = timeStr.split(':');
 				if (parts.length < 2) return timeStr;
 				var hour = parseInt(parts[0], 10);
-				var min = parts[1];
-				// Use 12-hour format with AM/PM
+				var min = parts[1].substring(0, 2);
 				var ampm = hour >= 12 ? 'PM' : 'AM';
 				hour = hour % 12;
 				if (hour === 0) hour = 12;
-				return hour + ':' + min + ' ' + ampm;
+				return (hour < 10 ? '0' : '') + hour + ':' + min + ' ' + ampm;
 			}
-			
-			startTime = formatTime(startTime);
-			endTime = formatTime(endTime);
 			
 			// Build description preview
 			var description = '';
