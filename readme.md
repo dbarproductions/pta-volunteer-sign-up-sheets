@@ -145,6 +145,11 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.4.5
+- Fix: datatables2 library now defaults to including table footers in exports. Updated javascript to disable footers in exports to prevent getting an extra row of headers in the exported file.
+- Fix: Updated js to get the correct title for datatables2 exports when using the newer server side rendering mode.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+
 ### 6.4.4
 - Fix: Modal task editor time display and validation fixes. Implemented automatic reformatting of entered times to the expected database format before validation.
 - Tested with PHP 8.5.3 and WordPress 6.9.4

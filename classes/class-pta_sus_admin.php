@@ -3885,6 +3885,7 @@ class PTA_SUS_Admin {
 
 		$view_type      = sanitize_text_field( isset( $_POST['view_type'] ) ? $_POST['view_type'] : 'all_data' );
 		$sheet_id       = absint( isset( $_POST['sheet_id'] ) ? $_POST['sheet_id'] : 0 );
+		$client_title   = sanitize_text_field( isset( $_POST['sheet_title'] ) ? wp_unslash( $_POST['sheet_title'] ) : '' );
 		$hide_remaining = ! empty( $_POST['hide_remaining'] );
 
 		$sheet_ids  = isset( $_POST['sheet_ids'] ) ? array_map( 'absint', (array) wp_unslash( $_POST['sheet_ids'] ) ) : array();
@@ -3982,14 +3983,19 @@ class PTA_SUS_Admin {
 		// Determine export format family.
 		$is_print = in_array( $format, array( 'print', 'pdf' ), true );
 
+		// Resolve the sheet name, falling back to the client-provided title when
+		// get_the_title() returns empty (e.g. the CPT is not accessible in the AJAX context).
+		$sheet_name = ( 'single_sheet' === $view_type && $sheet_id ) ? get_the_title( $sheet_id ) : '';
+		if ( '' === $sheet_name && '' !== $client_title ) {
+			$sheet_name = $client_title;
+		}
+
 		if ( $is_print ) {
-			$title = ( 'single_sheet' === $view_type && $sheet_id )
-				? get_the_title( $sheet_id )
-				: __( 'All Signups', 'pta-volunteer-sign-up-sheets' );
+			$title = '' !== $sheet_name ? $sheet_name : __( 'All Signups', 'pta-volunteer-sign-up-sheets' );
 			$this->export_as_print_html( $all_rows, $columns, $title );
 		} else {
-			$filename = ( 'single_sheet' === $view_type && $sheet_id )
-				? sanitize_file_name( get_the_title( $sheet_id ) . '-signups.csv' )
+			$filename = '' !== $sheet_name
+				? sanitize_file_name( $sheet_name . '-signups.csv' )
 				: 'all-signups.csv';
 			$this->export_as_csv( $all_rows, $columns, $filename );
 		}

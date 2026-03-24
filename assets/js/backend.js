@@ -514,6 +514,7 @@
                 text: PTASUS.excelExport,
                 title: sheetTitle,
                 message: sheetInfoText,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -524,6 +525,7 @@
                 text: PTASUS.csvExport,
                 title: sheetTitle,
                 message: sheetInfoText,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -535,6 +537,7 @@
                 title: sheetTitle,
                 message: sheetInfoText,
                 orientation: 'landscape',
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -545,6 +548,7 @@
                 text: PTASUS.toPrint,
                 title: sheetTitle,
                 message: sheetInfo,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -592,6 +596,7 @@
                 text: PTASUS.excelExport,
                 title: sheetTitle,
                 message: sheetInfoText,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -602,6 +607,7 @@
                 text: PTASUS.csvExport,
                 title: sheetTitle,
                 message: sheetInfoText,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -613,6 +619,7 @@
                 title: sheetTitle,
                 message: sheetInfoText,
                 orientation: 'landscape',
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -623,6 +630,7 @@
                 text: PTASUS.toPrint,
                 title: sheetTitle,
                 message: sheetInfo,
+                footer: false,
                 exportOptions: {
                     columns: ':visible',
                     format: { body: ptaExportBodyFormatter }
@@ -853,7 +861,8 @@
             params.col_search = JSON.stringify( colFilters );
 
             if ( 'single_sheet' === viewType ) {
-                params.sheet_id = PTASUS.sheetId || 0;
+                params.sheet_id    = PTASUS.sheetId || 0;
+                params.sheet_title = sheetTitle || '';
             } else {
                 // Report builder params.
                 if ( rfSheetIds.length ) { params.sheet_ids = rfSheetIds; }
