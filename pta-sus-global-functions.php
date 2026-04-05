@@ -979,33 +979,50 @@ function pta_sus_search_users($search = '') {
 
     $search = sanitize_text_field($search);
 
-    // Use search_columns for email (more efficient than meta_query)
-    // Meta query for first_name and last_name
-    $meta_query = array(
-        'relation' => 'OR',
-        array(
-            'key'     => 'first_name',
-            'value'   => $search,
-            'compare' => 'LIKE'
-        ),
-        array(
-            'key'     => 'last_name',
-            'value'   => $search,
-            'compare' => 'LIKE'
-        )
-    );
-
-    $args = array(
-        'meta_query'   => $meta_query,
-        'search'       => '*' . esc_attr($search) . '*', // Search email via search_columns
-        'search_columns' => array('user_email'), // More efficient than meta_query for email
+    $common_args = array(
         'orderby'      => 'display_name',
         'order'        => 'ASC',
         'count_total'  => false,
         'fields'       => array('ID', 'user_email', 'display_name'),
     );
 
-    return get_users($args);
+    // WP_User_Query ANDs search_columns with meta_query, so we must run two
+    // separate queries and merge to get an OR across email and name fields.
+
+    // Query 1: match on user_email
+    $email_users = get_users(array_merge($common_args, array(
+        'search'         => '*' . $search . '*',
+        'search_columns' => array('user_email'),
+    )));
+
+    // Query 2: match on first_name or last_name (usermeta)
+    $name_users = get_users(array_merge($common_args, array(
+        'meta_query' => array(
+            'relation' => 'OR',
+            array(
+                'key'     => 'first_name',
+                'value'   => $search,
+                'compare' => 'LIKE',
+            ),
+            array(
+                'key'     => 'last_name',
+                'value'   => $search,
+                'compare' => 'LIKE',
+            ),
+        ),
+    )));
+
+    // Merge and deduplicate by ID
+    $merged = array();
+    foreach (array_merge($email_users, $name_users) as $user) {
+        $merged[$user->ID] = $user;
+    }
+
+    usort($merged, function($a, $b) {
+        return strcmp($a->display_name, $b->display_name);
+    });
+
+    return array_values($merged);
 }
 
 /**

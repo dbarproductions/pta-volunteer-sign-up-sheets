@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.4.6
+- Fix: Live search of users table updated to do separate searches of names and email fields since the WP_User_Query treats these as an "AND" condition instead of "OR". Email query split to a separate query and results merged with the name query to bypass that limitation of the WP_User_Query.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+
 ### 6.4.5
 - Fix: datatables2 library now defaults to including table footers in exports. Updated javascript to disable footers in exports to prevent getting an extra row of headers in the exported file.
 - Fix: Updated js to get the correct title for datatables2 exports when using the newer server side rendering mode.

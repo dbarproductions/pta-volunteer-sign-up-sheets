@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.4.5
+Stable tag: 6.4.6
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,10 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.4.6 =
+* Fix: Live search of users table updated to do separate searches of names and email fields since the WP_User_Query treats these as an "AND" condition instead of "OR". Email query split to a separate query and results merged with the name query to bypass that limitation of the WP_User_Query.
+* Tested with PHP 8.5.3 and WordPress 6.9.4
+
 = 6.4.5 =
 * Fix: datatables2 library now defaults to including table footers in exports. Updated javascript to disable footers in exports to prevent getting an extra row of headers in the exported file.
 * Fix: Updated js to get the correct title for datatables2 exports when using the newer server side rendering mode.
