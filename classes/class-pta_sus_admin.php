@@ -3490,7 +3490,8 @@ class PTA_SUS_Admin {
 			}
 
 			$task = pta_sus_get_task( $task_id );
-			if ( ! $task || $task->sheet_id !== $sheet_id ) {
+			// Compare as integers — DB values may be strings; strict !== would skip every task.
+			if ( ! $task || absint( $task->sheet_id ) !== absint( $sheet_id ) ) {
 				continue;
 			}
 

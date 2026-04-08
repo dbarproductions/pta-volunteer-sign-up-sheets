@@ -1127,10 +1127,10 @@
 			var self = this;
 			var taskOrder = [];
 
-			$('#pta-sus-task-list-body tr').each(function(index) {
+			$('#pta-sus-task-list-body tr').each(function() {
 				var taskId = $(this).data('task-id');
 				if (taskId) {
-					taskOrder[index] = taskId;
+					taskOrder.push(taskId);
 				}
 			});
 
@@ -1484,8 +1484,18 @@
 				$('.pta-sus-task-management').before($messagesContainer);
 			}
 			
-			// Parse the message HTML (server returns divs with class "error" or "updated")
-			var $messageDivs = $(messageHtml);
+			// Parse the message HTML (server returns divs with class "error" or "updated").
+			// Plain-text messages must not be passed to $() — jQuery treats them as selectors
+			// (e.g. "0 task positions updated." throws "unrecognized expression").
+			var trimmedMsg = typeof messageHtml === 'string' ? messageHtml.trim() : '';
+			var $messageDivs;
+			if (trimmedMsg && trimmedMsg.charAt(0) !== '<') {
+				var noticeClass = (type === 'error') ? 'error' : 'updated';
+				$messageDivs = $('<div class="' + noticeClass + '"><p></p></div>');
+				$messageDivs.find('p').text(messageHtml);
+			} else {
+				$messageDivs = $(messageHtml);
+			}
 			
 			// Wrap each message div in a container with dismiss functionality
 			$messageDivs.each(function() {
