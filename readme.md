@@ -145,6 +145,12 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.5.0
+- New: Added "Copy Selected Sheets" to the bulk actions on the admin All Sheets list, allowing you to duplicate multiple sheets at once.
+- New: Added "Disable HTML Encoding for Validation Links" option to Email Settings. When HTML emails are enabled, validation links are automatically wrapped in a clickable anchor tag by default. Check this option to receive the raw URL instead — useful if your email templates already surround the {validation_link} tag with your own anchor tags.
+- Fix: Date and Task/Item column headers were missing from the user signups table. Fixed.
+- Tested with PHP 8.5.3 and WordPress 6.9.4
+
 ### 6.4.7
 - Fix: Drag and drop of tasks to reorder them wasn't saving the new order correctly. Fixed.
 - Tested with PHP 8.5.3 and WordPress 6.9.4

@@ -174,6 +174,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Disable Confirmation emails?</strong> -- Check this to disable sending signup confirmation emails when someone signs up. <strong>NOTE:</strong> This will also disable emails to the sheet chairs or admin since those are just BCC fields in the confirmation email and not separate emails.</li>
         <li><strong>Disable Reminder emails?</strong> -- Check this to disable the sending of ALL reminder emails.</li>
         <li><strong>Disable ALL emails?</strong> -- If checked, ALL emails will be disabled (including reminder emails). Useful if you want to clear and manually sign up users without emails being sent (when making corrections, for example). Reminders will start to get checked and sent again after you turn this off.</li>
+        <li><strong>Disable HTML Encoding for Validation Links?</strong> <em>(v6.5)</em> -- Only applies when HTML emails are enabled. By default, the <code>{validation_link}</code> tag is automatically wrapped in a clickable HTML anchor tag so the link is immediately usable in HTML email clients. Check this option to output the raw URL instead — useful if your email template already wraps the <code>{validation_link}</code> tag with its own <code>&lt;a href&gt;</code> tags, which would otherwise result in a broken double-encoded link.</li>
     </ul>
 </div>
 <h3>Email Templates</h3>
@@ -554,7 +555,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     </ul>
     <strong>Visibility </strong>-- There is a "Visible" column for each sheet on the All Sheets list table. If a sheet is hidden from the public, you will see a red "NO" listed in the column. If you go to the public side, those sheets will not show up in the main volunteer page list or in the widgets unless you are logged in as admin or volunteer sheet manager (in which case you will see the sheet listed, but there will be some red text below it to remind you that the sheet is hidden from the public). Click on "Yes" or "NO" to toggle the visibility of a sheet. It may be useful to have a sheet hidden while you are getting it set up and testing things out, or if you don't want to make sign-ups available until a certain date.
 
-    <strong>Bulk Actions</strong> -- From the main All Sheets list you can use bulk actions to trash or toggle the visibility of several sheets at once. While you are in the trash bin, you can use bulk actions to permanently delete or restore multiple sheets at once.
+    <strong>Bulk Actions</strong> -- From the main All Sheets list you can use bulk actions to trash, toggle the visibility, or copy several sheets at once. The <strong>Copy Selected Sheets</strong> option <em>(v6.5)</em> duplicates each selected sheet — including all its tasks — as a new hidden sheet, ready for you to update with new dates and publish. While you are in the trash bin, you can use bulk actions to permanently delete or restore multiple sheets at once.
 
     <strong>View/Export ALL Data </strong>-- The old button that exported all data to CSV has now been changed to this new View/Export ALL Data button. Clicking on this button will now load ALL existing signup data into one large table, using the jQuery DataTables plugin for display. From there you can sort, filter, search, and show/hide columns, to organize your data anyway that you want, and then direct print or export that data to Excel, CSV, or PDF formats. See the next section below for more details on how to use DataTables, as it works the same way as on the individual "View Sign-ups" page.
 
@@ -622,7 +623,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
 <div>
 
     <em>Added in version 6.4.</em> The <strong>Bulk Assignments</strong> page (Sign-Up Sheets → Bulk Assignments) lets administrators and sheet managers assign settings to many sheets or tasks at once — a big time-saver for organizations with large numbers of sheets.
-
     <h4>Overview</h4>
     Instead of opening each sheet or task individually to change an assignment, you use this page to:
     <ol>
@@ -632,7 +632,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li>Click <strong>Apply</strong> — all selected items are updated in a single operation</li>
     </ol>
     The page is organized into two tabs: <strong>Sheet Assignments</strong> and <strong>Task Assignments</strong>.
-
     <h4>Sheet Assignments Tab</h4>
     Use this tab to assign a value to one or more entire sheets at once.
     <ol>
@@ -641,7 +640,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Select Sheets</strong> — A checklist of all your active sheets is shown, with the sheet title, first date (or "Ongoing" for date-free sheets), and the current assignment for each sheet. Check the sheets you want to update. Use the <strong>Select All</strong> / <strong>Deselect All</strong> links as shortcuts.</li>
         <li>Click <strong>Apply to Selected Sheets</strong> to save. A confirmation message will show how many sheets were updated.</li>
     </ol>
-
     <h4>Task Assignments Tab</h4>
     Use this tab to assign a value to specific tasks across one or more sheets.
     <ol>
@@ -651,7 +649,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Select Tasks and Apply</strong> — The task table shows each task's sheet title, task title, first sheet date (or "Ongoing"), and its current assignment. Check the tasks you want to update, then click <strong>Apply to Selected Tasks</strong>. A confirmation dialog will ask you to confirm before saving.</li>
     </ol>
     <strong>Note:</strong> If you change the assignment type or value after loading tasks, a notice will prompt you to reload the task list so the "Current Assignment" column stays accurate.
-
     <h4>Assignment Types</h4>
     The available assignment types depend on your installed extensions. The core plugin provides:
     <ul>
@@ -668,7 +665,6 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Custom Fields extension:</strong> Signup Form Template — assign a custom signup form template to sheets and tasks</li>
     </ul>
     Assignment types that only apply at the sheet level (such as the Groups extension) appear only on the Sheet Assignments tab. Types that apply at both levels appear on both tabs.
-
     <h4>Ongoing Sheets</h4>
     Sheets of type <strong>Ongoing</strong> (no specific dates) display <em>Ongoing</em> in the date column instead of a date. They are fully supported by bulk assignments and behave identically to date-based sheets.
 

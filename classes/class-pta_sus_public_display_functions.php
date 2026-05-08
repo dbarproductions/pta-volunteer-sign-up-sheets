@@ -1,10 +1,10 @@
 <?php
 /**
  * Public Display Functions Helper Class
- * 
+ *
  * Static helper methods for generating display data for sheets, tasks, and signups.
  * These methods can be used by extensions without requiring access to the public class instance.
- * 
+ *
  * @package PTA_Volunteer_Sign_Up_Sheets
  * @since 6.0.0
  */
@@ -16,42 +16,42 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Cached main options array
 	 * Loaded once and reused across all methods
-	 * 
+	 *
 	 * @var array|null
 	 */
 	private static $main_options = null;
 
 	/**
 	 * Cached validation options array
-	 * 
+	 *
 	 * @var array|null
 	 */
 	private static $validation_options = null;
 
 	/**
 	 * Cached integration options array
-	 * 
+	 *
 	 * @var array|null
 	 */
 	private static $integration_options = null;
 
 	/**
 	 * Display options (headers, visibility settings, etc.)
-	 * 
+	 *
 	 * @var array|null
 	 */
 	private static $display_options = null;
 
 	/**
 	 * Current date filter for sheet/task lists
-	 * 
+	 *
 	 * @var string|null
 	 */
 	private static $current_date_filter = null;
 
 	/**
 	 * Volunteer object
-	 * 
+	 *
 	 * @var PTA_SUS_Volunteer|null
 	 */
 	private static $volunteer = null;
@@ -59,35 +59,35 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Track if signup form has been displayed on current page
 	 * Used to prevent multiple forms when suppress_duplicates is enabled
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $signup_displayed = false;
 
 	/**
 	 * Form processing state - whether form was submitted
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $submitted = false;
 
 	/**
 	 * Form processing state - error count
-	 * 
+	 *
 	 * @var int
 	 */
 	private static $err = 0;
 
 	/**
 	 * Form processing state - whether submission was successful
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $success = false;
 
 	/**
 	 * Form processing state - whether signup was cleared
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $cleared = false;
@@ -95,35 +95,35 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Track if messages have been displayed on current page
 	 * Used to prevent duplicate messages when multiple shortcodes on one page
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $messages_displayed = false;
 
 	/**
 	 * Whether validation email was sent
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $validation_sent = false;
 
 	/**
 	 * Whether validation is enabled
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $validation_enabled = false;
 
 	/**
 	 * Whether to show hidden sheets
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $show_hidden = false;
 
 	/**
 	 * Whether the helper class has been initialized
-	 * 
+	 *
 	 * @var bool
 	 */
 	private static $initialized = false;
@@ -132,13 +132,13 @@ class PTA_SUS_Public_Display_Functions {
 	 * Initialize display options
 	 * Called by public class to set all display options at once
 	 * Extensions can also call this to customize display behavior
-	 * 
+	 *
 	 * IMPORTANT: For best performance, call this method early (e.g., in your
 	 * extension's AJAX handler before calling display methods). The Public class
 	 * calls this automatically on public-facing pages via plugins_loaded hook.
 	 * If not called, individual getter methods will load options lazily as needed,
 	 * but calling this first loads all options at once for better performance.
-	 * 
+	 *
 	 * @param array $options Optional array of options to override defaults
 	 * @param PTA_SUS_Volunteer|null $volunteer Optional volunteer object
 	 */
@@ -173,7 +173,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Update form processing state
 	 * Called by public class to update form state after processing
-	 * 
+	 *
 	 * @param bool $submitted Whether form was submitted
 	 * @param int $err Error count
 	 * @param bool $success Whether submission was successful
@@ -188,7 +188,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Update messages displayed flag
-	 * 
+	 *
 	 * @param bool $displayed Whether messages have been displayed
 	 */
 	public static function set_messages_displayed($displayed = true) {
@@ -197,7 +197,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Update validation sent flag
-	 * 
+	 *
 	 * @param bool $sent Whether validation email was sent
 	 */
 	public static function set_validation_sent($sent = true) {
@@ -206,7 +206,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get form state - submitted
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_submitted() {
@@ -215,7 +215,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get form state - error count
-	 * 
+	 *
 	 * @return int
 	 */
 	public static function get_err() {
@@ -224,7 +224,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get form state - success
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_success() {
@@ -233,7 +233,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get form state - cleared
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_cleared() {
@@ -242,7 +242,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get messages displayed flag
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_messages_displayed() {
@@ -251,7 +251,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get validation enabled flag
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_validation_enabled() {
@@ -260,7 +260,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get show hidden flag
-	 * 
+	 *
 	 * @return bool
 	 */
 	public static function get_show_hidden() {
@@ -270,12 +270,12 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get default display options
 	 * Returns all default values for display options
-	 * 
+	 *
 	 * @return array Default display options
 	 */
 	private static function get_default_display_options() {
 		$main_options = self::get_main_options();
-		
+
 		return array(
 			'phone_required' => $main_options['phone_required'] ?? true,
 			'suppress_duplicates' => $main_options['suppress_duplicates'] ?? true,
@@ -295,6 +295,8 @@ class PTA_SUS_Public_Display_Functions {
 			'start_time_header' => apply_filters('pta_sus_public_output', __('Start Time', 'pta-volunteer-sign-up-sheets'), 'start_time_header'),
 			'end_time_header' => apply_filters('pta_sus_public_output', __('End Time', 'pta-volunteer-sign-up-sheets'), 'end_time_header'),
 			'item_details_header' => apply_filters('pta_sus_public_output', __('Item Details', 'pta-volunteer-sign-up-sheets'), 'item_details_header'),
+			'date_header' => apply_filters('pta_sus_public_output', __('Date', 'pta-volunteer-sign-up-sheets'), 'date_header'),
+			'task_item_header' => apply_filters('pta_sus_public_output', __('Task/Item', 'pta-volunteer-sign-up-sheets'), 'task_item_header'),
 			'item_qty_header' => apply_filters('pta_sus_public_output', __('Item Qty', 'pta-volunteer-sign-up-sheets'), 'item_qty_header'),
 			'contact_label' => apply_filters('pta_sus_public_output', __('Contact:', 'pta-volunteer-sign-up-sheets'), 'contact_label'),
 			'no_contact_message' => apply_filters('pta_sus_public_output', __('No Event Chair contact info provided', 'pta-volunteer-sign-up-sheets'), 'no_contact_message'),
@@ -305,7 +307,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get hidden string for hidden sheets
-	 * 
+	 *
 	 * @return string Hidden indicator string
 	 */
 	private static function get_hidden_string() {
@@ -320,7 +322,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get main options
 	 * Returns cached options array, loading from database if needed
-	 * 
+	 *
 	 * @return array Main options array
 	 */
 	private static function get_main_options() {
@@ -333,7 +335,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get display option
 	 * Returns a display option value, initializing with defaults if needed
-	 * 
+	 *
 	 * @param string $key Option key
 	 * @param mixed $default Default value if option not set
 	 * @return mixed Option value
@@ -348,9 +350,9 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get volunteer object
 	 * Returns volunteer object, creating one if needed
-	 * 
+	 *
 	 * Made public in 6.0.0 to allow extensions to access the volunteer object directly
-	 * 
+	 *
 	 * @return PTA_SUS_Volunteer Volunteer object
 	 */
 	public static function get_volunteer() {
@@ -362,17 +364,17 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get validation enabled status
-	 * 
+	 *
 	 * @return bool Whether validation is enabled
 	 */
 	/**
 	 * Check if validation is enabled
-	 * 
+	 *
 	 * Note: Options should already be loaded by initialize(). The null check
 	 * here is a fallback safety net in case this method is called before
 	 * initialize() has been called. For best performance, ensure initialize()
 	 * is called first.
-	 * 
+	 *
 	 * @return bool True if validation is enabled
 	 */
 	private static function is_validation_enabled() {
@@ -384,12 +386,12 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get validation options
-	 * 
+	 *
 	 * Note: Options should already be loaded by initialize(). The null check
 	 * here is a fallback safety net in case this method is called before
 	 * initialize() has been called. For best performance, ensure initialize()
 	 * is called first.
-	 * 
+	 *
 	 * @return array Validation options array
 	 */
 	private static function get_validation_options() {
@@ -401,12 +403,12 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get integration options
-	 * 
+	 *
 	 * Note: Options should already be loaded by initialize(). The null check
 	 * here is a fallback safety net in case this method is called before
 	 * initialize() has been called. For best performance, ensure initialize()
 	 * is called first.
-	 * 
+	 *
 	 * @return array Integration options array
 	 */
 	private static function get_integration_options() {
@@ -419,7 +421,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Set date filter
 	 * Updates the date filter for display methods
-	 * 
+	 *
 	 * @param string|null $date Date string or null to clear
 	 */
 	public static function set_date($date = null) {
@@ -432,7 +434,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get default task column values
 	 * Generates formatted display data for task columns (date, time, description, title)
-	 * 
+	 *
 	 * @param PTA_SUS_Task|object $task Task object
 	 * @param string $date Date string (yyyy-mm-dd format)
 	 * @return array Associative array with keys: column-description, column-date, column-start-time, column-end-time, column-task
@@ -455,7 +457,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Generate signup row data
 	 * Creates formatted display data for a single signup row
-	 * 
+	 *
 	 * @param PTA_SUS_Signup|object $signup Signup object
 	 * @param PTA_SUS_Task|object $task Task object
 	 * @param int $i Row number/index
@@ -467,7 +469,7 @@ class PTA_SUS_Public_Display_Functions {
 	public static function generate_signup_row_data($signup, $task, $i, $volunteer, $show_names = true, $show_clear = false) {
 		$main_options = self::get_main_options();
 		$show_full_name = isset($main_options['show_full_name']) && $main_options['show_full_name'];
-		
+
 		$row_data = array();
 
 		if($show_names) {
@@ -511,7 +513,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Generate consolidated signup row data
 	 * Creates a single consolidated row showing filled/remaining spots for a task
-	 * 
+	 *
 	 * @param array $signups Array of signup objects
 	 * @param int $task_qty Total quantity for the task
 	 * @param string $task_url URL for signing up to the task
@@ -556,7 +558,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get task row data
 	 * Generates all row data for displaying a task (signups, remaining spots, etc.)
-	 * 
+	 *
 	 * @param PTA_SUS_Task|object $task Task object
 	 * @param string $date Date string (yyyy-mm-dd format)
 	 * @param int $sheet_id Sheet ID
@@ -699,7 +701,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Display signup form for a task and date
-	 * 
+	 *
 	 * @param int $task_id Task ID
 	 * @param string $date Date (YYYY-MM-DD format)
 	 * @param bool $skip_filled_check Whether to skip checking if spots are filled
@@ -939,7 +941,7 @@ class PTA_SUS_Public_Display_Functions {
 
 		// Spam check and form submission
 		$form .= '
-			<div style="visibility:hidden"> 
+			<div style="visibility:hidden">
 	            <input name="website" type="text" size="20" />
 	        </div>
 	        <p class="submit">
@@ -960,7 +962,7 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Get sheets list HTML
-	 * 
+	 *
 	 * @param array $sheets Array of sheet objects
 	 * @param array $atts Optional attributes array
 	 * @param string|null $date Optional date filter (overrides default)
@@ -986,7 +988,7 @@ class PTA_SUS_Public_Display_Functions {
 		$open_spots_header = self::get_display_option('open_spots_header');
 		$use_divs = self::get_display_option('use_divs', false);
 		$hidden = self::get_display_option('hidden', '');
-		
+
 		$return = apply_filters('pta_sus_before_sheet_list_table', '');
 		$return .= '<div class="pta-sus-sheets main">';
 		$columns = array();
@@ -1094,7 +1096,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Display task list for a specific sheet and date
 	 * Generates HTML output for displaying tasks with signups
-	 * 
+	 *
 	 * @param int $sheet_id Sheet ID
 	 * @param string $date Date string (yyyy-mm-dd format)
 	 * @param bool $no_signups Whether this is a no-signups sheet (default: false)
@@ -1259,7 +1261,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get single sheet display
 	 * Generates HTML output for displaying a single sheet with all its tasks
-	 * 
+	 *
 	 * @param int $id Sheet ID
 	 * @return string HTML output for single sheet
 	 */
@@ -1414,7 +1416,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Get user signups list
 	 * Displays a list of signups for the current user with clear links
-	 * 
+	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string HTML output for user signups list
 	 */
@@ -1619,7 +1621,7 @@ class PTA_SUS_Public_Display_Functions {
 	/**
 	 * Display sheet (main shortcode/block handler)
 	 * Processes shortcode attributes and URL arguments to display either all sheets or a single sheet
-	 * 
+	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string HTML output
 	 */
@@ -1764,7 +1766,7 @@ class PTA_SUS_Public_Display_Functions {
 			$title_header = '<h2 class="pta-sus-list-title">' . apply_filters('pta_sus_public_output', esc_html($list_title), 'sheet_list_title') . '</h2>';
 			$title_header = apply_filters('pta_sus_sheet_list_title_header_html', $title_header, $list_title);
 			$return .= $title_header;
-			
+
 			// Build args for get_sheets_by_args() to support author filtering
 			$args = array(
 				'trash' => false,
@@ -1773,7 +1775,7 @@ class PTA_SUS_Public_Display_Functions {
 				'order_by' => $order_by,
 				'order' => $order,
 			);
-			
+
 			// Add author filtering if provided in shortcode attributes
 			if ( ! empty( $author_id ) ) {
 				$args['author_id'] = absint( $author_id );
@@ -1781,7 +1783,7 @@ class PTA_SUS_Public_Display_Functions {
 			if ( ! empty( $author_email ) ) {
 				$args['author_email'] = sanitize_email( $author_email );
 			}
-			
+
 			$sheets = PTA_SUS_Sheet_Functions::get_sheets_by_args( $args );
 
 			// Move ongoing sheets to bottom of list if that setting is checked
@@ -1838,11 +1840,11 @@ class PTA_SUS_Public_Display_Functions {
 
 	/**
 	 * Process validation form shortcode
-	 * 
+	 *
 	 * Displays the user validation form or appropriate messages based on
 	 * validation status. Handles form submission state and cookie-based
 	 * resubmission limits.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @param array $atts Shortcode attributes
 	 *   - hide_when_validated (string) 'yes' to hide form when user is validated
@@ -1852,32 +1854,32 @@ class PTA_SUS_Public_Display_Functions {
 	public static function process_validation_form_shortcode($atts = array()) {
 		$validation_options = self::get_validation_options();
 		$validation_enabled = self::is_validation_enabled();
-		
+
 		// Don't show anything if the system is not enabled
 		if (!$validation_enabled || !(isset($validation_options['enable_user_validation_form']) && $validation_options['enable_user_validation_form'])) {
 			return '<p>' . apply_filters('pta_sus_public_output', __('User Validation is currently disabled.', 'pta-volunteer-sign-up-sheets'), 'user_validation_disabled_message') . '</p>';
 		}
-		
+
 		$atts = shortcode_atts(array(
 			'hide_when_validated' => 'no'
 		), $atts, 'pta_validation_form');
-		
+
 		$return = PTA_SUS_Messages::show_messages();
 		self::set_messages_displayed(true);
 		PTA_SUS_Messages::clear_messages();
-		
+
 		$volunteer = self::get_volunteer();
-		
+
 		// Return empty if user is validated and hide_when_validated is enabled
 		if ($volunteer->is_validated() && 'yes' === $atts['hide_when_validated']) {
 			return '';
 		}
-		
+
 		// Return empty if signup form is being displayed, in case they have the validation form displayed on the same page
 		if (isset($_GET['task_id'])) {
 			return '';
 		}
-		
+
 		if (!$volunteer->is_validated()) {
 			if (self::$validation_sent) {
 				return $return;
@@ -1891,17 +1893,17 @@ class PTA_SUS_Public_Display_Functions {
 		} elseif (!isset($_GET['pta-sus-action']) || ($_GET['pta-sus-action'] != 'validate_signup' && $_GET['pta-sus-action'] != 'validate_user')) {
 			$return .= '<p>' . apply_filters('pta_sus_public_output', __('You are already validated.', 'pta-volunteer-sign-up-sheets'), 'already_validated_message') . '</p>';
 		}
-		
+
 		$return .= self::get_clear_validation_message();
 		return $return;
 	}
 
 	/**
 	 * Get clear validation message and link
-	 * 
+	 *
 	 * Returns HTML for the clear validation message and link if the user
 	 * is validated, not logged in, and clear validation is enabled.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string HTML output for clear validation message, empty string if not applicable
 	 */
@@ -1910,7 +1912,7 @@ class PTA_SUS_Public_Display_Functions {
 		$volunteer = self::get_volunteer();
 		$validation_options = self::get_validation_options();
 		$validation_enabled = self::is_validation_enabled();
-		
+
 		if ($volunteer->is_validated() && !is_user_logged_in() && $validation_enabled && isset($validation_options['enable_clear_validation']) && $validation_options['enable_clear_validation']) {
 			$message = $validation_options['clear_validation_message'] ?? '';
 			if ($message) {

@@ -15,16 +15,16 @@ class PTA_SUS_List_Table extends WP_List_Table
 
     private $rows = array();
     private $show_trash;
-    
+
     /**
     * construct
-    * 
+    *
     * @param    bool    show trash?
     */
     function __construct()
     {
         global $status, $page;
-                
+
         //Set parent defaults
         parent::__construct( array(
             'singular'  => 'sheet',
@@ -32,12 +32,12 @@ class PTA_SUS_List_Table extends WP_List_Table
             'ajax'      => false,
             'screen'    => null
         ) );
-        
+
     }
-    
+
     /**
     * Set data and convert an object into an array if neccessary
-    * 
+    *
     * @param    mixed   object or array of data
     * @return   array   data
     */
@@ -45,10 +45,10 @@ class PTA_SUS_List_Table extends WP_List_Table
     {
         return (array)$list_data;
     }
-    
+
     /**
     * Process columns if not defined in a specific column like column_title
-    * 
+    *
     * @param    array   $item one row of data
     * @param    string   $column_name name of column to be processed
     * @return   string  text that will go in the column's TD
@@ -86,10 +86,10 @@ class PTA_SUS_List_Table extends WP_List_Table
                 return apply_filters( 'pta_sus_process_other_columns', '', $item, $column_name );
         }
     }
-    
+
     /**
     * Custom column title processer
-    * 
+    *
     * @see      WP_List_Table::::single_row_columns()
     * @param    array   one row of data
     * @return   string  text that will go in the title column's TD
@@ -116,7 +116,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
         $current_user_id = get_current_user_id();
         $is_author = false;
-        
+
         // Check if current user is the author (need to get sheet object to check author_id)
         if ( isset( $item['id'] ) ) {
             $sheet = pta_sus_get_sheet( $item['id'] );
@@ -124,14 +124,14 @@ class PTA_SUS_List_Table extends WP_List_Table
                 $is_author = true;
             }
         }
-        
+
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {
             // For edit/delete actions, check permissions
             if (!$can_manage_others && !$is_author && in_array($action_slug, array('edit_sheet', 'edit_tasks', 'trash', 'delete')) ) {
                 continue; // Skip this action - user doesn't have permission
             }
-            
+
             if ('edit_sheet' === $action_slug || 'edit_tasks' === $action_slug) {
                 $page = 'pta-sus-settings_modify_sheet';
             } else {
@@ -143,7 +143,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         }
         $view_url = sprintf('?page=%s&action=view_signup&sheet_id=%s', $_GET['page'], $item['id']);
         $nonced_view_url = wp_nonce_url( $view_url, 'view_signup', '_sus_nonce' );
-        return sprintf('<strong><a href="%1$s">%2$s</a></strong>%3$s', 
+        return sprintf('<strong><a href="%1$s">%2$s</a></strong>%3$s',
             $nonced_view_url,  // %1$s
             $item['title'], // %2$s
             $this->row_actions($show_actions) // %3$s
@@ -158,7 +158,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         }
         $toggle_url = sprintf('?page=%s&action=toggle_visibility&sheet_id=%s', $_GET['page'], $item['id']);
         $nonced_toggle_url = wp_nonce_url( $toggle_url, 'toggle_visibility', '_sus_nonce' );
-        return sprintf('<strong><a href="%1$s">%2$s</a></strong>', 
+        return sprintf('<strong><a href="%1$s">%2$s</a></strong>',
             $nonced_toggle_url,  // %1$s
             $display // %2$s
         );
@@ -194,7 +194,7 @@ class PTA_SUS_List_Table extends WP_List_Table
 
     /**
     * Checkbox column method
-    * 
+    *
     * @see      WP_List_Table::::single_row_columns()
     * @param    array   one row of data
     * @return   string  text that will go in the column's TD
@@ -203,7 +203,7 @@ class PTA_SUS_List_Table extends WP_List_Table
     {
         return sprintf( '<input type="checkbox" name="sheets[]" value="%d" />', $item['id'] );
     }
-    
+
     /**
     * All columns
     */
@@ -240,10 +240,10 @@ class PTA_SUS_List_Table extends WP_List_Table
             $columns['cb'] = '<input type="checkbox" />';
             $columns = array_reverse($columns, true);
         }
-        
+
         return $columns;
     }
-    
+
     /**
     * All sortable columns
     */
@@ -261,10 +261,10 @@ class PTA_SUS_List_Table extends WP_List_Table
         }
         return $columns;
     }
-    
+
     /**
     * All allowed bulk actions
-    * 
+    *
     */
     function get_bulk_actions()
     {
@@ -277,23 +277,24 @@ class PTA_SUS_List_Table extends WP_List_Table
         } else {
             $actions = array(
                 'bulk_trash' => __('Move to Trash', 'pta-volunteer-sign-up-sheets'),
-                'bulk_toggle_visibility' => __('Toggle Visibility', 'pta-volunteer-sign-up-sheets')
+                'bulk_toggle_visibility' => __('Toggle Visibility', 'pta-volunteer-sign-up-sheets'),
+				'bulk_copy' => __('Copy Selected Sheets', 'pta-volunteer-sign-up-sheets'),
             );
         }
-        
+
         return $actions;
     }
-    
+
     /**
     * Process bulk actions if called
-    * 
+    *
     */
     function process_bulk_action() {
-        $bulk_actions = array('bulk_trash', 'bulk_delete', 'bulk_restore', 'bulk_toggle_visibility' );
+        $bulk_actions = array('bulk_trash', 'bulk_delete', 'bulk_restore', 'bulk_toggle_visibility', 'bulk_copy' );
         if( !in_array($this->current_action(), $bulk_actions)) {
             return;
         }
-        // security check!       
+        // security check!
         if ( isset( $_REQUEST['_wpnonce'] ) && ! empty( $_REQUEST['_wpnonce'] ) ) {
 
             $nonce  = htmlspecialchars($_REQUEST['_wpnonce']);
@@ -305,7 +306,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         // Check user permissions for bulk actions
         $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
         $current_user_id = get_current_user_id();
-        
+
         // Process bulk actions
         if('bulk_trash' === $this->current_action()) {
             $count = 0;
@@ -387,9 +388,29 @@ class PTA_SUS_List_Table extends WP_List_Table
                 }
             }
             echo '<div class="updated"><p>'.sprintf(__("Visibility toggled for %d sheets.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
-        }
+        } elseif ('bulk_copy' === $this->current_action()) {
+			$count = 0;
+			foreach ($_REQUEST['sheets'] as $key => $id) {
+				$sheet = pta_sus_get_sheet($id);
+				if(empty($sheet)) {
+					continue;
+				}
+				// Check permission: user must be able to manage others OR be the author
+				if (!$can_manage_others && $sheet->author_id != $current_user_id) {
+					echo '<div class="error"><p>'.sprintf(__("Permission denied for sheet# %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+					continue;
+				}
+				$result = PTA_SUS_Sheet_Functions::copy_sheet($id);
+				if ($result > 0) {
+					$count++;
+				} else {
+					echo '<div class="error"><p>'.sprintf(__("Error copying sheet with ID %d.", 'pta-volunteer-sign-up-sheets'), $id).'</p></div>';
+				}
+			}
+			echo '<div class="updated"><p>'.sprintf(__("%d sheets copied.", 'pta-volunteer-sign-up-sheets'), $count).'</p></div>';
+		}
     }
-    
+
     function set_show_trash($show_trash) {
         $this->show_trash = $show_trash;
     }
@@ -399,7 +420,7 @@ class PTA_SUS_List_Table extends WP_List_Table
      */
     function prepare_items() {
         $this->process_bulk_action();
-        
+
         // Check if we need to filter by author (for Signup Sheet Authors)
         $can_manage_others = current_user_can( 'manage_others_signup_sheets' );
         $author_id = $can_manage_others ? null : get_current_user_id();
@@ -533,6 +554,6 @@ class PTA_SUS_List_Table extends WP_List_Table
 			submit_button( __('Filter Sheets','pta-volunteer-sign-up-sheets'), '', 'pta-filter-submit', false, array( 'id' => 'filter-submit' ) );
 		}
 	}
-    
+
 }
 /* EOF */

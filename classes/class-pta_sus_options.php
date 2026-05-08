@@ -152,6 +152,7 @@ class PTA_SUS_Options {
         register_setting( 'pta_volunteer_sus_email_options', 'pta_volunteer_sus_email_options', array($this, 'pta_sus_validate_email_options') );
         add_settings_section('pta_volunteer_email', __('Email Settings', 'pta-volunteer-sign-up-sheets'), array($this, 'pta_volunteer_email_description'), 'pta_volunteer_sus_email');
 	    add_settings_field('use_html', __('Send HTML emails?', 'pta-volunteer-sign-up-sheets'), array($this, 'use_html_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
+        add_settings_field('disable_validation_link_html', __('Disable HTML Encoding for Validation Links?', 'pta-volunteer-sign-up-sheets'), array($this, 'disable_validation_link_html_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('from_email', __('FROM email:', 'pta-volunteer-sign-up-sheets'), array($this, 'from_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
         add_settings_field('replyto_email', __('Reply-To email:', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_email_text_input'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
 	    add_settings_field('replyto_chairs', __('Reply-To Chairs?', 'pta-volunteer-sign-up-sheets'), array($this, 'replyto_chairs_checkbox'), 'pta_volunteer_sus_email', 'pta_volunteer_email');
@@ -332,6 +333,7 @@ class PTA_SUS_Options {
 		    'no_reminder_emails'          => 'bool',
 		    'disable_emails'              => 'bool',
 		    'replyto_chairs'              => 'bool',
+		    'disable_validation_link_html' => 'bool',
 	    );
     	return $this->validate_options($inputs, $fields, $options);
     }
@@ -1117,7 +1119,19 @@ class PTA_SUS_Options {
 		<?php
 		echo __('YES.', 'pta-volunteer-sign-up-sheets') . ' <em> '. __('If checked, Chair emails will be set as the reply-to address in notification emails. Above reply-to email will be ignored when this is checked.', 'pta-volunteer-sign-up-sheets').'</em>';
 	}
-	
+
+	public function disable_validation_link_html_checkbox() {
+		if ( isset( $this->email_options['disable_validation_link_html'] ) && true === $this->email_options['disable_validation_link_html'] ) {
+			$checked = 'checked="checked"';
+		} else {
+			$checked = '';
+		}
+		?>
+        <input name="pta_volunteer_sus_email_options[disable_validation_link_html]" type="checkbox" value="1" <?php echo $checked; ?> />
+		<?php
+		echo __( 'YES.', 'pta-volunteer-sign-up-sheets' ) . ' <em> ' . __( 'Only applies when HTML emails are enabled. When unchecked (default), validation links are automatically wrapped in an HTML anchor tag, making them clickable in email clients. Check this if your email templates already surround the {validation_link} tag with your own &lt;a href&gt; tags, or if you prefer to receive the raw URL.', 'pta-volunteer-sign-up-sheets' ) . '</em>';
+	}
+
 	public function suppress_duplicates_checkbox() {
 		if ( isset( $this->main_options['suppress_duplicates'] ) && true === $this->main_options['suppress_duplicates'] ) {
 			$checked = 'checked="checked"';

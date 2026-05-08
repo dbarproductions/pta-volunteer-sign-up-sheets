@@ -318,7 +318,7 @@ class PTA_SUS_Email_Functions {
 		// Handle validation link for signup validation emails
 		if ( $signup_validation ) {
 			$validation_link = pta_create_validation_link($signup->firstname,$signup->lastname,$signup->email,$signup_id,'validate_signup');
-			if ($use_html && !empty($validation_link)) {
+			if ($use_html && !empty($validation_link) && empty($email_options['disable_validation_link_html'])) {
 				$validation_link = '<a href="' . esc_url($validation_link) . '">' . esc_html($validation_link) . '</a>';
 			}
 		}
@@ -648,7 +648,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 		$validation_link = pta_create_validation_link($firstname,$lastname,$email );
 		// Format validation link for HTML emails if enabled
-		if ($use_html && !empty($validation_link)) {
+		if ($use_html && !empty($validation_link) && empty($email_options['disable_validation_link_html'])) {
 			$validation_link = '<a href="' . esc_url($validation_link) . '">' . esc_html($validation_link) . '</a>';
 		}
 		// Replace any template tags with the appropriate variables
