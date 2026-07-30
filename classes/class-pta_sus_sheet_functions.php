@@ -310,14 +310,19 @@ class PTA_SUS_Sheet_Functions {
             return false;
         }
 
-        // Load sheet to verify it exists and fire action hook
+        // Load sheet to verify it exists
         $sheet = pta_sus_get_sheet($sheet_id);
         if (!$sheet) {
             return false;
         }
 
-        // Fire action hook before deletion
-        do_action('pta_sus_before_delete_sheet', $sheet_id, $sheet);
+        // Note: $sheet->delete() below fires pta_sus_before_delete_sheet / pta_sus_deleted_sheet
+        // via the base object - do not fire them manually here as well. That pair only fires right
+        // before the sheet row itself is removed, i.e. AFTER the cascade below has already deleted
+        // every task and signup - too late for extensions that need to look up this sheet's tasks/
+        // signups before they're gone. pta_sus_before_delete_sheet_cascade fires here instead, before
+        // anything is touched, for exactly that purpose.
+        do_action('pta_sus_before_delete_sheet_cascade', $sheet_id, $sheet);
 
         // Get all tasks for this sheet
         $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
@@ -346,12 +351,149 @@ class PTA_SUS_Sheet_Functions {
         // Finally, delete the sheet itself
         $result = $sheet->delete();
 
-        // Fire action hook after deletion
-        if ($result) {
-            do_action('pta_sus_deleted_sheet', $sheet_id);
+        return (bool) $result;
+    }
+
+    /**
+     * Cancel an entire sheet (event)
+     * Deletes the sheet, its tasks, and all signups. Any notification email
+     * must be queued by the caller BEFORE calling this, since signup rows
+     * will no longer exist afterward.
+     *
+     * @param int $sheet_id Sheet ID to cancel
+     * @return bool True on success, false on failure
+     */
+    public static function cancel_sheet($sheet_id) {
+        $sheet_id = absint($sheet_id);
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if (!$sheet) {
+            return false;
         }
 
-        return (bool) $result;
+        do_action('pta_sus_before_cancel_sheet', $sheet_id, $sheet);
+
+        $result = self::delete_sheet($sheet_id);
+
+        if ($result) {
+            do_action('pta_sus_sheet_cancelled', $sheet_id);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cancel one or more tasks on a sheet
+     * Clears each task's signups and deletes the task, then recalculates the
+     * sheet's first_date/last_date from the remaining tasks. Any notification
+     * email must be queued by the caller BEFORE calling this.
+     *
+     * @param int   $sheet_id Sheet ID the tasks belong to
+     * @param array $task_ids Task IDs to cancel
+     * @return array Array of task IDs that were successfully cancelled
+     */
+    public static function cancel_tasks($sheet_id, array $task_ids) {
+        $sheet_id = absint($sheet_id);
+        if (!pta_sus_get_sheet($sheet_id)) {
+            return array();
+        }
+
+        $cancelled = array();
+
+        foreach ($task_ids as $task_id) {
+            $task_id = absint($task_id);
+            $task = pta_sus_get_task($task_id);
+            if (!$task || absint($task->sheet_id) !== $sheet_id) {
+                continue; // ownership guard - skip tasks that don't belong to this sheet
+            }
+
+            do_action('pta_sus_before_cancel_task', $task_id, $task);
+
+            PTA_SUS_Signup_Functions::clear_all_for_task($task_id);
+
+            if ($task->delete()) {
+                $cancelled[] = $task_id;
+                do_action('pta_sus_task_cancelled', $task_id, $sheet_id);
+            }
+        }
+
+        if (!empty($cancelled)) {
+            self::recalculate_sheet_dates($sheet_id);
+        }
+
+        return $cancelled;
+    }
+
+    /**
+     * Cancel one or more dates on a Recurring sheet
+     * Dates are shared across all tasks on a Recurring sheet, so the given
+     * dates are removed from every task's date list, and any signups on
+     * those dates are cleared - without deleting the tasks or sheet. Any
+     * notification email must be queued by the caller BEFORE calling this.
+     *
+     * @param int   $sheet_id Sheet ID (must be a Recurring sheet)
+     * @param array $dates    Dates (Y-m-d strings) to cancel
+     * @return bool True on success, false if the sheet isn't Recurring or
+     *              every date on the sheet was selected (use cancel_sheet() instead)
+     */
+    public static function cancel_dates($sheet_id, array $dates) {
+        $sheet_id = absint($sheet_id);
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if (!$sheet || 'Recurring' !== $sheet->type) {
+            return false;
+        }
+
+        $dates = array_values(array_unique(array_map('sanitize_text_field', $dates)));
+        $all_dates = self::get_all_task_dates_for_sheet($sheet_id);
+        $remaining_dates = array_values(array_diff($all_dates, $dates));
+
+        if (empty($dates) || empty($remaining_dates)) {
+            return false; // nothing to cancel, or every date selected - use cancel_sheet() instead
+        }
+
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
+
+        foreach ($tasks as $task) {
+            do_action('pta_sus_before_cancel_dates', $task->id, $dates, $sheet_id);
+
+            PTA_SUS_Signup_Functions::clear_signups_for_task_dates($task->id, $dates);
+
+            $remaining_task_dates = array_values(array_diff($task->get_dates_array(), $dates));
+            $task->dates = implode(',', $remaining_task_dates);
+            $task->save();
+
+            do_action('pta_sus_dates_cancelled', $task->id, $dates, $sheet_id);
+        }
+
+        sort($remaining_dates);
+        $sheet->first_date = reset($remaining_dates);
+        $sheet->last_date = end($remaining_dates);
+        $sheet->save();
+
+        return true;
+    }
+
+    /**
+     * Recalculate a sheet's first_date/last_date from its tasks' current dates
+     * Used after cancelling one or more tasks, since removing a task can
+     * shrink the sheet's overall date range (relevant for Multi-Day sheets
+     * where each task carries its own independent date).
+     *
+     * @param int $sheet_id Sheet ID
+     */
+    private static function recalculate_sheet_dates($sheet_id) {
+        $dates = self::get_all_task_dates_for_sheet($sheet_id);
+        if (empty($dates)) {
+            return; // no tasks/dates left - caller is responsible for preventing this via UI guards
+        }
+
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if (!$sheet) {
+            return;
+        }
+
+        $sheet->first_date = min($dates);
+        $sheet->last_date = max($dates);
+        $sheet->save();
     }
 
     /**

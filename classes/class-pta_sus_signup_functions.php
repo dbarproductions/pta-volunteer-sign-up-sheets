@@ -303,6 +303,38 @@ class PTA_SUS_Signup_Functions {
     }
 
     /**
+     * Clear signups for a specific task, limited to a given set of dates
+     * Used by the Cancel feature to cancel one or more dates on a Recurring
+     * sheet without touching signups on dates that weren't cancelled.
+     * Uses object delete methods directly (not pta_sus_delete_signup() or the
+     * admin/public "clear" actions) so the Waitlists extension's auto-fill
+     * behavior is not triggered.
+     *
+     * @param int   $task_id Task ID
+     * @param array $dates   Dates (Y-m-d strings) to clear signups for
+     * @return int|false Number of signups deleted, or false on failure
+     */
+    public static function clear_signups_for_task_dates($task_id, array $dates) {
+        $task_id = absint($task_id);
+        if (empty($task_id) || empty($dates)) {
+            return false;
+        }
+
+        $deleted_count = 0;
+        foreach ($dates as $date) {
+            $signups = self::get_signups_for_task($task_id, $date);
+            foreach ($signups as $signup) {
+                // Use object's delete method to fire hooks (not the admin/public clear hooks)
+                if ($signup->delete()) {
+                    $deleted_count++;
+                }
+            }
+        }
+
+        return $deleted_count;
+    }
+
+    /**
      * Search signups by firstname or lastname
      * Used for live search functionality in admin and frontend
      *

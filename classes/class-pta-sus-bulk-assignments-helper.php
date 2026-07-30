@@ -34,6 +34,7 @@ class PTA_SUS_Bulk_Assignments_Helper {
 		'reminder2_email_template_id',
 		'clear_email_template_id',
 		'reschedule_email_template_id',
+		'cancel_email_template_id',
 	);
 
 	/**
@@ -47,6 +48,7 @@ class PTA_SUS_Bulk_Assignments_Helper {
 		'reminder2_email_template_id',
 		'clear_email_template_id',
 		'reschedule_email_template_id',
+		'cancel_email_template_id',
 	);
 
 	/**

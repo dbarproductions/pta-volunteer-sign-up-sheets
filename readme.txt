@@ -7,7 +7,7 @@ Requires PHP: 7.4
 Tested up to: 6.9.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 6.4.7
+Stable tag: 6.6.0
 
 Easily create and manage sign-up sheets for activities and events, while protecting the privacy of the volunteers' personal information.
 
@@ -65,6 +65,11 @@ Please submit feature requests here (not in the support forum):
 https://stephensherrardplugins.com/support/forum/feature-requests/pta-volunteer-sign-up-sheet-feature-requests/
 
 == Changelog ==
+= 6.6.0 =
+* New: Cancel feature — added a "Cancel" option on the Sign Up Sheets All sheets list table to cancel an entire Sheet, one or more Tasks, or one or more Dates (Recurring sheets only). Clears the affected signups, optionally sends a Cancel notification email (new Cancel Email Template, selectable per sheet/task and available in Bulk Assignments), and never triggers the Waitlists extension's auto-fill-from-waitlist behavior.
+* New hooks: pta_sus_before_cancel_sheet, pta_sus_sheet_cancelled, pta_sus_before_cancel_task, pta_sus_task_cancelled, pta_sus_before_cancel_dates, pta_sus_dates_cancelled, and pta_sus_before_delete_sheet_cascade (fires before a full sheet deletion's cascade begins, unlike pta_sus_before_delete_sheet which only fires after). Updates needed for the Waitlists, Custom Fields, Locations, and Automated Emails extensions to make full use of these for their own cleanup.
+* Tested with PHP 8.5.7 and WordPress 7.0.2
+
 = 6.5.0 =
 * New: Added "Copy Selected Sheets" to the bulk actions on the admin All Sheets list, allowing you to duplicate multiple sheets at once.
 * New: Added "Disable HTML Encoding for Validation Links" option to Email Settings. When HTML emails are enabled, validation links are automatically wrapped in a clickable anchor tag by default. Check this option to receive the raw URL instead — useful if your email templates already surround the {validation_link} tag with your own anchor tags.

@@ -1114,6 +1114,94 @@
         }
     }).trigger('change');
 
+    // Cancel Sheet form
+    let $cancelForm = $('#pta-cancel-sheet-form');
+    if ($cancelForm.length) {
+        let $cancelScope = $('#cancel_scope');
+        let $cancelSections = $('.pta-cancel-scope-section');
+        let $cancelSummary = $('#pta-cancel-summary');
+        let $cancelSubmit = $('#pta-cancel-submit');
+        let $cancelSyncEmailWarning = $('#pta-cancel-sync-email-warning');
+
+        let ptaCancelUpdateSummary = function () {
+            let scope = $cancelScope.val();
+            let blocked = false;
+            let message = '';
+
+            if ('sheet' === scope) {
+                message = PTASUS.cancelSheetWarning;
+            } else if ('tasks' === scope) {
+                let $checked = $('.pta-cancel-task-cb:checked');
+                let $all = $('.pta-cancel-task-cb');
+                let count = 0;
+                $checked.each(function () {
+                    count += parseInt($(this).data('signup-count'), 10) || 0;
+                });
+                if ($checked.length > 0 && $checked.length === $all.length) {
+                    blocked = true;
+                    message = PTASUS.cancelAllTasksSelected;
+                } else if ($checked.length > 0) {
+                    message = PTASUS.cancelTasksSummary.replace('%1$d', $checked.length).replace('%2$d', count);
+                }
+            } else if ('dates' === scope) {
+                let $checkedD = $('.pta-cancel-date-cb:checked');
+                let $allD = $('.pta-cancel-date-cb');
+                let countD = 0;
+                $checkedD.each(function () {
+                    countD += parseInt($(this).data('signup-count'), 10) || 0;
+                });
+                if ($checkedD.length > 0 && $checkedD.length === $allD.length) {
+                    blocked = true;
+                    message = PTASUS.cancelAllDatesSelected;
+                } else if ($checkedD.length > 0) {
+                    message = PTASUS.cancelDatesSummary.replace('%1$d', $checkedD.length).replace('%2$d', countD);
+                }
+            }
+
+            if (message) {
+                $cancelSummary.text(message).show();
+            } else {
+                $cancelSummary.hide();
+            }
+            $cancelSubmit.prop('disabled', blocked);
+        };
+
+        $cancelScope.on('change', function () {
+            let scope = $(this).val();
+            $cancelSections.hide();
+            $('#pta-cancel-' + scope + '-section').show();
+            // Emails are sent synchronously for Sheet/Tasks scope (deletes the task/sheet),
+            // but queued via the hourly CRON job for Dates scope (task/sheet survive) - only
+            // warn about a possible timeout where it's actually relevant.
+            $cancelSyncEmailWarning.toggle('sheet' === scope || 'tasks' === scope);
+            ptaCancelUpdateSummary();
+        }).trigger('change');
+
+        $cancelForm.on('change', '.pta-cancel-task-cb, .pta-cancel-date-cb', ptaCancelUpdateSummary);
+
+        $cancelForm.on('submit', function (e) {
+            let scope = $cancelScope.val();
+            if ('tasks' === scope && 0 === $('.pta-cancel-task-cb:checked').length) {
+                alert(PTASUS.cancelSelectAtLeastOneTask);
+                e.preventDefault();
+                return false;
+            }
+            if ('dates' === scope && 0 === $('.pta-cancel-date-cb:checked').length) {
+                alert(PTASUS.cancelSelectAtLeastOneDate);
+                e.preventDefault();
+                return false;
+            }
+            if ($cancelSubmit.prop('disabled')) {
+                e.preventDefault();
+                return false;
+            }
+            if (!confirm(PTASUS.cancelConfirmPrompt)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+
     // Move students form
     let sheetID = $('#pta_sheet_id');
     let taskSelectP = $('p.task_select');

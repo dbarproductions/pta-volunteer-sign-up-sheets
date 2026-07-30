@@ -198,6 +198,7 @@ if (isset($task_data['task_id']) && $task_data['task_id'] > 0) {
 							'reminder2' => isset($sheet->reminder2_email_template_id) ? absint($sheet->reminder2_email_template_id) : 0,
 							'clear' => isset($sheet->clear_email_template_id) ? absint($sheet->clear_email_template_id) : 0,
 							'reschedule' => isset($sheet->reschedule_email_template_id) ? absint($sheet->reschedule_email_template_id) : 0,
+							'cancel' => isset($sheet->cancel_email_template_id) ? absint($sheet->cancel_email_template_id) : 0,
 						);
 					}
 					?>

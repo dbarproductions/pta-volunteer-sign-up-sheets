@@ -1,12 +1,12 @@
 <?php
 /**
  * Options Manager Class
- * 
+ *
  * Handles initialization and management of all plugin options including
  * main options, email options, integration options, and validation options.
  * Ensures all options are properly initialized with defaults and updated
  * when new options are added during plugin upgrades.
- * 
+ *
  * @package PTA_Volunteer_Sign_Up_Sheets
  * @since 6.0.0
  */
@@ -22,11 +22,11 @@ class PTA_SUS_Options_Manager {
 	 *
 	 * @var string
 	 */
-	private static $options_version = '6.2.0';
+	private static $options_version = '6.3.0';
 
 	/**
 	 * Get options version
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Options version
 	 */
@@ -36,10 +36,10 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Check if options need upgrading
-	 * 
+	 *
 	 * Compares the stored options version with the current options version.
 	 * Returns true if options need to be upgraded (new options added).
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return bool True if upgrade needed, false otherwise
 	 */
@@ -50,11 +50,11 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Initialize all plugin options
-	 * 
+	 *
 	 * Ensures all option groups are properly initialized with defaults.
 	 * This method should be called during plugin activation or when options
 	 * need to be upgraded (new options added during plugin upgrades).
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @param bool $save_version Whether to save the options version after initialization
 	 * @return void
@@ -78,10 +78,10 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Initialize main plugin options
-	 * 
+	 *
 	 * Sets up default values for main plugin options and ensures all
 	 * options exist in the database, adding any missing options from defaults.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return void
 	 * @hook pta_sus_main_options_defaults Filter to modify main options defaults
@@ -93,11 +93,11 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Get default values for main options
-	 * 
+	 *
 	 * Returns an array of default values for all main plugin options.
 	 * These defaults are used when initializing options for the first time
 	 * or when new options are added during plugin upgrades.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return array Array of default option values
 	 * @hook pta_sus_main_options_defaults Filter to modify main options defaults
@@ -159,10 +159,10 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Initialize email options
-	 * 
+	 *
 	 * Sets up default values for email options including email templates
 	 * and ensures all options exist in the database.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return void
 	 * @hook pta_sus_email_options_defaults Filter to modify email options defaults
@@ -174,10 +174,10 @@ class PTA_SUS_Options_Manager {
 
 	/**
 	 * Get default values for email options
-	 * 
+	 *
 	 * Returns an array of default values for all email options including
 	 * email templates for confirmation, reminder, reschedule, and clear emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return array Array of default email option values
 	 * @hook pta_sus_email_options_defaults Filter to modify email options defaults
@@ -187,7 +187,8 @@ class PTA_SUS_Options_Manager {
 		$remind_template = self::get_reminder_email_template();
 		$reschedule_template = self::get_reschedule_email_template();
 		$clear_template = self::get_clear_email_template();
-		
+		$cancel_template = self::get_cancel_email_template();
+
 		$defaults = array(
 			'cc_email'                    => '',
 			'from_email'                  => get_bloginfo( 'admin_email' ),
@@ -203,6 +204,8 @@ class PTA_SUS_Options_Manager {
 			'reminder_email_limit'        => "",
 			'reschedule_email_subject'    => 'Event Rescheduled',
 			'reschedule_email_template'   => $reschedule_template,
+			'cancel_email_subject'        => 'Event Canceled',
+			'cancel_email_template'		  => $cancel_template,
 			'individual_emails'           => false,
 			'admin_clear_emails'          => false,
 			'no_chair_emails'             => false,
@@ -212,15 +215,15 @@ class PTA_SUS_Options_Manager {
 			'replyto_chairs'              => false,
 			'use_html'                    => false
 		);
-		
+
 		return apply_filters( 'pta_sus_email_options_defaults', $defaults );
 	}
 
 	/**
 	 * Get confirmation email template
-	 * 
+	 *
 	 * Returns the default template for signup confirmation emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -229,7 +232,7 @@ class PTA_SUS_Options_Manager {
 
 This is to confirm that you volunteered for the following:
 
-Event: {sheet_title} 
+Event: {sheet_title}
 Task/Item: {task_title}
 Date: {date}
 Start Time: {start_time}
@@ -248,9 +251,9 @@ Thank You!
 
 	/**
 	 * Get reminder email template
-	 * 
+	 *
 	 * Returns the default template for reminder emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -259,7 +262,7 @@ Thank You!
 
 This is to remind you that you volunteered for the following:
 
-Event: {sheet_title} 
+Event: {sheet_title}
 Task/Item: {task_title}
 Date: {date}
 Start Time: {start_time}
@@ -278,9 +281,9 @@ Thank You!
 
 	/**
 	 * Get reschedule email template
-	 * 
+	 *
 	 * Returns the default template for reschedule notification emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -289,7 +292,7 @@ Thank You!
 
 An event you volunteered for has been rescheduled. New details are as follow:
 
-Event: {sheet_title} 
+Event: {sheet_title}
 Task/Item: {task_title}
 Date: {date}
 Start Time: {start_time}
@@ -308,9 +311,9 @@ Thank You!
 
 	/**
 	 * Get clear email template
-	 * 
+	 *
 	 * Returns the default template for signup clear confirmation emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -319,7 +322,7 @@ Thank You!
 
 This is to confirm that you have cleared yourself from the following volunteer signup:
 
-Event: {sheet_title} 
+Event: {sheet_title}
 Task/Item: {task_title}
 Date: {date}
 Start Time: {start_time}
@@ -338,12 +341,33 @@ Thank You!
 ";
 	}
 
+	private static function get_cancel_email_template() {
+		return "Dear {firstname} {lastname},
+
+An event you volunteered for has been canceled and your signup has been removed. Details are as follow:
+
+Event: {sheet_title}
+Task/Item: {task_title}
+Date: {date}
+Start Time: {start_time}
+End Time: {end_time}
+{details_text}: {item_details}
+Item Quantity: {item_qty}
+
+If you have any questions, please contact:
+{contact_emails}
+
+Thank You!
+{site_name}
+{site_url}
+";
+	}
 	/**
 	 * Initialize integration options
-	 * 
+	 *
 	 * Sets up default values for integration options (e.g., member directory)
 	 * and ensures all options exist in the database.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return void
 	 * @hook pta_sus_integration_options_defaults Filter to modify integration options defaults
@@ -355,9 +379,9 @@ Thank You!
 
 	/**
 	 * Get default values for integration options
-	 * 
+	 *
 	 * Returns an array of default values for integration-related options.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return array Array of default integration option values
 	 * @hook pta_sus_integration_options_defaults Filter to modify integration options defaults
@@ -368,16 +392,16 @@ Thank You!
 			'directory_page_id' => 0,
 			'contact_page_id' => 0,
 		);
-		
+
 		return apply_filters( 'pta_sus_integration_options_defaults', $defaults );
 	}
 
 	/**
 	 * Initialize validation options
-	 * 
+	 *
 	 * Sets up default values for validation options including validation
 	 * email templates and ensures all options exist in the database.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return void
 	 * @hook pta_sus_validation_options_defaults Filter to modify validation options defaults
@@ -389,10 +413,10 @@ Thank You!
 
 	/**
 	 * Get default values for validation options
-	 * 
+	 *
 	 * Returns an array of default values for validation-related options
 	 * including email templates for signup and user validation.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return array Array of default validation option values
 	 * @hook pta_sus_validation_options_defaults Filter to modify validation options defaults
@@ -400,7 +424,7 @@ Thank You!
 	public static function get_validation_options_defaults() {
 		$signup_validation_template = self::get_signup_validation_email_template();
 		$user_validation_template = self::get_user_validation_email_template();
-		
+
 		$defaults = array(
 			'enable_validation' => false,
 			'require_validation_to_view' => false,
@@ -423,15 +447,15 @@ Thank You!
 			'clear_validation_link_text' => 'Clear Validation',
 			'disable_cc_validation_signup_emails' => true,
 		);
-		
+
 		return apply_filters( 'pta_sus_validation_options_defaults', $defaults );
 	}
 
 	/**
 	 * Get signup validation email template
-	 * 
+	 *
 	 * Returns the default template for signup validation emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -444,9 +468,9 @@ Please click on, or copy and paste, the link below to validate your signup:
 
 	/**
 	 * Get user validation email template
-	 * 
+	 *
 	 * Returns the default template for user validation emails.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @return string Email template with placeholders
 	 */
@@ -459,12 +483,12 @@ Please click on, or copy and paste, the link below to validate yourself:
 
 	/**
 	 * Ensure options exist with defaults
-	 * 
+	 *
 	 * Checks if an option exists in the database and ensures all default
 	 * values are present. This is useful when new options are added during
 	 * plugin upgrades - existing options are preserved, but new options
 	 * are added with their default values.
-	 * 
+	 *
 	 * @since 6.0.0
 	 * @param string $option_name WordPress option name
 	 * @param array $defaults Array of default option values
@@ -551,6 +575,14 @@ Please click on, or copy and paste, the link below to validate yourself:
 				'options'     => $email_options,
 				'fallback_subject' => 'Event Rescheduled',
 				'fallback_body'    => self::get_reschedule_email_template(),
+			),
+			'cancel' => array(
+				'title'       => __( 'Cancel Email (System Default)', 'pta-volunteer-sign-up-sheets' ),
+				'subject_key' => 'cancel_email_subject',
+				'body_key'    => 'cancel_email_template',
+				'options'     => $email_options,
+				'fallback_subject' => 'Event Canceled',
+				'fallback_body'    => self::get_cancel_email_template(),
 			),
 			'signup_validation' => array(
 				'title'       => __( 'Signup Validation Email (System Default)', 'pta-volunteer-sign-up-sheets' ),

@@ -71,9 +71,10 @@ if ($count < 3) $count = 3;
 			'reminder2' => isset($sheet->reminder2_email_template_id) ? absint($sheet->reminder2_email_template_id) : 0,
 			'clear' => isset($sheet->clear_email_template_id) ? absint($sheet->clear_email_template_id) : 0,
 			'reschedule' => isset($sheet->reschedule_email_template_id) ? absint($sheet->reschedule_email_template_id) : 0,
+			'cancel' => isset($sheet->cancel_email_template_id) ? absint($sheet->cancel_email_template_id) : 0,
 		);
 	}
-	
+
 	// Get current task template IDs (if editing)
 	$task_template_ids = array();
 	$task_template_ids['confirmation'] = isset($f['task_confirmation_email_template_id'][$i]) ? absint($f['task_confirmation_email_template_id'][$i]) : 0;
@@ -81,6 +82,7 @@ if ($count < 3) $count = 3;
 	$task_template_ids['reminder2'] = isset($f['task_reminder2_email_template_id'][$i]) ? absint($f['task_reminder2_email_template_id'][$i]) : 0;
 	$task_template_ids['clear'] = isset($f['task_clear_email_template_id'][$i]) ? absint($f['task_clear_email_template_id'][$i]) : 0;
 	$task_template_ids['reschedule'] = isset($f['task_reschedule_email_template_id'][$i]) ? absint($f['task_reschedule_email_template_id'][$i]) : 0;
+	$task_template_ids['cancel'] = isset($f['task_cancel_email_template_id'][$i]) ? absint($f['task_cancel_email_template_id'][$i]) : 0;
 	?>
 	<br/><a href="#" class="task_email_templates_trigger" id="email_templates_trigger_<?php echo $i; ?>"><?php _e('Email Template Options', 'pta-volunteer-sign-up-sheets'); ?></a>
 	<div class="pta_sus_task_email_templates" id="task_email_templates_<?php echo $i; ?>" style="display:none;">

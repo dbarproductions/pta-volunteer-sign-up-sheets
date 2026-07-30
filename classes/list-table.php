@@ -106,6 +106,7 @@ class PTA_SUS_List_Table extends WP_List_Table
                 'edit_tasks' => __('Edit Tasks', 'pta-volunteer-sign-up-sheets'),
                 'copy' => __('Copy', 'pta-volunteer-sign-up-sheets'),
                 'reschedule' => __('Reschedule/Copy', 'pta-volunteer-sign-up-sheets'),
+                'cancel' => __('Cancel', 'pta-volunteer-sign-up-sheets'),
                 'trash' => __('Trash', 'pta-volunteer-sign-up-sheets'),
             );
         }
@@ -128,7 +129,7 @@ class PTA_SUS_List_Table extends WP_List_Table
         $show_actions = array();
         foreach ($actions as $action_slug => $action_name) {
             // For edit/delete actions, check permissions
-            if (!$can_manage_others && !$is_author && in_array($action_slug, array('edit_sheet', 'edit_tasks', 'trash', 'delete')) ) {
+            if (!$can_manage_others && !$is_author && in_array($action_slug, array('edit_sheet', 'edit_tasks', 'trash', 'delete', 'cancel')) ) {
                 continue; // Skip this action - user doesn't have permission
             }
 

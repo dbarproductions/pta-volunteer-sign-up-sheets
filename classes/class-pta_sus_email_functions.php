@@ -191,7 +191,7 @@ class PTA_SUS_Email_Functions {
 	 * @param string $action The action being performed, if not one of the boolean values
 	 * @return bool|string True if success or email does not need to be sent. False on sending failure. String if detailed reminder info needed.
 	 */
-	public static function send_mail($signup_id, $reminder = false, $clear = false, $reschedule = false, $action = '') {
+	public static function send_mail($signup_id, $reminder = false, $clear = false, $reschedule = false, $action = '', $cancel = false) {
 		$email_options = self::get_email_options();
 		$main_options = self::get_main_options();
 		$validation_options = self::get_validation_options();
@@ -212,7 +212,7 @@ class PTA_SUS_Email_Functions {
 		$sheet = pta_sus_get_sheet($task->sheet_id);
 		if (!$sheet) return false;
 
-		$confirmation = !($reminder || $clear || $reschedule) && empty($action);
+		$confirmation = !($reminder || $clear || $reschedule || $cancel) && empty($action);
 
 		// maybe don't send clear emails
 		if($clear) {
@@ -245,7 +245,7 @@ class PTA_SUS_Email_Functions {
 
 		$use_html = isset($email_options['use_html']) && $email_options['use_html'];
 
-		do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear, $reschedule );
+		do_action( 'pta_sus_before_create_email', $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel );
 		
 		$subject = $message = $validation_link = '';
 		$signup_validation = false;
@@ -260,6 +260,8 @@ class PTA_SUS_Email_Functions {
 			$email_type = 'clear';
 		} elseif ($reschedule) {
 			$email_type = 'reschedule';
+		} elseif ($cancel) {
+			$email_type = 'cancel';
 		} elseif($confirmation) {
 			$email_type = 'confirmation';
 		} elseif('validate_signup' === $action) {
@@ -306,6 +308,9 @@ class PTA_SUS_Email_Functions {
 			} elseif ($reschedule) {
 				$subject = $email_options['reschedule_email_subject'];
 				$message = $email_options['reschedule_email_template'];
+			} elseif ($cancel) {
+				$subject = $email_options['cancel_email_subject'] ?? '';
+				$message = $email_options['cancel_email_template'] ?? '';
 			} elseif($confirmation) {
 				$subject = $email_options['confirmation_email_subject'];
 				$message = $email_options['confirmation_email_template'];
@@ -327,7 +332,7 @@ class PTA_SUS_Email_Functions {
 		if ( empty($from) ) {
 			$from = $email_options['from_email'] ?? '';
 		}
-		$from = apply_filters('pta_sus_from_email', $from, $signup, $task, $sheet, $reminder, $clear, $reschedule);
+		$from = apply_filters('pta_sus_from_email', $from, $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel);
 		if (empty($from)) $from = get_bloginfo('admin_email');
 
 		PTA_SUS_Template_Tags::add_tag('{validation_link}', $validation_link);
@@ -336,8 +341,8 @@ class PTA_SUS_Email_Functions {
 		self::maybe_disable_customizer_email_filters();
 
 		// Allow other extensions to modify subject and template
-		$subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule, $action));
-		$message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule, $action));
+		$subject = stripslashes(apply_filters('pta_sus_email_subject', $subject, $signup, $reminder, $clear, $reschedule, $action, $cancel));
+		$message = stripslashes(apply_filters('pta_sus_email_template', $message, $signup, $reminder, $clear, $reschedule, $action, $cancel));
 
 		if(empty($subject) || empty($message)) {
 			return false;
@@ -412,7 +417,7 @@ class PTA_SUS_Email_Functions {
 		}
 
 		// other extensions can modify $to address
-		$to = apply_filters('pta_sus_email_recipient', $to, $signup, $task, $sheet, $reminder, $clear, $reschedule);
+		$to = apply_filters('pta_sus_email_recipient', $to, $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel);
 
 		$cc_emails = array();
 
@@ -479,7 +484,7 @@ class PTA_SUS_Email_Functions {
 		$global_cc = $use_global_cc && isset($email_options['cc_email']) && is_email($email_options['cc_email']) ? $email_options['cc_email'] : '';
 		
 		// other plugins can modify CC address, or set it blank to disable
-		$cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear, $reschedule);
+		$cc = apply_filters('pta_sus_email_ccmail', $global_cc, $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel);
 			
 		if(!empty($cc) && is_email($cc)) {
 			$valid_cc_emails[] = sanitize_email($cc);
@@ -497,9 +502,9 @@ class PTA_SUS_Email_Functions {
 		if ( empty( $replyto ) ) {
 			// Fall back to global email settings
 			if ( isset( $email_options['replyto_chairs'] ) && $email_options['replyto_chairs'] && ! empty( $chair_emails ) ) {
-				$replyto = apply_filters( 'pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule );
+				$replyto = apply_filters( 'pta_sus_replyto_chair_emails', $chair_emails, $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel );
 			} else {
-				$replyto = apply_filters( 'pta_sus_replyto_email', $email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule );
+				$replyto = apply_filters( 'pta_sus_replyto_email', $email_options['replyto_email'], $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel );
 			}
 		}
 		if ( empty( $replyto ) ) {
@@ -575,7 +580,7 @@ class PTA_SUS_Email_Functions {
 		do_action( 'pta_sus_before_send_email', $to, $subject, $message, $headers );
 
 		// Allow other plugins to determine if we should send this email -- return false to not send
-		$send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear, $reschedule );
+		$send_email = apply_filters( 'pta_sus_send_email_check', true, $signup, $task, $sheet, $reminder, $clear, $reschedule, $cancel );
 
 		if($send_email && !empty($subject) && !empty($message)) {
 			if($email_options['individual_emails'] && !empty($cc_emails) && !$reminder) {
@@ -944,6 +949,139 @@ Please click on, or copy and paste, the link below to validate yourself:
 	}
 
 	/**
+	 * Send cancel emails immediately for a Sheet or Task(s) cancellation
+	 *
+	 * Unlike queue_cancel_emails_for_dates(), this sends synchronously rather
+	 * than queuing for the CRON job to pick up later. Cancelling a Sheet or
+	 * Task(s) deletes those tasks/the sheet as part of the operation, so by
+	 * the time a deferred queue would be drained, send_mail() would no
+	 * longer be able to look up the task/sheet to build the email (its
+	 * `if (!$task) return false;` / `if (!$sheet) return false;` guards
+	 * would silently fail every queued entry). Must be called BEFORE the
+	 * destructive cancel_sheet()/cancel_tasks() call, while the tasks/sheet
+	 * still exist.
+	 *
+	 * @param array $tasks Array of PTA_SUS_Task objects whose current signups should be emailed
+	 * @return int Number of emails sent
+	 */
+	public static function send_cancel_emails_now($tasks) {
+		if(empty($tasks)) {
+			return 0;
+		}
+		$sent_count = 0;
+		foreach ($tasks AS $task) {
+			$id = absint($task->id);
+			$signups = PTA_SUS_Signup_Functions::get_signups_for_task($id);
+			if(empty($signups)) continue;
+			foreach($signups as $signup) {
+				if ( self::send_mail( $signup->id, false, false, false, '', true ) ) {
+					$sent_count++;
+				}
+			}
+		}
+		return $sent_count;
+	}
+
+	/**
+	 * Queue signups for cancel emails, limited to specific dates (Dates cancel scope)
+	 * Only queues signups on the given dates, since the tasks/sheet themselves
+	 * are not being deleted and signups on other dates are unaffected.
+	 *
+	 * @param array $tasks Array of PTA_SUS_Task objects to queue signups for
+	 * @param array $dates Dates (Y-m-d strings) being cancelled
+	 * @return void
+	 */
+	public static function queue_cancel_emails_for_dates($tasks, array $dates) {
+		if(empty($tasks) || empty($dates)) {
+			return;
+		}
+		$cancel_queue = get_option('pta_sus_cancelled_signup_ids', array());
+		foreach ($tasks AS $task) {
+			$id = absint($task->id);
+			foreach ($dates as $date) {
+				$signups = PTA_SUS_Signup_Functions::get_signups_for_task($id, $date);
+				if(empty($signups)) continue;
+				foreach($signups as $signup) {
+					$cancel_queue[] = $signup->to_array();
+				}
+			}
+		}
+		update_option('pta_sus_cancelled_signup_ids', $cancel_queue);
+	}
+
+	/**
+	 * Send queued cancel emails
+	 * Mirrors send_reschedule_emails() - pops the cancel queue and sends each,
+	 * respecting the same hourly rate limit option.
+	 *
+	 * @return int|false Number of emails sent, or false if queue was empty
+	 */
+	public static function send_cancel_emails() {
+		$email_options = self::get_email_options();
+
+		$limit = false;
+		$now = current_time( 'timestamp' );
+		$cancel_queue = get_option('pta_sus_cancelled_signup_ids', array());
+		if(empty($cancel_queue)) {
+			return false;
+		};
+		if(isset($email_options['reminder_email_limit']) && '' !== $email_options['reminder_email_limit'] && 0 < $email_options['reminder_email_limit']) {
+			$limit = (int)$email_options['reminder_email_limit'];
+			if ( $last_batch = get_option( 'pta_sus_cancel_emails_last_batch' ) ) {
+                if (( $now - $last_batch['time'] < 60 * 60 ) && ( $limit <= $last_batch['num'] )) {
+                    return false;
+                }
+
+                if($now - $last_batch['time'] >= 60 * 60) {
+                    $last_batch['num'] = 0;
+                    $last_batch['time'] = $now;
+                }
+            } else {
+				$last_batch = array();
+				$last_batch['num'] = 0;
+				$last_batch['time'] = $now;
+			}
+		}
+
+		$cancel_count = 0;
+		$remaining_queue = array();
+
+		foreach ($cancel_queue as $index => $signup_data) {
+
+			if ($limit && !empty($last_batch)) {
+				if ( $limit <= ($last_batch['num'] + $cancel_count) ) {
+					$remaining_queue = array_merge($remaining_queue, array_slice($cancel_queue, $index));
+					break;
+				}
+			}
+
+			if ( self::send_mail( $signup_data, false, false, false, '', true ) ) {
+				$cancel_count++;
+			} else {
+				$remaining_queue[] = $signup_data;
+			}
+		}
+
+		if($limit && !empty($last_batch)) {
+			$last_batch['num'] += $cancel_count;
+			update_option( 'pta_sus_cancel_emails_last_batch', $last_batch );
+		}
+
+		update_option('pta_sus_cancelled_signup_ids', $remaining_queue);
+
+		if (!$sent = get_option('pta_sus_last_cancel_emails')) {
+			$sent = array('time' => 0, 'num' => 0);
+		}
+		$sent['last'] = $now;
+		if ( 0 < $cancel_count ) {
+			$sent['time'] = $now;
+			$sent['num'] = $cancel_count;
+		}
+		update_option( 'pta_sus_last_cancel_emails', $sent );
+		return $cancel_count;
+	}
+
+	/**
 	 * Get system default template ID for an email type
 	 * Stored in options: pta_volunteer_sus_email_template_defaults
 	 * 
@@ -1007,8 +1145,9 @@ Please click on, or copy and paste, the link below to validate yourself:
 			'reminder2' => 'reminder2_email_template_id',
 			'clear' => 'clear_email_template_id',
 			'reschedule' => 'reschedule_email_template_id',
+			'cancel' => 'cancel_email_template_id',
 		);
-		
+
 		if (!isset($property_map[$email_type])) {
 			return false;
 		}
@@ -1210,6 +1349,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 			'reminder2' => __('Reminder 2 Email', 'pta-volunteer-sign-up-sheets'),
 			'clear' => __('Clear Email', 'pta-volunteer-sign-up-sheets'),
 			'reschedule' => __('Reschedule Email', 'pta-volunteer-sign-up-sheets'),
+			'cancel' => __('Cancel Email', 'pta-volunteer-sign-up-sheets'),
 			'signup_validation' => __('Signup Validation Email', 'pta-volunteer-sign-up-sheets'),
 			'user_validation' => __('User Validation Email', 'pta-volunteer-sign-up-sheets'),
 		);
@@ -1245,6 +1385,7 @@ Please click on, or copy and paste, the link below to validate yourself:
 			'reminder2'    => __('Reminder 2 Email', 'pta-volunteer-sign-up-sheets'),
 			'clear'        => __('Clear Email', 'pta-volunteer-sign-up-sheets'),
 			'reschedule'   => __('Reschedule Email', 'pta-volunteer-sign-up-sheets'),
+			'cancel'       => __('Cancel Email', 'pta-volunteer-sign-up-sheets'),
 		);
 
 		/**

@@ -449,6 +449,17 @@ class PTA_SUS_Admin {
 				'rfShowExpired'  => ! empty( $this->main_options['show_expired_tasks'] ),
 				'rfShowEmpty'    => true,
 				'rfAllSheets'    => __( 'All Sheets', 'pta-volunteer-sign-up-sheets' ),
+				// Cancel Sheet form (admin-cancel-html.php)
+				'cancelSheetWarning'    => __('The entire sheet, all of its tasks, and all signups on it will be permanently deleted.', 'pta-volunteer-sign-up-sheets'),
+				'cancelAllTasksSelected' => __('You checked every Task on this Sheet - please use "The entire Sheet (event)" option above instead.', 'pta-volunteer-sign-up-sheets'),
+				'cancelAllDatesSelected' => __('You checked every Date on this Sheet - please use "The entire Sheet (event)" option above instead.', 'pta-volunteer-sign-up-sheets'),
+				/* translators: 1: number of tasks, 2: number of signups */
+				'cancelTasksSummary'     => __('This will permanently delete %1$d Task(s) and clear %2$d signup(s).', 'pta-volunteer-sign-up-sheets'),
+				/* translators: 1: number of dates, 2: number of signups */
+				'cancelDatesSummary'     => __('This will clear %1$d signup(s) across the %2$d selected Date(s). Tasks and the Sheet will NOT be deleted.', 'pta-volunteer-sign-up-sheets'),
+				'cancelSelectAtLeastOneTask' => __('Please select at least one Task to cancel.', 'pta-volunteer-sign-up-sheets'),
+				'cancelSelectAtLeastOneDate' => __('Please select at least one Date to cancel.', 'pta-volunteer-sign-up-sheets'),
+				'cancelConfirmPrompt'    => __('Are you sure? This action cannot be undone.', 'pta-volunteer-sign-up-sheets'),
 			);
 			wp_localize_script('pta-sus-backend', 'PTASUS', $translation_array);
 
@@ -524,6 +535,7 @@ class PTA_SUS_Admin {
 
 		$messages = '';
         $rescheduled_messages = '';
+        $cancelled_messages = '';
 		$cleared_message = $cleared_sheets_message = '';
 		if ( $last = get_option( 'pta_sus_last_reminders' ) ) {
 			$messages .= '<hr/>';
@@ -540,13 +552,33 @@ class PTA_SUS_Admin {
         if ( $last = get_option( 'pta_sus_last_reschedule_emails' ) ) {
             $rescheduled_messages .= '<hr/>';
             $rescheduled_messages .= '<h4>' . __('Last Rescheduled Emails sent:', 'pta-volunteer-sign-up-sheets'). '</h4>';
-            $rescheduled_messages .= '<p>' . sprintf(__('Date: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option('date_format'), $last['time'])) . '<br/>';
-            $rescheduled_messages .= sprintf(__('Time: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option("time_format"), $last['time'])) . '<br/>';
-            $rescheduled_messages .= sprintf( _n( '1 email sent', '%d emails sent', $last['num'], 'pta-volunteer-sign-up-sheets'), $last['num'] ) . '</p>';
+            if ( ! empty( $last['num'] ) && ! empty( $last['time'] ) ) {
+                $rescheduled_messages .= '<p>' . sprintf(__('Date: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option('date_format'), $last['time'])) . '<br/>';
+                $rescheduled_messages .= sprintf(__('Time: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option("time_format"), $last['time'])) . '<br/>';
+                $rescheduled_messages .= sprintf( _n( '1 email sent', '%d emails sent', $last['num'], 'pta-volunteer-sign-up-sheets'), $last['num'] ) . '</p>';
+            } else {
+                $rescheduled_messages .= '<p>' . __('No rescheduled event emails have been sent yet.', 'pta-volunteer-sign-up-sheets') . '</p>';
+            }
             $rescheduled_messages .= '<h4>' . __('Last Rescheduled Emails check:', 'pta-volunteer-sign-up-sheets'). '</h4>';
             $rescheduled_messages .= '<p>' . sprintf(__('Date: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option('date_format'), $last['last'])) . '<br/>';
             $rescheduled_messages .= sprintf(__('Time: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option("time_format"), $last['last'])) . '<br/>';
             $rescheduled_messages .= '<hr/>';
+
+        }
+        if ( $last = get_option( 'pta_sus_last_cancel_emails' ) ) {
+            $cancelled_messages .= '<hr/>';
+            $cancelled_messages .= '<h4>' . __('Last Cancelled Event Emails sent:', 'pta-volunteer-sign-up-sheets'). '</h4>';
+            if ( ! empty( $last['num'] ) && ! empty( $last['time'] ) ) {
+                $cancelled_messages .= '<p>' . sprintf(__('Date: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option('date_format'), $last['time'])) . '<br/>';
+                $cancelled_messages .= sprintf(__('Time: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option("time_format"), $last['time'])) . '<br/>';
+                $cancelled_messages .= sprintf( _n( '1 email sent', '%d emails sent', $last['num'], 'pta-volunteer-sign-up-sheets'), $last['num'] ) . '</p>';
+            } else {
+                $cancelled_messages .= '<p>' . __('No cancelled event emails have been sent yet.', 'pta-volunteer-sign-up-sheets') . '</p>';
+            }
+            $cancelled_messages .= '<h4>' . __('Last Cancelled Event Emails check:', 'pta-volunteer-sign-up-sheets'). '</h4>';
+            $cancelled_messages .= '<p>' . sprintf(__('Date: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option('date_format'), $last['last'])) . '<br/>';
+            $cancelled_messages .= sprintf(__('Time: %s', 'pta-volunteer-sign-up-sheets'), pta_datetime(get_option("time_format"), $last['last'])) . '<br/>';
+            $cancelled_messages .= '<hr/>';
 
         }
 		if (isset($_GET['action']) && 'reminders' === $_GET['action']) {
@@ -560,6 +592,12 @@ class PTA_SUS_Admin {
             $num = PTA_SUS_Email_Functions::send_reschedule_emails();
             $results = sprintf( _n( '1 email sent', '%d emails sent', $num, 'pta-volunteer-sign-up-sheets'), $num );
             $rescheduled_messages .= '<div class="updated">'.$results.'</div>';
+        }
+        if (isset($_GET['action']) && 'cancel_emails' === $_GET['action']) {
+            check_admin_referer( 'pta-sus-cancel-emails', '_sus_nonce');
+            $num = PTA_SUS_Email_Functions::send_cancel_emails();
+            $results = sprintf( _n( '1 email sent', '%d emails sent', $num, 'pta-volunteer-sign-up-sheets'), $num );
+            $cancelled_messages .= '<div class="updated">'.$results.'</div>';
         }
 		if (isset($_GET['action']) && 'clear_signups' === $_GET['action'] ) {
 			check_admin_referer( 'pta-sus-clear-signups', '_sus_nonce');
@@ -593,6 +631,8 @@ class PTA_SUS_Admin {
 		$nonced_reminders_link = wp_nonce_url( $reminders_link, 'pta-sus-reminders', '_sus_nonce');
         $reschedule_link = add_query_arg(array('action' => 'reschedule'));
         $nonced_reschedule_link = wp_nonce_url( $reschedule_link, 'pta-sus-reschedule', '_sus_nonce');
+        $cancel_emails_link = add_query_arg(array('action' => 'cancel_emails'));
+        $nonced_cancel_emails_link = wp_nonce_url( $cancel_emails_link, 'pta-sus-cancel-emails', '_sus_nonce');
 		$clear_signups_link = add_query_arg(array('action' => 'clear_signups'));
 		$nonced_clear_signups_link = wp_nonce_url( $clear_signups_link, 'pta-sus-clear-signups', '_sus_nonce');
 		$clear_sheets_link = add_query_arg(array('action' => 'clear_sheets'));
@@ -612,6 +652,11 @@ class PTA_SUS_Admin {
         echo '<p>'.__("The system automatically checks if it needs to send rescheduled event emails hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the rescheduled event emails function with the button below.", "pta_volunteer_sus") . '</p>';
         echo $rescheduled_messages;
         echo '<p><a href="'.esc_url($nonced_reschedule_link).'" class="button-primary">'.__('Send Rescheduled Event Emails', 'pta-volunteer-sign-up-sheets').'</a></p>';
+        echo '<hr/>';
+        echo '<h3>'.__('Cancelled Event Emails', 'pta-volunteer-sign-up-sheets').'</h3>';
+        echo '<p>'.__("The system automatically checks if it needs to send cancelled event emails hourly via a CRON function. If you are testing, or don't want to wait for the next CRON job to be triggered, you can trigger the cancelled event emails function with the button below.", "pta_volunteer_sus") . '</p>';
+        echo $cancelled_messages;
+        echo '<p><a href="'.esc_url($nonced_cancel_emails_link).'" class="button-primary">'.__('Send Cancelled Event Emails', 'pta-volunteer-sign-up-sheets').'</a></p>';
         echo '<hr/>';
 		echo '<h3>'.__('Clear Expired Signups', 'pta-volunteer-sign-up-sheets').'</h3>';
 		echo '<p>'.__("If you have disabled the automatic clearing of expired signups, you can use this to clear ALL expired signups from ALL sheets. NOTE: THIS ACTION CAN NOT BE UNDONE!", "pta_volunteer_sus") . '</p>';
@@ -1011,12 +1056,12 @@ class PTA_SUS_Admin {
                 PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
-            if(intval($_POST['interval']) < 1) {
+            if((int)$_POST['interval'] < 1) {
                 PTA_SUS_Messages::add_error(__('Offset Interval must be greater than 0', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
             }
-            if(intval($_POST['copies']) < 1) {
+            if((int)$_POST['copies'] < 1) {
                 PTA_SUS_Messages::add_error(__('Number of Copies must be greater than 0', 'pta-volunteer-sign-up-sheets'));
                 PTA_SUS_Messages::show_messages(true, 'admin');
                 return false;
@@ -1077,6 +1122,131 @@ class PTA_SUS_Admin {
         }
 
         return true;
+    }
+
+    /**
+     * Process cancel form submission
+     * Cancels an entire sheet, one or more tasks, or (Recurring sheets only)
+     * one or more dates shared across every task on the sheet.
+     *
+     * @return bool True on success, false on failure
+     * @see PTA_SUS_Sheet_Functions::cancel_sheet()
+     * @see PTA_SUS_Sheet_Functions::cancel_tasks()
+     * @see PTA_SUS_Sheet_Functions::cancel_dates()
+     */
+    private function process_cancel_form() {
+        if(!wp_verify_nonce( $_POST['pta_sus_admin_cancel_nonce'], 'pta_sus_admin_cancel')) {
+            PTA_SUS_Messages::add_error(__('Invalid Referrer', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
+            return false;
+        }
+
+        $sheet_id = isset($_POST['sheet_id']) ? absint($_POST['sheet_id']) : 0;
+        if($sheet_id < 1) {
+            PTA_SUS_Messages::add_error(__('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
+            return false;
+        }
+        $sheet = pta_sus_get_sheet($sheet_id);
+        if(!$sheet) {
+            PTA_SUS_Messages::add_error(__('Invalid Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
+            return false;
+        }
+        $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
+        if(empty($tasks)) {
+            PTA_SUS_Messages::add_error(__('No Tasks found for that Sheet ID', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
+            return false;
+        }
+
+        $scope = isset($_POST['cancel_scope']) && in_array($_POST['cancel_scope'], array('sheet', 'tasks', 'dates')) ? $_POST['cancel_scope'] : false;
+        if(!$scope) {
+            PTA_SUS_Messages::add_error(__('Please select what to cancel', 'pta-volunteer-sign-up-sheets'));
+            PTA_SUS_Messages::show_messages(true, 'admin');
+            return false;
+        }
+
+        $send_emails = isset($_POST['send_emails']) && 'yes' === $_POST['send_emails'];
+
+        if('sheet' === $scope) {
+            // Send emails here before signups/tasks/sheet are deleted! (synchronous,
+            // not queued - the sheet/tasks won't exist anymore for a deferred send to look up)
+            if($send_emails) {
+                PTA_SUS_Email_Functions::send_cancel_emails_now($tasks);
+            }
+            $result = PTA_SUS_Sheet_Functions::cancel_sheet($sheet_id);
+            if(!$result) {
+                PTA_SUS_Messages::add_error(__('Error cancelling sheet.', 'pta-volunteer-sign-up-sheets'));
+                return false;
+            }
+            return true;
+        }
+
+        if('tasks' === $scope) {
+            $task_ids = isset($_POST['cancel_task_ids']) && is_array($_POST['cancel_task_ids']) ? array_map('absint', $_POST['cancel_task_ids']) : array();
+            if(empty($task_ids)) {
+                PTA_SUS_Messages::add_error(__('Please select at least one Task to cancel', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                return false;
+            }
+            // Server-side guard: don't allow cancelling every task on the sheet - use Cancel Sheet instead
+            $all_task_ids = wp_list_pluck($tasks, 'id');
+            if(empty(array_diff($all_task_ids, $task_ids))) {
+                PTA_SUS_Messages::add_error(__('You selected every Task on this Sheet. Please use "The entire Sheet (event)" option instead.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                return false;
+            }
+
+            // Send emails here before signups/tasks are deleted! (synchronous,
+            // not queued - the tasks won't exist anymore for a deferred send to look up)
+            if($send_emails) {
+                $tasks_to_cancel = array_filter($tasks, function($task) use ($task_ids) {
+                    return in_array(absint($task->id), $task_ids, true);
+                });
+                PTA_SUS_Email_Functions::send_cancel_emails_now($tasks_to_cancel);
+            }
+            $cancelled = PTA_SUS_Sheet_Functions::cancel_tasks($sheet_id, $task_ids);
+            if(empty($cancelled)) {
+                PTA_SUS_Messages::add_error(__('Error cancelling selected Task(s).', 'pta-volunteer-sign-up-sheets'));
+                return false;
+            }
+            return true;
+        }
+
+        if('dates' === $scope) {
+            if('Recurring' !== $sheet->type) {
+                PTA_SUS_Messages::add_error(__('Cancelling Dates is only available for Recurring sheets.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                return false;
+            }
+            $dates = isset($_POST['cancel_dates']) && is_array($_POST['cancel_dates']) ? array_map('sanitize_text_field', $_POST['cancel_dates']) : array();
+            if(empty($dates)) {
+                PTA_SUS_Messages::add_error(__('Please select at least one Date to cancel', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                return false;
+            }
+            // Server-side guard: don't allow cancelling every date on the sheet - use Cancel Sheet instead
+            $all_dates = PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id);
+            if(empty(array_diff($all_dates, $dates))) {
+                PTA_SUS_Messages::add_error(__('You selected every Date on this Sheet. Please use "The entire Sheet (event)" option instead.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                return false;
+            }
+
+            // Send emails here before signups on these dates are cleared!
+            if($send_emails) {
+                PTA_SUS_Email_Functions::queue_cancel_emails_for_dates($tasks, $dates);
+            }
+            $result = PTA_SUS_Sheet_Functions::cancel_dates($sheet_id, $dates);
+            if(!$result) {
+                PTA_SUS_Messages::add_error(__('Error cancelling selected Date(s).', 'pta-volunteer-sign-up-sheets'));
+                return false;
+            }
+            return true;
+        }
+
+        return false;
     }
 
 	/**
@@ -1243,6 +1413,10 @@ class PTA_SUS_Admin {
 			$this->success = $this->process_reschedule_form();
 		}
 
+		if(isset($_POST['pta_admin_cancel_form_mode']) && 'submitted' === $_POST['pta_admin_cancel_form_mode']) {
+			$this->success = $this->process_cancel_form();
+		}
+
 		if(isset($_POST['pta_admin_move_form_mode']) && 'submitted' === $_POST['pta_admin_move_form_mode']) {
 			$this->success = $this->process_move_signup_form();
 		}
@@ -1356,7 +1530,7 @@ class PTA_SUS_Admin {
 		$view_all_url = add_query_arg(array('page' => 'pta-sus-settings_sheets','action' => 'view_all', 'sheet_id' => false));
 		$nonced_view_all_url = wp_nonce_url($view_all_url, 'view_all', '_sus_nonce');
 
-		if(!in_array($this->action, array('view_all','reschedule','move'))) {
+		if(!in_array($this->action, array('view_all','reschedule','move','cancel'))) {
 			echo ($edit || $view_signups) ? '<h2>'.__('Sheet Details', 'pta-volunteer-sign-up-sheets').'</h2>' : '<h2>'.__('Sign-up Sheets ', 'pta-volunteer-sign-up-sheets').'
 			<a href="?page='.$this->admin_settings_slug.'_modify_sheet" class="add-new-h2">'.__('Add New', 'pta-volunteer-sign-up-sheets').'</a>
 			<a href="'.esc_url($nonced_view_all_url).'" class="button-primary">'.__('View/Export ALL Data', 'pta-volunteer-sign-up-sheets').'</a>
@@ -1364,7 +1538,7 @@ class PTA_SUS_Admin {
 			';
 		}
 
-		$sheet_id = isset($_GET['sheet_id']) ? intval($_GET['sheet_id']) : 0;
+		$sheet_id = isset($_GET['sheet_id']) ? (int)$_GET['sheet_id'] : 0;
 
 		if ('view_all' === $this->action) {
             echo '<h2><span id="sheet_title">'.__('All Signup Data', 'pta-volunteer-sign-up-sheets').'</span></h2>';
@@ -1389,6 +1563,37 @@ class PTA_SUS_Admin {
 
             echo '<h2><span id="sheet_title">'.sprintf(__('Reschedule/Copy Sheet: %s', 'pta-volunteer-sign-up-sheets'), esc_html($sheet->title)).'</span></h2>';
             include('admin-reschedule-html.php');
+
+            echo '</div>';
+			return;
+		} elseif ('cancel' === $this->action) {
+            if ($this->success) {
+                // A "Cancel entire Sheet" submission may have just deleted the sheet
+                // itself, so don't try to reload it - show the success message directly.
+                PTA_SUS_Messages::add_message( __( 'Cancel was processed successfully.', 'pta-volunteer-sign-up-sheets' ) );
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                $return = add_query_arg(array('action' => false, 'sheet_id' => false, '_sus_nonce' => false ));
+                echo '<p class="submit"><span class="pta-sus admin return-link"><a class="button-secondary" href="'.esc_url($return).'">'.__('RETURN', 'pta-volunteer-sign-up-sheets').'</a></span></p>';
+                echo '</div>';
+                return;
+            }
+            if (!($sheet = pta_sus_get_sheet($sheet_id))) {
+                PTA_SUS_Messages::add_error(__('No sign-up sheet found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                echo '</div>';
+                return;
+            }
+            $tasks = PTA_SUS_Task_Functions::get_tasks($sheet_id);
+            if (empty($tasks)) {
+                PTA_SUS_Messages::add_error(__('No tasks were found.', 'pta-volunteer-sign-up-sheets'));
+                PTA_SUS_Messages::show_messages(true, 'admin');
+                echo '</div>';
+                return;
+            }
+            $dates = ('Recurring' === $sheet->type) ? PTA_SUS_Sheet_Functions::get_all_task_dates_for_sheet($sheet_id) : array();
+
+            echo '<h2><span id="sheet_title">'.sprintf(__('Cancel Sheet: %s', 'pta-volunteer-sign-up-sheets'), esc_html($sheet->title)).'</span></h2>';
+            include('admin-cancel-html.php');
 
             echo '</div>';
 			return;
@@ -1837,6 +2042,7 @@ class PTA_SUS_Admin {
 				$task_fields['task_reminder2_email_template_id'][] = isset($task->reminder2_email_template_id) ? $task->reminder2_email_template_id : 0;
 				$task_fields['task_clear_email_template_id'][] = isset($task->clear_email_template_id) ? $task->clear_email_template_id : 0;
 				$task_fields['task_reschedule_email_template_id'][] = isset($task->reschedule_email_template_id) ? $task->reschedule_email_template_id : 0;
+				$task_fields['task_cancel_email_template_id'][] = isset($task->cancel_email_template_id) ? $task->cancel_email_template_id : 0;
 			}
 		}
 
@@ -2078,6 +2284,10 @@ class PTA_SUS_Admin {
 			$render_template_select(
 				'sheet_reschedule_email_template_id',
 				__( 'Reschedule Email Template:', 'pta-volunteer-sign-up-sheets' )
+			);
+			$render_template_select(
+				'sheet_cancel_email_template_id',
+				__( 'Cancel Email Template:', 'pta-volunteer-sign-up-sheets' )
 			);
 		}
 
@@ -3063,7 +3273,7 @@ class PTA_SUS_Admin {
 		$standard_fields = array( 'task_id', 'task_title', 'task_description', 'task_dates', 'task_qty', 'task_time_start', 'task_time_end',
 			'task_need_details', 'task_details_required', 'task_details_text', 'task_allow_duplicates', 'task_enable_quantities',
 			'task_confirmation_email_template_id', 'task_reminder1_email_template_id', 'task_reminder2_email_template_id',
-			'task_clear_email_template_id', 'task_reschedule_email_template_id', 'task_sheet_id', 'task_sheet_type', 'task_no_signups',
+			'task_clear_email_template_id', 'task_reschedule_email_template_id', 'task_cancel_email_template_id', 'task_sheet_id', 'task_sheet_type', 'task_no_signups',
 			'action', 'nonce', 'single_date', 'recurring_dates' );
 
 		// Normalize task_template_id if present (not already in array format)
@@ -3267,6 +3477,7 @@ class PTA_SUS_Admin {
 			'task_reminder2_email_template_id' => $task->reminder2_email_template_id ?? 0,
 			'task_clear_email_template_id' => $task->clear_email_template_id ?? 0,
 			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
+			'task_cancel_email_template_id' => $task->cancel_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
 
@@ -3319,6 +3530,7 @@ class PTA_SUS_Admin {
 			'task_reminder2_email_template_id' => $task->reminder2_email_template_id ?? 0,
 			'task_clear_email_template_id' => $task->clear_email_template_id ?? 0,
 			'task_reschedule_email_template_id' => $task->reschedule_email_template_id ?? 0,
+			'task_cancel_email_template_id' => $task->cancel_email_template_id ?? 0,
 			'task_has_signups' => $task_has_signups,
 		);
 

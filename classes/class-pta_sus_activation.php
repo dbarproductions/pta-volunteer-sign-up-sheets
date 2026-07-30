@@ -18,7 +18,7 @@ class PTA_SUS_Activation {
 	 * 
 	 * @var string
 	 */
-	private static $db_version = '6.3.0';
+	private static $db_version = '6.4.0';
 
 	/**
 	 * Get database version
@@ -114,6 +114,7 @@ class PTA_SUS_Activation {
 			reminder2_email_template_id INT(11) NOT NULL DEFAULT 0,
 			clear_email_template_id INT(11) NOT NULL DEFAULT 0,
 			reschedule_email_template_id INT(11) NOT NULL DEFAULT 0,
+			cancel_email_template_id INT(11) NOT NULL DEFAULT 0,
 			signup_validation_email_template_id INT(11) NOT NULL DEFAULT 0,
 			PRIMARY KEY id (id),
 			KEY `first_date` (`first_date`),
@@ -141,6 +142,7 @@ class PTA_SUS_Activation {
 			reminder2_email_template_id INT(11) NOT NULL DEFAULT 0,
 			clear_email_template_id INT(11) NOT NULL DEFAULT 0,
 			reschedule_email_template_id INT(11) NOT NULL DEFAULT 0,
+			cancel_email_template_id INT(11) NOT NULL DEFAULT 0,
 			PRIMARY KEY id (id),
 			KEY `sheet_id` (`sheet_id`)
 		) $charset_collate;";
@@ -337,6 +339,10 @@ class PTA_SUS_Activation {
 
 		if ( version_compare( $current_version, '6.3.0', '<' ) ) {
 			self::upgrade_to_6_3_0();
+		}
+
+		if ( version_compare( $current_version, '6.4.0', '<' ) ) {
+			self::upgrade_to_6_4_0();
 		}
 
 		// Check for missing user_validation template migration (runs regardless of version if templates were migrated)
@@ -557,6 +563,42 @@ class PTA_SUS_Activation {
 		}
 
 		update_option( 'pta_sus_db_version', '6.3.0' );
+	}
+
+	/**
+	 * Upgrade database to version 6.4.0
+	 *
+	 * Adds cancel_email_template_id column to sheets and tasks tables, to
+	 * support the Cancel Sheet/Task(s)/Date(s) feature's email template
+	 * assignment (mirrors the existing per-type template columns).
+	 *
+	 * @since 6.4.0
+	 * @return void
+	 */
+	private static function upgrade_to_6_4_0() {
+		global $wpdb;
+
+		$sheet_table = $wpdb->prefix . 'pta_sus_sheets';
+		$columns = $wpdb->get_results( "SHOW COLUMNS FROM {$sheet_table}", ARRAY_A );
+		$column_names = array();
+		foreach ( $columns as $column ) {
+			$column_names[] = $column['Field'];
+		}
+		if ( ! in_array( 'cancel_email_template_id', $column_names, true ) ) {
+			$wpdb->query( "ALTER TABLE {$sheet_table} ADD COLUMN cancel_email_template_id INT(11) NOT NULL DEFAULT 0" );
+		}
+
+		$task_table = $wpdb->prefix . 'pta_sus_tasks';
+		$task_columns = $wpdb->get_results( "SHOW COLUMNS FROM {$task_table}", ARRAY_A );
+		$task_column_names = array();
+		foreach ( $task_columns as $column ) {
+			$task_column_names[] = $column['Field'];
+		}
+		if ( ! in_array( 'cancel_email_template_id', $task_column_names, true ) ) {
+			$wpdb->query( "ALTER TABLE {$task_table} ADD COLUMN cancel_email_template_id INT(11) NOT NULL DEFAULT 0" );
+		}
+
+		update_option( 'pta_sus_db_version', '6.4.0' );
 	}
 
 	/**

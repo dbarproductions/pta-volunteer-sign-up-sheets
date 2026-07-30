@@ -191,6 +191,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Reminder 2</strong> - Second reminder email before the event</li>
         <li><strong>Clear</strong> - Sent when a signup is cleared/cancelled</li>
         <li><strong>Reschedule</strong> - Sent when a sheet is rescheduled</li>
+        <li><strong>Cancel</strong> <em>(v6.6)</em> - Sent when a Sheet, Task(s), or Date(s) are cancelled via the Cancel feature</li>
         <li><strong>Signup Validation</strong> - Sent to validate a signup (if validation is enabled)</li>
         <li><strong>User Validation</strong> - Sent when using the validation form</li>
     </ul>
@@ -539,6 +540,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Edit Tasks</strong> -- Takes you to the edit tasks page for that event (see above)</li>
         <li><strong>Copy</strong> -- Makes a copy of the sheet, appending "copy" to the name. Useful if you have a couple of events that have very similar requirements, as it will copy all sheet and tasks you have entered, and then you can change the name and any other details on the copy you created for the second event. Does NOT copy signups and does NOT change any dates or times (you need to manually edit and change those)</li>
         <li><strong>Reschedule/Copy </strong>-- Opens a new form allowing you to choose from three methods: Reschedule, Copy, and Multi-Copy. These functions will change dates/times and will optionally copy signups as well. You can also optionally send the Reschedule emails. More details on each function below. Currently only works with Single and Multi-Day sheets</li>
+        <li><strong>Cancel </strong><em>(v6.6)</em> -- Opens a form to cancel the entire Sheet, one or more Tasks, or (Recurring sheets only) one or more Dates. See the "Cancel" section below for full details.</li>
         <li><strong>Trash</strong> -- Moves the sheet to the trash, but does not permanently delete it (click on trash at the top of the table to view trashed sheets and permanently delete them)</li>
     </ul>
     <strong>Reschedule </strong>-- If you select this option from the Reschedule/Copy form, you can select a new sheet date for Single type sheets, or a new date for each task for Multi-Day type sheets. For either sheet type you can optionally also select new start and end times for each task (leave blank to keep the original start/end times). Reschedule does NOT create any new database entries. Instead it modifies the dates and times of the existing sheet, tasks, and signups. Other form options are below:
@@ -553,6 +555,17 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Offset Interval in Days </strong>-- Specify the number of days to add to the dates for the sheet or tasks. For Single type sheets, this will be the main sheet date and is the same for all tasks. For Multi-Day sheets, this interval will be added to the date for each task. A good example would be if you had a Multi-Day sheet set up for some weekday events (Monday through Friday). If you want to repeat those every week, you could use Multi-Copy and set the interval to 7.</li>
         <li><strong>Number of Copies </strong>-- Sets the number of copies to make at the specified intervals. You may be limited by your server as to how many copies you can make at once without the server timing out, but you can always use the function multiple times to create as many copies as you need.</li>
     </ul>
+    <h4>Cancel <em>(Added in version 6.6)</em></h4>
+    Use the <strong>Cancel</strong> row action to permanently cancel a sheet, one or more tasks, or (Recurring sheets only) one or more dates, with an optional notification email to affected volunteers. Unlike Reschedule, Cancel always permanently deletes the affected data — there is no undo. Choose one of three scopes:
+    <ul>
+        <li><strong>The entire Sheet</strong> -- Deletes the sheet, all of its tasks, and all signups on it. Use this when the whole event is being cancelled.</li>
+        <li><strong>One or more Tasks</strong> -- Deletes the selected tasks (and their signups) but leaves the sheet and any remaining tasks in place. If every task on the sheet is checked, you'll be asked to use "Cancel entire Sheet" instead.</li>
+        <li><strong>One or more Dates</strong> <em>(Recurring sheets only)</em> -- Since every task on a Recurring sheet shares the same list of dates, this clears signups for the selected date(s) across all tasks and removes those dates from the sheet, without deleting the tasks or sheet itself. Useful for cancelling a single occurrence of a repeating event (e.g. one week of a weekly class) while keeping the rest of the schedule intact. If every date is checked, you'll be asked to use "Cancel entire Sheet" instead.</li>
+    </ul>
+    <strong>Send Emails? </strong>-- Check this box to notify everyone signed up for the cancelled sheet/task(s)/date(s) using the Cancel Email Template (see Email Templates and Bulk Assignments below). For Sheet and Task scopes, emails are sent immediately as part of the cancellation (a warning is shown next to the checkbox, since a sheet with a very large number of signups could take a while, or time out on a slow server). For Date scope, emails are queued and sent in the background by the same hourly CRON job that sends Reschedule emails (also available to trigger manually from the Tools page).
+    <br/><br/>
+    <strong>Note on Waitlists:</strong> Cancelling never triggers the Waitlists extension's auto-fill-from-waitlist behavior — cancelled spots are simply removed, not backfilled from anyone waiting.
+    <br/><br/>
     <strong>Visibility </strong>-- There is a "Visible" column for each sheet on the All Sheets list table. If a sheet is hidden from the public, you will see a red "NO" listed in the column. If you go to the public side, those sheets will not show up in the main volunteer page list or in the widgets unless you are logged in as admin or volunteer sheet manager (in which case you will see the sheet listed, but there will be some red text below it to remind you that the sheet is hidden from the public). Click on "Yes" or "NO" to toggle the visibility of a sheet. It may be useful to have a sheet hidden while you are getting it set up and testing things out, or if you don't want to make sign-ups available until a certain date.
 
     <strong>Bulk Actions</strong> -- From the main All Sheets list you can use bulk actions to trash, toggle the visibility, or copy several sheets at once. The <strong>Copy Selected Sheets</strong> option <em>(v6.5)</em> duplicates each selected sheet — including all its tasks — as a new hidden sheet, ready for you to update with new dates and publish. While you are in the trash bin, you can use bulk actions to permanently delete or restore multiple sheets at once.
@@ -602,6 +615,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
     <ul>
         <li><strong>Volunteer Reminders:</strong> Shows when reminders were last sent and allows you to manually trigger the reminders check. The system automatically checks hourly via a CRON function.</li>
         <li><strong>Rescheduled Event Emails:</strong> Shows when rescheduled event emails were last sent and allows you to manually trigger them.</li>
+        <li><strong>Cancelled Event Emails:</strong> <em>(Added in version 6.6)</em> Shows when cancelled-event emails (queued by the Cancel feature's "Dates" scope) were last sent and allows you to manually trigger them. Sheet and Task scope cancellations send their emails immediately when you submit the Cancel form, so they don't use this queue.</li>
         <li><strong>Clear Expired Signups:</strong> Manually clear ALL expired signups from ALL sheets. Only use this if you've disabled automatic clearing.</li>
         <li><strong>Clear Expired Sheets:</strong> Manually clear ALL expired sheets (along with their tasks and signups) from the database.</li>
         <li><strong>Debug Log:</strong> A readonly textarea that shows log messages generated by CRON functions, helpful for debugging. You can clear the log manually, and log files are automatically cleared every 30 days.</li>
@@ -657,6 +671,7 @@ Please see the <a href="https://stephensherrardplugins.com/plugins/pta-volunteer
         <li><strong>Second Reminder Email Template</strong> — Template for the second reminder email</li>
         <li><strong>Clear/Cancel Email Template</strong> — Template sent when a signup is cleared</li>
         <li><strong>Reschedule Email Template</strong> — Template sent when an event is rescheduled</li>
+        <li><strong>Cancel Email Template</strong> <em>(Added in version 6.6)</em> — Template sent when a Sheet, Task(s), or Date(s) are cancelled via the new Cancel feature. Not to be confused with the "Clear/Cancel Email Template" above, which is sent when an individual volunteer's signup is cleared.</li>
     </ul>
     Extensions that add their own assignment types:
     <ul>

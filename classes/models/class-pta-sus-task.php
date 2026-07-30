@@ -38,6 +38,7 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 			'reminder2_email_template_id' => 'int',
 			'clear_email_template_id' => 'int',
 			'reschedule_email_template_id' => 'int',
+			'cancel_email_template_id' => 'int',
 		);
 	}
 	
@@ -67,6 +68,7 @@ class PTA_SUS_Task extends PTA_SUS_Base_Object {
 			'reminder2_email_template_id' => 0,
 			'clear_email_template_id' => 0,
 			'reschedule_email_template_id' => 0,
+			'cancel_email_template_id' => 0,
 		);
 	}
 	

@@ -42,6 +42,7 @@ class PTA_SUS_Cron_Manager {
 		// Send reminder and reschedule emails
 		PTA_SUS_Email_Functions::send_reminders();
 		PTA_SUS_Email_Functions::send_reschedule_emails();
+		PTA_SUS_Email_Functions::send_cancel_emails();
 		
 		// Get options
 		$main_options = get_option('pta_volunteer_sus_main_options', array());

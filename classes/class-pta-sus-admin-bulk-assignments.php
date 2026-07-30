@@ -117,6 +117,11 @@ class PTA_SUS_Admin_Bulk_Assignments {
 				'field'    => 'reschedule_email_template_id',
 				'priority' => 50,
 			),
+			'cancel'       => array(
+				'label'    => __( 'Cancel Email Template', 'pta-volunteer-sign-up-sheets' ),
+				'field'    => 'cancel_email_template_id',
+				'priority' => 60,
+			),
 		);
 
 		$providers = array();
