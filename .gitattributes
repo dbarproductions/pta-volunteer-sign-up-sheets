@@ -1,0 +1,39 @@
+# Files/folders excluded from `git archive` (and therefore from the
+# release zip built by .github/workflows/release.yml). This does NOT
+# affect what's tracked by git day-to-day, only what ships in the zip.
+
+# Repo/CI meta files
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
+
+# Editor/IDE files
+.idea export-ignore
+.cursorrules export-ignore
+.editorconfig export-ignore
+
+# Author-only content generation pages (source for stephensherrard.com
+# plugin/documentation pages, not part of the shipped plugin)
+documentation.html export-ignore
+plugin-info.html export-ignore
+index.html export-ignore
+
+# Block build tooling (only blocks/build/* and block.json files are
+# needed at runtime)
+blocks/src export-ignore
+blocks/webpack.config.js export-ignore
+blocks/package.json export-ignore
+blocks/package-lock.json export-ignore
+blocks/node_modules export-ignore
+
+# Tests / QA config (none currently tracked, excluded defensively)
+tests export-ignore
+test export-ignore
+phpcs.xml export-ignore
+phpcs.xml.dist export-ignore
+.distignore export-ignore
+composer.lock export-ignore
+
+# OS cruft
+.DS_Store export-ignore
+Thumbs.db export-ignore

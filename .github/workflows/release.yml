@@ -1,0 +1,39 @@
+name: Build Release Zip
+
+# 47 of 48 existing tags are bare semver (e.g. "6.6.0"); one legacy tag
+# ("v5.4.0") has a leading v. Both patterns are matched here so either
+# style triggers the workflow; the version-stripping step below handles
+# a leading "v" if present.
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build release zip
+        run: |
+          git archive --format=zip \
+            --prefix=pta-volunteer-sign-up-sheets/ \
+            -o "pta-volunteer-sign-up-sheets-${{ steps.version.outputs.version }}.zip" \
+            "$GITHUB_REF_NAME"
+
+      - name: Create GitHub Release and upload zip
+        uses: softprops/action-gh-release@v2
+        with:
+          files: pta-volunteer-sign-up-sheets-${{ steps.version.outputs.version }}.zip
