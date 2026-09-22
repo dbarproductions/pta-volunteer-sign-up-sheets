@@ -304,6 +304,13 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 	/**
 	 * Check if current user can delete this template
 	 *
+	 * @since 6.7.1 Result is filterable via `pta_sus_email_template_can_delete`,
+	 * so extensions with their own default/fallback templates (that aren't
+	 * registered as main-plugin system defaults - see is_system_default())
+	 * can protect them from deletion while the extension is active. Deletion
+	 * of the main plugin's own system defaults is never filterable - that
+	 * restriction is unconditional, above.
+	 *
 	 * @return bool
 	 */
 	public function can_delete() {
@@ -311,24 +318,31 @@ class PTA_SUS_Email_Template extends PTA_SUS_Base_Object {
 		if ( $this->is_system_default() ) {
 			return false;
 		}
-		
+
+		$can_delete = false;
+
 		// If user can manage others, they can delete any non-system template
 		if ( current_user_can( 'manage_others_signup_sheets' ) ) {
-			return true;
+			$can_delete = true;
+		} elseif ( $this->author_id > 0 && (int) $this->author_id === (int) get_current_user_id() ) {
+			// Authors can only delete their own templates
+			// Use loose comparison to handle string/int type differences from database
+			$can_delete = true;
+		} elseif ( $this->author_id === 0 && current_user_can( 'manage_signup_sheets' ) ) {
+			// Templates with author_id = 0 (available to all) can be deleted by anyone with manage_signup_sheets
+			$can_delete = true;
 		}
-		
-		// Authors can only delete their own templates
-		// Use loose comparison to handle string/int type differences from database
-		if ( $this->author_id > 0 && (int) $this->author_id === (int) get_current_user_id() ) {
-			return true;
-		}
-		
-		// Templates with author_id = 0 (available to all) can be deleted by anyone with manage_signup_sheets
-		if ( $this->author_id === 0 && current_user_can( 'manage_signup_sheets' ) ) {
-			return true;
-		}
-		
-		return false;
+
+		/**
+		 * Filter whether the current user can delete this email template.
+		 * Allows extensions to protect their own default/fallback templates
+		 * from deletion while their extension is active (return false).
+		 *
+		 * @since 6.7.1
+		 * @param bool $can_delete
+		 * @param PTA_SUS_Email_Template $template The template instance.
+		 */
+		return apply_filters( 'pta_sus_email_template_can_delete', $can_delete, $this );
 	}
 }
 

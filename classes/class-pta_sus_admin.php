@@ -11,9 +11,9 @@
  */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if (!class_exists('PTA_SUS_Options')) include_once(dirname(__FILE__).'/class-pta_sus_options.php');
-if (!class_exists('PTA_SUS_Bulk_Assignments_Helper')) include_once(dirname(__FILE__).'/class-pta-sus-bulk-assignments-helper.php');
-if (!class_exists('PTA_SUS_Admin_Bulk_Assignments')) include_once(dirname(__FILE__).'/class-pta-sus-admin-bulk-assignments.php');
+if (!class_exists('PTA_SUS_Options')) include_once(__DIR__ .'/class-pta_sus_options.php');
+if (!class_exists('PTA_SUS_Bulk_Assignments_Helper')) include_once(__DIR__ .'/class-pta-sus-bulk-assignments-helper.php');
+if (!class_exists('PTA_SUS_Admin_Bulk_Assignments')) include_once(__DIR__ .'/class-pta-sus-admin-bulk-assignments.php');
 
 class PTA_SUS_Admin {
 
@@ -2931,7 +2931,18 @@ class PTA_SUS_Admin {
 									if ($template->is_system_default()) {
 										echo '<span class="dashicons dashicons-admin-settings" title="' . esc_attr__('System Default', 'pta-volunteer-sign-up-sheets') . '"></span> ' . __('System Default', 'pta-volunteer-sign-up-sheets');
 									} else {
-										_e('Custom', 'pta-volunteer-sign-up-sheets');
+										/**
+										 * Filter the "Type" column label for a non-system-default email
+										 * template. Lets extensions with their own default/fallback
+										 * templates identify them (e.g. "Waitlist Default") instead of
+										 * every non-core template being lumped into "Custom", which
+										 * should be reserved for genuinely user-created templates.
+										 *
+										 * @since 6.7.1
+										 * @param string $label Default label, 'Custom'. May contain safe HTML (e.g. a dashicon span).
+										 * @param PTA_SUS_Email_Template $template The template instance.
+										 */
+										echo wp_kses_post( apply_filters( 'pta_sus_email_template_type_label', __('Custom', 'pta-volunteer-sign-up-sheets'), $template ) );
 									}
 									?>
 								</td>
