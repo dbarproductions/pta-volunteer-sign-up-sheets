@@ -22,7 +22,12 @@
     $('.pta-timepicker').timepicker({
     showPeriod: true,
     showLeadingZero: true,
-    defaultTime: ''
+    defaultTime: '',
+    // Restore focus to the input on close so Tab/click moves to the next field
+    // instead of nowhere (see the same fix in task-management.js for why).
+    onClose: function() {
+        $(this).focus();
+    }
 	});
 
     let $loading = $('#loadingDiv').hide();
@@ -384,7 +389,11 @@
                 .timepicker({
                     showPeriod: true,
                     showLeadingZero: true,
-                    defaultTime: ''
+                    defaultTime: '',
+                    // Restore focus to the input on close (see task-management.js for why).
+                    onClose: function() {
+                        $(this).focus();
+                    }
                 });
 
             $row.find(".singlePicker")

@@ -79,7 +79,14 @@
 			$('#pta-sus-task-modal .pta-timepicker').timepicker({
 				showPeriod: true,
 				showLeadingZero: true,
-				defaultTime: ''
+				defaultTime: '',
+				// Selecting a time removes focus from the (now-hidden) picker cell with nowhere
+				// for it to land, so Tab jumps to whatever's next in the modal's DOM order (the
+				// close button) instead of the next field. Restore focus to the input itself on
+				// every close path (auto-close, Escape, outside click) so Tab/click behaves normally.
+				onClose: function() {
+					$(this).focus();
+				}
 			});
 
 			// Initialize datepicker in modal
