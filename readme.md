@@ -145,7 +145,14 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
-### 6.7.0 =
+### 6.7.1
+- Fix: PHP 8+ fatal error ("Attempt to assign property 'plugin' on bool") in the extension updater class that could occur on the Plugins page when WordPress's plugin dependency check requested plugin information and the update server request failed or returned no usable data. The updater now returns the original value so WordPress can fall back to its normal handling.
+- Fix: Admin task time fields now keep focus after the time picker closes, so pressing Tab moves to the next field instead of jumping to the task modal's close button.
+- New filter: pta_sus_email_template_can_delete - allows extensions to protect their own default email templates from deletion while the extension is active.
+- New filter: pta_sus_email_template_type_label - allows extensions to change the "Type" column label for their email templates (e.g. "Waitlist Default" instead of "Custom") on the Email Templates admin page.
+- Tested with PHP 8.5.10 and WordPress 7.1.4
+
+### 6.7.0
 - New: Added a "Trigger CRON Functions Now" button to the Tools page (CRON Functions section). Fires the actual pta_sus_cron_job WP-Cron event directly, running this plugin's own hourly tasks (reminders, rescheduled/cancelled event emails, expired cleanup) as well as anything hooked in by extensions (such as the Automated Emails add-on's scheduled trigger events) — useful for testing without installing a separate CRON manager plugin or waiting for the next scheduled run.
 - Tested with PHP 8.5.10 and WordPress 7.1
 

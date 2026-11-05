@@ -382,11 +382,18 @@ class PTA_Plugin_Updater {
 			// Expires in 3 hours
 			$this->set_version_info_cache( $api_response );
 
-			if ( false !== $api_response ) {
+			if ( is_object( $api_response ) ) {
 				$_data = $api_response;
 			}
-		} else {
+		} elseif ( is_object( $edd_api_request_transient ) ) {
 			$_data = $edd_api_request_transient;
+		}
+
+		// The remote request failed (or returned nothing usable) and there was no cached object.
+		// Return whatever was passed in (usually false) so WordPress can fall back to its own
+		// handling. Otherwise PHP 8+ throws a fatal "Attempt to assign property on bool" below.
+		if ( ! is_object( $_data ) ) {
+			return $_data;
 		}
 
 		// Convert sections into an associative array, since we're getting an object, but Core expects an array.
