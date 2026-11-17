@@ -462,15 +462,13 @@ function pta_get_validated_user_info($validation_code='') {
 		$user_info->email = sanitize_email($user->user_email);
 		return $user_info;
 	}
-	if (isset($_COOKIE['pta_sus_validated_user'])) {
-		$cookie_data = json_decode(base64_decode($_COOKIE['pta_sus_validated_user']), true);
-		if ( $cookie_data && isset($cookie_data['firstname']) && isset($cookie_data['lastname']) && isset($cookie_data['email']) ) {
-			$user_info = new stdClass();
-			$user_info->user_id = 0;
-			$user_info->firstname = sanitize_text_field($cookie_data['firstname']);
-			$user_info->lastname = sanitize_text_field($cookie_data['lastname']);
-			$user_info->email = sanitize_email($cookie_data['email']);
-		}
+	$cookie_data = pta_sus_read_validated_cookie();
+	if ( $cookie_data ) {
+		$user_info = new stdClass();
+		$user_info->user_id = 0;
+		$user_info->firstname = sanitize_text_field($cookie_data['firstname']);
+		$user_info->lastname = sanitize_text_field($cookie_data['lastname']);
+		$user_info->email = sanitize_email($cookie_data['email']);
 		return $user_info;
 	}
 	if(empty($validation_code)) {
@@ -529,8 +527,44 @@ function pta_create_validation_link($firstname, $lastname, $email,$signup_id=0,$
 }
 
 /**
+ * Compute the HMAC signature for a validated-user cookie payload
+ * Keyed with the site's secret auth salt so the cookie cannot be forged client-side
+ *
+ * @since 6.7.2
+ * @param string $payload Base64-encoded JSON payload
+ * @return string Hex HMAC-SHA256 signature
+ */
+function pta_sus_validated_cookie_mac( $payload ) {
+	return hash_hmac( 'sha256', 'pta_sus_validated_user|' . $payload, wp_salt( 'auth' ) );
+}
+
+/**
+ * Read and verify the validated-user cookie
+ * Cookie format: base64(json payload) . '.' . hmac. The payload includes a signed expiry.
+ * Unsigned (pre-6.7.2 format), tampered, or expired cookies are rejected.
+ *
+ * @since 6.7.2
+ * @return array|false Array with firstname, lastname, email, exp keys, or false if missing/invalid
+ */
+function pta_sus_read_validated_cookie() {
+	if ( empty( $_COOKIE['pta_sus_validated_user'] ) || ! is_string( $_COOKIE['pta_sus_validated_user'] ) ) {
+		return false;
+	}
+	$parts = explode( '.', wp_unslash( $_COOKIE['pta_sus_validated_user'] ), 2 );
+	if ( 2 !== count( $parts ) || ! hash_equals( pta_sus_validated_cookie_mac( $parts[0] ), $parts[1] ) ) {
+		return false;
+	}
+	$data = json_decode( base64_decode( $parts[0] ), true );
+	if ( ! is_array( $data ) || empty( $data['exp'] ) || (int) $data['exp'] < time()
+	     || ! isset( $data['firstname'], $data['lastname'], $data['email'] ) ) {
+		return false;
+	}
+	return $data;
+}
+
+/**
  * Sets a cookie to track validated user information
- * Stores user info in a secure cookie for validation persistence across page loads
+ * Stores user info in an HMAC-signed cookie for validation persistence across page loads
  * Cookie expiration is based on validation_code_expiration_hours setting
  *
  * @param string $firstname User's first name
@@ -541,16 +575,18 @@ function pta_create_validation_link($firstname, $lastname, $email,$signup_id=0,$
 function pta_set_validated_user_cookie($firstname, $lastname, $email) {
 	$options = get_option( 'pta_volunteer_sus_main_options' );
 	$expiration_hours = isset($options['validation_code_expiration_hours']) ? absint($options['validation_code_expiration_hours']) : 24;
-	$cookie_data = base64_encode(json_encode([
+	$expires = time() + ($expiration_hours * 3600);
+	$payload = base64_encode(wp_json_encode([
 		'firstname' => $firstname,
 		'lastname' => $lastname,
-		'email' => $email
+		'email' => $email,
+		'exp' => $expires,
 	]));
 
 	setcookie(
 		'pta_sus_validated_user',
-		$cookie_data,
-		time() + ($expiration_hours * 3600),
+		$payload . '.' . pta_sus_validated_cookie_mac( $payload ),
+		$expires,
 		COOKIEPATH,
 		COOKIE_DOMAIN,
 		is_ssl(),
@@ -591,14 +627,9 @@ function pta_is_user_validated( $firstname, $lastname, $email) {
 		return true;
 	}
 	$messages = '';
-	if (isset($_COOKIE['pta_sus_validated_user'])) {
-		$cookie_data = json_decode(base64_decode($_COOKIE['pta_sus_validated_user']), true);
-		if ($cookie_data && isset($cookie_data['firstname']) && isset($cookie_data['lastname']) && isset($cookie_data['email'])
-		    && $cookie_data['firstname'] === $firstname && $cookie_data['lastname'] === $lastname && $cookie_data['email'] === $email) {
-			return true;
-		} else {
-			return false;
-		}
+	$cookie_data = pta_sus_read_validated_cookie();
+	if ($cookie_data) {
+		return ( $cookie_data['firstname'] === $firstname && $cookie_data['lastname'] === $lastname && $cookie_data['email'] === $email );
 	} elseif (isset($_GET['code'])) {
 		$options = get_option( 'pta_volunteer_sus_validation_options' );
 		$code = sanitize_text_field($_GET['code']);

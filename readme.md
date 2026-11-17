@@ -145,6 +145,10 @@ Contributions are welcome! This plugin has been serving the volunteer community 
 - [Support Forums](https://stephensherrardplugins.com/support/)
 
 ## Changelog
+### 6.7.2
+- Security: Guest validation cookie is now signed. The "pta_sus_validated_user" cookie used to remember a validated guest volunteer (when Enable Validation is on) was not signed, so someone who knew a guest volunteer's first name, last name and email could forge it to view and clear that volunteer's signups. The cookie is now HMAC-signed with the site's secret salt and includes a signed expiration time, and is verified wherever it is read. Guest volunteers who are currently validated will need to validate again once after updating. Thanks to the researcher who responsibly reported this issue.
+- Tested with PHP 8.5.10 and WordPress 7.1.4
+
 ### 6.7.1
 - Fix: PHP 8+ fatal error ("Attempt to assign property 'plugin' on bool") in the extension updater class that could occur on the Plugins page when WordPress's plugin dependency check requested plugin information and the update server request failed or returned no usable data. The updater now returns the original value so WordPress can fall back to its normal handling.
 - Fix: Admin task time fields now keep focus after the time picker closes, so pressing Tab moves to the next field instead of jumping to the task modal's close button.
